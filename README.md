@@ -41,6 +41,38 @@ pytest
 
 Optional Docker services are stubbed in `docker-compose.yml` for future PostgreSQL/PostGIS work. Phase 0 does not require Docker.
 
+## Phase 1 Ingest Tools
+
+The first Phase 1 module adds a guarded LOCUS-v1 ingestion contract and master jurisdiction table builder.
+
+Status command:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli status
+```
+
+Blocked-by-default Hugging Face entrypoint:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli ingest-locus
+```
+
+No-op update-cycle stub:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli update-cycle
+```
+
+Local-only master table build from an existing JSON, JSONL, CSV, or Parquet extract:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli build-master \
+  --input data/raw/locus_local_extract.jsonl \
+  --output data/processed/master_jurisdictions.json
+```
+
+The `data/raw/` and `data/processed/` paths are ignored by git. Do not commit LOCUS records or derived tables without an explicit publication review.
+
 ## GitHub Pages
 
 The static companion site lives in `site/` and is deployed by `.github/workflows/pages.yml`.
@@ -55,10 +87,9 @@ GitHub Pages is not the Streamlit application. Pages is for documentation, statu
 
 ## Hugging Face Download One-Liner
 
-Do not run this during Phase 0. It is included for future Phase 1 implementation planning:
+Do not run this unless you are intentionally performing local ingestion and keeping outputs in ignored data paths:
 
 ```python
 from datasets import load_dataset
 dataset = load_dataset("LocalLaws/LOCUS-v1")
 ```
-

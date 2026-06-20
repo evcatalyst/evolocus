@@ -2,7 +2,7 @@
   "project": "EvoLOCUS",
   "completion_model": "phase_checklist",
   "overall_percentage": null,
-  "current_phase": 0,
+  "current_phase": 1,
   "phases": [
     {
       "id": 0,
@@ -20,11 +20,12 @@
     {
       "id": 1,
       "name": "LOCUS-v1 ingestion, jurisdiction table, gap finder, and seed queue",
-      "status": "planned",
-      "completed_items": [],
+      "status": "in_progress",
+      "completed_items": [
+        "Add guarded LOCUS ingestion script without committing downloaded records",
+        "Create master jurisdiction table contract"
+      ],
       "remaining_items": [
-        "Add LOCUS ingestion script without committing downloaded records",
-        "Create master jurisdiction table contract",
         "Build gap analysis script",
         "Seed queue with high-value synthetic or source-backed targets"
       ]
@@ -74,7 +75,11 @@
     "phase_0_real_locus_records_committed": false,
     "phase_0_scrapers_run": false,
     "phase_0_database_created": false,
-    "phase_0_embeddings_created": false
+    "phase_0_embeddings_created": false,
+    "phase_1_real_locus_records_committed": false,
+    "phase_1_hf_download_run": false,
+    "phase_1_master_table_contract": true,
+    "phase_1_database_created": false,
+    "phase_1_embeddings_created": false
   }
 }
-

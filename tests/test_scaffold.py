@@ -18,7 +18,10 @@ REQUIRED_PATHS = [
     "site/assets/styles.css",
     "site/index.html",
     "src/evolocus/__init__.py",
+    "src/evolocus/cli.py",
+    "src/evolocus/locus_ingest.py",
     "tests/test_scaffold.py",
+    "tests/test_locus_ingest.py",
     ".gitignore",
     "AGENTS.md",
     "README.md",
@@ -113,4 +116,3 @@ def test_gitignore_blocks_real_data_artifacts() -> None:
         ".env",
     ]:
         assert pattern in ignore
-
