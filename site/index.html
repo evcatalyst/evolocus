@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EvoLOCUS</title>
+    <meta name="description" content="EvoLOCUS static companion site for a local-first LOCUS enrichment platform.">
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="./">EvoLOCUS</a>
+        <div class="nav-links">
+          <a href="#status">Status</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#preview">Synthetic Preview</a>
+          <a href="#citation">Citation</a>
+        </div>
+      </nav>
+      <section class="hero">
+        <p class="eyebrow">Local-first ordinance intelligence</p>
+        <h1>EvoLOCUS turns local law corpora into reviewed, enriched, geospatial datasets.</h1>
+        <p class="lede">
+          Phase 0 is complete: scaffold, data policy, validation, and a static GitHub Pages companion site.
+          No LOCUS data has been downloaded, scraped, transformed, embedded, or published.
+        </p>
+        <div class="status-strip" aria-label="Phase 0 status summary">
+          <span>Phase 0 complete</span>
+          <span>No real data committed</span>
+          <span>Static site only</span>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section id="status" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Current state</p>
+          <h2>Scaffold ready for review</h2>
+        </div>
+        <div class="metric-grid">
+          <article class="metric-card">
+            <span class="metric-value">0</span>
+            <span class="metric-label">LOCUS records downloaded</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-value">0</span>
+            <span class="metric-label">Scrapers run</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-value">0</span>
+            <span class="metric-label">Databases created</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-value">100%</span>
+            <span class="metric-label">Phase 0 checklist</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="architecture" class="section split">
+        <div>
+          <p class="eyebrow">Architecture</p>
+          <h2>Pages documents the project. Streamlit will run the app.</h2>
+          <p>
+            GitHub Pages serves this static companion site from <code>site/</code>. The future interactive
+            Collection, Informatics, and GeoViz dashboards will run in Streamlit locally or on a Python-capable host.
+          </p>
+        </div>
+        <ol class="flow-list">
+          <li><span>1</span> Ingest LOCUS-v1 into ignored local storage.</li>
+          <li><span>2</span> Enrich with jurisdiction, census, geometry, and embeddings.</li>
+          <li><span>3</span> Review provenance before publication.</li>
+          <li><span>4</span> Publish curated static summaries or exports only after checks pass.</li>
+        </ol>
+      </section>
+
+      <section id="preview" class="section preview-section">
+        <div class="section-heading">
+          <p class="eyebrow">Synthetic preview</p>
+          <h2>Future GeoViz concept</h2>
+          <p>
+            The map-like panel below is synthetic design scaffolding. It is not a map of real LOCUS coverage,
+            scores, laws, jurisdictions, or civic findings.
+          </p>
+        </div>
+        <div class="atlas" role="img" aria-label="Synthetic geospatial dashboard preview with no real data">
+          <div class="synthetic-badge">Synthetic only</div>
+          <div class="map-grid">
+            <span class="tile tile-a"></span>
+            <span class="tile tile-b"></span>
+            <span class="tile tile-c"></span>
+            <span class="tile tile-d"></span>
+            <span class="tile tile-e"></span>
+            <span class="tile tile-f"></span>
+            <span class="tile tile-g"></span>
+            <span class="tile tile-h"></span>
+            <span class="tile tile-i"></span>
+            <span class="city-point p1"></span>
+            <span class="city-point p2"></span>
+            <span class="city-point p3"></span>
+            <span class="city-point p4"></span>
+          </div>
+          <aside class="legend">
+            <h3>Layer concept</h3>
+            <p>County choropleth, city coverage points, score filters, and click-through evidence trails.</p>
+            <ul>
+              <li><span class="swatch high"></span> High synthetic score</li>
+              <li><span class="swatch medium"></span> Medium synthetic score</li>
+              <li><span class="swatch low"></span> Low synthetic score</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section id="citation" class="section citation">
+        <p class="eyebrow">Source citation</p>
+        <h2>LOCUS-v1 reference</h2>
+        <p>
+          Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport.
+          "Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States."
+          arXiv:2606.19334, 2026.
+        </p>
+        <p>
+          Dataset: <a href="https://huggingface.co/datasets/LocalLaws/LOCUS-v1">LocalLaws/LOCUS-v1</a>.
+          Phase 0 records the citation only; it does not redistribute dataset rows.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
+

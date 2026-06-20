@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environments and local config
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Local data artifacts: never commit LOCUS downloads, caches, databases, or embeddings.
+data/raw/
+data/processed/
+data/cache/
+data/exports/
+*.parquet
+*.duckdb
+*.db
+*.sqlite
+*.sqlite3
+*.faiss
+*.pkl
+*.joblib
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.geojson
+
+# Streamlit and notebooks
+.streamlit/secrets.toml
+.ipynb_checkpoints/
+
+# OS/editor/build artifacts
+.DS_Store
+*.log
+site/.build/
+

@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: evolocus-postgis
+    profiles:
+      - postgis
+    environment:
+      POSTGRES_DB: evolocus
+      POSTGRES_USER: evolocus
+      POSTGRES_PASSWORD: evolocus_dev_only
+    ports:
+      - "5432:5432"
+    volumes:
+      - evolocus-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolocus -d evolocus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  evolocus-postgres:
+

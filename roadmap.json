@@ -1,0 +1,80 @@
+{
+  "project": "EvoLOCUS",
+  "completion_model": "phase_checklist",
+  "overall_percentage": null,
+  "current_phase": 0,
+  "phases": [
+    {
+      "id": 0,
+      "name": "Scaffold, public repository, and GitHub Pages",
+      "status": "complete",
+      "completed_items": [
+        "Reviewable project scaffold",
+        "Static GitHub Pages companion site",
+        "Scaffold validation tests",
+        "Standalone git repository",
+        "GitHub Pages workflow definition"
+      ],
+      "remaining_items": []
+    },
+    {
+      "id": 1,
+      "name": "LOCUS-v1 ingestion, jurisdiction table, gap finder, and seed queue",
+      "status": "planned",
+      "completed_items": [],
+      "remaining_items": [
+        "Add LOCUS ingestion script without committing downloaded records",
+        "Create master jurisdiction table contract",
+        "Build gap analysis script",
+        "Seed queue with high-value synthetic or source-backed targets"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Streamlit dashboards",
+      "status": "planned",
+      "completed_items": [],
+      "remaining_items": [
+        "Collection Dashboard",
+        "Informatics Manager",
+        "GeoViz landing page"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Scraper framework and priority engine",
+      "status": "planned",
+      "completed_items": [],
+      "remaining_items": [
+        "Robots and ToS checks",
+        "Rate-limited scraper framework",
+        "Optimize Flow priority engine",
+        "Simulation controls"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Continuous enrichment and exports",
+      "status": "planned",
+      "completed_items": [],
+      "remaining_items": [
+        "Classifier integration",
+        "Enriched Parquet export",
+        "Scheduled update stubs",
+        "Hosted dashboard deployment helpers"
+      ]
+    }
+  ],
+  "source_citation": {
+    "dataset_url": "https://huggingface.co/datasets/LocalLaws/LOCUS-v1",
+    "paper_url": "https://arxiv.org/abs/2606.19334",
+    "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026."
+  },
+  "data_policy": {
+    "phase_0_real_locus_records_committed": false,
+    "phase_0_scrapers_run": false,
+    "phase_0_database_created": false,
+    "phase_0_embeddings_created": false
+  }
+}
+
