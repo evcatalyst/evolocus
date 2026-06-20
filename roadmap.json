@@ -69,7 +69,10 @@
   "source_citation": {
     "dataset_url": "https://huggingface.co/datasets/LocalLaws/LOCUS-v1",
     "paper_url": "https://arxiv.org/abs/2606.19334",
-    "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026."
+    "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
+    "verified_on": "2026-06-20",
+    "arxiv_submitted_on": "2026-06-17",
+    "reported_raw_corpus_jurisdictions": 9239
   },
   "data_policy": {
     "phase_0_real_locus_records_committed": false,

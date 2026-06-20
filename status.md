@@ -46,6 +46,7 @@ Verified LOCUS source:
 - Dataset: https://huggingface.co/datasets/LocalLaws/LOCUS-v1
 - Paper: https://arxiv.org/abs/2606.19334
 - Citation: Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. "Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States." arXiv:2606.19334, 2026.
+- arXiv confirmation: verified from the user-supplied canonical page on 2026-06-20. The page lists submission date 2026-06-17, authors Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport, 9,239 cities/counties in the raw corpus, and Hugging Face availability for LOCUS-v1 and derivative models.
 
 Beautiful next visualization idea:
 
@@ -58,3 +59,4 @@ Latest update:
 - Added `update-cycle` CLI stub that reports safe next steps without downloads or scrapers.
 - Added tests using synthetic LOCUS-like records only.
 - Did not download LOCUS-v1, run scrapers, create databases, or create embeddings.
+- Recorded the canonical arXiv source page supplied by the user: https://arxiv.org/abs/2606.19334.
