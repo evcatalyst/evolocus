@@ -43,5 +43,6 @@ data/exports/
 
 # OS/editor/build artifacts
 .DS_Store
+xcrun_db
 *.log
 site/.build/

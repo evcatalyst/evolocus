@@ -701,6 +701,68 @@ textarea {
   font-weight: 750;
 }
 
+.geo-color-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  margin-bottom: 12px;
+  padding: 10px;
+}
+
+.geo-color-control > span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.geo-color-button.active {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #ffffff;
+}
+
+.geo-color-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.geo-color-legend span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 6px 9px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.geo-color-legend i {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.geo-color-legend em {
+  color: var(--ink);
+  font-style: normal;
+}
+
+.geo-color-legend .geo-gradient i {
+  width: 70px;
+  background: linear-gradient(90deg, #f3ead2, #2f756b);
+}
+
 #county-choropleth {
   width: 100%;
   min-height: 420px;

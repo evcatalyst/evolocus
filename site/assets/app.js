@@ -27,6 +27,22 @@ const SCORE_OPTIONS = [
 const TOPICS = ["Buildings", "Business", "Nuisance", "Zoning", "Other"];
 const FUNCTIONS = ["Context", "Rules", "Process", "Enforcement"];
 const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
+const TOPIC_COLORS = {
+  Buildings: "#5f7fc8",
+  Business: "#8d6aa8",
+  Nuisance: "#c27b4f",
+  Zoning: "#2f756b",
+  Other: "#77808f",
+  Not_applicable: "#d8dee8",
+  Unknown: "#d8dee8",
+};
+const FUNCTION_COLORS = {
+  Context: "#7a8aa0",
+  Rules: "#326f70",
+  Process: "#b7892c",
+  Enforcement: "#b35a55",
+  Unknown: "#d8dee8",
+};
 
 const syntheticRecords = [
   {
@@ -202,6 +218,7 @@ let state = {
   explorerPageSize: 8,
   selectedUnitId: null,
   disclosureLevel: "overview",
+  geographyColorMode: "tier",
   mapFilters: {
     state: "",
     topic: "",
@@ -467,6 +484,7 @@ function renderMap() {
   renderSelectedUnit();
   renderPublicationGates();
   renderDisclosureButtons();
+  renderGeoColorButtons();
 }
 
 function renderCountyChoropleth(units) {
@@ -475,13 +493,15 @@ function renderCountyChoropleth(units) {
   const summary = $("#county-layer-summary");
   const svg = $("#county-choropleth");
   const detail = $("#county-layer-detail");
-  if (!summary || !svg || !detail) {
+  const legend = $("#geo-color-legend");
+  if (!summary || !svg || !detail || !legend) {
     return;
   }
   if (!artifact) {
     summary.innerHTML = "<span>Official geography loading</span>";
     svg.innerHTML = "";
     detail.innerHTML = "<p>Official geography artifacts have not loaded yet.</p>";
+    legend.innerHTML = "";
     return;
   }
   const visibleCountyIds = new Set(units.filter((unit) => unit.kind === "county").map((unit) => unit.unit_id));
@@ -496,16 +516,20 @@ function renderCountyChoropleth(units) {
     <span>${escapeHtml(formatCount(municipalPoints.length))} visible municipal points</span>
     <span>${escapeHtml(formatCount(artifact.matched_count || allFeatures.length))}/${escapeHtml(formatCount(artifact.county_unit_count || allFeatures.length))} matched</span>
     <span>${escapeHtml(formatCount(municipalArtifact?.matched_count || 0))}/${escapeHtml(formatCount(municipalArtifact?.municipal_unit_count || 0))} municipal matched</span>
+    <span>color: ${escapeHtml(geographyColorLabel(state.geographyColorMode))}</span>
     <span>${escapeHtml(artifact.geometry_status || "geometry status unknown")}</span>
   `;
   svg.setAttribute("viewBox", "0 0 960 560");
   if (!features.length && !municipalPoints.length) {
     svg.innerHTML = `<text x="32" y="54">No matched county polygons or municipal points under the current filters.</text>`;
     detail.innerHTML = "<p>No official geography matches the active filters. Clear filters or select matched county/municipal units.</p>";
+    legend.innerHTML = "";
     return;
   }
   const bounds = geoBounds(features, municipalPoints);
-  svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds)).join("")}${municipalPoints.map((point) => municipalPointSvg(point, bounds)).join("")}`;
+  const colorContext = geographyColorContext(features, municipalPoints);
+  legend.innerHTML = geographyColorLegend(colorContext);
+  svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds, colorContext)).join("")}${municipalPoints.map((point) => municipalPointSvg(point, bounds, colorContext)).join("")}`;
   const selectedPoint = municipalPoints.find((point) => point.unit_id === state.selectedUnitId);
   const selectedFeature = features.find((feature) => feature.properties?.unit_id === state.selectedUnitId);
   if (selectedPoint) {
@@ -517,16 +541,17 @@ function renderCountyChoropleth(units) {
   }
 }
 
-function countyFeatureSvg(feature, bounds) {
+function countyFeatureSvg(feature, bounds, colorContext) {
   const properties = feature.properties || {};
   const d = geometryPath(feature.geometry, bounds);
   const selected = properties.unit_id === state.selectedUnitId ? " selected" : "";
+  const fill = geographyDatumColor(properties, colorContext);
   return `
     <path
       class="county-feature${selected}"
       data-unit-id="${escapeHtml(properties.unit_id)}"
       d="${d}"
-      fill="${escapeHtml(properties.tier_color || "#d8dee8")}"
+      fill="${escapeHtml(fill)}"
       tabindex="0"
     >
       <title>${escapeHtml(properties.census_name || properties.unit_name)} · ${escapeHtml(properties.tier_label || "No tier")} · ${escapeHtml(formatCount(properties.law_count))} laws</title>
@@ -555,11 +580,12 @@ function renderCountyGeometryDetail(feature, artifact) {
   `;
 }
 
-function municipalPointSvg(point, bounds) {
+function municipalPointSvg(point, bounds, colorContext) {
   const [x, y] = projectLonLat(point.lon, point.lat, bounds);
   const selected = point.unit_id === state.selectedUnitId ? " selected" : "";
   const lawCount = Math.max(0, Number(point.law_count || 0));
   const radius = 3.2 + Math.min(4.8, Math.log10(lawCount + 1) * 0.95);
+  const fill = geographyDatumColor(point, colorContext);
   return `
     <circle
       class="municipal-point${selected}"
@@ -567,7 +593,7 @@ function municipalPointSvg(point, bounds) {
       cx="${x.toFixed(2)}"
       cy="${y.toFixed(2)}"
       r="${radius.toFixed(2)}"
-      fill="${escapeHtml(point.tier_color || "#d8dee8")}"
+      fill="${escapeHtml(fill)}"
       tabindex="0"
     >
       <title>${escapeHtml(point.census_name || point.unit_name)} · ${escapeHtml(point.tier_label || "No tier")} · ${escapeHtml(formatCount(point.law_count))} laws</title>
@@ -594,6 +620,118 @@ function renderMunicipalPointDetail(point, artifact) {
         : `<p class="muted-note">Switch to Evidence trail to reveal municipal point source and match-status details.</p>`
     }
   `;
+}
+
+function geographyColorContext(features, municipalPoints) {
+  const data = [
+    ...features.map((feature) => feature.properties || {}),
+    ...municipalPoints,
+  ];
+  const maxLawCount = Math.max(1, ...data.map((item) => Number(item.law_count || 0)));
+  return {
+    mode: state.geographyColorMode,
+    data,
+    maxLawCount,
+    tierDefinitions: state.analysis.mapLayers?.tier_definitions || {},
+  };
+}
+
+function geographyDatumColor(datum, context) {
+  if (context.mode === "topic") {
+    return TOPIC_COLORS[datum.dominant_topic] || TOPIC_COLORS.Unknown;
+  }
+  if (context.mode === "function") {
+    return FUNCTION_COLORS[datum.dominant_function] || FUNCTION_COLORS.Unknown;
+  }
+  if (context.mode === "law_count") {
+    return lawCountColor(datum.law_count, context.maxLawCount);
+  }
+  return datum.tier_color || context.tierDefinitions?.[datum.tier]?.color || "#d8dee8";
+}
+
+function geographyColorLegend(context) {
+  if (context.mode === "law_count") {
+    return `
+      <span class="geo-gradient"><i></i>Low to high law-count intensity</span>
+      <span>Max visible: ${escapeHtml(formatCount(context.maxLawCount))} law records</span>
+      <span>Point size also scales by law count</span>
+    `;
+  }
+  const rows = geographyLegendRows(context);
+  return rows
+    .map(
+      (row) => `
+        <span><i style="background:${escapeHtml(row.color)}"></i>${escapeHtml(row.label)} <em>${escapeHtml(formatCount(row.count))}</em></span>
+      `,
+    )
+    .join("");
+}
+
+function geographyLegendRows(context) {
+  const counts = {};
+  for (const item of context.data) {
+    const label = geographyLegendLabel(item, context.mode);
+    counts[label] = (counts[label] || 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([label, count]) => ({
+      label,
+      count,
+      color: geographyLegendColor(label, context),
+    }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+function geographyLegendLabel(item, mode) {
+  if (mode === "topic") {
+    return item.dominant_topic || "Unknown";
+  }
+  if (mode === "function") {
+    return item.dominant_function || "Unknown";
+  }
+  return item.tier_label || item.tier || "No tier";
+}
+
+function geographyLegendColor(label, context) {
+  if (context.mode === "topic") {
+    return TOPIC_COLORS[label] || TOPIC_COLORS.Unknown;
+  }
+  if (context.mode === "function") {
+    return FUNCTION_COLORS[label] || FUNCTION_COLORS.Unknown;
+  }
+  const tierEntry = Object.values(context.tierDefinitions).find((definition) => definition.label === label);
+  if (tierEntry) {
+    return tierEntry.color;
+  }
+  const datum = context.data.find((item) => (item.tier_label || item.tier || "No tier") === label);
+  return datum?.tier_color || "#d8dee8";
+}
+
+function geographyColorLabel(mode) {
+  const labels = {
+    tier: "neutral tier",
+    topic: "dominant topic",
+    function: "dominant function",
+    law_count: "law-count intensity",
+  };
+  return labels[mode] || labels.tier;
+}
+
+function lawCountColor(value, maxValue) {
+  const ratio = Math.log10(Number(value || 0) + 1) / Math.log10(Number(maxValue || 1) + 1);
+  return interpolateColor("#f3ead2", "#2f756b", Math.max(0, Math.min(1, ratio)));
+}
+
+function interpolateColor(start, end, ratio) {
+  const first = hexToRgb(start);
+  const second = hexToRgb(end);
+  const mixed = first.map((channel, index) => Math.round(channel + (second[index] - channel) * ratio));
+  return `#${mixed.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function hexToRgb(hex) {
+  const value = hex.replace("#", "");
+  return [0, 2, 4].map((index) => parseInt(value.slice(index, index + 2), 16));
 }
 
 function geometryPath(geometry, bounds) {
@@ -1207,6 +1345,12 @@ function renderPublicationGates() {
 function renderDisclosureButtons() {
   $all(".disclosure-button").forEach((button) => {
     button.classList.toggle("active", button.dataset.disclosure === state.disclosureLevel);
+  });
+}
+
+function renderGeoColorButtons() {
+  $all(".geo-color-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.geoColor === state.geographyColorMode);
   });
 }
 
@@ -2150,6 +2294,12 @@ function bindEvents() {
     button.addEventListener("click", () => {
       state.disclosureLevel = button.dataset.disclosure;
       render();
+    });
+  });
+  $all(".geo-color-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.geographyColorMode = button.dataset.geoColor || "tier";
+      renderMap();
     });
   });
   $("#inquiry-form").addEventListener("submit", submitInquiry);

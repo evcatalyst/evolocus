@@ -158,6 +158,16 @@
             </div>
             <div id="county-layer-summary" class="county-layer-summary"></div>
           </div>
+          <div class="geo-color-control" aria-label="Official geography color mode">
+            <span>Color by</span>
+            <div class="segmented" role="group" aria-label="Geography color mode">
+              <button class="geo-color-button active" type="button" data-geo-color="tier">Tier</button>
+              <button class="geo-color-button" type="button" data-geo-color="topic">Topic</button>
+              <button class="geo-color-button" type="button" data-geo-color="function">Function</button>
+              <button class="geo-color-button" type="button" data-geo-color="law_count">Law count</button>
+            </div>
+          </div>
+          <div id="geo-color-legend" class="geo-color-legend"></div>
           <svg id="county-choropleth" viewBox="0 0 960 560" role="img" aria-label="County and municipal aggregate map"></svg>
           <div id="county-layer-detail" class="county-layer-detail" aria-live="polite"></div>
         </section>

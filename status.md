@@ -114,6 +114,7 @@ Latest update:
 - Added a Charts-tab county/town aggregate coverage atlas by state, source-unit type, neutral tier, law count, and top topic.
 - Added an official Census TIGERweb county choropleth layer for all 177 aggregate county units, with machine-match pending-review labeling and no raw LOCUS text.
 - Added an official Census TIGERweb municipal/town point layer for 815 matched aggregate municipal units, with 8 unmatched units left explicit rather than guessed.
+- Added official geography color modes for neutral tier, dominant topic, dominant function, and law-count intensity.
 
 Evaluator implementation state:
 

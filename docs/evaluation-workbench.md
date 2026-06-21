@@ -12,6 +12,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - law map with state-clustered county/town-style units colored by neutral tier;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
+- geography color modes for neutral tier, dominant topic, dominant function, and law-count intensity;
 - map filters for state, topic, function, tier, and minimum law count;
 - filtered-view aggregate insight cards and inquiry answers;
 - filtered-vs-full aggregate comparison panels;
