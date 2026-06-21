@@ -4342,6 +4342,7 @@ function renderInquiry() {
     `
     : "<span>Inquiry briefings loading</span>";
   renderInquiryContext();
+  renderInquiryPathways();
   renderInquiryMatrix();
   $("#suggested-questions").innerHTML = suggested
     .map((question) => `<button type="button" data-question="${escapeHtml(question)}">${escapeHtml(question)}</button>`)
@@ -4405,6 +4406,129 @@ function renderInquiryMatrix() {
       `,
     )
     .join("");
+}
+
+function renderInquiryPathways() {
+  const grid = $("#inquiry-pathway-grid");
+  const summaryTarget = $("#inquiry-pathway-summary");
+  if (!grid || !summaryTarget) {
+    return;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    summaryTarget.textContent = "Loading aggregate layer";
+    grid.innerHTML = `<article class="inquiry-pathway-empty"><strong>Pathways loading.</strong><p>Aggregate map artifacts are not ready yet.</p></article>`;
+    return;
+  }
+  const visibleUnits = filterMapUnits(mapLayers.units || []);
+  const rows = inquiryPathwayRows(visibleUnits);
+  const rowLimit = state.disclosureLevel === "evidence" ? 12 : state.disclosureLevel === "unit" ? 9 : 6;
+  const maxLawCount = Math.max(1, ...rows.map((row) => Number(row.lawCount || 0)));
+  const maxUnitCount = Math.max(1, ...rows.map((row) => Number(row.unitCount || 0)));
+  summaryTarget.textContent = `${formatCount(rows.length)} cells · ${formatCount(visibleUnits.length)} visible units`;
+  grid.innerHTML = rows.length
+    ? rows.slice(0, rowLimit).map((row) => inquiryPathwayCardHtml(row, maxLawCount, maxUnitCount)).join("")
+    : `<article class="inquiry-pathway-empty"><strong>No topic/tier cells match this view.</strong><p>Adjust map filters to restore aggregate pathways.</p></article>`;
+}
+
+function inquiryPathwayRows(units) {
+  const tierDefinitions = state.analysis.mapLayers?.tier_definitions || {};
+  const grouped = new Map();
+  for (const unit of units) {
+    const topic = unit.dominant_topic && unit.dominant_topic !== "Not available" ? String(unit.dominant_topic) : "";
+    const tierKey = unit.tier || tierKeyForLabel(unit.tier_label, tierDefinitions) || "";
+    const tierDefinition = tierDefinitionForKey(tierKey);
+    const key = `${topic || "no-topic"}::${tierKey || unit.tier_label || "no-tier"}`;
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        key,
+        topic,
+        topicLabel: topic || "No dominant topic",
+        tierKey,
+        tierLabel: tierDefinition.label || unit.tier_label || tierKey || "No neutral tier",
+        tierColor: tierDefinition.color || unit.tier_color || "#d8dee8",
+        unitCount: 0,
+        lawCount: 0,
+        states: new Set(),
+        kinds: {},
+        topUnits: [],
+      });
+    }
+    const row = grouped.get(key);
+    row.unitCount += 1;
+    row.lawCount += Number(unit.law_count || 0);
+    if (unit.state) {
+      row.states.add(unit.state);
+    }
+    const kind = normalizePackageKind(unit.kind || "") || "unknown";
+    row.kinds[kind] = (row.kinds[kind] || 0) + 1;
+    row.topUnits.push(unit);
+  }
+  return [...grouped.values()]
+    .map((row) => ({
+      ...row,
+      topUnits: row.topUnits.sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0)).slice(0, 3),
+      topKind: topEntry(row.kinds),
+    }))
+    .sort((a, b) => b.lawCount - a.lawCount || b.unitCount - a.unitCount || a.topicLabel.localeCompare(b.topicLabel));
+}
+
+function inquiryPathwayCardHtml(row, maxLawCount, maxUnitCount) {
+  const stateList = [...row.states].sort().slice(0, 5);
+  const moreStates = row.states.size > stateList.length ? ` +${row.states.size - stateList.length}` : "";
+  const unitPreview = row.topUnits.map((unit) => displayUnitName(unit)).join(" · ") || "No units";
+  const question = inquiryPathwayQuestion(row);
+  return `
+    <article class="inquiry-pathway-cell">
+      <div class="inquiry-pathway-cell-heading">
+        <span>${escapeHtml(row.topicLabel)}</span>
+        <i style="background:${escapeHtml(row.tierColor)}"></i>
+        <strong>${escapeHtml(row.tierLabel)}</strong>
+      </div>
+      <div class="inquiry-pathway-bars" aria-label="Aggregate law rows and visible unit count">
+        <span><b style="width:${escapeHtml(inquiryPathwayWidth(row.lawCount, maxLawCount))}%"></b><em>${escapeHtml(formatCount(row.lawCount))} rows</em></span>
+        <span><b style="width:${escapeHtml(inquiryPathwayWidth(row.unitCount, maxUnitCount))}%"></b><em>${escapeHtml(formatCount(row.unitCount))} units</em></span>
+      </div>
+      <p>${escapeHtml(stateList.join(", ") || "No state")} ${escapeHtml(moreStates)} · ${escapeHtml(row.topKind.label || "mixed")} source units</p>
+      <em>${escapeHtml(unitPreview)}</em>
+      <div class="inquiry-pathway-actions">
+        <button type="button" data-inquiry-pathway-ask data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}" data-pathway-question="${escapeHtml(question)}">Ask this pathway</button>
+        <button type="button" data-inquiry-pathway-map data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}">Open on map</button>
+      </div>
+    </article>
+  `;
+}
+
+function inquiryPathwayWidth(value, max) {
+  return Math.max(value ? 5 : 0, (Number(value || 0) / max) * 100).toFixed(2);
+}
+
+function inquiryPathwayQuestion(row) {
+  const topicClause = row.topic ? `${row.topic} laws` : "laws without a dominant topic";
+  const tierClause = row.tierLabel || "the selected neutral tier";
+  return `What does the current filtered map view show for ${topicClause} in ${tierClause} units?`;
+}
+
+function applyInquiryPathway(topic, tier, question, destination) {
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: topic || "",
+    tier: tier || "",
+  };
+  state.selectedUnitId = null;
+  if (destination === "map") {
+    state.activeTab = "map";
+    render();
+    return;
+  }
+  const prompt = question || "What does the current filtered map view show?";
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = prompt;
+  }
+  answerAndLogInquiry(prompt, "topic-tier pathway");
+  state.activeTab = "inquiry";
+  render();
 }
 
 function inquiryPromptCards() {
@@ -8094,6 +8218,28 @@ function bindEvents() {
     if (statusButton) {
       event.preventDefault();
       openAnalysisStatusTab();
+      return;
+    }
+    const pathwayAskButton = event.target.closest("[data-inquiry-pathway-ask]");
+    if (pathwayAskButton) {
+      event.preventDefault();
+      applyInquiryPathway(
+        pathwayAskButton.dataset.pathwayTopic || "",
+        pathwayAskButton.dataset.pathwayTier || "",
+        pathwayAskButton.dataset.pathwayQuestion || "",
+        "inquiry",
+      );
+      return;
+    }
+    const pathwayMapButton = event.target.closest("[data-inquiry-pathway-map]");
+    if (pathwayMapButton) {
+      event.preventDefault();
+      applyInquiryPathway(
+        pathwayMapButton.dataset.pathwayTopic || "",
+        pathwayMapButton.dataset.pathwayTier || "",
+        "",
+        "map",
+      );
       return;
     }
     const replayButton = event.target.closest("[data-replay-inquiry-log]");

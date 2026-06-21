@@ -125,6 +125,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-request-command" in html
     assert "package-request-preview" in html
     assert "Question matrix" in html
+    assert "Topic and tier question pathways" in html
+    assert "inquiry-pathway-grid" in html
     assert "selected-ontology-neighborhood" in html
     assert "ontology-tier-focus" in html
     assert "ontology-query-presets" in html
@@ -249,6 +251,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitAnswer" in js
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js
+    assert "renderInquiryPathways" in js
+    assert "inquiryPathwayRows" in js
+    assert "inquiryPathwayCardHtml" in js
+    assert "applyInquiryPathway" in js
+    assert "data-inquiry-pathway-ask" in js
+    assert "data-inquiry-pathway-map" in js
+    assert "Ask this pathway" in js
+    assert "Open on map" in js
     assert "renderMapReadingGuide" in js
     assert "renderMapInlineInquiry" in js
     assert "mapInlineInquiryPrompts" in js
@@ -459,6 +469,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "score-state-row" in css
     assert "score-unit-row" in css
     assert "inquiry-context-grid" in css
+    assert "inquiry-pathway-card" in css
+    assert "inquiry-pathway-grid" in css
+    assert "inquiry-pathway-cell" in css
+    assert "inquiry-pathway-actions" in css
     assert "inquiry-question-matrix" in css
     assert "inquiry-results-log-card" in css
     assert "inquiry-log-entry" in css

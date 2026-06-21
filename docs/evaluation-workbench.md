@@ -45,6 +45,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - static progressive inquiry briefings over published aggregate artifacts;
 - static filter-aware question pack over published aggregate artifacts;
 - Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
+- Inquiry topic/tier pathway chart that groups current aggregate units into visual question cells and safe map actions;
 - package-aware inquiry answer for browser-local package coverage, map matches, workflow progress, and publication boundaries;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - map-side law-location tier guide with active filters, visible county/town counts, neutral tier mix, and publication boundary copy;

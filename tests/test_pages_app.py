@@ -24,6 +24,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
     assert "Question matrix" in html
+    assert "Topic and tier question pathways" in html
+    assert "inquiry-pathway-grid" in html
     assert "Aggregate inquiry results log" in html
     assert "inquiry-results-log" in html
     assert "package-map-summary" in html
@@ -164,6 +166,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "matchInquiryBriefing" in js
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js
+    assert "renderInquiryPathways" in js
+    assert "inquiryPathwayRows" in js
+    assert "inquiryPathwayCardHtml" in js
+    assert "applyInquiryPathway" in js
+    assert "data-inquiry-pathway-ask" in js
+    assert "data-inquiry-pathway-map" in js
+    assert "Ask this pathway" in js
+    assert "Open on map" in js
     assert "packageInquiryAnswer" in js
     assert "What does the loaded package show on the map?" in js
     assert "Package evidence boundary" in js
@@ -206,6 +216,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-inline-inquiry-history" in css
     assert "inquiry-results-log-card" in css
     assert "inquiry-log-entry" in css
+    assert "inquiry-pathway-card" in css
+    assert "inquiry-pathway-grid" in css
+    assert "inquiry-pathway-cell" in css
+    assert "inquiry-pathway-actions" in css
     assert "inquiry-log-actions" in css
     assert "inquiry-log-entry.active" in css
     assert "map-inline-history-row" in css

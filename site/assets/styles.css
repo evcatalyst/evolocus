@@ -3666,7 +3666,8 @@ legend {
 }
 
 .inquiry-context-card,
-.inquiry-matrix-card {
+.inquiry-matrix-card,
+.inquiry-pathway-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -3690,8 +3691,98 @@ legend {
   overflow-wrap: anywhere;
 }
 
-.inquiry-matrix-card {
+.inquiry-matrix-card,
+.inquiry-pathway-card {
   margin-bottom: 14px;
+}
+
+.inquiry-pathway-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.inquiry-pathway-cell,
+.inquiry-pathway-empty {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.inquiry-pathway-cell-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 12px;
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.inquiry-pathway-cell-heading span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-pathway-cell-heading i {
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(14, 28, 40, 0.16);
+  border-radius: 50%;
+}
+
+.inquiry-pathway-cell-heading strong {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-pathway-bars {
+  display: grid;
+  gap: 6px;
+}
+
+.inquiry-pathway-bars span {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.inquiry-pathway-bars b {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+.inquiry-pathway-bars em,
+.inquiry-pathway-cell p,
+.inquiry-pathway-cell > em,
+.inquiry-pathway-empty p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-style: normal;
+  margin: 0;
+}
+
+.inquiry-pathway-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inquiry-pathway-actions button {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.inquiry-pathway-actions button:hover,
+.inquiry-pathway-actions button:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
 }
 
 .inquiry-question-matrix {
@@ -4370,6 +4461,7 @@ th {
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,
+  .inquiry-pathway-grid,
   .inquiry-question-matrix,
   .review-layout,
   .map-layout,
@@ -4470,6 +4562,7 @@ th {
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,
+  .inquiry-pathway-grid,
   .inquiry-question-matrix,
   .review-layout,
   .map-layout,

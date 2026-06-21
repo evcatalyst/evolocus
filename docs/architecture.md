@@ -35,6 +35,7 @@ flowchart LR
 - The Walkthrough tab orchestrates the public map, inquiry, ontology, queue planning, and snapshots into a guided real-aggregate demo flow without adding a separate data publication channel.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
+- Inquiry pathway cells group current aggregate map units by dominant topic and neutral tier, then apply safe filters or deterministic aggregate questions without exposing rows.
 - Inquiry results are logged in browser localStorage as aggregate answer summaries with filter context, artifact timestamps, and explicit no-text/no-locator/no-review-event policy flags.
 - Saved inquiry results can replay only safe browser state: map filters, disclosure depth, and selected aggregate unit IDs. Replay does not create row-level evidence or call a model.
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
