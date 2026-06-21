@@ -226,6 +226,12 @@
               <button class="geo-color-button" type="button" data-geo-color="law_count">Law count</button>
             </div>
           </div>
+          <div class="geo-layer-control" aria-label="Official geography visible layers">
+            <span>Layers</span>
+            <label><input type="checkbox" data-geo-layer="counties" checked> Counties</label>
+            <label><input type="checkbox" data-geo-layer="municipalities" checked> Town points</label>
+            <label><input type="checkbox" data-geo-layer="ontology"> Ontology links</label>
+          </div>
           <div id="geo-color-legend" class="geo-color-legend"></div>
           <svg id="county-choropleth" viewBox="0 0 960 560" role="img" aria-label="County and municipal aggregate map"></svg>
           <div id="county-layer-detail" class="county-layer-detail" aria-live="polite"></div>

@@ -91,6 +91,7 @@ Current coverage stats:
 - Unit audit-quality counts: 55,816 medium/high OCR-review rows, 29,194 duplicate text-hash rows, max audit attention 30.88/100
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
+- Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
 - Tier-to-ontology clickthrough: GitHub Pages tier chips open a focused ontology card with visible units, topic/function links, neutral score means, and current filter context
 - Tier-focus mini charts: GitHub Pages ontology focus cards show aggregate topic mix, function mix, unit type mix, and neutral score means for the active tier
@@ -196,6 +197,7 @@ Latest update:
 - Added browser-local map inquiry history snapshots for aggregate answers, filters, selected unit context, package counts, and comparison rows.
 - Added tier mini-chart drilldown filters that return from ontology context to the map with topic, function, or unit type applied.
 - Added neutral score-band drilldowns from ontology score mini charts back into the map filters.
+- Added official geography layer toggles for county polygons, town points, and progressive aggregate ontology peer links.
 - Added aggregate-only map inquiry history export with sanitized entries and explicit no-text/no-locator/no-review-event policy metadata.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.

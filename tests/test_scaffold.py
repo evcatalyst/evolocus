@@ -143,6 +143,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Low relative band" in html
     assert "Middle relative band" in html
     assert "High relative band" in html
+    assert "Official geography visible layers" in html
+    assert 'data-geo-layer="counties"' in html
+    assert 'data-geo-layer="municipalities"' in html
+    assert 'data-geo-layer="ontology"' in html
     assert "package-map-summary" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
@@ -285,6 +289,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "form.elements.score_field" in js
     assert "scoreBandForUnit" in js
     assert "scoreBandLabel" in js
+    assert "defaultGeographyLayers" in js
+    assert "renderGeoLayerControls" in js
+    assert "activeGeographyLayerLabels" in js
+    assert "geographyOntologyLinksSvg" in js
+    assert "geographyOntologyLinkRows" in js
+    assert "geographyPositionIndex" in js
+    assert "geometryCentroid" in js
+    assert "geography_layers" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "inquiryPromptCards" in js
@@ -440,6 +452,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "auditGateSummary" in js
     assert "auditOcrBarsHtml" in js
     assert "audit-risk-bars" in css
+    assert "geo-layer-control" in css
+    assert "geography-ontology-link" in css
+    assert "geography-ontology-detail" in css
     assert "publication_gates" in js
     assert "stateSummaries" in js
     assert "api.x.ai" not in js

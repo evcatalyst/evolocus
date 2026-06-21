@@ -35,6 +35,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Score band" in html
     assert 'name="score_band"' in html
     assert "High relative band" in html
+    assert "Official geography visible layers" in html
+    assert 'data-geo-layer="counties"' in html
+    assert 'data-geo-layer="municipalities"' in html
+    assert 'data-geo-layer="ontology"' in html
     assert "Imported package units" in html
     assert "Load Demo Package" in html
     assert "localStorage" in js
@@ -117,6 +121,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "form.elements.score_field" in js
     assert "scoreBandForUnit" in js
     assert "scoreBandLabel" in js
+    assert "defaultGeographyLayers" in js
+    assert "renderGeoLayerControls" in js
+    assert "activeGeographyLayerLabels" in js
+    assert "geographyOntologyLinksSvg" in js
+    assert "geographyOntologyLinkRows" in js
+    assert "geographyPositionIndex" in js
+    assert "geometryCentroid" in js
+    assert "geography_layers" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "renderWalkthrough" in js
@@ -188,6 +200,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "loadSnapshotView" in js
     assert "auditGateSummary" in js
     assert "auditOcrBarsHtml" in js
+    assert "geo-layer-control" in css
+    assert "geography-ontology-link" in css
+    assert "geography-ontology-detail" in css
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js
     assert "Grok_api_key" not in js

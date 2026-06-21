@@ -227,6 +227,7 @@ let state = {
   selectedUnitId: null,
   disclosureLevel: "overview",
   geographyColorMode: "tier",
+  geographyLayers: defaultGeographyLayers(),
   mapInlineInquiry: "view",
   ontologyFocusTier: "",
   mapFilters: {
@@ -622,6 +623,12 @@ function renderMap() {
   renderMapInsights(units, allUnits);
   renderMapComparisons(units, allUnits);
   renderPackageMapSummary(packageStats, units);
+  if (state.selectedUnitId && !units.some((unit) => unit.unit_id === state.selectedUnitId)) {
+    state.selectedUnitId = null;
+  }
+  if (!state.selectedUnitId && units.length) {
+    state.selectedUnitId = units[0].unit_id;
+  }
   renderCountyChoropleth(units, packageStats);
   renderMapReadingGuide(units, allUnits, mapLayers, packageStats);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
@@ -635,12 +642,6 @@ function renderMap() {
     )
     .join("");
 
-  if (state.selectedUnitId && !units.some((unit) => unit.unit_id === state.selectedUnitId)) {
-    state.selectedUnitId = null;
-  }
-  if (!state.selectedUnitId && units.length) {
-    state.selectedUnitId = units[0].unit_id;
-  }
   renderMapInlineInquiry();
 
   const visibleStates = new Set(units.map((unit) => unit.state).filter(Boolean));
@@ -669,6 +670,7 @@ function renderMap() {
   renderPublicationGates();
   renderDisclosureButtons();
   renderGeoColorButtons();
+  renderGeoLayerControls();
 }
 
 function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
@@ -678,6 +680,7 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
   const filterLabels = activeFilterLabels();
   const countyCount = units.filter((unit) => unit.kind === "county").length;
   const municipalCount = units.filter((unit) => unit.kind === "city").length;
+  const layerLabels = activeGeographyLayerLabels().join(" + ") || "No official geography layers";
   const packageVisible = packageStats.imported
     ? [...packageStats.units.values()].filter((hit) => units.some((unit) => unit.unit_id === hit.unitId)).length
     : 0;
@@ -715,6 +718,7 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
       <div class="map-reading-guide-metrics">
         <span><strong>${escapeHtml(formatCount(countyCount))}</strong><em>county units</em></span>
         <span><strong>${escapeHtml(formatCount(municipalCount))}</strong><em>town/city units</em></span>
+        <span><strong>${escapeHtml(layerLabels)}</strong><em>visible geography layers</em></span>
         <span><strong>${escapeHtml(geographyColorLabel(state.geographyColorMode))}</strong><em>geography color mode</em></span>
         <span><strong>${escapeHtml(disclosure)}</strong><em>disclosure level</em></span>
         ${packageStats.imported ? `<span><strong>${escapeHtml(formatCount(packageVisible))}</strong><em>visible package units</em></span>` : ""}
@@ -1029,6 +1033,7 @@ function currentMapInquiryHistoryItem() {
     answer_summary: answer.answer || "",
     disclosure_level: state.disclosureLevel,
     geography_color_mode: state.geographyColorMode,
+    geography_layers: { ...state.geographyLayers },
     filters: {
       ...state.mapFilters,
       active_labels: activeFilterLabels(),
@@ -1079,6 +1084,7 @@ function loadMapInquiryHistoryItem(itemId) {
   state.mapInlineInquiry = item.prompt_key || "view";
   state.disclosureLevel = item.disclosure_level || state.disclosureLevel;
   state.geographyColorMode = item.geography_color_mode || state.geographyColorMode;
+  state.geographyLayers = { ...defaultGeographyLayers(), ...(item.geography_layers || {}) };
   state.mapFilters = {
     ...state.mapFilters,
     ...(item.filters || {}),
@@ -1301,6 +1307,7 @@ function packageMapHitPill(hit) {
 function renderCountyChoropleth(units, packageStats = importedPackageMapStats()) {
   const artifact = state.analysis.countyGeometry;
   const municipalArtifact = state.analysis.municipalPoints;
+  const layers = { ...defaultGeographyLayers(), ...state.geographyLayers };
   const summary = $("#county-layer-summary");
   const svg = $("#county-choropleth");
   const detail = $("#county-layer-detail");
@@ -1317,14 +1324,18 @@ function renderCountyChoropleth(units, packageStats = importedPackageMapStats())
   }
   const visibleCountyIds = new Set(units.filter((unit) => unit.kind === "county").map((unit) => unit.unit_id));
   const visibleMunicipalIds = new Set(units.filter((unit) => unit.kind === "city").map((unit) => unit.unit_id));
-  const features = (artifact.feature_collection?.features || []).filter((feature) =>
+  const allFeatures = artifact.feature_collection?.features || [];
+  const visibleFeatures = allFeatures.filter((feature) =>
     visibleCountyIds.has(feature.properties?.unit_id),
   );
-  const municipalPoints = (municipalArtifact?.points || []).filter((point) => visibleMunicipalIds.has(point.unit_id));
-  const allFeatures = artifact.feature_collection?.features || [];
+  const visibleMunicipalPoints = (municipalArtifact?.points || []).filter((point) => visibleMunicipalIds.has(point.unit_id));
+  const features = layers.counties ? visibleFeatures : [];
+  const municipalPoints = layers.municipalities ? visibleMunicipalPoints : [];
+  const ontologyLinkCount = layers.ontology && state.disclosureLevel !== "overview" ? geographyOntologyLinkRows(features, municipalPoints).length : 0;
   summary.innerHTML = `
-    <span>${escapeHtml(formatCount(features.length))} visible counties</span>
-    <span>${escapeHtml(formatCount(municipalPoints.length))} visible municipal points</span>
+    <span>${escapeHtml(formatCount(features.length))}/${escapeHtml(formatCount(visibleFeatures.length))} counties shown</span>
+    <span>${escapeHtml(formatCount(municipalPoints.length))}/${escapeHtml(formatCount(visibleMunicipalPoints.length))} town points shown</span>
+    <span>${escapeHtml(layers.ontology ? `${formatCount(ontologyLinkCount)} ontology links` : "ontology links off")}</span>
     <span>${escapeHtml(formatCount(artifact.matched_count || allFeatures.length))}/${escapeHtml(formatCount(artifact.county_unit_count || allFeatures.length))} matched</span>
     <span>${escapeHtml(formatCount(municipalArtifact?.matched_count || 0))}/${escapeHtml(formatCount(municipalArtifact?.municipal_unit_count || 0))} municipal matched</span>
     <span>color: ${escapeHtml(geographyColorLabel(state.geographyColorMode))}</span>
@@ -1332,15 +1343,16 @@ function renderCountyChoropleth(units, packageStats = importedPackageMapStats())
   `;
   svg.setAttribute("viewBox", "0 0 960 560");
   if (!features.length && !municipalPoints.length) {
-    svg.innerHTML = `<text x="32" y="54">No matched county polygons or municipal points under the current filters.</text>`;
-    detail.innerHTML = "<p>No official geography matches the active filters. Clear filters or select matched county/municipal units.</p>";
+    svg.innerHTML = `<text x="32" y="54">No active county polygons or town points under the current layer controls.</text>`;
+    detail.innerHTML = "<p>No official geography layer is visible under the current filters and layer controls. Turn on Counties or Town points, or clear map filters.</p>";
     legend.innerHTML = "";
     return;
   }
   const bounds = geoBounds(features, municipalPoints);
   const colorContext = geographyColorContext(features, municipalPoints);
+  const ontologyLinks = layers.ontology ? geographyOntologyLinksSvg(features, municipalPoints, bounds) : "";
   legend.innerHTML = geographyColorLegend(colorContext);
-  svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds, colorContext, packageStats)).join("")}${municipalPoints.map((point) => municipalPointSvg(point, bounds, colorContext, packageStats)).join("")}`;
+  svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds, colorContext, packageStats)).join("")}${ontologyLinks}${municipalPoints.map((point) => municipalPointSvg(point, bounds, colorContext, packageStats)).join("")}`;
   const selectedPoint = municipalPoints.find((point) => point.unit_id === state.selectedUnitId);
   const selectedFeature = features.find((feature) => feature.properties?.unit_id === state.selectedUnitId);
   if (selectedPoint) {
@@ -1350,6 +1362,124 @@ function renderCountyChoropleth(units, packageStats = importedPackageMapStats())
   } else {
     renderMunicipalPointDetail(municipalPoints[0], municipalArtifact, packageStats);
   }
+  if (layers.ontology) {
+    detail.insertAdjacentHTML("beforeend", geographyOntologyLinkDetail(features, municipalPoints));
+  }
+}
+
+function geographyOntologyLinksSvg(features, municipalPoints, bounds) {
+  if (state.disclosureLevel === "overview") {
+    return "";
+  }
+  const positionIndex = geographyPositionIndex(features, municipalPoints, bounds);
+  const rows = geographyOntologyLinkRows(features, municipalPoints, positionIndex);
+  if (!rows.length) {
+    return "";
+  }
+  return `
+    <g class="geography-ontology-links" aria-label="Selected-unit aggregate ontology links">
+      ${rows.map(geographyOntologyLinkSvg).join("")}
+    </g>
+  `;
+}
+
+function geographyOntologyLinkRows(features, municipalPoints, positionIndex = null) {
+  if (state.disclosureLevel === "overview") {
+    return [];
+  }
+  const selectedUnit = currentSelectedMapUnit();
+  if (!selectedUnit) {
+    return [];
+  }
+  const index = positionIndex || geographyPositionIndex(features, municipalPoints, geoBounds(features, municipalPoints));
+  const origin = index.get(selectedUnit.unit_id);
+  if (!origin) {
+    return [];
+  }
+  const limit = state.disclosureLevel === "evidence" ? 6 : 3;
+  return selectedUnitPeers(selectedUnit)
+    .filter((peer) => index.has(peer.unit.unit_id))
+    .slice(0, limit)
+    .map((peer) => ({
+      peer,
+      origin,
+      target: index.get(peer.unit.unit_id),
+      reasons: peer.reasons.slice(0, 3),
+    }));
+}
+
+function geographyOntologyLinkSvg(row) {
+  const label = row.reasons.length ? row.reasons.join(" · ") : "aggregate peer";
+  return `
+    <line
+      class="geography-ontology-link"
+      data-unit-id="${escapeHtml(row.peer.unit.unit_id)}"
+      x1="${row.origin.x.toFixed(2)}"
+      y1="${row.origin.y.toFixed(2)}"
+      x2="${row.target.x.toFixed(2)}"
+      y2="${row.target.y.toFixed(2)}"
+      tabindex="0"
+    >
+      <title>${escapeHtml(displayUnitName(row.peer.unit))} · ${escapeHtml(label)} · peer score ${escapeHtml(row.peer.score.toFixed(1))}</title>
+    </line>
+  `;
+}
+
+function geographyOntologyLinkDetail(features, municipalPoints) {
+  if (state.disclosureLevel === "overview") {
+    return `
+      <section class="geography-ontology-detail">
+        <strong>Ontology links are staged.</strong>
+        <p>Switch to Unit detail or Evidence trail to draw selected-unit peer links from aggregate topic, function, tier, kind, state, and law-count similarity.</p>
+      </section>
+    `;
+  }
+  const rows = geographyOntologyLinkRows(features, municipalPoints);
+  const selectedUnit = currentSelectedMapUnit();
+  return `
+    <section class="geography-ontology-detail">
+      <strong>${escapeHtml(formatCount(rows.length))} aggregate ontology links${selectedUnit ? ` from ${escapeHtml(displayUnitName(selectedUnit))}` : ""}</strong>
+      ${
+        rows.length
+          ? `<p>${rows.map((row) => `${displayUnitName(row.peer.unit)} (${row.reasons.slice(0, 2).join(", ") || "aggregate peer"})`).map(escapeHtml).join(" · ")}</p>`
+          : "<p>No visible peer links for the selected unit under the active filters and layer controls.</p>"
+      }
+      <p class="muted-note">Links use aggregate peer metadata from map_layers.json only. They are not legal findings, rankings, or source-backed legal conclusions.</p>
+    </section>
+  `;
+}
+
+function geographyPositionIndex(features, municipalPoints, bounds) {
+  const index = new Map();
+  for (const feature of features) {
+    const properties = feature.properties || {};
+    const centroid = geometryCentroid(feature.geometry);
+    if (properties.unit_id && centroid) {
+      const [x, y] = projectLonLat(centroid.lon, centroid.lat, bounds);
+      index.set(properties.unit_id, { x, y, datum: properties, kind: "county" });
+    }
+  }
+  for (const point of municipalPoints) {
+    if (point.unit_id && Number.isFinite(Number(point.lon)) && Number.isFinite(Number(point.lat))) {
+      const [x, y] = projectLonLat(point.lon, point.lat, bounds);
+      index.set(point.unit_id, { x, y, datum: point, kind: "municipality" });
+    }
+  }
+  return index;
+}
+
+function geometryCentroid(geometry) {
+  const coords = [];
+  visitCoordinates(geometry, ([lon, lat]) => {
+    if (Number.isFinite(Number(lon)) && Number.isFinite(Number(lat))) {
+      coords.push([Number(lon), Number(lat)]);
+    }
+  });
+  if (!coords.length) {
+    return null;
+  }
+  const sums = coords.reduce((acc, [lon, lat]) => ({ lon: acc.lon + lon, lat: acc.lat + lat }), { lon: 0, lat: 0 });
+  return { lon: sums.lon / coords.length, lat: sums.lat / coords.length };
 }
 
 function countyFeatureSvg(feature, bounds, colorContext, packageStats) {
@@ -2987,6 +3117,30 @@ function renderGeoColorButtons() {
   $all(".geo-color-button").forEach((button) => {
     button.classList.toggle("active", button.dataset.geoColor === state.geographyColorMode);
   });
+}
+
+function renderGeoLayerControls() {
+  $all("[data-geo-layer]").forEach((control) => {
+    const layer = control.dataset.geoLayer;
+    const enabled = Boolean(state.geographyLayers?.[layer]);
+    control.checked = enabled;
+    control.closest("label")?.classList.toggle("active", enabled);
+  });
+}
+
+function defaultGeographyLayers() {
+  return { counties: true, municipalities: true, ontology: false };
+}
+
+function activeGeographyLayerLabels() {
+  const labels = {
+    counties: "Counties",
+    municipalities: "Town points",
+    ontology: state.disclosureLevel === "overview" ? "Ontology links at unit detail" : "Ontology links",
+  };
+  return Object.entries({ ...defaultGeographyLayers(), ...state.geographyLayers })
+    .filter(([, enabled]) => enabled)
+    .map(([layer]) => labels[layer] || titleCase(layer));
 }
 
 function renderOntology() {
@@ -5276,6 +5430,7 @@ function currentViewSnapshotPayload() {
       active_tab: state.activeTab,
       disclosure_level: state.disclosureLevel,
       geography_color_mode: state.geographyColorMode,
+      geography_layers: { ...state.geographyLayers },
       filters: { ...state.mapFilters },
       filter_labels: activeFilterLabels(),
       selected_unit_id: selectedUnit?.unit_id || null,
@@ -5502,6 +5657,7 @@ function loadSnapshotView(snapshotId) {
   state.selectedUnitId = view.selected_unit_id || null;
   state.disclosureLevel = view.disclosure_level || state.disclosureLevel;
   state.geographyColorMode = view.geography_color_mode || state.geographyColorMode;
+  state.geographyLayers = { ...defaultGeographyLayers(), ...(view.geography_layers || {}) };
   state.activeTab = "map";
   render();
 }
@@ -7207,6 +7363,16 @@ function bindEvents() {
   $all(".geo-color-button").forEach((button) => {
     button.addEventListener("click", () => {
       state.geographyColorMode = button.dataset.geoColor || "tier";
+      renderMap();
+    });
+  });
+  $all("[data-geo-layer]").forEach((control) => {
+    control.addEventListener("change", () => {
+      state.geographyLayers = {
+        ...defaultGeographyLayers(),
+        ...state.geographyLayers,
+        [control.dataset.geoLayer]: control.checked,
+      };
       renderMap();
     });
   });

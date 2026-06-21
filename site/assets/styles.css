@@ -2090,6 +2090,48 @@ textarea {
   text-transform: uppercase;
 }
 
+.geo-layer-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  margin-bottom: 12px;
+  padding: 10px;
+}
+
+.geo-layer-control > span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.geo-layer-control label {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 7px 10px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.geo-layer-control label.active {
+  border-color: rgba(50, 111, 112, 0.45);
+  background: #edf7f5;
+  color: var(--ink);
+}
+
+.geo-layer-control input {
+  accent-color: var(--green);
+}
+
 .geo-color-button.active {
   border-color: var(--blue);
   background: var(--blue);
@@ -2177,6 +2219,21 @@ textarea {
   stroke-width: 3.4;
 }
 
+.geography-ontology-link {
+  stroke: rgba(94, 74, 130, 0.48);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 7 5;
+  cursor: pointer;
+}
+
+.geography-ontology-link:hover,
+.geography-ontology-link:focus-visible {
+  stroke: #5e4a82;
+  stroke-width: 3.5;
+  outline: none;
+}
+
 .municipal-point {
   stroke: #172033;
   stroke-width: 1.4;
@@ -2220,6 +2277,24 @@ textarea {
 
 .county-layer-detail {
   margin-top: 12px;
+}
+
+.geography-ontology-detail {
+  border: 1px solid rgba(94, 74, 130, 0.22);
+  border-radius: 8px;
+  background: #fbf8ff;
+  margin-top: 10px;
+  padding: 10px 12px;
+}
+
+.geography-ontology-detail strong {
+  display: block;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.geography-ontology-detail p {
+  margin: 5px 0 0;
 }
 
 .unit-detail h3 {
