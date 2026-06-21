@@ -52,6 +52,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - tier-focus mini-chart drilldowns that return to the map with topic, function, or unit-type filters applied;
 - tier-focus score mini-chart drilldowns that return to the map with neutral relative score-band filters applied;
 - map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
+- browser-local aggregate inquiry results log for preset/manual questions with content-free JSON export and no browser model calls;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;
 - browser-local map inquiry history JSON export with sanitized aggregate entries and policy metadata;
 - inquiry-driven county/town comparison strip that changes by prompt and opens aggregate units back on the map;

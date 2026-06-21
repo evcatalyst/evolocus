@@ -24,6 +24,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
     assert "Question matrix" in html
+    assert "Aggregate inquiry results log" in html
+    assert "inquiry-results-log" in html
     assert "package-map-summary" in html
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
@@ -163,6 +165,18 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "filteredAuditAnswer" in js
     assert "filteredScoreAnswer" in js
     assert "briefingSectionsHtml" in js
+    assert "STORAGE_INQUIRY_RESULTS_LOG" in js
+    assert "loadInquiryResultsLog" in js
+    assert "saveInquiryResultsLog" in js
+    assert "answerAndLogInquiry" in js
+    assert "inquiryResultLogEntry" in js
+    assert "aggregateInquiryLogPolicy" in js
+    assert "renderInquiryResultsLog" in js
+    assert "inquiryResultsLogExportPayload" in js
+    assert "evolocus-aggregate-inquiry-results-log.json" in js
+    assert "record_locator_values_included: false" in js
+    assert "source_locators_included: false" in js
+    assert "review_events_included: false" in js
     assert "selectedUnitAnswer" in js
     assert "askAboutMapUnit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
@@ -176,6 +190,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
     assert "map-inline-inquiry-history" in css
+    assert "inquiry-results-log-card" in css
+    assert "inquiry-log-entry" in css
     assert "map-inline-history-row" in css
     assert "map-inline-comparison-strip" in css
     assert "map-inline-comparison-row" in css

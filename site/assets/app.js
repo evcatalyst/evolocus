@@ -5,6 +5,7 @@ const STORAGE_RECORDS = "evolocus.pages.records.v1";
 const STORAGE_SNAPSHOTS = "evolocus.pages.viewSnapshots.v1";
 const STORAGE_IMPORT_STATUS = "evolocus.pages.importStatus.v1";
 const STORAGE_MAP_INQUIRY_HISTORY = "evolocus.pages.mapInquiryHistory.v1";
+const STORAGE_INQUIRY_RESULTS_LOG = "evolocus.pages.aggregateInquiryResultsLog.v1";
 const ACTIONS_REFRESH_WORKFLOW_URL = "https://github.com/evcatalyst/evolocus/actions/workflows/analysis-refresh.yml";
 
 const ANALYSIS_PATHS = {
@@ -250,6 +251,7 @@ let state = {
     seedLabel: "pages-aggregate-plan",
   },
   inquiryAnswer: null,
+  inquiryResultsLog: loadInquiryResultsLog(),
   analysis: {
     status: null,
     mapLayers: null,
@@ -344,6 +346,22 @@ function loadMapInquiryHistory() {
 
 function saveMapInquiryHistory(history) {
   localStorage.setItem(STORAGE_MAP_INQUIRY_HISTORY, JSON.stringify(history.slice(0, 12)));
+}
+
+function loadInquiryResultsLog() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_INQUIRY_RESULTS_LOG) || "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => item?.schema_version === "evolocus-aggregate-inquiry-result-v1")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveInquiryResultsLog(items) {
+  state.inquiryResultsLog = items.slice(0, 12);
+  localStorage.setItem(STORAGE_INQUIRY_RESULTS_LOG, JSON.stringify(state.inquiryResultsLog));
 }
 
 function eventId() {
@@ -3619,7 +3637,7 @@ function applyOntologyQueryPreset(key) {
   if (input) {
     input.value = preset.question;
   }
-  state.inquiryAnswer = answerQuestion(preset.question);
+  answerAndLogInquiry(preset.question, `ontology preset: ${preset.title || preset.key}`);
   state.activeTab = "inquiry";
   render();
 }
@@ -4266,6 +4284,7 @@ function renderInquiry() {
   $("#inquiry-answer").innerHTML = state.inquiryAnswer
     ? inquiryAnswerHtml(state.inquiryAnswer)
     : "<p>Ask about status, tiers, topics, map units, model outputs, or Grok integration.</p>";
+  renderInquiryResultsLog();
 }
 
 function renderInquiryContext() {
@@ -4458,6 +4477,149 @@ function inquiryAnswerHtml(answer) {
     ${answer.sections || ""}
     ${answer.matches || ""}
   `;
+}
+
+function answerAndLogInquiry(question, source) {
+  const answer = answerQuestion(String(question));
+  state.inquiryAnswer = answer;
+  appendInquiryResultsLog(String(question), answer, source);
+  return answer;
+}
+
+function appendInquiryResultsLog(question, answer, source) {
+  const entry = inquiryResultLogEntry(question, answer, source);
+  saveInquiryResultsLog([entry, ...state.inquiryResultsLog.filter((item) => item.id !== entry.id)]);
+}
+
+function inquiryResultLogEntry(question, answer, source) {
+  const mapLayers = state.analysis.mapLayers;
+  const visibleUnits = mapLayers ? filterMapUnits(mapLayers.units || []) : [];
+  const summary = summarizeUnits(visibleUnits);
+  const briefings = state.analysis.inquiryBriefings || {};
+  const questionPack = state.analysis.questionPack || {};
+  const selectedUnit = currentSelectedMapUnit();
+  return {
+    schema_version: "evolocus-aggregate-inquiry-result-v1",
+    id: `inquiry-result-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    created_at: new Date().toISOString(),
+    source,
+    question,
+    answer_title: answer.title,
+    answer_excerpt: answer.answer,
+    disclosure_level: state.disclosureLevel,
+    filter_labels: activeFilterLabels(),
+    selected_unit: selectedUnit
+      ? {
+          unit_id: selectedUnit.unit_id,
+          name: displayUnitName(selectedUnit),
+          state: selectedUnit.state || null,
+          kind: selectedUnit.kind || null,
+          tier_label: selectedUnit.tier_label || null,
+        }
+      : null,
+    visible_summary: {
+      unit_count: visibleUnits.length,
+      law_count: summary.lawCount,
+      substantive_count: summary.substantiveCount,
+      top_topic: summary.topTopic,
+      top_function: summary.topFunction,
+      tier_counts: summary.tierCounts,
+    },
+    artifact_provenance: {
+      dataset_id: state.analysis.status?.dataset_id || briefings.dataset_id || "LocalLaws/LOCUS-v1",
+      dataset_revision: state.analysis.status?.dataset_revision || mapLayers?.dataset_revision || briefings.dataset_revision || "unknown",
+      map_generated_at: mapLayers?.generated_at || null,
+      briefing_generated_at: briefings.generated_at || null,
+      question_pack_generated_at: questionPack.generated_at || null,
+      briefing_mode: briefings.grok?.used ? `offline Grok ${briefings.grok.model || ""}`.trim() : "deterministic static",
+    },
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
+}
+
+function aggregateInquiryLogPolicy() {
+  return {
+    raw_rows_included: false,
+    ordinance_text_included: false,
+    header_text_included: false,
+    record_locator_values_included: false,
+    source_locators_included: false,
+    review_events_included: false,
+    browser_llm_calls: false,
+    legal_findings: false,
+  };
+}
+
+function renderInquiryResultsLog() {
+  const target = $("#inquiry-results-log");
+  if (!target) {
+    return;
+  }
+  if (!state.inquiryResultsLog.length) {
+    target.innerHTML = `
+      <article class="inquiry-log-empty">
+        <strong>No aggregate inquiry results saved yet.</strong>
+        <p>Ask a question or click a preset. The log will store answer summaries, filter context, artifact timestamps, and safety policy flags in this browser only.</p>
+      </article>
+    `;
+    return;
+  }
+  target.innerHTML = state.inquiryResultsLog
+    .slice(0, 8)
+    .map(inquiryResultLogCardHtml)
+    .join("");
+}
+
+function inquiryResultLogCardHtml(item) {
+  const summary = item.visible_summary || {};
+  const provenance = item.artifact_provenance || {};
+  const filterLabel = item.filter_labels?.length ? item.filter_labels.join(" · ") : "No active map filters";
+  return `
+    <article class="inquiry-log-entry">
+      <div class="inquiry-log-entry-heading">
+        <span>${escapeHtml(item.source || "inquiry")}</span>
+        <em>${escapeHtml(formatDateTime(item.created_at))}</em>
+      </div>
+      <h4>${escapeHtml(item.answer_title || "Aggregate answer")}</h4>
+      <p>${escapeHtml(item.answer_excerpt || "")}</p>
+      <dl>
+        <dt>Question</dt><dd>${escapeHtml(item.question || "")}</dd>
+        <dt>Filters</dt><dd>${escapeHtml(filterLabel)}</dd>
+        <dt>Visible aggregate</dt><dd>${escapeHtml(formatCount(summary.unit_count || 0))} units · ${escapeHtml(formatCount(summary.law_count || 0))} law rows</dd>
+        <dt>Artifacts</dt><dd>${escapeHtml(provenance.briefing_mode || "static")} · map ${escapeHtml(formatDateTime(provenance.map_generated_at))} · briefing ${escapeHtml(formatDateTime(provenance.briefing_generated_at))}</dd>
+        <dt>Boundary</dt><dd>No text, headers, locators, review events, or browser model calls</dd>
+      </dl>
+    </article>
+  `;
+}
+
+function inquiryResultsLogExportPayload() {
+  return {
+    schema_version: "evolocus-aggregate-inquiry-results-log-export-v1",
+    generated_at: new Date().toISOString(),
+    entry_count: state.inquiryResultsLog.length,
+    publication_policy: aggregateInquiryLogPolicy(),
+    source_artifacts: [
+      "status.json",
+      "map_layers.json",
+      "inquiry_briefings.json",
+      "question_pack.json",
+      "unit_audit_quality.json",
+    ],
+    entries: state.inquiryResultsLog.map((item) => ({
+      ...item,
+      publication_policy: aggregateInquiryLogPolicy(),
+    })),
+  };
+}
+
+function exportInquiryResultsLog() {
+  download("evolocus-aggregate-inquiry-results-log.json", JSON.stringify(inquiryResultsLogExportPayload(), null, 2), "application/json");
+}
+
+function clearInquiryResultsLog() {
+  saveInquiryResultsLog([]);
+  renderInquiry();
 }
 
 function renderPrediction(record) {
@@ -7273,7 +7435,7 @@ function filteredViewAnswer() {
 function submitInquiry(event) {
   event.preventDefault();
   const question = new FormData(event.currentTarget).get("question") || "";
-  state.inquiryAnswer = answerQuestion(String(question));
+  answerAndLogInquiry(String(question), "manual inquiry");
   renderInquiry();
 }
 
@@ -7792,7 +7954,7 @@ function bindEvents() {
       return;
     }
     $("#inquiry-form input[name='question']").value = button.dataset.question;
-    state.inquiryAnswer = answerQuestion(button.dataset.question);
+    answerAndLogInquiry(button.dataset.question, "suggested question");
     renderInquiry();
   });
   $("#inquiry-question-matrix").addEventListener("click", (event) => {
@@ -7807,16 +7969,27 @@ function bindEvents() {
       state.selectedUnitId = button.dataset.inquiryUnit;
     }
     $("#inquiry-form input[name='question']").value = button.dataset.inquiryPrompt;
-    state.inquiryAnswer = answerQuestion(button.dataset.inquiryPrompt);
+    answerAndLogInquiry(button.dataset.inquiryPrompt, button.dataset.inquiryPack ? "question-pack preset" : "inquiry matrix preset");
     render();
   });
   $("#inquiry-panel").addEventListener("click", (event) => {
     const statusButton = event.target.closest("[data-open-status-tab]");
-    if (!statusButton) {
+    if (statusButton) {
+      event.preventDefault();
+      openAnalysisStatusTab();
       return;
     }
-    event.preventDefault();
-    openAnalysisStatusTab();
+    const exportButton = event.target.closest("#export-inquiry-log");
+    if (exportButton) {
+      event.preventDefault();
+      exportInquiryResultsLog();
+      return;
+    }
+    const clearButton = event.target.closest("#clear-inquiry-log");
+    if (clearButton) {
+      event.preventDefault();
+      clearInquiryResultsLog();
+    }
   });
   $("#map-panel").addEventListener("click", (event) => {
     const statusButton = event.target.closest("[data-open-status-tab]");

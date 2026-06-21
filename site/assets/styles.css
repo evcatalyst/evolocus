@@ -3695,6 +3695,83 @@ legend {
   margin-bottom: 14px;
 }
 
+.inquiry-results-log-card {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.inquiry-results-log {
+  display: grid;
+  gap: 10px;
+}
+
+.inquiry-log-empty,
+.inquiry-log-entry {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.inquiry-log-empty p {
+  margin: 8px 0 0;
+}
+
+.inquiry-log-entry {
+  display: grid;
+  gap: 8px;
+}
+
+.inquiry-log-entry h4 {
+  margin: 0;
+}
+
+.inquiry-log-entry p {
+  margin: 0;
+}
+
+.inquiry-log-entry-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-log-entry-heading em {
+  font-style: normal;
+  text-transform: none;
+}
+
+.inquiry-log-entry dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
+  gap: 6px 10px;
+  margin: 0;
+}
+
+.inquiry-log-entry dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.inquiry-log-entry dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
 .inquiry-provenance {
   display: flex;
   flex-wrap: wrap;
@@ -4278,6 +4355,7 @@ th {
   .package-ontology-facts,
   .map-inline-history-row,
   .map-inline-comparison-row,
+  .inquiry-log-entry dl,
   .geo-layer-legend-pills,
   .geo-layer-link-list button,
   .selected-disclosure-steps,
@@ -4378,6 +4456,7 @@ th {
   .package-ontology-facts,
   .map-inline-history-row,
   .map-inline-comparison-row,
+  .inquiry-log-entry dl,
   .geo-layer-legend-pills,
   .geo-layer-link-list button,
   .selected-disclosure-heading,

@@ -200,6 +200,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data/analysis/municipal_points.json" in js
     assert "inquiry-context-grid" in html
     assert "inquiry-question-matrix" in html
+    assert "Aggregate inquiry results log" in html
+    assert "inquiry-results-log" in html
     assert "score-summary-grid" in html
     assert "score-visual-grid" in html
     assert "score-state-grid" in html
@@ -315,6 +317,18 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiryPromptCards" in js
     assert "questionPackPromptCards" in js
     assert "applyQuestionPackPrompt" in js
+    assert "STORAGE_INQUIRY_RESULTS_LOG" in js
+    assert "loadInquiryResultsLog" in js
+    assert "saveInquiryResultsLog" in js
+    assert "answerAndLogInquiry" in js
+    assert "inquiryResultLogEntry" in js
+    assert "aggregateInquiryLogPolicy" in js
+    assert "renderInquiryResultsLog" in js
+    assert "inquiryResultsLogExportPayload" in js
+    assert "evolocus-aggregate-inquiry-results-log.json" in js
+    assert "record_locator_values_included: false" in js
+    assert "source_locators_included: false" in js
+    assert "review_events_included: false" in js
     assert "data-inquiry-pack" in js
     assert "filteredAuditAnswer" in js
     assert "filteredScoreAnswer" in js
@@ -436,6 +450,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "score-unit-row" in css
     assert "inquiry-context-grid" in css
     assert "inquiry-question-matrix" in css
+    assert "inquiry-results-log-card" in css
+    assert "inquiry-log-entry" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

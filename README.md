@@ -70,6 +70,7 @@ The Pages app supports:
 - tier-focus mini-chart drilldowns that apply map filters for topic, function, and unit type;
 - neutral score-band drilldowns from tier mini charts into relative model-score map filters;
 - map-side chat-style inquiry panel for current filters, selected unit, audit signals, score profile, and browser-local package overlay;
+- browser-local aggregate inquiry results log for preset/manual questions, with content-free JSON export and explicit no-text/no-locator policy flags;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, and comparison rows;
 - browser-local map inquiry history JSON export with aggregate-only policy metadata;
 - inquiry-driven county/town comparison strip with prompt-aware aggregate unit rows and map drillback;

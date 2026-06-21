@@ -56,6 +56,7 @@
 - Ontology query presets are useful when they reuse deterministic Inquiry answers and safe map filters instead of creating new browser-side model claims.
 - Browser inquiry should make the active filter state visible in prompt cards so answers feel connected to the map without requiring live LLM calls.
 - Static question packs should store prompt filters, disclosure recommendations, and aggregate supporting facts only; optional Grok notes are generated offline and never turn into browser model calls.
+- Browser-local inquiry logs should store answer summaries, filters, artifact timestamps, and safety flags only; they must not become row-level review history or publish source locator values.
 - Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.
 - Record-level review queues should still be materialized with local ignored tooling before any ordinance text is reviewed or exported.
 - Grok refreshes need a deployment-time public artifact guard because model enrichment is still generated text and must not weaken raw-data, source-locator, or secret boundaries.
