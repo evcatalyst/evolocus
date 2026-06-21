@@ -53,3 +53,4 @@
 - After a local package import, the browser should show provenance and text-inclusion state immediately so reviewers can distinguish synthetic demo records from browser-local LOCUS text.
 - Imported package visuals should summarize local queue provenance and review progress without treating browser-local LOCUS text as a public artifact or civic finding.
 - Package-to-map overlays should join imported browser-local records to aggregate unit IDs and render only local workflow coverage, not publish the underlying record text or source locators.
+- Imported-package-only filters should reuse browser-local unit matches and must not create a new public data artifact or imply the local package is representative.

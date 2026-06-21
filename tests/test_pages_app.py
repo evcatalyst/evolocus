@@ -24,6 +24,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Save to Snapshots" in html
     assert "Question matrix" in html
     assert "package-map-summary" in html
+    assert "Imported package units" in html
     assert "localStorage" in js
     assert "renderImportStatus" in js
     assert "importStatusFromPayload" in js
@@ -32,6 +33,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "importedPackageMapStats" in js
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js
+    assert "applyPackageMapFilter" in js
+    assert "packageOnly" in js
     assert "package-hit" in js
     assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "reveal_prediction" in js

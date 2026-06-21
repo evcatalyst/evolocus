@@ -153,6 +153,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-geo-color=\"law_count\"" in html
     assert "Audit focus" in html
     assert "Min audit attention" in html
+    assert "Imported package units" in html
+    assert "package_only" in html
     assert "status-card-grid" in html
     assert "status-detail-grid" in html
     assert "status-gate-grid" in html
@@ -187,6 +189,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "importedPackageMapStats" in js
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js
+    assert "applyPackageMapFilter" in js
+    assert "packageOnly" in js
+    assert "data-package-map-filter" in js
     assert "package-hit" in js
     assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "BROWSER-LOCAL IMPORTED PACKAGE METADATA" in js
@@ -210,6 +215,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontology-neighborhood-svg" in css
     assert "package-coverage-card" in css
     assert "package-map-card" in css
+    assert "package-map-actions" in css
+    assert "checkbox-filter" in css
     assert "package-hit-badge" in css
     assert "selected-package-card" in css
     assert "selectedUnitPeerComparisonHtml" in js

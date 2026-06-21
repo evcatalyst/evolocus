@@ -233,6 +233,7 @@ let state = {
     auditFocus: "",
     minLaws: 0,
     minAuditScore: 0,
+    packageOnly: false,
   },
   queuePlan: {
     strategy: "audit_priority",
@@ -685,6 +686,12 @@ function renderPackageMapSummary(packageStats, visibleUnits) {
           ? `<div class="package-map-hit-list">${visibleHits.slice(0, 8).map((hit) => packageMapHitPill(hit)).join("")}</div>`
           : `<p class="muted-note">No imported units are visible under the current filters. Clear filters to locate package units.</p>`
       }
+      <div class="package-map-actions">
+        <button type="button" data-package-map-filter="${state.mapFilters.packageOnly ? "all" : "only"}">
+          ${escapeHtml(state.mapFilters.packageOnly ? "Show all aggregate units" : "Show only imported package units")}
+        </button>
+        <button type="button" data-package-map-filter="clear">Clear map filters</button>
+      </div>
     </article>
   `;
 }
@@ -1598,8 +1605,12 @@ function packageAliasKey(value) {
 }
 
 function filterMapUnits(units) {
+  const packageUnitIds = state.mapFilters.packageOnly ? importedPackageMapStats(units).units : null;
   return units.filter((unit) => {
     const auditQuality = unitAuditQualityFor(unit.unit_id);
+    if (packageUnitIds && !packageUnitIds.has(unit.unit_id)) {
+      return false;
+    }
     if (state.mapFilters.state && unit.state !== state.mapFilters.state) {
       return false;
     }
@@ -1643,6 +1654,7 @@ function renderMapFilters(units) {
   form.elements.audit_focus.value = state.mapFilters.auditFocus;
   form.elements.min_laws.value = String(state.mapFilters.minLaws);
   form.elements.min_audit_score.value = String(state.mapFilters.minAuditScore);
+  form.elements.package_only.checked = Boolean(state.mapFilters.packageOnly);
 }
 
 function fillSelect(select, values, selected, emptyLabel, labeler = (value) => value) {
@@ -1889,6 +1901,7 @@ function activeFilterLabels() {
   if (state.mapFilters.minLaws) labels.push(`Min ${formatCount(state.mapFilters.minLaws)} laws`);
   if (state.mapFilters.auditFocus) labels.push(`Audit ${auditFocusLabel(state.mapFilters.auditFocus)}`);
   if (state.mapFilters.minAuditScore) labels.push(`Min audit ${formatNumber(state.mapFilters.minAuditScore)}`);
+  if (state.mapFilters.packageOnly) labels.push("Imported package units");
   return labels;
 }
 
@@ -4104,7 +4117,7 @@ function loadSnapshotView(snapshotId) {
     return;
   }
   const view = snapshot.payload.view_state || {};
-  state.mapFilters = { ...state.mapFilters, ...(view.filters || {}) };
+  state.mapFilters = { ...defaultMapFilters(), ...(view.filters || {}) };
   state.selectedUnitId = view.selected_unit_id || null;
   state.disclosureLevel = view.disclosure_level || state.disclosureLevel;
   state.geographyColorMode = view.geography_color_mode || state.geographyColorMode;
@@ -4687,13 +4700,31 @@ function applyMapFilters(event) {
     auditFocus: String(form.get("audit_focus") || ""),
     minLaws: Math.max(0, Number(form.get("min_laws") || 0)),
     minAuditScore: Math.max(0, Number(form.get("min_audit_score") || 0)),
+    packageOnly: form.get("package_only") === "1",
   };
   state.selectedUnitId = null;
   renderMap();
 }
 
 function resetMapFilters() {
-  state.mapFilters = { state: "", topic: "", function: "", tier: "", auditFocus: "", minLaws: 0, minAuditScore: 0 };
+  state.mapFilters = defaultMapFilters();
+  state.selectedUnitId = null;
+  renderMap();
+}
+
+function defaultMapFilters() {
+  return { state: "", topic: "", function: "", tier: "", auditFocus: "", minLaws: 0, minAuditScore: 0, packageOnly: false };
+}
+
+function applyPackageMapFilter(action) {
+  if (action === "clear") {
+    state.mapFilters = defaultMapFilters();
+  } else {
+    state.mapFilters = {
+      ...state.mapFilters,
+      packageOnly: action !== "all",
+    };
+  }
   state.selectedUnitId = null;
   renderMap();
 }
@@ -5542,6 +5573,12 @@ function bindEvents() {
     render();
   });
   $("#map-panel").addEventListener("click", (event) => {
+    const packageFilterButton = event.target.closest("[data-package-map-filter]");
+    if (packageFilterButton) {
+      event.preventDefault();
+      applyPackageMapFilter(packageFilterButton.dataset.packageMapFilter);
+      return;
+    }
     const askButton = event.target.closest("[data-ask-unit-id]");
     if (askButton) {
       event.preventDefault();

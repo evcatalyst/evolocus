@@ -50,6 +50,7 @@ flowchart LR
 - Browser storage is local to the reviewer and is not a shared database.
 - Imported package status is stored in browser localStorage and displayed as provenance for the current review queue.
 - Imported package map overlays join browser-local record `unit_id` values to public aggregate map units, highlighting matched county/town units without copying imported records into static artifacts.
+- Imported-package-only filtering uses the same browser-local match set to focus aggregate map, inquiry, snapshot, score, and audit views on the current local review package.
 - Imported package coverage charts are computed in the browser from the bounded local queue and review events; they summarize state/topic/function/type/OCR mix and workflow status without writing imported records to public artifacts.
 - Demo mode is synthetic and conspicuously labeled.
 - Real LOCUS aggregate artifacts are published through Pages after local safety checks.
@@ -73,6 +74,7 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 - append-only review events in localStorage;
 - browser-local import-status metadata for bounded local packages;
 - browser-local map overlays for imported package units;
+- browser-local imported-package-only map filtering;
 - browser-local package coverage visuals for bounded local packages;
 - blinded model output by default;
 - explicit reveal logging;

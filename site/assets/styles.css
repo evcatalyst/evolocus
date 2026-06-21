@@ -1321,6 +1321,25 @@ textarea {
   margin: 0;
 }
 
+.checkbox-filter {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 8px 10px;
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.checkbox-filter input {
+  width: auto;
+  margin: 0;
+}
+
 .compact-actions {
   align-items: end;
   margin-top: 0;
@@ -1448,6 +1467,22 @@ textarea {
 
 .package-map-hit-list em {
   display: block;
+}
+
+.package-map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.package-map-actions button {
+  border-color: rgba(107, 79, 214, 0.45);
+}
+
+.package-map-actions button:first-child {
+  background: #6b4fd6;
+  color: #ffffff;
 }
 
 .comparison-card {

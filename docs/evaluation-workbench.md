@@ -29,6 +29,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - Queue Plan package-request preview for record budget, state/type/topic mix, and safety gates before download;
 - browser-local import-status panel after bounded package upload, showing package provenance, text-inclusion state, unit counts, and safety flags;
 - browser-local package-to-map overlay that highlights imported package units on both the aggregate map and official geography layer;
+- imported-package-units map filter for focusing the aggregate map on browser-local review-package coverage;
 - Results-tab package coverage visuals for imported browser-local queues, including state/topic/function/type/OCR mix and review workflow status;
 - ontology and model-output registry views;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
@@ -62,7 +63,7 @@ Clearing browser storage removes local unsaved work. Export review events regula
 
 The browser can import a bounded queue JSON file with a top-level `records` array or a plain array of record objects. Imports are capped at 500 records to avoid turning the browser into a full corpus store.
 
-After import, the Law Map highlights imported package units in the state-clustered aggregate map, official county polygons, municipal points, selected-unit detail, and map table. The Results tab summarizes the browser-local package with record/unit counts, state/topic/function/type/OCR distributions, safety markers, and review progress. These visuals read localStorage and the imported package only; they are not copied into public static artifacts.
+After import, the Law Map highlights imported package units in the state-clustered aggregate map, official county polygons, municipal points, selected-unit detail, and map table. A binary imported-package-units filter narrows the aggregate map and downstream inquiry/snapshot context to locally loaded package units. The Results tab summarizes the browser-local package with record/unit counts, state/topic/function/type/OCR distributions, safety markers, and review progress. These visuals read localStorage and the imported package only; they are not copied into public static artifacts.
 
 Imported records should include:
 

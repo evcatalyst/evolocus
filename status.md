@@ -95,6 +95,7 @@ Current coverage stats:
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download
 - Import status surface: GitHub Pages shows browser-local package provenance, text-inclusion state, and safety flags after upload
 - Package map overlay surface: GitHub Pages highlights imported browser-local package units on the aggregate map, official county polygons, municipal points, selected-unit panel, and map table
+- Imported package filter surface: GitHub Pages can narrow map-driven aggregate visuals to units represented in the browser-local review package
 - Package coverage surface: GitHub Pages Results tab summarizes imported browser-local queues by state, topic, function, jurisdiction type, OCR-risk mix, safety markers, and review progress
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots
@@ -156,6 +157,7 @@ Latest update:
 - Added browser-local import-status visuals so materialized package uploads show provenance, text-inclusion state, unit counts, and safety flags before review.
 - Added Results-tab package coverage visuals so imported browser-local queues show composition, safety markers, and review progress without publishing package records.
 - Added a package-to-map overlay so imported browser-local queues highlight their aggregate county/town units without copying package records into public artifacts.
+- Added a one-click imported-package-units map filter so reviewers can focus the public aggregate visual stack on the local review package.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.
