@@ -23,7 +23,8 @@
       "status": "in_progress",
       "completed_items": [
         "Add guarded LOCUS ingestion script without committing downloaded records",
-        "Create master jurisdiction table contract"
+        "Create master jurisdiction table contract",
+        "Draft production Local Law Analytics Platform architecture and starter code"
       ],
       "remaining_items": [
         "Build gap analysis script",

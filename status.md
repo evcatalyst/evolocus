@@ -11,6 +11,7 @@ Files saved:
 - `dashboards/README.md`
 - `docs/architecture.md`
 - `docs/data-policy.md`
+- `docs/local-law-analytics-platform.md`
 - `notebooks/README.md`
 - `scrapers/README.md`
 - `site/assets/styles.css`
@@ -60,3 +61,4 @@ Latest update:
 - Added tests using synthetic LOCUS-like records only.
 - Did not download LOCUS-v1, run scrapers, create databases, or create embeddings.
 - Recorded the canonical arXiv source page supplied by the user: https://arxiv.org/abs/2606.19334.
+- Added production Local Law Analytics Platform plan with starter code for DuckDB ingest, validation, enrichment, embeddings, Streamlit, FastAPI, and RAG retrieval.

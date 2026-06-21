@@ -30,6 +30,10 @@ The LOCUS-v1 Hugging Face dataset card identifies the dataset as Parquet, CC-BY-
 4. Phase 3: scraper framework, priority engine, Optimize Flow simulation.
 5. Phase 4+: continuous enrichment, classifiers, exports, deployment helpers.
 
+## Production Blueprint
+
+The phased Local Law Analytics Platform architecture and starter code lives in `docs/local-law-analytics-platform.md`. It covers DuckDB/Polars ingestion, validation, Census enrichment, LanceDB embeddings, RAG retrieval, Streamlit dashboards, FastAPI endpoints, and a four-week implementation plan.
+
 ## Local Setup
 
 ```bash
