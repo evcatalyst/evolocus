@@ -15,4 +15,6 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderMap" in js
     assert "renderOntology" in js
     assert "renderInquiry" in js
+    assert "matchInquiryBriefing" in js
+    assert "briefingSectionsHtml" in js
     assert "fetchAnalysisArtifacts" in js

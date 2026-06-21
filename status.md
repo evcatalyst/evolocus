@@ -7,6 +7,7 @@ Completion: Phase 0 complete. Phase 1 now includes a GitHub Pages-first browser 
 Files saved:
 
 - `.github/workflows/pages.yml`
+- `.github/workflows/analysis-refresh.yml`
 - `data/README.md`
 - `dashboards/README.md`
 - `docs/architecture.md`
@@ -23,6 +24,7 @@ Files saved:
 - `site/data/analysis/map_layers.json`
 - `site/data/analysis/ontology.json`
 - `site/data/analysis/chat_index.json`
+- `site/data/analysis/inquiry_briefings.json`
 - `site/data/analysis/models.json`
 - `site/data/analysis/charts.json`
 - `site/data/analysis/county_geometry.json`
@@ -38,6 +40,7 @@ Files saved:
 - `src/evolocus/evaluation_metrics.py`
 - `src/evolocus/evaluation_protocol.py`
 - `src/evolocus/evaluation_sampling.py`
+- `src/evolocus/inquiry_briefings.py`
 - `src/evolocus/jurisdiction.py`
 - `src/evolocus/locus_audit.py`
 - `src/evolocus/locus_contract.py`
@@ -68,6 +71,7 @@ Current coverage stats:
 - Embeddings created: 0
 - Real civic findings published: 0
 - Static site data: aggregate-only LOCUS state-clustered map, ontology, model, inquiry, chart, and status artifacts
+- Static inquiry briefings: generated from aggregate-only artifacts; optional Grok enrichment is offline-only
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
 - Queue records created from real LOCUS data: 0
@@ -115,6 +119,7 @@ Latest update:
 - Added an official Census TIGERweb county choropleth layer for all 177 aggregate county units, with machine-match pending-review labeling and no raw LOCUS text.
 - Added an official Census TIGERweb municipal/town point layer for 815 matched aggregate municipal units, with 8 unmatched units left explicit rather than guessed.
 - Added official geography color modes for neutral tier, dominant topic, dominant function, and law-count intensity.
+- Added `inquiry_briefings.json` and a `publish-inquiry-briefings` CLI/workflow path so GitHub Pages can answer questions from progressive aggregate-only static briefings, optionally enriched by Grok offline.
 
 Evaluator implementation state:
 

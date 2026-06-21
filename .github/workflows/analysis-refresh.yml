@@ -36,8 +36,8 @@ jobs:
           else
             echo "GROK_API_KEY is not configured; deterministic static analysis will run without LLM enrichment."
           fi
-      - name: Generate demo static analysis artifacts
-        run: PYTHONPATH=src python -m evolocus.cli publish-analysis --output site/data/analysis --dataset-revision synthetic-demo --include-record-samples
+      - name: Generate aggregate-only inquiry briefings
+        run: PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings --analysis-dir site/data/analysis --output site/data/analysis/inquiry_briefings.json --use-grok
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload static site

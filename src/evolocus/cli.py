@@ -13,6 +13,7 @@ from .county_geometry import publish_county_geometry_artifact
 from .evaluation_db import init_db, create_queue
 from .evaluation_exports import export_evaluation
 from .evaluation_sampling import manifest_dict_and_fingerprint, queue_id_for, sample_queue_items
+from .inquiry_briefings import DEFAULT_ANALYSIS_DIR, DEFAULT_INQUIRY_BRIEFINGS_PATH, publish_inquiry_briefings
 from .locus_audit import run_audit
 from .locus_ingest import (
     LOCUS_CITATION,
@@ -90,6 +91,31 @@ def main(argv: list[str] | None = None) -> int:
         help="Include record text samples. Blocked for non-demo corpus sources.",
     )
     publish_parser.set_defaults(func=_publish_analysis)
+
+    inquiry_briefings_parser = subparsers.add_parser(
+        "publish-inquiry-briefings",
+        help="Publish static progressive inquiry briefings from aggregate Pages artifacts.",
+    )
+    inquiry_briefings_parser.add_argument(
+        "--analysis-dir",
+        type=Path,
+        default=DEFAULT_ANALYSIS_DIR,
+        help="Directory containing status/map/ontology/model/chart aggregate artifacts.",
+    )
+    inquiry_briefings_parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_INQUIRY_BRIEFINGS_PATH,
+        help="Output inquiry_briefings.json artifact.",
+    )
+    inquiry_briefings_parser.add_argument(
+        "--use-grok",
+        action="store_true",
+        help="Use GROK_API_KEY for offline summary enrichment when the secret is available.",
+    )
+    inquiry_briefings_parser.add_argument("--grok-api-key-env", default="GROK_API_KEY")
+    inquiry_briefings_parser.add_argument("--grok-model", default="grok-4.3")
+    inquiry_briefings_parser.set_defaults(func=_publish_inquiry_briefings)
 
     county_geometry_parser = subparsers.add_parser(
         "publish-county-geometry",
@@ -217,6 +243,18 @@ def _publish_analysis(args: argparse.Namespace) -> int:
         args.output,
         max_units=args.max_units,
         include_record_samples=args.include_record_samples or None,
+    )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _publish_inquiry_briefings(args: argparse.Namespace) -> int:
+    result = publish_inquiry_briefings(
+        args.analysis_dir,
+        args.output,
+        use_grok=args.use_grok,
+        grok_api_key_env=args.grok_api_key_env,
+        grok_model=args.grok_model,
     )
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0

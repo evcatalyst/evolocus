@@ -22,6 +22,7 @@ REQUIRED_PATHS = [
     "site/data/analysis/map_layers.json",
     "site/data/analysis/ontology.json",
     "site/data/analysis/chat_index.json",
+    "site/data/analysis/inquiry_briefings.json",
     "site/data/analysis/models.json",
     "site/data/analysis/charts.json",
     "site/data/analysis/county_geometry.json",
@@ -30,6 +31,7 @@ REQUIRED_PATHS = [
     "src/evolocus/__init__.py",
     "src/evolocus/cli.py",
     "src/evolocus/county_geometry.py",
+    "src/evolocus/inquiry_briefings.py",
     "src/evolocus/municipal_points.py",
     "src/evolocus/locus_ingest.py",
     "tests/test_scaffold.py",
@@ -119,8 +121,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "status-gate-grid" in html
     assert "data/analysis/status.json" in js
     assert "data/analysis/charts.json" in js
+    assert "data/analysis/inquiry_briefings.json" in js
     assert "data/analysis/county_geometry.json" in js
     assert "data/analysis/municipal_points.json" in js
+    assert "inquiry-provenance" in html
+    assert "briefing-sections" in js
+    assert "matchInquiryBriefing" in js
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js
@@ -150,6 +156,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     map_layers = json.loads(read_text("site/data/analysis/map_layers.json"))
     models = json.loads(read_text("site/data/analysis/models.json"))
     charts = json.loads(read_text("site/data/analysis/charts.json"))
+    inquiry_briefings = json.loads(read_text("site/data/analysis/inquiry_briefings.json"))
     county_geometry = json.loads(read_text("site/data/analysis/county_geometry.json"))
     municipal_points = json.loads(read_text("site/data/analysis/municipal_points.json"))
     assert status["synthetic"] is False
@@ -174,6 +181,13 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert charts["synthetic"] is False
     assert charts["charts"]["tier_counts"]
     assert charts["charts"]["score_means"]
+    assert inquiry_briefings["schema_version"] == "evolocus-progressive-inquiry-v1"
+    assert inquiry_briefings["synthetic"] is False
+    assert inquiry_briefings["real_locus_rows_published"] is False
+    assert inquiry_briefings["publication_policy"]["raw_rows_included"] is False
+    assert inquiry_briefings["publication_policy"]["ordinance_text_included"] is False
+    assert inquiry_briefings["publication_policy"]["browser_llm_calls"] is False
+    assert inquiry_briefings["briefings"]
     assert county_geometry["schema_version"] == "evolocus-county-geometry-v1"
     assert county_geometry["geometry_status"] == "official_census_county_geometry_machine_matched_pending_review"
     assert county_geometry["source"]["name"] == "U.S. Census Bureau TIGERweb Current Counties layer"
@@ -196,6 +210,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
             "status": status,
             "map_layers": map_layers,
             "charts": charts,
+            "inquiry_briefings": inquiry_briefings,
             "county_geometry": county_geometry,
             "municipal_points": municipal_points,
         }
@@ -209,7 +224,10 @@ def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() ->
     workflow = read_text(".github/workflows/analysis-refresh.yml")
     js = read_text("site/assets/app.js")
     assert "secrets.GROK_API_KEY" in workflow
+    assert "publish-inquiry-briefings" in workflow
+    assert "publish-analysis" not in workflow
     assert "GROK_API_KEY" not in js
+    assert "api.x.ai" not in js
 
 
 def test_gitignore_blocks_real_data_artifacts() -> None:

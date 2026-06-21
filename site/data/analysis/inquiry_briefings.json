@@ -1,0 +1,392 @@
+{
+  "briefings": [
+    {
+      "id": "coverage",
+      "progressive_sections": [
+        {
+          "body": "Current status is local_aggregate_ready for dataset revision main.",
+          "heading": "Scope",
+          "level": "overview"
+        },
+        {
+          "body": "The largest aggregate unit by law-record count is los_angeles_county (CA, county) with 11503 records.",
+          "heading": "Largest visible aggregate units",
+          "level": "unit",
+          "rows": [
+            {
+              "dominant_topic": "Other",
+              "kind": "county",
+              "law_count": 11503,
+              "name": "los_angeles_county",
+              "state": "CA",
+              "tier_label": "Tier 1",
+              "unit_id": "CA:county:los_angeles_county"
+            },
+            {
+              "dominant_topic": "Other",
+              "kind": "city",
+              "law_count": 10148,
+              "name": "san_jose",
+              "state": "CA",
+              "tier_label": "Tier 1",
+              "unit_id": "CA:city:san_jose"
+            },
+            {
+              "dominant_topic": "Buildings",
+              "kind": "city",
+              "law_count": 8667,
+              "name": "chicago",
+              "state": "IL",
+              "tier_label": "Tier 2",
+              "unit_id": "IL:city:chicago"
+            },
+            {
+              "dominant_topic": "Other",
+              "kind": "city",
+              "law_count": 8224,
+              "name": "detroit",
+              "state": "MI",
+              "tier_label": "Tier 1",
+              "unit_id": "MI:city:detroit"
+            },
+            {
+              "dominant_topic": "Zoning",
+              "kind": "county",
+              "law_count": 6525,
+              "name": "santa_barbara_county",
+              "state": "CA",
+              "tier_label": "Tier 2",
+              "unit_id": "CA:county:santa_barbara_county"
+            },
+            {
+              "dominant_topic": "Other",
+              "kind": "city",
+              "law_count": 6104,
+              "name": "tulsa",
+              "state": "OK",
+              "tier_label": "Tier 1",
+              "unit_id": "OK:city:tulsa"
+            },
+            {
+              "dominant_topic": "Other",
+              "kind": "city",
+              "law_count": 5892,
+              "name": "saint_louis",
+              "state": "MO",
+              "tier_label": "Tier 1",
+              "unit_id": "MO:city:saint_louis"
+            },
+            {
+              "dominant_topic": "Other",
+              "kind": "city",
+              "law_count": 5859,
+              "name": "anchorage",
+              "state": "AK",
+              "tier_label": "Tier 2",
+              "unit_id": "AK:city:anchorage"
+            }
+          ]
+        },
+        {
+          "body": "The briefing is derived from map_layers.json and charts.json. It omits raw text, headers, and source locators.",
+          "heading": "Evidence boundary",
+          "level": "evidence"
+        }
+      ],
+      "question": "What does the real-data Pages layer currently cover?",
+      "short_answer": "The public layer represents 1000 aggregate jurisdiction units, 1517672 LOCUS law records, and 50 states or district entries. It publishes aggregate counts only, not ordinance text.",
+      "supporting_facts": [
+        {
+          "label": "unit count",
+          "source": "aggregate artifacts",
+          "value": 1000
+        },
+        {
+          "label": "law count",
+          "source": "aggregate artifacts",
+          "value": 1517672
+        },
+        {
+          "label": "state count",
+          "source": "aggregate artifacts",
+          "value": 50
+        }
+      ],
+      "title": "Published aggregate coverage"
+    },
+    {
+      "id": "map",
+      "progressive_sections": [
+        {
+          "body": "177 county polygons and 815 municipal/town points are machine matched to the aggregate LOCUS layer pending review.",
+          "heading": "Current geography",
+          "level": "overview"
+        },
+        {
+          "heading": "Color modes",
+          "level": "unit",
+          "rows": [
+            {
+              "meaning": "neutral score band",
+              "mode": "tier"
+            },
+            {
+              "meaning": "dominant LOCUS topic in aggregate counts",
+              "mode": "topic"
+            },
+            {
+              "meaning": "dominant LOCUS function in aggregate counts",
+              "mode": "function"
+            },
+            {
+              "meaning": "relative aggregate record count intensity",
+              "mode": "law_count"
+            }
+          ]
+        },
+        {
+          "body": "County geometry status: official_census_county_geometry_machine_matched_pending_review. Municipal geometry status: official_census_municipal_points_machine_matched_pending_review. State-cluster fallback status: state_clustered_approximate_layout_until_reviewed_county_town_geometries_available.",
+          "heading": "Geometry provenance",
+          "level": "evidence"
+        }
+      ],
+      "question": "How should I read the county and town colored map?",
+      "short_answer": "The map supports aggregate color modes for neutral tier, dominant topic, dominant function, and law-count intensity. Colors are exploratory model-output summaries, not rankings.",
+      "supporting_facts": [
+        {
+          "label": "county matches",
+          "source": "aggregate artifacts",
+          "value": 177
+        },
+        {
+          "label": "municipal matches",
+          "source": "aggregate artifacts",
+          "value": 815
+        }
+      ],
+      "title": "County and town map coloring"
+    },
+    {
+      "id": "ontology",
+      "progressive_sections": [
+        {
+          "body": "Topics, functions, score dimensions, neutral tiers, and jurisdiction units are represented.",
+          "heading": "Core node types",
+          "level": "overview"
+        },
+        {
+          "body": "Top aggregate topic: Other (407704). Top aggregate function: Rules (962831).",
+          "heading": "Dominant aggregate signals",
+          "level": "unit"
+        },
+        {
+          "body": "Ontology edges summarize model-produced dataset fields. They are not verified legal relationships.",
+          "heading": "Interpretation boundary",
+          "level": "evidence"
+        }
+      ],
+      "question": "What ontology is being built from LOCUS?",
+      "short_answer": "The current ontology has 1018 nodes and 3000 edges linking jurisdiction units to released topics, functions, neutral tiers, and score dimensions.",
+      "supporting_facts": [
+        {
+          "label": "ontology nodes",
+          "source": "aggregate artifacts",
+          "value": 1018
+        },
+        {
+          "label": "ontology edges",
+          "source": "aggregate artifacts",
+          "value": 3000
+        }
+      ],
+      "title": "Ontology from released LOCUS fields"
+    },
+    {
+      "id": "models",
+      "progressive_sections": [
+        {
+          "body": "The browser imports aggregate outputs for substantivity, function, topic, and four continuous score fields.",
+          "heading": "Released outputs",
+          "level": "overview"
+        },
+        {
+          "heading": "Current aggregate score means",
+          "level": "unit",
+          "rows": [
+            {
+              "label": "enforcement_discretion",
+              "value": -0.0997
+            },
+            {
+              "label": "opacity",
+              "value": 0.0353
+            },
+            {
+              "label": "paternalism",
+              "value": -0.0648
+            },
+            {
+              "label": "problem_salience",
+              "value": -0.1404
+            }
+          ]
+        },
+        {
+          "body": "Do not interpret a higher or lower score as more or less lawful, burdensome, free, opaque, or paternalistic until source model documentation is reviewed.",
+          "heading": "No legal conclusion",
+          "level": "evidence"
+        }
+      ],
+      "question": "What do the model scores mean on this site?",
+      "short_answer": "The site displays released LOCUS labels and neutral score aggregates. Score direction is not verified here.",
+      "supporting_facts": [
+        {
+          "label": "tier mix",
+          "source": "aggregate artifacts",
+          "value": "Tier 1: 334, Tier 2: 333, Tier 3: 333"
+        },
+        {
+          "label": "kind mix",
+          "source": "aggregate artifacts",
+          "value": "city: 823, county: 177"
+        }
+      ],
+      "title": "Model-output interpretation"
+    },
+    {
+      "id": "safety",
+      "progressive_sections": [
+        {
+          "body": "Grok API keys must never be embedded in GitHub Pages JavaScript.",
+          "heading": "Browser policy",
+          "level": "overview"
+        },
+        {
+          "body": "A GitHub Actions or local Python job may use GROK_API_KEY to generate static aggregate-only summaries.",
+          "heading": "Offline generation",
+          "level": "unit"
+        },
+        {
+          "body": "The generated public artifact must not contain raw ordinance text, headers, source locators, secrets, or private local paths.",
+          "heading": "Data boundary",
+          "level": "evidence"
+        }
+      ],
+      "question": "Can Grok answer live questions on the GitHub Pages site?",
+      "short_answer": "No. GitHub Pages is static. Grok can only enrich aggregate artifacts in offline jobs, never in browser JavaScript.",
+      "supporting_facts": [
+        {
+          "label": "Secret name",
+          "source": "status.json/models.json",
+          "value": "GROK_API_KEY"
+        },
+        {
+          "label": "Browser LLM calls",
+          "source": "publication policy",
+          "value": "disabled"
+        }
+      ],
+      "title": "Publication and Grok boundary"
+    }
+  ],
+  "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
+  "dataset_id": "LocalLaws/LOCUS-v1",
+  "dataset_revision": "main",
+  "facts": {
+    "analysis_state": "local_aggregate_ready",
+    "county_matches": 177,
+    "dataset_revision": "main",
+    "kind_mix": "city: 823, county: 177",
+    "law_count": 1517672,
+    "municipal_matches": 815,
+    "ontology_edges": 3000,
+    "ontology_nodes": 1018,
+    "state_count": 50,
+    "tier_mix": "Tier 1: 334, Tier 2: 333, Tier 3: 333",
+    "top_function": "Rules (962831)",
+    "top_topic": "Other (407704)",
+    "unit_count": 1000
+  },
+  "generated_at": "2026-06-21T16:59:32.542999+00:00",
+  "generator": "evolocus-static-progressive-inquiry",
+  "grok": {
+    "docs": "https://docs.x.ai/overview",
+    "endpoint": "https://api.x.ai/v1/responses",
+    "error": null,
+    "model": "grok-4.3",
+    "secret_env": "GROK_API_KEY",
+    "used": false
+  },
+  "license": "CC-BY-NC-4.0",
+  "paper": "https://arxiv.org/abs/2606.19334",
+  "publication_policy": {
+    "artifact_kind": "aggregate_only_static_briefings",
+    "browser_llm_calls": false,
+    "legal_findings": false,
+    "notice": "Briefings summarize aggregate artifacts for research review. They are not legal advice or legal findings.",
+    "ordinance_text_included": false,
+    "raw_rows_included": false,
+    "record_locator_values_included": false
+  },
+  "real_locus_rows_published": false,
+  "schema_version": "evolocus-progressive-inquiry-v1",
+  "source_artifacts": [
+    {
+      "generated_at": "2026-06-21T15:37:25.327380+00:00",
+      "id": "status",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-static-analysis-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T15:37:25.346485+00:00",
+      "id": "map_layers",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-static-analysis-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T15:37:25.327260+00:00",
+      "id": "ontology",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-static-analysis-v1",
+      "synthetic": null
+    },
+    {
+      "generated_at": "2026-06-21T15:37:25.346479+00:00",
+      "id": "models",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-model-registry-v1",
+      "synthetic": null
+    },
+    {
+      "generated_at": "2026-06-21T15:37:25.346346+00:00",
+      "id": "charts",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-static-analysis-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T16:23:36.005485+00:00",
+      "id": "county_geometry",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-county-geometry-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T16:34:49.979234+00:00",
+      "id": "municipal_points",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-municipal-points-v1",
+      "synthetic": false
+    }
+  ],
+  "suggested_questions": [
+    "What does the real-data Pages layer currently cover?",
+    "How should I read the county and town colored map?",
+    "What ontology is being built from LOCUS?",
+    "What do the model scores mean on this site?",
+    "Can Grok answer live questions on the GitHub Pages site?"
+  ],
+  "synthetic": false
+}

@@ -7,7 +7,7 @@ Primary stack for the evaluator MVP:
 - GitHub Pages static HTML/CSS/JavaScript for the primary and only supported user-facing workbench.
 - Browser localStorage for reviewer-local append-only events.
 - Browser File API for bounded queue import and user-triggered exports.
-- Static JSON artifacts for map layers, ontology, models, status, inquiry, and charts.
+- Static JSON artifacts for map layers, ontology, models, status, deterministic inquiry, progressive inquiry briefings, and charts.
 - Polars lazy frames over local Parquet.
 - SQLite through Python `sqlite3` for support tooling and local queue package preparation.
 

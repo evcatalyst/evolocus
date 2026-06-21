@@ -29,3 +29,4 @@
 - Official Census TIGERweb county polygons can be published as a bounded aggregate-only artifact when matched to county units by state plus normalized county name and labeled machine-matched pending review.
 - Census TIGERweb incorporated-place points plus unique county-subdivision points can make the town/municipal layer useful while leaving ambiguous names unmatched instead of fabricating locations.
 - Color modes should stay tied to aggregate model-output fields and visible denominators; topic/function/tier/law-count views are exploratory review aids, not legal rankings.
+- Progressive inquiry should be generated as aggregate-only static JSON; Grok may enrich that artifact offline, but Pages must never make live model calls or expose API endpoints with secrets.

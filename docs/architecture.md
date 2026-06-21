@@ -60,6 +60,7 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 - `ontology.json`: topics, functions, score dimensions, tiers, and jurisdiction-unit edges.
 - `models.json`: imported LOCUS released model outputs and model-import policy.
 - `chat_index.json`: deterministic inquiry entries for the browser chat panel.
+- `inquiry_briefings.json`: progressive static answer briefings derived from aggregate artifacts.
 
 Map tiers are review-priority bands over available model-score summaries and law counts. They are not rankings of legal burden, legality, freedom, or civic performance.
 
@@ -67,7 +68,7 @@ The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer
 
 ## Grok Integration Boundary
 
-The repository secret name is `GROK_API_KEY`. It may be used by offline GitHub Actions or local jobs to produce static artifacts. It must not be exposed in Pages JavaScript because every browser-delivered asset is public.
+The repository secret name is `GROK_API_KEY`. It may be used by offline GitHub Actions or local jobs to produce static aggregate-only inquiry briefings. It must not be exposed in Pages JavaScript because every browser-delivered asset is public.
 
 ## Optional Support Components
 

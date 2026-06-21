@@ -10,6 +10,7 @@ const ANALYSIS_PATHS = {
   municipalPoints: "data/analysis/municipal_points.json",
   ontology: "data/analysis/ontology.json",
   chatIndex: "data/analysis/chat_index.json",
+  inquiryBriefings: "data/analysis/inquiry_briefings.json",
   models: "data/analysis/models.json",
   charts: "data/analysis/charts.json",
 };
@@ -234,6 +235,7 @@ let state = {
     municipalPoints: null,
     ontology: null,
     chatIndex: null,
+    inquiryBriefings: null,
     models: null,
     charts: null,
     error: null,
@@ -1404,13 +1406,37 @@ function renderOntology() {
 
 function renderInquiry() {
   const chatIndex = state.analysis.chatIndex;
-  const suggested = chatIndex ? chatIndex.suggested_questions || [] : [];
+  const briefings = state.analysis.inquiryBriefings;
+  const suggested = [
+    ...((briefings && briefings.suggested_questions) || []),
+    ...((chatIndex && chatIndex.suggested_questions) || []),
+  ].slice(0, 8);
+  const grok = briefings?.grok || {};
+  const generatedAt = briefings?.generated_at ? new Date(briefings.generated_at).toLocaleString() : "not loaded";
+  $("#inquiry-provenance").innerHTML = briefings
+    ? `
+      <span>${escapeHtml(briefings.synthetic ? "Synthetic briefing" : "Real aggregate briefing")}</span>
+      <span>${escapeHtml(grok.used ? `Grok-enriched offline (${grok.model})` : "Deterministic static briefing")}</span>
+      <span>Generated ${escapeHtml(generatedAt)}</span>
+      <span>No live browser LLM calls</span>
+    `
+    : "<span>Inquiry briefings loading</span>";
   $("#suggested-questions").innerHTML = suggested
     .map((question) => `<button type="button" data-question="${escapeHtml(question)}">${escapeHtml(question)}</button>`)
     .join("");
   $("#inquiry-answer").innerHTML = state.inquiryAnswer
-    ? `<h3>${escapeHtml(state.inquiryAnswer.title)}</h3><p>${escapeHtml(state.inquiryAnswer.answer)}</p>${state.inquiryAnswer.matches}`
+    ? inquiryAnswerHtml(state.inquiryAnswer)
     : "<p>Ask about status, tiers, topics, map units, model outputs, or Grok integration.</p>";
+}
+
+function inquiryAnswerHtml(answer) {
+  return `
+    <h3>${escapeHtml(answer.title)}</h3>
+    <p>${escapeHtml(answer.answer)}</p>
+    ${answer.grokSummary ? `<aside><strong>Offline Grok summary</strong><p>${escapeHtml(answer.grokSummary)}</p></aside>` : ""}
+    ${answer.sections || ""}
+    ${answer.matches || ""}
+  `;
 }
 
 function renderPrediction(record) {
@@ -1992,11 +2018,16 @@ function answerQuestion(question) {
     return {
       title: "Ask a question",
       answer: "Enter a question about status, tiers, topics, the current filtered map view, models, or Grok integration.",
+      sections: "",
       matches: "",
     };
   }
   if (/\b(current|filtered|visible|shown|view)\b/.test(normalized) && /\b(map|unit|units|law|laws|topic|tier|state)\b/.test(normalized)) {
     return filteredViewAnswer();
+  }
+  const briefingMatch = matchInquiryBriefing(normalized);
+  if (briefingMatch) {
+    return briefingAnswer(briefingMatch);
   }
   const entries = state.analysis.chatIndex ? state.analysis.chatIndex.entries || [] : [];
   const scored = entries
@@ -2017,14 +2048,16 @@ function answerQuestion(question) {
     return {
       title: "No exact static match",
       answer: status
-        ? `The current published artifact is ${status.analysis_state} with ${status.unit_count} units and ${status.law_count} law records. This browser inquiry is deterministic over static artifacts; Grok-backed analysis must run offline and publish updated artifacts.`
+        ? `The current published artifact is ${status.analysis_state} with ${status.unit_count} units and ${status.law_count} law records. This browser inquiry reads static aggregate artifacts; Grok-backed analysis must run offline and publish updated artifacts.`
         : "Analysis artifacts have not loaded yet.",
+      sections: "",
       matches: "",
     };
   }
   return {
     title: scored[0].entry.title,
     answer: scored[0].entry.answer,
+    sections: "",
     matches: `
       <h4>Related artifact matches</h4>
       <ol>
@@ -2036,12 +2069,125 @@ function answerQuestion(question) {
   };
 }
 
+function matchInquiryBriefing(normalizedQuestion) {
+  const briefings = state.analysis.inquiryBriefings ? state.analysis.inquiryBriefings.briefings || [] : [];
+  const scored = briefings
+    .map((briefing) => {
+      const haystack = [
+        briefing.id,
+        briefing.title,
+        briefing.question,
+        briefing.short_answer,
+        ...(briefing.progressive_sections || []).flatMap((section) => [section.heading, section.body]),
+      ]
+        .join(" ")
+        .toLowerCase();
+      const score = normalizedQuestion
+        .split(/\s+/)
+        .filter((term) => term.length > 2)
+        .reduce((total, term) => total + (haystack.includes(term) ? 1 : 0), 0);
+      const exactBoost = briefing.question && briefing.question.toLowerCase() === normalizedQuestion ? 100 : 0;
+      return { briefing, score: score + exactBoost };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored.length ? { ...scored[0], related: scored.slice(0, 5) } : null;
+}
+
+function briefingAnswer(match) {
+  const artifact = state.analysis.inquiryBriefings || {};
+  return {
+    title: match.briefing.title,
+    answer: match.briefing.short_answer,
+    grokSummary: artifact.grok_summary || "",
+    sections: briefingSectionsHtml(match.briefing),
+    matches: `
+      <h4>Related static briefings</h4>
+      <ol>
+        ${match.related
+          .map((item) => `<li>${escapeHtml(item.briefing.title)} <span>score ${escapeHtml(String(item.score))}</span></li>`)
+          .join("")}
+      </ol>
+      ${briefingFactsHtml(match.briefing)}
+    `,
+  };
+}
+
+function briefingSectionsHtml(briefing) {
+  const allowed = disclosureLevelsForInquiry();
+  const sections = (briefing.progressive_sections || []).filter((section) => allowed.includes(section.level));
+  if (!sections.length) {
+    return "";
+  }
+  return `
+    <div class="briefing-sections">
+      ${sections
+        .map(
+          (section) => `
+            <section>
+              <span>${escapeHtml(section.level || "overview")}</span>
+              <h4>${escapeHtml(section.heading || "Detail")}</h4>
+              ${section.body ? `<p>${escapeHtml(section.body)}</p>` : ""}
+              ${briefingRowsHtml(section.rows || [])}
+            </section>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function disclosureLevelsForInquiry() {
+  if (state.disclosureLevel === "evidence") {
+    return ["overview", "unit", "evidence"];
+  }
+  if (state.disclosureLevel === "unit") {
+    return ["overview", "unit"];
+  }
+  return ["overview"];
+}
+
+function briefingRowsHtml(rows) {
+  if (!rows.length) {
+    return "";
+  }
+  return `
+    <div class="briefing-row-list">
+      ${rows
+        .slice(0, 8)
+        .map((row) => `<span>${escapeHtml(Object.entries(row).map(([key, value]) => `${key}: ${value}`).join(" · "))}</span>`)
+        .join("")}
+    </div>
+  `;
+}
+
+function briefingFactsHtml(briefing) {
+  const facts = briefing.supporting_facts || [];
+  if (!facts.length) {
+    return "";
+  }
+  return `
+    <h4>Supporting aggregate facts</h4>
+    <dl class="briefing-facts">
+      ${facts
+        .map(
+          (fact) => `
+            <dt>${escapeHtml(fact.label)}</dt>
+            <dd>${escapeHtml(fact.value)} <span>${escapeHtml(fact.source || "aggregate artifacts")}</span></dd>
+          `,
+        )
+        .join("")}
+    </dl>
+  `;
+}
+
 function filteredViewAnswer() {
   const mapLayers = state.analysis.mapLayers;
   if (!mapLayers) {
     return {
       title: "Current map view",
       answer: "The aggregate map artifact has not loaded yet.",
+      sections: "",
       matches: "",
     };
   }
@@ -2051,6 +2197,7 @@ function filteredViewAnswer() {
   return {
     title: "Current filtered map view",
     answer: `Using ${filters}, the visible aggregate layer contains ${formatCount(units.length)} jurisdiction units and ${formatCount(summary.lawCount)} law records. The largest visible unit is ${summary.topUnit ? displayUnitName(summary.topUnit) : "not available"}. The top non-null topic is ${summary.topTopic.label}, and the top function is ${summary.topFunction.label}. These are aggregate model-output summaries, not legal findings.`,
+    sections: "",
     matches: `
       <h4>Filtered aggregate summary</h4>
       <ol>
@@ -2206,17 +2353,18 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, models, charts] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, inquiryBriefings, models, charts] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
       fetchJson(ANALYSIS_PATHS.municipalPoints),
       fetchJson(ANALYSIS_PATHS.ontology),
       fetchJson(ANALYSIS_PATHS.chatIndex),
+      fetchJson(ANALYSIS_PATHS.inquiryBriefings),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, models, charts, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, inquiryBriefings, models, charts, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }

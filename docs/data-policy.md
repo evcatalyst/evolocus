@@ -22,6 +22,7 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - Browser review events stay in localStorage until the reviewer explicitly exports them.
 - Public map, chart, inquiry, and ontology artifacts may be synthetic or reviewed aggregate-only outputs.
 - Aggregate-only public artifacts may include jurisdiction-unit names, counts, neutral tiers, topic/function aggregates, and model-score summaries, but must omit ordinance text, raw LOCUS rows, local SQLite state, local exports, credentials, and private machine paths.
+- Static progressive inquiry briefings must be derived from aggregate artifacts and must not introduce unsupported legal conclusions, rankings, or raw record excerpts.
 - Grok API keys belong only in GitHub Actions secrets or local environment variables, never in browser JavaScript.
 
 ## Future Real Data Rules

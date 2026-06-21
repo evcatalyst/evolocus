@@ -41,7 +41,8 @@
         "Add county/town aggregate coverage atlas in the Charts tab",
         "Add official Census TIGERweb county choropleth for matched aggregate county units",
         "Add official Census TIGERweb municipal/town point layer for matched aggregate municipal units",
-        "Add geography color modes for tier, topic, function, and law-count intensity"
+        "Add geography color modes for tier, topic, function, and law-count intensity",
+        "Add static progressive inquiry briefings with offline-only Grok enrichment path"
       ],
       "remaining_items": [
         "Run full real LOCUS local-Parquet audit and manifest generation",

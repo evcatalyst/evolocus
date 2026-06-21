@@ -40,7 +40,7 @@ The Pages app supports:
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
-- static inquiry over current analysis artifacts;
+- static progressive inquiry briefings over current aggregate analysis artifacts;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
 - progressive disclosure from overview to unit detail to evidence trail;
 - synthetic demo queue;
@@ -76,7 +76,8 @@ Support tooling:
 - Polars lazy frames over Parquet for corpus reads and bounded transforms.
 - SQLite through Python `sqlite3` for local support workflows.
 - CLI commands for audit, queue seeding, and export package creation.
-- `publish-analysis` for generating Pages-ready status, map, ontology, model, and inquiry JSON.
+- `publish-analysis` for generating Pages-ready status, map, ontology, model, and deterministic inquiry JSON.
+- `publish-inquiry-briefings` for generating static progressive inquiry briefings, optionally enriched by Grok in offline jobs only.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
 
@@ -200,7 +201,7 @@ Use the repository secret name `GROK_API_KEY` for future offline analysis jobs. 
 gh secret set GROK_API_KEY --repo evcatalyst/evolocus
 ```
 
-The key must never be embedded into `site/assets/app.js` or any other browser-delivered file. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
+The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
 
 ## Hugging Face Download One-Liner
 

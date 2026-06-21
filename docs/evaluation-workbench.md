@@ -20,7 +20,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - county/town aggregate coverage atlas by state, source-unit type, and neutral tier;
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
 - ontology and model-output registry views;
-- static inquiry over published analysis artifacts;
+- static progressive inquiry briefings over published aggregate artifacts;
 - aggregate chart panels and publication gates;
 - progressive disclosure from overview to unit detail to evidence trail;
 - blinded review by default;
@@ -94,6 +94,16 @@ PYTHONPATH=src python -m evolocus.cli publish-municipal-points \
   --map-layers site/data/analysis/map_layers.json \
   --output site/data/analysis/municipal_points.json
 ```
+
+Refresh static progressive inquiry briefings from the current aggregate artifacts:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings \
+  --analysis-dir site/data/analysis \
+  --output site/data/analysis/inquiry_briefings.json
+```
+
+Offline jobs may add `--use-grok` when `GROK_API_KEY` is available. The output must remain aggregate-only and must not include ordinance text, headers, source locators, local paths, or secrets.
 
 ## Support CLI
 
