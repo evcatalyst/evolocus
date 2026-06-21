@@ -90,6 +90,7 @@ Current coverage stats:
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, topic, function, audit, score, and selected-unit answers
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
+- Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
@@ -144,6 +145,7 @@ Latest update:
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
+- Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.
 
 Evaluator implementation state:
 

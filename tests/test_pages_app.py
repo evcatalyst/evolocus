@@ -12,6 +12,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Score Lens" in html
     assert "Audit Lens" in html
     assert "Queue Plan" in html
+    assert "Export Current View JSON" in html
     assert "Question matrix" in html
     assert "localStorage" in js
     assert "reveal_prediction" in js
@@ -47,6 +48,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "queuePlanPayload" in js
     assert "exportQueuePlan" in js
     assert "data-open-queue-unit" in js
+    assert "currentViewSnapshotPayload" in js
+    assert "exportCurrentViewSnapshot" in js
     assert "auditGateSummary" in js
     assert "auditOcrBarsHtml" in js
     assert "fetchAnalysisArtifacts" in js

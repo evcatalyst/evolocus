@@ -139,6 +139,14 @@
         </form>
         <div id="map-insight-grid" class="map-insight-grid" aria-live="polite"></div>
         <div id="map-comparison-grid" class="map-comparison-grid" aria-live="polite"></div>
+        <section class="view-export-strip" aria-label="Export current aggregate map view">
+          <div>
+            <p class="eyebrow">Export View</p>
+            <h3>Share the current aggregate snapshot.</h3>
+            <p>Exports current filters, visible aggregate counts, selected unit metadata, audit signals, and briefing provenance only.</p>
+          </div>
+          <button class="export-current-view" type="button">Export Current View JSON</button>
+        </section>
         <section class="disclosure-control" aria-label="Progressive disclosure level">
           <div>
             <p class="eyebrow">Progressive disclosure</p>
@@ -224,6 +232,10 @@
           <button type="submit">Ask</button>
         </form>
         <div id="inquiry-provenance" class="inquiry-provenance"></div>
+        <div class="inquiry-export-row">
+          <span>Export the current filtered map and inquiry context as aggregate JSON.</span>
+          <button class="export-current-view" type="button">Export Current View JSON</button>
+        </div>
         <div id="inquiry-context-grid" class="inquiry-context-grid"></div>
         <section class="inquiry-matrix-card" aria-labelledby="inquiry-matrix-heading">
           <div class="coverage-matrix-heading">

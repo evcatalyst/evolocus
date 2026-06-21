@@ -54,6 +54,7 @@ The Pages app supports:
 - Inquiry question matrix with filter-aware prompts for map, topic, function, audit, score, and selected-unit questions;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
+- current-view snapshot export for filtered map/inquiry context, with aggregate metadata only;
 - progressive disclosure from overview to unit detail to evidence trail;
 - synthetic demo queue;
 - blinded review by default;
@@ -93,6 +94,7 @@ Support tooling:
 - `publish-unit-audit-quality` for generating aggregate per-unit audit-quality JSON from local Parquet and the reviewed public map-unit scope.
 - `validate-public-artifacts` for blocking Pages deployment when static analysis JSON contains raw text, source locators, local paths, databases, or secret-shaped values.
 - Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.
+- Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
 

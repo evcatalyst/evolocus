@@ -3070,6 +3070,137 @@ function exportQueuePlan() {
   download("evolocus-aggregate-queue-plan.json", JSON.stringify(payload, null, 2), "application/json");
 }
 
+function currentViewSnapshotPayload() {
+  const mapLayers = state.analysis.mapLayers;
+  const status = state.analysis.status || {};
+  const briefings = state.analysis.inquiryBriefings || {};
+  const allUnits = mapLayers ? mapLayers.units || [] : [];
+  const visibleUnits = mapLayers ? filterMapUnits(allUnits) : [];
+  const visibleSummary = summarizeUnits(visibleUnits);
+  const allSummary = summarizeUnits(allUnits);
+  const auditSummary = inquiryAuditSummary(visibleUnits);
+  const selectedUnit = currentSelectedMapUnit();
+  const questionInput = $("#inquiry-form input[name='question']");
+  return {
+    schema_version: "evolocus-current-view-snapshot-v1",
+    generated_at: new Date().toISOString(),
+    dataset_id: status.dataset_id || briefings.dataset_id || "LocalLaws/LOCUS-v1",
+    dataset_revision: status.dataset_revision || mapLayers?.dataset_revision || briefings.dataset_revision || "unknown",
+    license: status.license || briefings.license || "CC-BY-NC-4.0",
+    citation: status.citation || briefings.citation || "Peskoff, Barrow, Vu, and Davenport. Freeing the Law with LOCUS. arXiv:2606.19334, 2026.",
+    source_artifacts: [
+      "status.json",
+      "map_layers.json",
+      "unit_audit_quality.json",
+      "inquiry_briefings.json",
+      "county_geometry.json",
+      "municipal_points.json",
+    ],
+    publication_policy: {
+      aggregate_only: true,
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      record_locator_values_included: false,
+      browser_llm_calls: false,
+      review_events_included: false,
+      legal_findings: false,
+    },
+    view_state: {
+      active_tab: state.activeTab,
+      disclosure_level: state.disclosureLevel,
+      geography_color_mode: state.geographyColorMode,
+      filters: { ...state.mapFilters },
+      filter_labels: activeFilterLabels(),
+      selected_unit_id: selectedUnit?.unit_id || null,
+      inquiry_question: questionInput ? String(questionInput.value || "") : "",
+    },
+    visible_summary: currentViewSummaryPayload(visibleSummary, visibleUnits.length),
+    full_layer_summary: currentViewSummaryPayload(allSummary, allUnits.length),
+    audit_summary: {
+      ocr_review_rows: auditSummary.reviewRows,
+      duplicate_text_hash_rows: auditSummary.duplicateRows,
+      visible_audit_attention_max: maxAuditAttention(visibleUnits),
+    },
+    grok_briefing: {
+      used: Boolean(briefings.grok?.used),
+      model: briefings.grok?.model || null,
+      generated_at: briefings.generated_at || null,
+      summary: briefings.grok_summary || null,
+    },
+    selected_unit: selectedUnit ? currentViewUnitPayload(selectedUnit) : null,
+    visible_unit_sample: visibleUnits
+      .slice()
+      .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0) || displayUnitName(a).localeCompare(displayUnitName(b)))
+      .slice(0, 25)
+      .map(currentViewUnitPayload),
+    limitations: [
+      "This browser export contains aggregate map and inquiry metadata only.",
+      "It excludes LOCUS ordinance text, headers, raw rows, record locators, browser review events, local databases, and secrets.",
+      "Tiers, labels, audit signals, and scores are review aids, not legal findings or rankings.",
+    ],
+  };
+}
+
+function currentViewSummaryPayload(summary, unitCount) {
+  return {
+    unit_count: unitCount,
+    law_count: summary.lawCount,
+    substantive_count: summary.substantiveCount,
+    top_topic: summary.topTopic,
+    top_function: summary.topFunction,
+    tier_counts: summary.tierCounts,
+    kind_counts: summary.kindCounts,
+    topic_counts_top: topCountEntries(summary.topicCounts, 8),
+    function_counts_top: topCountEntries(summary.functionCounts, 8),
+    neutral_model_score_means: roundedScoreMeans(summary.scoreMeans),
+  };
+}
+
+function currentViewUnitPayload(unit) {
+  const audit = unitAuditQualityFor(unit.unit_id);
+  return {
+    unit_id: unit.unit_id,
+    name: unit.name,
+    state: unit.state,
+    kind: unit.kind,
+    law_count: Number(unit.law_count || 0),
+    substantive_count: Number(unit.substantive_count || 0),
+    dominant_topic: unit.dominant_topic || null,
+    dominant_function: unit.dominant_function || null,
+    neutral_tier: unit.tier_label || unit.tier || null,
+    model_substantive_share: modelSubstantiveShare(unit),
+    neutral_model_score_means: roundedScoreMeans(unit.model_score_means || {}),
+    audit_attention_score: Number(audit?.audit_attention_score || 0),
+    ocr_review_rows: Number(audit?.ocr_review_rows || 0),
+    duplicate_text_hash_rows: Number(audit?.duplicate_text_hash_rows || 0),
+  };
+}
+
+function topCountEntries(counts, limit) {
+  return Object.entries(counts || {})
+    .map(([label, value]) => ({ label, value: Number(value || 0) }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+function roundedScoreMeans(scoreMeans) {
+  return Object.fromEntries(
+    Object.entries(scoreMeans || {})
+      .map(([field, value]) => [field, Number(value)])
+      .filter(([, value]) => Number.isFinite(value))
+      .map(([field, value]) => [field, Number(value.toFixed(6))]),
+  );
+}
+
+function maxAuditAttention(units) {
+  return units.reduce((max, unit) => Math.max(max, Number(unitAuditQualityFor(unit.unit_id)?.audit_attention_score || 0)), 0);
+}
+
+function exportCurrentViewSnapshot() {
+  const payload = currentViewSnapshotPayload();
+  download("evolocus-current-view-snapshot.json", JSON.stringify(payload, null, 2), "application/json");
+}
+
 function renderAnalysisCharts() {
   const charts = state.analysis.charts ? state.analysis.charts.charts || {} : null;
   const grid = $("#analysis-chart-grid");
@@ -4327,6 +4458,9 @@ function bindEvents() {
   });
   $("#queue-plan-form").addEventListener("submit", applyQueuePlan);
   $("#export-queue-plan").addEventListener("click", exportQueuePlan);
+  $all(".export-current-view").forEach((button) => {
+    button.addEventListener("click", exportCurrentViewSnapshot);
+  });
   $("#queueplan-panel").addEventListener("click", (event) => {
     const button = event.target.closest("[data-open-queue-unit]");
     if (!button) {

@@ -677,6 +677,7 @@ textarea {
 }
 
 .disclosure-control,
+.view-export-strip,
 .publication-gates {
   display: flex;
   align-items: center;
@@ -690,8 +691,17 @@ textarea {
 }
 
 .disclosure-control h3,
+.view-export-strip h3,
 .publication-gates h3 {
   margin: 0;
+}
+
+.view-export-strip p {
+  margin: 6px 0 0;
+}
+
+.view-export-strip button {
+  flex: 0 0 auto;
 }
 
 .segmented,
@@ -1684,6 +1694,23 @@ legend {
   font-weight: 750;
 }
 
+.inquiry-export-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  margin-bottom: 14px;
+  padding: 12px;
+}
+
+.inquiry-export-row span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .inquiry-answer {
   min-height: 140px;
 }
@@ -2105,6 +2132,7 @@ th {
   .review-layout,
   .map-layout,
   .county-layer-heading,
+  .view-export-strip,
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
@@ -2152,6 +2180,8 @@ th {
   .review-layout,
   .map-layout,
   .county-layer-heading,
+  .view-export-strip,
+  .inquiry-export-row,
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
@@ -2179,6 +2209,12 @@ th {
   .results-grid,
   .protocol-grid {
     grid-template-columns: 1fr;
+  }
+
+  .view-export-strip,
+  .inquiry-export-row {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .score-state-cells {

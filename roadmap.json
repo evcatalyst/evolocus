@@ -55,7 +55,8 @@
         "Add Inquiry question matrix for filter-aware aggregate answers",
         "Add Queue Plan tab for aggregate review batch planning",
         "Add public artifact guard for Grok inquiry briefing refresh",
-        "Persist Grok-enriched aggregate inquiry briefings in Pages data"
+        "Persist Grok-enriched aggregate inquiry briefings in Pages data",
+        "Add aggregate current-view snapshot export"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

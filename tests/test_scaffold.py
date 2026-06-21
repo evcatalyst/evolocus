@@ -115,6 +115,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-filter-form" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
+    assert "Export Current View JSON" in html
+    assert "view-export-strip" in html
+    assert "inquiry-export-row" in html
     assert "Min laws" in html
     assert "Progressive disclosure" in html
     assert "analysis-chart-grid" in html
@@ -202,6 +205,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "applyQueuePlan" in js
     assert "exportQueuePlan" in js
     assert "data-open-queue-unit" in js
+    assert "currentViewSnapshotPayload" in js
+    assert "exportCurrentViewSnapshot" in js
+    assert "evolocus-current-view-snapshot.json" in js
+    assert "record_locator_values_included" in js
+    assert "review_events_included" in js
     assert "audit-gradient" in css
     assert "selected-audit-card" in css
     assert "audit-summary-grid" in css
@@ -209,6 +217,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "queue-plan-form" in css
     assert "queue-plan-card" in css
     assert "queue-plan-row" in css
+    assert "view-export-strip" in css
+    assert "inquiry-export-row" in css
     assert "score-summary-grid" in css
     assert "score-state-row" in css
     assert "score-unit-row" in css

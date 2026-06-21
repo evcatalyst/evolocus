@@ -31,6 +31,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - static progressive inquiry briefings over published aggregate artifacts;
 - Inquiry question matrix for filter-aware map, topic, function, audit, score, and selected-unit prompts;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
+- current-view snapshot export for filtered map/inquiry context without LOCUS text or review events;
 - aggregate chart panels and publication gates;
 - progressive disclosure from overview to unit detail to evidence trail;
 - blinded review by default;
@@ -122,6 +123,8 @@ The Audit Lens reads the same aggregate artifact and current map filters. It nev
 The Score Lens reads aggregate `map_layers.json` score means and current map filters. It describes values as neutral relative model scores because score direction has not been authoritatively verified in this milestone.
 
 The Queue Plan tab exports aggregate unit planning metadata only. It is useful for deciding which county/town units to package next in local ignored tooling, but it is not itself a record-level review queue and contains no LOCUS ordinance text, headers, source locators, SQLite state, or raw rows.
+
+The current-view snapshot export captures active filters, visible aggregate summaries, selected-unit metadata, audit signals, and Grok briefing provenance. It excludes ordinance text, headers, raw rows, record locators, browser review events, local databases, and secrets.
 
 The Inquiry question matrix reads current browser filter state and static aggregate artifacts. It is deterministic browser logic unless a future offline workflow publishes refreshed briefing JSON.
 
