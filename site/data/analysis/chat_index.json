@@ -1,0 +1,130 @@
+{
+  "entries": [
+    {
+      "answer": "Analysis state is synthetic_demo. 6 map units and 6 law records are represented in the current artifact.",
+      "id": "status",
+      "keywords": [
+        "status",
+        "current",
+        "progress",
+        "real data",
+        "synthetic"
+      ],
+      "title": "Analysis status"
+    },
+    {
+      "answer": "Tiers are neutral model-score bands for review prioritization, not legal rankings or findings.",
+      "id": "tiers",
+      "keywords": [
+        "tier",
+        "color",
+        "map",
+        "score"
+      ],
+      "title": "Tier meaning"
+    },
+    {
+      "answer": "The current ontology has 25 nodes and 18 edges.",
+      "id": "ontology",
+      "keywords": [
+        "ontology",
+        "topic",
+        "function",
+        "model"
+      ],
+      "title": "Ontology scope"
+    },
+    {
+      "answer": "Grok can be used only by offline analysis jobs with GROK_API_KEY in GitHub secrets or local env; the key is never shipped to Pages.",
+      "id": "grok",
+      "keywords": [
+        "grok",
+        "api",
+        "key",
+        "chat",
+        "llm"
+      ],
+      "title": "Grok integration policy"
+    },
+    {
+      "answer": "Demo County has 1 records in this artifact, dominant topic Nuisance, dominant function Enforcement, and neutral tier Tier 2.",
+      "id": "unit:CA:county:Demo County",
+      "keywords": [
+        "Demo County",
+        "CA",
+        "Nuisance",
+        "Enforcement",
+        "tier_2"
+      ],
+      "title": "Demo County"
+    },
+    {
+      "answer": "Unknown jurisdiction has 1 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:FL:city:Unknown",
+      "keywords": [
+        "Unknown jurisdiction",
+        "FL",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "Unknown jurisdiction"
+    },
+    {
+      "answer": "Unknown jurisdiction has 1 records in this artifact, dominant topic Buildings, dominant function Structural, and neutral tier Tier 3.",
+      "id": "unit:N Y:unknown:Unknown",
+      "keywords": [
+        "Unknown jurisdiction",
+        "N Y",
+        "Buildings",
+        "Structural",
+        "tier_3"
+      ],
+      "title": "Unknown jurisdiction"
+    },
+    {
+      "answer": "Sample Valley has 1 records in this artifact, dominant topic Not_applicable, dominant function Context, and neutral tier Tier 1.",
+      "id": "unit:NY:city:Sample Valley",
+      "keywords": [
+        "Sample Valley",
+        "NY",
+        "Not_applicable",
+        "Context",
+        "tier_1"
+      ],
+      "title": "Sample Valley"
+    },
+    {
+      "answer": "Example Township has 1 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:PA:city:Example Township",
+      "keywords": [
+        "Example Township",
+        "PA",
+        "Zoning",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "Example Township"
+    },
+    {
+      "answer": "Demo City has 1 records in this artifact, dominant topic Business, dominant function Process, and neutral tier Tier 2.",
+      "id": "unit:TX:city:Demo City",
+      "keywords": [
+        "Demo City",
+        "TX",
+        "Business",
+        "Process",
+        "tier_2"
+      ],
+      "title": "Demo City"
+    }
+  ],
+  "generated_at": "2026-06-21T11:09:12.441790+00:00",
+  "schema_version": "evolocus-static-analysis-v1",
+  "suggested_questions": [
+    "What is the current analysis status?",
+    "What do the map tiers mean?",
+    "Which units mention zoning?",
+    "Can Grok answer live questions on this Pages site?"
+  ]
+}

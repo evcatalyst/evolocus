@@ -3,6 +3,14 @@ const STORAGE_REVIEWER = "evolocus.pages.reviewer.v1";
 const STORAGE_BLIND = "evolocus.pages.blind.v1";
 const STORAGE_RECORDS = "evolocus.pages.records.v1";
 
+const ANALYSIS_PATHS = {
+  status: "data/analysis/status.json",
+  mapLayers: "data/analysis/map_layers.json",
+  ontology: "data/analysis/ontology.json",
+  chatIndex: "data/analysis/chat_index.json",
+  models: "data/analysis/models.json",
+};
+
 const SCORE_OPTIONS = [
   "not_reviewed",
   "far_too_low",
@@ -181,13 +189,23 @@ const syntheticRecords = [
 
 let records = loadRecords();
 let state = {
-  activeTab: "review",
+  activeTab: "map",
   currentIndex: 0,
   reviewer: localStorage.getItem(STORAGE_REVIEWER) || "local-reviewer",
   blind: localStorage.getItem(STORAGE_BLIND) !== "false",
   revealed: {},
   explorerRows: records,
   explorerPageSize: 8,
+  selectedUnitId: null,
+  inquiryAnswer: null,
+  analysis: {
+    status: null,
+    mapLayers: null,
+    ontology: null,
+    chatIndex: null,
+    models: null,
+    error: null,
+  },
 };
 
 function $(selector) {
@@ -285,6 +303,9 @@ function text(value) {
 function render() {
   renderTabs();
   renderToolbar();
+  renderMap();
+  renderOntology();
+  renderInquiry();
   renderReview();
   renderExplorer();
   renderResults();
@@ -353,6 +374,194 @@ function renderReview() {
 
   renderPrediction(record);
   renderHistory(record);
+}
+
+function renderMap() {
+  const mapLayers = state.analysis.mapLayers;
+  const status = state.analysis.status;
+  const units = mapLayers ? mapLayers.units || [] : [];
+  renderAnalysisStatus(status, units);
+
+  if (!mapLayers) {
+    $("#map-generated").textContent = state.analysis.error || "Analysis artifacts are loading.";
+    $("#map-geometry-status").textContent = "No map layer loaded";
+    $("#tier-legend").innerHTML = "";
+    $("#law-map").innerHTML = "";
+    $("#unit-detail").innerHTML = "<p>No map layer has loaded yet.</p>";
+    $("#map-unit-table tbody").innerHTML = "";
+    return;
+  }
+
+  $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
+  $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
+  $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
+  $("#tier-legend").innerHTML = Object.entries(mapLayers.tier_definitions || {})
+    .map(
+      ([tier, definition]) => `
+        <span><i style="background:${escapeHtml(definition.color)}"></i>${escapeHtml(definition.label)} <em>${escapeHtml(tier)}</em></span>
+      `,
+    )
+    .join("");
+
+  if (!state.selectedUnitId && units.length) {
+    state.selectedUnitId = units[0].unit_id;
+  }
+
+  $("#law-map").innerHTML = units.map(unitSvg).join("");
+  $("#map-unit-table tbody").innerHTML = units
+    .map(
+      (unit) => `
+        <tr>
+          <td><button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">${escapeHtml(unit.name)}</button></td>
+          <td>${escapeHtml(text(unit.state))}</td>
+          <td>${escapeHtml(text(unit.kind))}</td>
+          <td>${escapeHtml(text(unit.tier_label))}</td>
+          <td>${escapeHtml(String(unit.law_count))}</td>
+          <td>${escapeHtml(text(unit.dominant_topic))}</td>
+        </tr>
+      `,
+    )
+    .join("");
+  renderSelectedUnit();
+}
+
+function renderAnalysisStatus(status, units) {
+  const grid = $("#analysis-status-grid");
+  if (!status) {
+    grid.innerHTML = `
+      <article class="metric-card"><span class="metric-value">...</span><span class="metric-label">Loading analysis state</span></article>
+    `;
+    return;
+  }
+  const cards = [
+    ["State", status.analysis_state],
+    ["Units", status.unit_count],
+    ["Law records", status.law_count],
+    ["Real rows published", status.real_locus_rows_published ? "yes" : "no"],
+  ];
+  grid.innerHTML = cards
+    .map(
+      ([label, value]) => `
+        <article class="metric-card">
+          <span class="metric-value small">${escapeHtml(String(value))}</span>
+          <span class="metric-label">${escapeHtml(label)}</span>
+        </article>
+      `,
+    )
+    .join("");
+  if (units.length && Number(status.unit_count) !== units.length) {
+    grid.insertAdjacentHTML(
+      "beforeend",
+      `<article class="metric-card"><span class="metric-value small">${units.length}</span><span class="metric-label">Rendered units</span></article>`,
+    );
+  }
+}
+
+function unitSvg(unit) {
+  const layout = unit.layout || {};
+  const fill = unit.tier_color || "#d8dee8";
+  const selected = state.selectedUnitId === unit.unit_id ? " selected" : "";
+  const common = `data-unit-id="${escapeHtml(unit.unit_id)}" class="map-unit${selected}" fill="${escapeHtml(fill)}" tabindex="0"`;
+  if (layout.type === "point") {
+    return `<circle ${common} cx="${Number(layout.x || 0)}" cy="${Number(layout.y || 0)}" r="${Number(layout.r || 3.5)}"><title>${escapeHtml(unit.name)}: ${escapeHtml(unit.tier_label)}</title></circle>`;
+  }
+  return `<rect ${common} x="${Number(layout.x || 0)}" y="${Number(layout.y || 0)}" width="${Number(layout.w || 8)}" height="${Number(layout.h || 8)}" rx="1.5"><title>${escapeHtml(unit.name)}: ${escapeHtml(unit.tier_label)}</title></rect>`;
+}
+
+function renderSelectedUnit() {
+  const units = state.analysis.mapLayers ? state.analysis.mapLayers.units || [] : [];
+  const unit = units.find((item) => item.unit_id === state.selectedUnitId) || units[0];
+  if (!unit) {
+    $("#unit-detail").innerHTML = "<p>No unit selected.</p>";
+    return;
+  }
+  const scores = Object.entries(unit.model_score_means || {})
+    .map(([field, value]) => `<li>${escapeHtml(field)}: ${escapeHtml(value === null ? "n/a" : Number(value).toFixed(3))}</li>`)
+    .join("");
+  const samples = (unit.samples || [])
+    .map(
+      (sample) => `
+        <li>
+          <strong>${escapeHtml(text(sample.header))}</strong>
+          <span>${escapeHtml(text(sample.topic))} / ${escapeHtml(text(sample.function))}</span>
+        </li>
+      `,
+    )
+    .join("");
+  $("#unit-detail").innerHTML = `
+    <h3>${escapeHtml(unit.name)}</h3>
+    <p>${escapeHtml(text(unit.state))} ${escapeHtml(text(unit.kind))} · ${escapeHtml(unit.tier_label)}</p>
+    <dl class="metadata-grid compact-metadata">
+      <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
+      <dt>Substantive</dt><dd>${escapeHtml(String(unit.substantive_count))}</dd>
+      <dt>Dominant topic</dt><dd>${escapeHtml(text(unit.dominant_topic))}</dd>
+      <dt>Dominant function</dt><dd>${escapeHtml(text(unit.dominant_function))}</dd>
+      <dt>OCR risk</dt><dd>${escapeHtml(text(unit.ocr_risk_level))}</dd>
+    </dl>
+    <h4>Neutral model-score means</h4>
+    <ul>${scores}</ul>
+    <h4>Samples</h4>
+    <ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>
+  `;
+}
+
+function renderOntology() {
+  const ontology = state.analysis.ontology;
+  const models = state.analysis.models;
+  if (!ontology) {
+    $("#ontology-summary").innerHTML = `
+      <article class="metric-card"><span class="metric-value">...</span><span class="metric-label">Loading ontology</span></article>
+    `;
+    $("#ontology-node-list").innerHTML = "";
+    $("#model-list").innerHTML = "";
+    return;
+  }
+  const counts = (ontology.nodes || []).reduce((acc, node) => {
+    acc[node.type] = (acc[node.type] || 0) + 1;
+    return acc;
+  }, {});
+  $("#ontology-summary").innerHTML = [
+    ["Nodes", ontology.nodes.length],
+    ["Edges", ontology.edges.length],
+    ["Topics", counts.topic || 0],
+    ["Models", models ? models.models.length : 0],
+  ]
+    .map(
+      ([label, value]) => `
+        <article class="metric-card">
+          <span class="metric-value small">${escapeHtml(String(value))}</span>
+          <span class="metric-label">${escapeHtml(label)}</span>
+        </article>
+      `,
+    )
+    .join("");
+  $("#ontology-node-list").innerHTML = (ontology.nodes || [])
+    .slice(0, 80)
+    .map((node) => `<span>${escapeHtml(node.type)} · ${escapeHtml(node.label)}${node.count ? ` (${escapeHtml(String(node.count))})` : ""}</span>`)
+    .join("");
+  $("#model-list").innerHTML = models
+    ? models.models
+        .map(
+          (model) => `
+            <span>
+              ${escapeHtml(model.display_name)}
+              <em>${escapeHtml(model.output_field)} · ${escapeHtml(model.status)}</em>
+            </span>
+          `,
+        )
+        .join("")
+    : "<span>Model registry loading</span>";
+}
+
+function renderInquiry() {
+  const chatIndex = state.analysis.chatIndex;
+  const suggested = chatIndex ? chatIndex.suggested_questions || [] : [];
+  $("#suggested-questions").innerHTML = suggested
+    .map((question) => `<button type="button" data-question="${escapeHtml(question)}">${escapeHtml(question)}</button>`)
+    .join("");
+  $("#inquiry-answer").innerHTML = state.inquiryAnswer
+    ? `<h3>${escapeHtml(state.inquiryAnswer.title)}</h3><p>${escapeHtml(state.inquiryAnswer.answer)}</p>${state.inquiryAnswer.matches}`
+    : "<p>Ask about status, tiers, topics, specific synthetic units, model outputs, or Grok integration.</p>";
 }
 
 function renderPrediction(record) {
@@ -608,6 +817,60 @@ function applyExplorerFilters(event) {
   renderExplorer();
 }
 
+function answerQuestion(question) {
+  const normalized = question.trim().toLowerCase();
+  if (!normalized) {
+    return {
+      title: "Ask a question",
+      answer: "Enter a question about status, tiers, topics, map units, models, or Grok integration.",
+      matches: "",
+    };
+  }
+  const entries = state.analysis.chatIndex ? state.analysis.chatIndex.entries || [] : [];
+  const scored = entries
+    .map((entry) => {
+      const keywords = [entry.title, ...(entry.keywords || [])].join(" ").toLowerCase();
+      const score = normalized
+        .split(/\s+/)
+        .filter((term) => term.length > 2)
+        .reduce((total, term) => total + (keywords.includes(term) ? 1 : 0), 0);
+      return { entry, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  if (!scored.length) {
+    const status = state.analysis.status;
+    return {
+      title: "No exact static match",
+      answer: status
+        ? `The current published artifact is ${status.analysis_state} with ${status.unit_count} units and ${status.law_count} law records. This browser inquiry is deterministic over static artifacts; Grok-backed analysis must run offline and publish updated artifacts.`
+        : "Analysis artifacts have not loaded yet.",
+      matches: "",
+    };
+  }
+  return {
+    title: scored[0].entry.title,
+    answer: scored[0].entry.answer,
+    matches: `
+      <h4>Related artifact matches</h4>
+      <ol>
+        ${scored
+          .map((item) => `<li>${escapeHtml(item.entry.title)} <span>score ${escapeHtml(String(item.score))}</span></li>`)
+          .join("")}
+      </ol>
+    `,
+  };
+}
+
+function submitInquiry(event) {
+  event.preventDefault();
+  const question = new FormData(event.currentTarget).get("question") || "";
+  state.inquiryAnswer = answerQuestion(String(question));
+  renderInquiry();
+}
+
 function importQueue(event) {
   const file = event.target.files[0];
   if (!file) {
@@ -743,6 +1006,30 @@ function formatFraction(metric) {
   return `${metric.correct}/${metric.denominator}`;
 }
 
+async function fetchAnalysisArtifacts() {
+  try {
+    const [status, mapLayers, ontology, chatIndex, models] = await Promise.all([
+      fetchJson(ANALYSIS_PATHS.status),
+      fetchJson(ANALYSIS_PATHS.mapLayers),
+      fetchJson(ANALYSIS_PATHS.ontology),
+      fetchJson(ANALYSIS_PATHS.chatIndex),
+      fetchJson(ANALYSIS_PATHS.models),
+    ]);
+    state.analysis = { status, mapLayers, ontology, chatIndex, models, error: null };
+  } catch (error) {
+    state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
+  }
+  render();
+}
+
+async function fetchJson(path) {
+  const response = await fetch(path, { cache: "no-cache" });
+  if (!response.ok) {
+    throw new Error(`${path} returned ${response.status}`);
+  }
+  return response.json();
+}
+
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -800,6 +1087,24 @@ function bindEvents() {
   });
   $("#review-form").addEventListener("submit", handleReviewSubmit);
   $("#explorer-form").addEventListener("submit", applyExplorerFilters);
+  $("#inquiry-form").addEventListener("submit", submitInquiry);
+  $("#suggested-questions").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-question]");
+    if (!button) {
+      return;
+    }
+    $("#inquiry-form input[name='question']").value = button.dataset.question;
+    state.inquiryAnswer = answerQuestion(button.dataset.question);
+    renderInquiry();
+  });
+  $("#map-panel").addEventListener("click", (event) => {
+    const target = event.target.closest("[data-unit-id]");
+    if (!target) {
+      return;
+    }
+    state.selectedUnitId = target.dataset.unitId;
+    renderMap();
+  });
   $("#explorer-table").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-open-record]");
     if (!button) {
@@ -817,3 +1122,4 @@ function bindEvents() {
 initializeScoreSelects();
 bindEvents();
 render();
+fetchAnalysisArtifacts();

@@ -7,19 +7,22 @@ Current evaluator architecture:
 ```mermaid
 flowchart LR
   A["Synthetic demo or bounded queue JSON"] --> B["GitHub Pages browser app"]
-  B --> C["Blinded human review form"]
-  C --> D["Append-only localStorage review events"]
-  D --> E["Browser metrics and disagreement summaries"]
-  D --> F["User-triggered CSV/JSON exports"]
-  G["LOCUS Parquet support tooling"] --> H["Polars lazy validation and sampling"]
-  H --> I["Bounded queue/export packages"]
-  I --> A
+  C["Static analysis artifacts"] --> B
+  B --> D["Map, ontology, inquiry, review UI"]
+  D --> E["Append-only localStorage review events"]
+  E --> F["Browser metrics and disagreement summaries"]
+  E --> G["User-triggered CSV/JSON exports"]
+  H["LOCUS Parquet support tooling"] --> I["Polars lazy validation and aggregation"]
+  I --> J["Bounded queue/export packages"]
+  I --> C
+  J --> A
 ```
 
 ## Current Milestone
 
 - GitHub Pages serves the workbench from `site/`.
 - Browser JavaScript handles queue review, explorer filters, metrics, local persistence, and exports.
+- Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - Browser storage is local to the reviewer and is not a shared database.
 - Demo mode is synthetic and conspicuously labeled.
 - Real LOCUS rows are not published through Pages.
@@ -46,6 +49,22 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 - bounded queue import through the browser File API;
 - content-free latest-review CSV export;
 - review-event JSON export.
+
+## Static Analysis Artifacts
+
+`src/evolocus/analysis_publish.py` generates:
+
+- `status.json`: analysis state, dataset revision, public-data flags, Grok policy.
+- `map_layers.json`: county/town-style units, neutral tier colors, law counts, model-score summaries.
+- `ontology.json`: topics, functions, score dimensions, tiers, and jurisdiction-unit edges.
+- `models.json`: imported LOCUS released model outputs and model-import policy.
+- `chat_index.json`: deterministic inquiry entries for the browser chat panel.
+
+Map tiers are review-priority bands over available model-score summaries and law counts. They are not rankings of legal burden, legality, freedom, or civic performance.
+
+## Grok Integration Boundary
+
+The repository secret name is `GROK_API_KEY`. It may be used by offline GitHub Actions or local jobs to produce static artifacts. It must not be exposed in Pages JavaScript because every browser-delivered asset is public.
 
 ## Optional Support Components
 

@@ -1,0 +1,78 @@
+{
+  "dataset": "LocalLaws/LOCUS-v1",
+  "generated_at": "2026-06-21T11:09:12.441801+00:00",
+  "grok": {
+    "allowed_use": "offline analysis jobs that generate static artifacts",
+    "forbidden_use": "embedding the key in GitHub Pages JavaScript",
+    "secret_name": "GROK_API_KEY"
+  },
+  "import_policy": {
+    "hf_model_downloads": "deferred_until_model_cards_are_verified",
+    "score_direction": "unverified",
+    "status": "released_dataset_outputs_imported"
+  },
+  "models": [
+    {
+      "display_name": "LOCUS substantivity classifier output",
+      "id": "locus_is_substantive",
+      "output_field": "is_substantive",
+      "source": "LocalLaws/LOCUS-v1",
+      "status": "released_column",
+      "task": "binary classification"
+    },
+    {
+      "display_name": "LOCUS function classifier output",
+      "id": "locus_function",
+      "output_field": "function",
+      "source": "LocalLaws/LOCUS-v1",
+      "status": "released_column",
+      "task": "multiclass classification"
+    },
+    {
+      "display_name": "LOCUS topic classifier output",
+      "id": "locus_topic",
+      "output_field": "topic",
+      "source": "LocalLaws/LOCUS-v1",
+      "status": "released_column",
+      "task": "multiclass classification"
+    },
+    {
+      "direction_verified": false,
+      "display_name": "LOCUS enforcement discretion scorer output",
+      "id": "locus_enforcement_discretion",
+      "output_field": "enforcement_discretion",
+      "source": "LocalLaws/LOCUS-v1",
+      "status": "released_column",
+      "task": "continuous model score"
+    },
+    {
+      "direction_verified": false,
+      "display_name": "LOCUS opacity scorer output",
+      "id": "locus_opacity",
+      "output_field": "opacity",
+      "source": "LocalLaws/LOCUS-v1",
+      "status": "released_column",
+      "task": "continuous model score"
+    },
+    {
+      "direction_verified": false,
+      "display_name": "LOCUS paternalism scorer output",
+      "id": "locus_paternalism",
+      "output_field": "paternalism",
+      "source": "LocalLaws/LOCUS-v1",
+      "status": "released_column",
+      "task": "continuous model score"
+    },
+    {
+      "direction_verified": false,
+      "display_name": "LOCUS problem salience scorer output",
+      "id": "locus_problem_salience",
+      "output_field": "problem_salience",
+      "source": "LocalLaws/LOCUS-v1",
+      "status": "released_column",
+      "task": "continuous model score"
+    }
+  ],
+  "paper": "https://arxiv.org/abs/2606.19334",
+  "schema_version": "evolocus-model-registry-v1"
+}

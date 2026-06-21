@@ -13,9 +13,12 @@
       <nav class="nav" aria-label="Primary">
         <a class="brand" href="./">EvoLOCUS</a>
         <div class="nav-links" role="list">
-          <button class="tab-link active" type="button" data-tab="review">Review Queue</button>
+          <button class="tab-link active" type="button" data-tab="map">Law Map</button>
+          <button class="tab-link" type="button" data-tab="inquiry">Inquiry</button>
+          <button class="tab-link" type="button" data-tab="ontology">Ontology</button>
+          <button class="tab-link" type="button" data-tab="results">Charts</button>
+          <button class="tab-link" type="button" data-tab="review">Review Queue</button>
           <button class="tab-link" type="button" data-tab="explorer">Dataset Explorer</button>
-          <button class="tab-link" type="button" data-tab="results">Evaluation Results</button>
           <button class="tab-link" type="button" data-tab="protocol">Protocol</button>
         </div>
       </nav>
@@ -29,6 +32,7 @@
         <div class="status-strip" aria-label="Workbench status summary">
           <span>Pages-first UI</span>
           <span>Synthetic only by default</span>
+          <span>Map + ontology artifacts</span>
           <span>No server database</span>
           <span>No real LOCUS rows published</span>
         </div>
@@ -68,7 +72,88 @@
         <button id="export-events" type="button">Export Events JSON</button>
       </section>
 
-      <section id="review-panel" class="panel active" aria-labelledby="review-heading">
+      <section id="map-panel" class="panel active" aria-labelledby="map-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Law Map</p>
+          <h2 id="map-heading">County and town law presence by neutral tier.</h2>
+          <p>
+            The current public layer is synthetic. Real map artifacts must be generated locally from reviewed data
+            and published only after provenance and license checks.
+          </p>
+        </div>
+        <div class="analysis-status-grid" id="analysis-status-grid"></div>
+        <div class="map-layout">
+          <article class="map-card">
+            <div class="map-toolbar">
+              <span id="map-generated">Analysis status loading</span>
+              <span id="map-geometry-status">Geometry status unknown</span>
+            </div>
+            <div id="tier-legend" class="tier-legend"></div>
+            <svg id="law-map" viewBox="0 0 100 100" role="img" aria-label="Synthetic tier map"></svg>
+            <p class="map-note" id="map-note"></p>
+          </article>
+          <aside class="unit-detail" id="unit-detail" aria-live="polite"></aside>
+        </div>
+        <div class="table-wrap map-table-wrap">
+          <table id="map-unit-table">
+            <thead>
+              <tr>
+                <th>Unit</th>
+                <th>State</th>
+                <th>Kind</th>
+                <th>Tier</th>
+                <th>Laws</th>
+                <th>Topic</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="inquiry-panel" class="panel" aria-labelledby="inquiry-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Inquiry</p>
+          <h2 id="inquiry-heading">Ask questions against the published analysis state.</h2>
+          <p>
+            This is a static browser inquiry tool over published artifacts. Grok-backed analysis can generate
+            future static summaries offline, but no API key is exposed in the browser.
+          </p>
+        </div>
+        <form id="inquiry-form" class="inquiry-form">
+          <label>
+            Question
+            <input name="question" type="search" placeholder="What do the map tiers mean?">
+          </label>
+          <button type="submit">Ask</button>
+        </form>
+        <div id="suggested-questions" class="suggested-questions"></div>
+        <article id="inquiry-answer" class="inquiry-answer"></article>
+      </section>
+
+      <section id="ontology-panel" class="panel" aria-labelledby="ontology-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Ontology</p>
+          <h2 id="ontology-heading">Topics, functions, tiers, model outputs, and jurisdiction units.</h2>
+          <p>
+            The ontology is generated from LOCUS released fields and local analysis artifacts. Edges summarize
+            model-produced outputs and are not legal conclusions.
+          </p>
+        </div>
+        <div id="ontology-summary" class="analysis-status-grid"></div>
+        <div class="ontology-layout">
+          <article>
+            <h3>Ontology nodes</h3>
+            <div id="ontology-node-list" class="node-list"></div>
+          </article>
+          <article>
+            <h3>Imported model outputs</h3>
+            <div id="model-list" class="node-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="review-panel" class="panel" aria-labelledby="review-heading">
         <div class="section-heading">
           <p class="eyebrow">Review Queue</p>
           <h2 id="review-heading">Inspect, label, save, skip, flag, and resume.</h2>

@@ -65,6 +65,9 @@ Current coverage stats:
 - Evaluator code: complete
 - Synthetic end-to-end validation: complete
 - Primary UI: GitHub Pages browser workbench
+- Static analysis artifacts: synthetic demo generated
+- Model registry: released LOCUS output fields imported
+- Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Real LOCUS ingest: not run
 - Real LOCUS evaluation: not started
 
@@ -89,6 +92,7 @@ Latest update:
 - Recorded the canonical arXiv source page supplied by the user: https://arxiv.org/abs/2606.19334.
 - Added production Local Law Analytics Platform plan; it is now aligned to the GitHub Pages + browser localStorage + Polars support-tooling evaluator path, with DuckDB/LanceDB/RAG/FastAPI deferred.
 - Promoted GitHub Pages from a static status page to the primary browser-based evaluator surface with localStorage review history and explicit exports.
+- Added static analysis artifacts for law map tiers, ontology, model-output registry, status, and browser inquiry.
 
 Evaluator implementation state:
 
@@ -98,3 +102,4 @@ Evaluator implementation state:
 - Real LOCUS evaluation: not started
 - Default exports omit ordinance text
 - Primary evaluator surface: GitHub Pages browser app
+- Primary inquiry/map surface: GitHub Pages browser app reading `site/data/analysis/`

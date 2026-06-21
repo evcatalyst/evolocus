@@ -1,0 +1,491 @@
+"""Publish bounded analysis artifacts for the GitHub Pages workbench."""
+
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+from dataclasses import dataclass
+from datetime import UTC, datetime
+import json
+from pathlib import Path
+from typing import Any
+
+import polars as pl
+
+from .locus_contract import CITATION, DATASET_ID, DATASET_LICENSE, PAPER_URL, SCORE_FIELDS
+from .locus_source import LocusCorpus, current_commit
+
+
+ANALYSIS_SCHEMA_VERSION = "evolocus-static-analysis-v1"
+MODEL_REGISTRY_VERSION = "evolocus-model-registry-v1"
+DEFAULT_OUTPUT_DIR = Path("site/data/analysis")
+
+TIER_DEFINITIONS = {
+    "no_data": {
+        "label": "No publishable data",
+        "color": "#d8dee8",
+        "description": "No law records are available for this unit in the published analysis artifact.",
+    },
+    "tier_1": {
+        "label": "Tier 1",
+        "color": "#b8d8c7",
+        "description": "Lower relative neutral model-score band or sparse law signal.",
+    },
+    "tier_2": {
+        "label": "Tier 2",
+        "color": "#e0c070",
+        "description": "Middle relative neutral model-score band.",
+    },
+    "tier_3": {
+        "label": "Tier 3",
+        "color": "#c46b53",
+        "description": "Higher relative neutral model-score band. This is not a legal ranking.",
+    },
+}
+
+MODEL_REGISTRY = [
+    {
+        "id": "locus_is_substantive",
+        "display_name": "LOCUS substantivity classifier output",
+        "output_field": "is_substantive",
+        "task": "binary classification",
+        "status": "released_column",
+        "source": DATASET_ID,
+    },
+    {
+        "id": "locus_function",
+        "display_name": "LOCUS function classifier output",
+        "output_field": "function",
+        "task": "multiclass classification",
+        "status": "released_column",
+        "source": DATASET_ID,
+    },
+    {
+        "id": "locus_topic",
+        "display_name": "LOCUS topic classifier output",
+        "output_field": "topic",
+        "task": "multiclass classification",
+        "status": "released_column",
+        "source": DATASET_ID,
+    },
+    *[
+        {
+            "id": f"locus_{field}",
+            "display_name": f"LOCUS {field.replace('_', ' ')} scorer output",
+            "output_field": field,
+            "task": "continuous model score",
+            "status": "released_column",
+            "source": DATASET_ID,
+            "direction_verified": False,
+        }
+        for field in SCORE_FIELDS
+    ],
+]
+
+
+@dataclass(frozen=True)
+class AnalysisPublishResult:
+    output_dir: Path
+    files: dict[str, Path]
+    unit_count: int
+    law_count: int
+    synthetic: bool
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "output_dir": str(self.output_dir),
+            "files": {key: str(path) for key, path in self.files.items()},
+            "unit_count": self.unit_count,
+            "law_count": self.law_count,
+            "synthetic": self.synthetic,
+        }
+
+
+def publish_analysis_artifacts(
+    corpus: LocusCorpus,
+    output_dir: Path = DEFAULT_OUTPUT_DIR,
+    *,
+    max_units: int = 250,
+    include_record_samples: bool | None = None,
+) -> AnalysisPublishResult:
+    """Write bounded static analysis artifacts for the Pages app."""
+
+    synthetic = corpus.config.mode == "demo"
+    include_samples = synthetic if include_record_samples is None else include_record_samples
+    if include_samples and not synthetic:
+        raise ValueError("Publishing record samples from non-demo data is blocked by default.")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    rows = _collect_aggregate_rows(corpus, max_units=max_units)
+    samples = _collect_samples(corpus, rows, include_samples=include_samples)
+    units = [_unit_from_row(index, row, samples.get(row["unit_id"], [])) for index, row in enumerate(rows)]
+    ontology = _ontology_artifact(units)
+    status = _status_artifact(corpus, units, synthetic=synthetic)
+    chat_index = _chat_index_artifact(units, ontology, status)
+    models = _models_artifact()
+    map_layers = _map_layers_artifact(corpus, units, synthetic=synthetic)
+
+    files = {
+        "status": output_dir / "status.json",
+        "map_layers": output_dir / "map_layers.json",
+        "ontology": output_dir / "ontology.json",
+        "chat_index": output_dir / "chat_index.json",
+        "models": output_dir / "models.json",
+    }
+    payloads = {
+        "status": status,
+        "map_layers": map_layers,
+        "ontology": ontology,
+        "chat_index": chat_index,
+        "models": models,
+    }
+    for key, payload in payloads.items():
+        files[key].write_text(json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8")
+    return AnalysisPublishResult(
+        output_dir=output_dir,
+        files=files,
+        unit_count=len(units),
+        law_count=sum(unit["law_count"] for unit in units),
+        synthetic=synthetic,
+    )
+
+
+def _collect_aggregate_rows(corpus: LocusCorpus, *, max_units: int) -> list[dict[str, Any]]:
+    lf = corpus.derived_lazy()
+    unit_expr = (
+        pl.col("state_normalized")
+        + pl.lit(":")
+        + pl.col("jurisdiction_type_normalized").fill_null("unknown")
+        + pl.lit(":")
+        + pl.col("jurisdiction_name").fill_null("Unknown")
+    )
+    score_exprs = [
+        pl.col(field).filter(pl.col(field).is_finite()).mean().alias(f"{field}_mean")
+        for field in SCORE_FIELDS
+    ]
+    rows = (
+        lf.with_columns(unit_expr.alias("unit_id"))
+        .group_by(
+            [
+                "unit_id",
+                "state_normalized",
+                "jurisdiction_name",
+                "jurisdiction_type_normalized",
+                "city_normalized",
+                "county_normalized",
+            ]
+        )
+        .agg(
+            [
+                pl.len().alias("law_count"),
+                pl.col("is_substantive").sum().alias("substantive_count"),
+                pl.col("topic").drop_nulls().mode().first().alias("dominant_topic"),
+                pl.col("function").drop_nulls().mode().first().alias("dominant_function"),
+                pl.col("ocr_risk_level").drop_nulls().mode().first().alias("ocr_risk_level"),
+                *score_exprs,
+            ]
+        )
+        .sort(["law_count", "unit_id"], descending=[True, False])
+        .limit(max_units)
+        .collect()
+        .to_dicts()
+    )
+    topic_counts = _topic_counts(corpus, {row["unit_id"] for row in rows})
+    function_counts = _function_counts(corpus, {row["unit_id"] for row in rows})
+    for row in rows:
+        row["topic_counts"] = topic_counts.get(row["unit_id"], {})
+        row["function_counts"] = function_counts.get(row["unit_id"], {})
+    return rows
+
+
+def _topic_counts(corpus: LocusCorpus, unit_ids: set[str]) -> dict[str, dict[str, int]]:
+    return _value_counts_by_unit(corpus, unit_ids, "topic")
+
+
+def _function_counts(corpus: LocusCorpus, unit_ids: set[str]) -> dict[str, dict[str, int]]:
+    return _value_counts_by_unit(corpus, unit_ids, "function")
+
+
+def _value_counts_by_unit(corpus: LocusCorpus, unit_ids: set[str], field: str) -> dict[str, dict[str, int]]:
+    lf = corpus.derived_lazy()
+    unit_expr = (
+        pl.col("state_normalized")
+        + pl.lit(":")
+        + pl.col("jurisdiction_type_normalized").fill_null("unknown")
+        + pl.lit(":")
+        + pl.col("jurisdiction_name").fill_null("Unknown")
+    )
+    rows = (
+        lf.with_columns(unit_expr.alias("unit_id"))
+        .filter(pl.col("unit_id").is_in(list(unit_ids)))
+        .group_by(["unit_id", field])
+        .agg(pl.len().alias("n"))
+        .collect()
+        .to_dicts()
+    )
+    counts: dict[str, dict[str, int]] = defaultdict(dict)
+    for row in rows:
+        value = row[field] if row[field] is not None else "Not_applicable"
+        counts[row["unit_id"]][str(value)] = int(row["n"])
+    return dict(counts)
+
+
+def _collect_samples(
+    corpus: LocusCorpus,
+    rows: list[dict[str, Any]],
+    *,
+    include_samples: bool,
+) -> dict[str, list[dict[str, Any]]]:
+    if not include_samples:
+        return {}
+    records = corpus.page(limit=500)
+    wanted = {row["unit_id"] for row in rows}
+    samples: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        unit_id = f"{record.get('state_normalized') or record.get('state')}:{record.get('jurisdiction_type_normalized') or 'unknown'}:{record.get('jurisdiction_name') or 'Unknown'}"
+        if unit_id not in wanted or len(samples[unit_id]) >= 3:
+            continue
+        samples[unit_id].append(
+            {
+                "record_id": record.get("record_id"),
+                "source_locator": record.get("source_locator"),
+                "header": record.get("header"),
+                "content": record.get("content"),
+                "topic": record.get("topic"),
+                "function": record.get("function"),
+                "is_substantive": record.get("is_substantive"),
+            }
+        )
+    return dict(samples)
+
+
+def _unit_from_row(index: int, row: dict[str, Any], samples: list[dict[str, Any]]) -> dict[str, Any]:
+    means = {field: _clean_float(row.get(f"{field}_mean")) for field in SCORE_FIELDS}
+    tier_score = _tier_score(means)
+    tier = _tier_for_score(tier_score, row.get("law_count") or 0)
+    layout = _layout_for_index(index, row.get("jurisdiction_type_normalized"))
+    return {
+        "unit_id": row["unit_id"],
+        "name": row.get("jurisdiction_name") or "Unknown jurisdiction",
+        "state": row.get("state_normalized"),
+        "kind": row.get("jurisdiction_type_normalized") or "unknown",
+        "city": row.get("city_normalized"),
+        "county": row.get("county_normalized"),
+        "law_count": int(row.get("law_count") or 0),
+        "substantive_count": int(row.get("substantive_count") or 0),
+        "dominant_topic": row.get("dominant_topic") or "Not_applicable",
+        "dominant_function": row.get("dominant_function") or "Unknown",
+        "ocr_risk_level": row.get("ocr_risk_level") or "not_evaluated",
+        "topic_counts": row.get("topic_counts") or {},
+        "function_counts": row.get("function_counts") or {},
+        "model_score_means": means,
+        "tier": tier,
+        "tier_score": tier_score,
+        "tier_label": TIER_DEFINITIONS[tier]["label"],
+        "tier_color": TIER_DEFINITIONS[tier]["color"],
+        "layout": layout,
+        "samples": samples,
+    }
+
+
+def _layout_for_index(index: int, kind: str | None) -> dict[str, Any]:
+    column = index % 8
+    row = index // 8
+    if kind == "city":
+        return {
+            "type": "point",
+            "x": 8 + column * 11 + 5,
+            "y": 12 + row * 15 + 6,
+            "r": 3.8,
+        }
+    return {
+        "type": "tile",
+        "x": 6 + column * 11,
+        "y": 10 + row * 15,
+        "w": 9,
+        "h": 11,
+    }
+
+
+def _tier_score(means: dict[str, float | None]) -> float | None:
+    values = [value for value in means.values() if value is not None]
+    if not values:
+        return None
+    return sum(values) / len(values)
+
+
+def _tier_for_score(score: float | None, law_count: int) -> str:
+    if law_count <= 0 or score is None:
+        return "no_data"
+    if score < 0.33:
+        return "tier_1"
+    if score < 0.66:
+        return "tier_2"
+    return "tier_3"
+
+
+def _clean_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number != number or number in {float("inf"), float("-inf")}:
+        return None
+    return round(number, 4)
+
+
+def _map_layers_artifact(corpus: LocusCorpus, units: list[dict[str, Any]], *, synthetic: bool) -> dict[str, Any]:
+    return {
+        "schema_version": ANALYSIS_SCHEMA_VERSION,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "dataset_revision": corpus.config.dataset_revision,
+        "data_mode": corpus.config.mode,
+        "synthetic": synthetic,
+        "geometry_status": "abstract_layout_until_reviewed_geometries_available",
+        "tier_definitions": TIER_DEFINITIONS,
+        "units": units,
+        "notice": "Tiers are neutral analysis bands, not legal rankings or findings.",
+    }
+
+
+def _ontology_artifact(units: list[dict[str, Any]]) -> dict[str, Any]:
+    topic_counter: Counter[str] = Counter()
+    function_counter: Counter[str] = Counter()
+    for unit in units:
+        topic_counter.update(unit.get("topic_counts", {}))
+        function_counter.update(unit.get("function_counts", {}))
+    nodes = []
+    for topic, count in sorted(topic_counter.items()):
+        nodes.append({"id": f"topic:{topic}", "label": topic, "type": "topic", "count": count})
+    for function, count in sorted(function_counter.items()):
+        nodes.append({"id": f"function:{function}", "label": function, "type": "function", "count": count})
+    for field in SCORE_FIELDS:
+        nodes.append({"id": f"score:{field}", "label": field, "type": "score_dimension", "direction_verified": False})
+    for tier, definition in TIER_DEFINITIONS.items():
+        nodes.append({"id": f"tier:{tier}", "label": definition["label"], "type": "tier"})
+    edges = []
+    for unit in units:
+        unit_id = f"unit:{unit['unit_id']}"
+        nodes.append({"id": unit_id, "label": unit["name"], "type": "jurisdiction_unit", "count": unit["law_count"]})
+        if unit.get("dominant_topic"):
+            edges.append({"source": unit_id, "target": f"topic:{unit['dominant_topic']}", "relationship": "has_dominant_topic"})
+        if unit.get("dominant_function"):
+            edges.append({"source": unit_id, "target": f"function:{unit['dominant_function']}", "relationship": "has_dominant_function"})
+        edges.append({"source": unit_id, "target": f"tier:{unit['tier']}", "relationship": "assigned_neutral_tier"})
+    return {
+        "schema_version": ANALYSIS_SCHEMA_VERSION,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "ontology_version": "evolocus-ontology-v1",
+        "nodes": nodes,
+        "edges": edges,
+        "limitations": [
+            "Ontology edges summarize model-produced LOCUS fields and review artifacts.",
+            "No edge is a legal conclusion.",
+            "Score direction has not been independently verified.",
+        ],
+    }
+
+
+def _status_artifact(corpus: LocusCorpus, units: list[dict[str, Any]], *, synthetic: bool) -> dict[str, Any]:
+    return {
+        "schema_version": ANALYSIS_SCHEMA_VERSION,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "code_commit": current_commit(),
+        "dataset_id": DATASET_ID,
+        "dataset_revision": corpus.config.dataset_revision,
+        "data_mode": corpus.config.mode,
+        "synthetic": synthetic,
+        "license": DATASET_LICENSE,
+        "paper": PAPER_URL,
+        "citation": CITATION,
+        "analysis_state": "synthetic_demo" if synthetic else "local_aggregate_ready",
+        "unit_count": len(units),
+        "law_count": sum(unit["law_count"] for unit in units),
+        "real_locus_rows_published": False,
+        "grok_secret_name": "GROK_API_KEY",
+        "grok_browser_policy": "Grok API keys must never be embedded in GitHub Pages JavaScript.",
+        "next_analysis_goal": "Generate bounded real aggregate map artifacts from local LOCUS Parquet after license/provenance review.",
+    }
+
+
+def _chat_index_artifact(units: list[dict[str, Any]], ontology: dict[str, Any], status: dict[str, Any]) -> dict[str, Any]:
+    entries = [
+        {
+            "id": "status",
+            "title": "Analysis status",
+            "keywords": ["status", "current", "progress", "real data", "synthetic"],
+            "answer": (
+                f"Analysis state is {status['analysis_state']}. "
+                f"{status['unit_count']} map units and {status['law_count']} law records are represented in the current artifact."
+            ),
+        },
+        {
+            "id": "tiers",
+            "title": "Tier meaning",
+            "keywords": ["tier", "color", "map", "score"],
+            "answer": "Tiers are neutral model-score bands for review prioritization, not legal rankings or findings.",
+        },
+        {
+            "id": "ontology",
+            "title": "Ontology scope",
+            "keywords": ["ontology", "topic", "function", "model"],
+            "answer": f"The current ontology has {len(ontology['nodes'])} nodes and {len(ontology['edges'])} edges.",
+        },
+        {
+            "id": "grok",
+            "title": "Grok integration policy",
+            "keywords": ["grok", "api", "key", "chat", "llm"],
+            "answer": "Grok can be used only by offline analysis jobs with GROK_API_KEY in GitHub secrets or local env; the key is never shipped to Pages.",
+        },
+    ]
+    for unit in units[:50]:
+        entries.append(
+            {
+                "id": f"unit:{unit['unit_id']}",
+                "title": unit["name"],
+                "keywords": [
+                    unit["name"],
+                    unit.get("state") or "",
+                    unit.get("dominant_topic") or "",
+                    unit.get("dominant_function") or "",
+                    unit.get("tier") or "",
+                ],
+                "answer": (
+                    f"{unit['name']} has {unit['law_count']} records in this artifact, "
+                    f"dominant topic {unit['dominant_topic']}, dominant function {unit['dominant_function']}, "
+                    f"and neutral tier {unit['tier_label']}."
+                ),
+            }
+        )
+    return {
+        "schema_version": ANALYSIS_SCHEMA_VERSION,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "entries": entries,
+        "suggested_questions": [
+            "What is the current analysis status?",
+            "What do the map tiers mean?",
+            "Which units mention zoning?",
+            "Can Grok answer live questions on this Pages site?",
+        ],
+    }
+
+
+def _models_artifact() -> dict[str, Any]:
+    return {
+        "schema_version": MODEL_REGISTRY_VERSION,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "dataset": DATASET_ID,
+        "paper": PAPER_URL,
+        "models": MODEL_REGISTRY,
+        "import_policy": {
+            "status": "released_dataset_outputs_imported",
+            "hf_model_downloads": "deferred_until_model_cards_are_verified",
+            "score_direction": "unverified",
+        },
+        "grok": {
+            "secret_name": "GROK_API_KEY",
+            "allowed_use": "offline analysis jobs that generate static artifacts",
+            "forbidden_use": "embedding the key in GitHub Pages JavaScript",
+        },
+    }

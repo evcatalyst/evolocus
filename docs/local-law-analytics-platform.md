@@ -7,6 +7,7 @@ Primary stack for the evaluator MVP:
 - GitHub Pages static HTML/CSS/JavaScript for the primary and only supported user-facing workbench.
 - Browser localStorage for reviewer-local append-only events.
 - Browser File API for bounded queue import and user-triggered exports.
+- Static JSON artifacts for map layers, ontology, models, status, and inquiry.
 - Polars lazy frames over local Parquet.
 - SQLite through Python `sqlite3` for support tooling and local queue package preparation.
 
@@ -53,6 +54,7 @@ flowchart LR
   D --> F["Deterministic queue sampler"]
   F --> G["Bounded queue package"]
   H["Synthetic demo records"] --> I["GitHub Pages browser workbench"]
+  L["Static map + ontology artifacts"] --> I
   G --> I
   I --> J["Append-only browser review events"]
   J --> K["Browser metrics + content-free exports"]
@@ -64,6 +66,15 @@ Primary workbench:
 
 ```text
 https://evcatalyst.github.io/evolocus/
+```
+
+Publish static analysis artifacts:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-analysis \
+  --output site/data/analysis \
+  --dataset-revision synthetic-demo \
+  --include-record-samples
 ```
 
 Audit:
@@ -119,6 +130,7 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
 - SQLite stores bounded queue snapshots and review history, not the full corpus.
 - GitHub Pages hosts the evaluator workbench but never publishes real LOCUS rows by default.
 - Browser imports must be bounded review queues, not full LOCUS shards.
+- Model outputs are imported as released LOCUS columns; downloading derivative model weights is deferred until model cards are verified.
 
 ## Deferred Analytics
 

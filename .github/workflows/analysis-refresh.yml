@@ -1,0 +1,49 @@
+name: Refresh static analysis artifacts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh-analysis:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    env:
+      GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install support tooling
+        run: python -m pip install -r requirements.txt
+      - name: Check optional Grok secret presence
+        run: |
+          if [ -n "$GROK_API_KEY" ]; then
+            echo "GROK_API_KEY is configured for offline analysis jobs."
+          else
+            echo "GROK_API_KEY is not configured; deterministic static analysis will run without LLM enrichment."
+          fi
+      - name: Generate demo static analysis artifacts
+        run: PYTHONPATH=src python -m evolocus.cli publish-analysis --output site/data/analysis --dataset-revision synthetic-demo --include-record-samples
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

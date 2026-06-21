@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 from typing import NoReturn
 
+from .analysis_publish import DEFAULT_OUTPUT_DIR, publish_analysis_artifacts
 from .evaluation_db import init_db, create_queue
 from .evaluation_exports import export_evaluation
 from .evaluation_sampling import manifest_dict_and_fingerprint, queue_id_for, sample_queue_items
@@ -75,6 +76,18 @@ def main(argv: list[str] | None = None) -> int:
     export_parser.add_argument("--with-content", action="store_true", help="Include ordinance text. Off by default.")
     export_parser.add_argument("--without-content", action="store_true", help="Explicitly omit ordinance text.")
     export_parser.set_defaults(func=_export_evaluation)
+
+    publish_parser = subparsers.add_parser("publish-analysis", help="Publish bounded static analysis artifacts for GitHub Pages.")
+    publish_parser.add_argument("--input", type=str, default=None, help="Local Parquet file/glob. Omit for synthetic demo artifacts.")
+    publish_parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_DIR, help="Output directory for static JSON artifacts.")
+    publish_parser.add_argument("--dataset-revision", default="synthetic-demo")
+    publish_parser.add_argument("--max-units", type=int, default=250)
+    publish_parser.add_argument(
+        "--include-record-samples",
+        action="store_true",
+        help="Include record text samples. Blocked for non-demo corpus sources.",
+    )
+    publish_parser.set_defaults(func=_publish_analysis)
 
     args = parser.parse_args(argv)
     return int(args.func(args) or 0)
@@ -157,6 +170,18 @@ def _export_evaluation(args: argparse.Namespace) -> int:
     return 0
 
 
+def _publish_analysis(args: argparse.Namespace) -> int:
+    corpus = _corpus_from_args(args.input, args.dataset_revision)
+    result = publish_analysis_artifacts(
+        corpus,
+        args.output,
+        max_units=args.max_units,
+        include_record_samples=args.include_record_samples or None,
+    )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
 def _update_cycle(_args: argparse.Namespace) -> int:
     payload = {
         "mode": "dry_run",
@@ -164,7 +189,7 @@ def _update_cycle(_args: argparse.Namespace) -> int:
         "safe_next_steps": [
             "Build gap analysis from the master jurisdiction table.",
             "Seed a synthetic or source-backed queue without running scrapers.",
-            "Add Streamlit controls after local-only data contracts are stable.",
+            "Refresh GitHub Pages map, ontology, and inquiry artifacts from reviewed aggregates.",
         ],
         "downloads_allowed": False,
         "scrapers_allowed": False,

@@ -88,7 +88,7 @@ class CorpusManifest:
 
 
 class LocusCorpus:
-    """Lazy LOCUS corpus facade for Streamlit, CLI, and tests."""
+    """Lazy LOCUS corpus facade for Pages artifacts, CLI, and tests."""
 
     def __init__(self, config: CorpusConfig):
         self.config = config

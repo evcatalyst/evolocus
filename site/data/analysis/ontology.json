@@ -1,0 +1,250 @@
+{
+  "edges": [
+    {
+      "relationship": "has_dominant_topic",
+      "source": "unit:CA:county:Demo County",
+      "target": "topic:Nuisance"
+    },
+    {
+      "relationship": "has_dominant_function",
+      "source": "unit:CA:county:Demo County",
+      "target": "function:Enforcement"
+    },
+    {
+      "relationship": "assigned_neutral_tier",
+      "source": "unit:CA:county:Demo County",
+      "target": "tier:tier_2"
+    },
+    {
+      "relationship": "has_dominant_topic",
+      "source": "unit:FL:city:Unknown",
+      "target": "topic:Other"
+    },
+    {
+      "relationship": "has_dominant_function",
+      "source": "unit:FL:city:Unknown",
+      "target": "function:Rules"
+    },
+    {
+      "relationship": "assigned_neutral_tier",
+      "source": "unit:FL:city:Unknown",
+      "target": "tier:tier_1"
+    },
+    {
+      "relationship": "has_dominant_topic",
+      "source": "unit:N Y:unknown:Unknown",
+      "target": "topic:Buildings"
+    },
+    {
+      "relationship": "has_dominant_function",
+      "source": "unit:N Y:unknown:Unknown",
+      "target": "function:Structural"
+    },
+    {
+      "relationship": "assigned_neutral_tier",
+      "source": "unit:N Y:unknown:Unknown",
+      "target": "tier:tier_3"
+    },
+    {
+      "relationship": "has_dominant_topic",
+      "source": "unit:NY:city:Sample Valley",
+      "target": "topic:Not_applicable"
+    },
+    {
+      "relationship": "has_dominant_function",
+      "source": "unit:NY:city:Sample Valley",
+      "target": "function:Context"
+    },
+    {
+      "relationship": "assigned_neutral_tier",
+      "source": "unit:NY:city:Sample Valley",
+      "target": "tier:tier_1"
+    },
+    {
+      "relationship": "has_dominant_topic",
+      "source": "unit:PA:city:Example Township",
+      "target": "topic:Zoning"
+    },
+    {
+      "relationship": "has_dominant_function",
+      "source": "unit:PA:city:Example Township",
+      "target": "function:Rules"
+    },
+    {
+      "relationship": "assigned_neutral_tier",
+      "source": "unit:PA:city:Example Township",
+      "target": "tier:tier_2"
+    },
+    {
+      "relationship": "has_dominant_topic",
+      "source": "unit:TX:city:Demo City",
+      "target": "topic:Business"
+    },
+    {
+      "relationship": "has_dominant_function",
+      "source": "unit:TX:city:Demo City",
+      "target": "function:Process"
+    },
+    {
+      "relationship": "assigned_neutral_tier",
+      "source": "unit:TX:city:Demo City",
+      "target": "tier:tier_2"
+    }
+  ],
+  "generated_at": "2026-06-21T11:09:12.428540+00:00",
+  "limitations": [
+    "Ontology edges summarize model-produced LOCUS fields and review artifacts.",
+    "No edge is a legal conclusion.",
+    "Score direction has not been independently verified."
+  ],
+  "nodes": [
+    {
+      "count": 1,
+      "id": "topic:Buildings",
+      "label": "Buildings",
+      "type": "topic"
+    },
+    {
+      "count": 1,
+      "id": "topic:Business",
+      "label": "Business",
+      "type": "topic"
+    },
+    {
+      "count": 1,
+      "id": "topic:Not_applicable",
+      "label": "Not_applicable",
+      "type": "topic"
+    },
+    {
+      "count": 1,
+      "id": "topic:Nuisance",
+      "label": "Nuisance",
+      "type": "topic"
+    },
+    {
+      "count": 1,
+      "id": "topic:Other",
+      "label": "Other",
+      "type": "topic"
+    },
+    {
+      "count": 1,
+      "id": "topic:Zoning",
+      "label": "Zoning",
+      "type": "topic"
+    },
+    {
+      "count": 1,
+      "id": "function:Context",
+      "label": "Context",
+      "type": "function"
+    },
+    {
+      "count": 1,
+      "id": "function:Enforcement",
+      "label": "Enforcement",
+      "type": "function"
+    },
+    {
+      "count": 1,
+      "id": "function:Process",
+      "label": "Process",
+      "type": "function"
+    },
+    {
+      "count": 2,
+      "id": "function:Rules",
+      "label": "Rules",
+      "type": "function"
+    },
+    {
+      "count": 1,
+      "id": "function:Structural",
+      "label": "Structural",
+      "type": "function"
+    },
+    {
+      "direction_verified": false,
+      "id": "score:enforcement_discretion",
+      "label": "enforcement_discretion",
+      "type": "score_dimension"
+    },
+    {
+      "direction_verified": false,
+      "id": "score:opacity",
+      "label": "opacity",
+      "type": "score_dimension"
+    },
+    {
+      "direction_verified": false,
+      "id": "score:paternalism",
+      "label": "paternalism",
+      "type": "score_dimension"
+    },
+    {
+      "direction_verified": false,
+      "id": "score:problem_salience",
+      "label": "problem_salience",
+      "type": "score_dimension"
+    },
+    {
+      "id": "tier:no_data",
+      "label": "No publishable data",
+      "type": "tier"
+    },
+    {
+      "id": "tier:tier_1",
+      "label": "Tier 1",
+      "type": "tier"
+    },
+    {
+      "id": "tier:tier_2",
+      "label": "Tier 2",
+      "type": "tier"
+    },
+    {
+      "id": "tier:tier_3",
+      "label": "Tier 3",
+      "type": "tier"
+    },
+    {
+      "count": 1,
+      "id": "unit:CA:county:Demo County",
+      "label": "Demo County",
+      "type": "jurisdiction_unit"
+    },
+    {
+      "count": 1,
+      "id": "unit:FL:city:Unknown",
+      "label": "Unknown jurisdiction",
+      "type": "jurisdiction_unit"
+    },
+    {
+      "count": 1,
+      "id": "unit:N Y:unknown:Unknown",
+      "label": "Unknown jurisdiction",
+      "type": "jurisdiction_unit"
+    },
+    {
+      "count": 1,
+      "id": "unit:NY:city:Sample Valley",
+      "label": "Sample Valley",
+      "type": "jurisdiction_unit"
+    },
+    {
+      "count": 1,
+      "id": "unit:PA:city:Example Township",
+      "label": "Example Township",
+      "type": "jurisdiction_unit"
+    },
+    {
+      "count": 1,
+      "id": "unit:TX:city:Demo City",
+      "label": "Demo City",
+      "type": "jurisdiction_unit"
+    }
+  ],
+  "ontology_version": "evolocus-ontology-v1",
+  "schema_version": "evolocus-static-analysis-v1"
+}

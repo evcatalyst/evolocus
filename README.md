@@ -28,6 +28,10 @@ The LOCUS-v1 Hugging Face dataset card identifies the dataset as Parquet and CC-
 
 The Pages app supports:
 
+- county/town-style law map units colored by neutral tier;
+- analysis status from published static JSON artifacts;
+- ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
+- static inquiry over current analysis artifacts;
 - synthetic demo queue;
 - blinded review by default;
 - explicit model-output reveal with reveal events logged;
@@ -54,12 +58,14 @@ Primary UI stack:
 - Browser localStorage for mutable review events.
 - Browser File API for bounded queue import.
 - Browser-generated CSV/JSON exports.
+- Static analysis artifacts in `site/data/analysis/`.
 
 Support tooling:
 
 - Polars lazy frames over Parquet for corpus reads and bounded transforms.
 - SQLite through Python `sqlite3` for local support workflows.
 - CLI commands for audit, queue seeding, and export package creation.
+- `publish-analysis` for generating Pages-ready status, map, ontology, model, and inquiry JSON.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
 
@@ -79,6 +85,15 @@ Serve the Pages app locally with any static server, for example:
 python -m http.server 8000 --directory site
 ```
 
+Refresh the synthetic static analysis artifacts:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-analysis \
+  --output site/data/analysis \
+  --dataset-revision synthetic-demo \
+  --include-record-samples
+```
+
 ## Support CLI
 
 The CLI is for preparing and validating local artifacts. It is not the primary UI.
@@ -88,6 +103,17 @@ Status:
 ```bash
 PYTHONPATH=src python -m evolocus.cli status
 ```
+
+Publish Pages-ready analysis artifacts:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-analysis \
+  --input 'data/raw/locus-v1/<revision>/**/*.parquet' \
+  --dataset-revision '<revision>' \
+  --output data/exports/analysis-preview
+```
+
+Writing real-data aggregates into `site/data/analysis/` should happen only after provenance, license, geometry, and non-disclosure checks. The default site artifacts are synthetic.
 
 Audit demo or local Parquet:
 
@@ -142,6 +168,16 @@ Ignored storage locations:
 - Static site examples must be synthetic and clearly labeled.
 - Browser exports are user-triggered downloads.
 - Future public exports require explicit source, license, and provenance checks.
+
+## Grok Secret
+
+Use the repository secret name `GROK_API_KEY` for future offline analysis jobs. Add it in GitHub under repository settings, or with:
+
+```bash
+gh secret set GROK_API_KEY --repo evcatalyst/evolocus
+```
+
+The key must never be embedded into `site/assets/app.js` or any other browser-delivered file. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
 
 ## Hugging Face Download One-Liner
 

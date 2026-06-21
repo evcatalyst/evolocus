@@ -19,3 +19,5 @@
 - Full corpus materialization is prohibited in request paths.
 - Real data, SQLite evaluation databases, and exports remain ignored.
 - A static GitHub Pages app can support useful browser-local evaluation workflows when review state stays local and exports are explicit.
+- Map, ontology, model registry, and inquiry panels should read static JSON artifacts so local Polars analysis can update the public site without moving the full corpus into the browser.
+- `GROK_API_KEY` can be a GitHub secret for offline artifact generation, but it must never be embedded in Pages assets.

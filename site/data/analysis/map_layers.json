@@ -1,0 +1,311 @@
+{
+  "data_mode": "demo",
+  "dataset_revision": "synthetic-demo",
+  "generated_at": "2026-06-21T11:09:12.441804+00:00",
+  "geometry_status": "abstract_layout_until_reviewed_geometries_available",
+  "notice": "Tiers are neutral analysis bands, not legal rankings or findings.",
+  "schema_version": "evolocus-static-analysis-v1",
+  "synthetic": true,
+  "tier_definitions": {
+    "no_data": {
+      "color": "#d8dee8",
+      "description": "No law records are available for this unit in the published analysis artifact.",
+      "label": "No publishable data"
+    },
+    "tier_1": {
+      "color": "#b8d8c7",
+      "description": "Lower relative neutral model-score band or sparse law signal.",
+      "label": "Tier 1"
+    },
+    "tier_2": {
+      "color": "#e0c070",
+      "description": "Middle relative neutral model-score band.",
+      "label": "Tier 2"
+    },
+    "tier_3": {
+      "color": "#c46b53",
+      "description": "Higher relative neutral model-score band. This is not a legal ranking.",
+      "label": "Tier 3"
+    }
+  },
+  "units": [
+    {
+      "city": null,
+      "county": "Demo County",
+      "dominant_function": "Enforcement",
+      "dominant_topic": "Nuisance",
+      "function_counts": {
+        "Enforcement": 1
+      },
+      "kind": "county",
+      "law_count": 1,
+      "layout": {
+        "h": 11,
+        "type": "tile",
+        "w": 9,
+        "x": 6,
+        "y": 10
+      },
+      "model_score_means": {
+        "enforcement_discretion": 0.83,
+        "opacity": 0.55,
+        "paternalism": 0.43,
+        "problem_salience": 0.68
+      },
+      "name": "Demo County",
+      "ocr_risk_level": "medium",
+      "samples": [
+        {
+          "content": "SYNTHETIC DEMONSTRATION DATA. Demo County may issue a notice for repeated nuisance conditions!!!!",
+          "function": "Enforcement",
+          "header": "Synthetic County Nuisance Enforcement",
+          "is_substantive": true,
+          "record_id": "synthetic-demo:1334934930506429543",
+          "source_locator": "synthetic-demo/synthetic-demo#3",
+          "topic": "Nuisance"
+        }
+      ],
+      "state": "CA",
+      "substantive_count": 1,
+      "tier": "tier_2",
+      "tier_color": "#e0c070",
+      "tier_label": "Tier 2",
+      "tier_score": 0.6224999999999999,
+      "topic_counts": {
+        "Nuisance": 1
+      },
+      "unit_id": "CA:county:Demo County"
+    },
+    {
+      "city": "",
+      "county": "",
+      "dominant_function": "Rules",
+      "dominant_topic": "Other",
+      "function_counts": {
+        "Rules": 1
+      },
+      "kind": "city",
+      "law_count": 1,
+      "layout": {
+        "r": 3.8,
+        "type": "point",
+        "x": 24,
+        "y": 18
+      },
+      "model_score_means": {
+        "enforcement_discretion": 0.0,
+        "opacity": 0.0,
+        "paternalism": 0.0,
+        "problem_salience": 0.0
+      },
+      "name": "Unknown jurisdiction",
+      "ocr_risk_level": "medium",
+      "samples": [
+        {
+          "content": "SYNTHETIC DEMONSTRATION DATA. Fee.",
+          "function": "Rules",
+          "header": "Synthetic Short",
+          "is_substantive": false,
+          "record_id": "synthetic-demo:9789427561820592235",
+          "source_locator": "synthetic-demo/synthetic-demo#5",
+          "topic": "Other"
+        }
+      ],
+      "state": "FL",
+      "substantive_count": 0,
+      "tier": "tier_1",
+      "tier_color": "#b8d8c7",
+      "tier_label": "Tier 1",
+      "tier_score": 0.0,
+      "topic_counts": {
+        "Other": 1
+      },
+      "unit_id": "FL:city:Unknown"
+    },
+    {
+      "city": null,
+      "county": null,
+      "dominant_function": "Structural",
+      "dominant_topic": "Buildings",
+      "function_counts": {
+        "Structural": 1
+      },
+      "kind": "unknown",
+      "law_count": 1,
+      "layout": {
+        "h": 11,
+        "type": "tile",
+        "w": 9,
+        "x": 28,
+        "y": 10
+      },
+      "model_score_means": {
+        "enforcement_discretion": null,
+        "opacity": 1.2,
+        "paternalism": null,
+        "problem_salience": 0.2
+      },
+      "name": "Unknown jurisdiction",
+      "ocr_risk_level": "high",
+      "samples": [
+        {
+          "content": "SYNTHETIC DEMONSTRATION DATA. \ufffd\ufffd Sec. 4 -- -- -- text text text",
+          "function": "Structural",
+          "header": "Synthetic Broken OCR",
+          "is_substantive": true,
+          "record_id": "synthetic-demo:16332163949292369756",
+          "source_locator": "synthetic-demo/synthetic-demo#4",
+          "topic": "Buildings"
+        }
+      ],
+      "state": "N Y",
+      "substantive_count": 1,
+      "tier": "tier_3",
+      "tier_color": "#c46b53",
+      "tier_label": "Tier 3",
+      "tier_score": 0.7,
+      "topic_counts": {
+        "Buildings": 1
+      },
+      "unit_id": "N Y:unknown:Unknown"
+    },
+    {
+      "city": "Sample Valley",
+      "county": null,
+      "dominant_function": "Context",
+      "dominant_topic": "Not_applicable",
+      "function_counts": {
+        "Context": 1
+      },
+      "kind": "city",
+      "law_count": 1,
+      "layout": {
+        "r": 3.8,
+        "type": "point",
+        "x": 46,
+        "y": 18
+      },
+      "model_score_means": {
+        "enforcement_discretion": 0.1,
+        "opacity": 0.2,
+        "paternalism": 0.15,
+        "problem_salience": 0.3
+      },
+      "name": "Sample Valley",
+      "ocr_risk_level": "low",
+      "samples": [
+        {
+          "content": "SYNTHETIC DEMONSTRATION DATA. Sample Valley explains the purpose of its code and includes no operative rule.",
+          "function": "Context",
+          "header": "Synthetic Chapter 1: Purpose",
+          "is_substantive": false,
+          "record_id": "synthetic-demo:2876793661354552179",
+          "source_locator": "synthetic-demo/synthetic-demo#0",
+          "topic": null
+        }
+      ],
+      "state": "NY",
+      "substantive_count": 0,
+      "tier": "tier_1",
+      "tier_color": "#b8d8c7",
+      "tier_label": "Tier 1",
+      "tier_score": 0.1875,
+      "topic_counts": {
+        "Not_applicable": 1
+      },
+      "unit_id": "NY:city:Sample Valley"
+    },
+    {
+      "city": "Example Township",
+      "county": "Demo County",
+      "dominant_function": "Rules",
+      "dominant_topic": "Zoning",
+      "function_counts": {
+        "Rules": 1
+      },
+      "kind": "city",
+      "law_count": 1,
+      "layout": {
+        "r": 3.8,
+        "type": "point",
+        "x": 57,
+        "y": 18
+      },
+      "model_score_means": {
+        "enforcement_discretion": 0.62,
+        "opacity": 0.48,
+        "paternalism": 0.35,
+        "problem_salience": 0.71
+      },
+      "name": "Example Township",
+      "ocr_risk_level": "low",
+      "samples": [
+        {
+          "content": "SYNTHETIC DEMONSTRATION DATA. Example Township requires a zoning permit before construction begins. The official may request additional plans.",
+          "function": "Rules",
+          "header": "Synthetic Zoning Permit Rule",
+          "is_substantive": true,
+          "record_id": "synthetic-demo:13553008545810360474",
+          "source_locator": "synthetic-demo/synthetic-demo#1",
+          "topic": "Zoning"
+        }
+      ],
+      "state": "PA",
+      "substantive_count": 1,
+      "tier": "tier_2",
+      "tier_color": "#e0c070",
+      "tier_label": "Tier 2",
+      "tier_score": 0.54,
+      "topic_counts": {
+        "Zoning": 1
+      },
+      "unit_id": "PA:city:Example Township"
+    },
+    {
+      "city": "Demo City",
+      "county": null,
+      "dominant_function": "Process",
+      "dominant_topic": "Business",
+      "function_counts": {
+        "Process": 1
+      },
+      "kind": "city",
+      "law_count": 1,
+      "layout": {
+        "r": 3.8,
+        "type": "point",
+        "x": 68,
+        "y": 18
+      },
+      "model_score_means": {
+        "enforcement_discretion": 0.24,
+        "opacity": 0.41,
+        "paternalism": 0.18,
+        "problem_salience": 0.52
+      },
+      "name": "Demo City",
+      "ocr_risk_level": "low",
+      "samples": [
+        {
+          "content": "SYNTHETIC DEMONSTRATION DATA. Synthetic Vendor LLC must file a renewal form by March 1 and pay the listed fee.",
+          "function": "Process",
+          "header": "Synthetic Business License Process",
+          "is_substantive": true,
+          "record_id": "synthetic-demo:4598126453580913323",
+          "source_locator": "synthetic-demo/synthetic-demo#2",
+          "topic": "Business"
+        }
+      ],
+      "state": "TX",
+      "substantive_count": 1,
+      "tier": "tier_2",
+      "tier_color": "#e0c070",
+      "tier_label": "Tier 2",
+      "tier_score": 0.33749999999999997,
+      "topic_counts": {
+        "Business": 1
+      },
+      "unit_id": "TX:city:Demo City"
+    }
+  ]
+}

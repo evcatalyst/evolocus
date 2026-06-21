@@ -12,3 +12,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "localStorage" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js
+    assert "renderMap" in js
+    assert "renderOntology" in js
+    assert "renderInquiry" in js
+    assert "fetchAnalysisArtifacts" in js

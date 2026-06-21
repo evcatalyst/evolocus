@@ -9,6 +9,9 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 ## Pages Features
 
 - synthetic demo queue;
+- law map with county/town-style units colored by neutral tier;
+- ontology and model-output registry views;
+- static inquiry over published analysis artifacts;
 - blinded review by default;
 - model-output reveal logging;
 - save, save-next, skip, and flag actions;
@@ -45,6 +48,28 @@ Imported records should include:
 - model score fields
 
 The site does not parse full LOCUS Parquet shards in the browser.
+
+## Static Analysis Refresh
+
+Generate synthetic public artifacts:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-analysis \
+  --output site/data/analysis \
+  --dataset-revision synthetic-demo \
+  --include-record-samples
+```
+
+Generate real aggregate artifacts into ignored storage first:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-analysis \
+  --input 'data/raw/locus-v1/<revision>/**/*.parquet' \
+  --dataset-revision '<revision>' \
+  --output data/exports/analysis-preview
+```
+
+Only copy reviewed, license-compliant, non-text aggregate artifacts into `site/data/analysis/`.
 
 ## Support CLI
 
