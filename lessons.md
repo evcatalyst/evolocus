@@ -66,6 +66,7 @@
 - Browser exports for public sharing should export aggregate filter state and visible summaries, not record-level evaluation queues or local review history.
 - Saved visual comparison state can live in browser localStorage when it stores only aggregate snapshot payloads and never imported queue text or review events.
 - A public walkthrough is useful when it orchestrates already-validated aggregate artifacts instead of creating a new path for raw rows, source locators, or model secrets.
+- A public refresh control can safely live on GitHub Pages when it opens the GitHub Actions workflow only and never performs browser-side model calls or embeds secret names in JavaScript.
 - The public-to-local handoff should export aggregate unit requests from Pages and materialize text-bearing review packages only through ignored local tooling with an explicit content flag.
 - Review-package handoffs should preview record budgets, unit mix, and safety gates before download so users see the public/private boundary before moving into local text-bearing work.
 - After a local package import, the browser should show provenance and text-inclusion state immediately so reviewers can distinguish synthetic demo records from browser-local LOCUS text.

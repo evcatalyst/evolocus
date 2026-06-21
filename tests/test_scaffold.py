@@ -473,9 +473,17 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "geography-ontology-link" in css
     assert "geography-ontology-detail" in css
     assert "publication_gates" in js
+    assert "status-action-grid" in html
+    assert "ACTIONS_REFRESH_WORKFLOW_URL" in js
+    assert "actions/workflows/analysis-refresh.yml" in js
+    assert "actionsBriefingRefreshHtml" in js
+    assert "Open refresh workflow" in js
+    assert "actions-briefing-refresh" in css
+    assert "primary-action-link" in css
     assert "stateSummaries" in js
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js
+    assert "Grok_api_key" not in js
     assert "https://fonts." not in html + css + js
     assert "googletagmanager" not in html + css + js
     assert "analytics" not in html.lower()

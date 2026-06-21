@@ -5,6 +5,7 @@ const STORAGE_RECORDS = "evolocus.pages.records.v1";
 const STORAGE_SNAPSHOTS = "evolocus.pages.viewSnapshots.v1";
 const STORAGE_IMPORT_STATUS = "evolocus.pages.importStatus.v1";
 const STORAGE_MAP_INQUIRY_HISTORY = "evolocus.pages.mapInquiryHistory.v1";
+const ACTIONS_REFRESH_WORKFLOW_URL = "https://github.com/evcatalyst/evolocus/actions/workflows/analysis-refresh.yml";
 
 const ANALYSIS_PATHS = {
   status: "data/analysis/status.json",
@@ -2150,19 +2151,18 @@ function renderAnalysisStatusPanel() {
   const inquiryBriefings = state.analysis.inquiryBriefings;
   const briefingGrok = inquiryBriefings?.grok || {};
   const packageVerification = status?.local_package_verification || null;
-  const grokSecretNames = Array.isArray(status?.grok_secret_aliases) && status.grok_secret_aliases.length
-    ? status.grok_secret_aliases.join(" / ")
-    : status?.grok_secret_name || "Configured offline secret";
   const cardsGrid = $("#status-card-grid");
+  const actionGrid = $("#status-action-grid");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
-  if (!cardsGrid || !detailGrid || !gateGrid) {
+  if (!cardsGrid || !actionGrid || !detailGrid || !gateGrid) {
     return;
   }
   if (!status) {
     cardsGrid.innerHTML = `
       <article class="status-card"><span class="metric-value small">...</span><span class="metric-label">Loading analysis artifact status</span></article>
     `;
+    actionGrid.innerHTML = "";
     detailGrid.innerHTML = "";
     gateGrid.innerHTML = "";
     return;
@@ -2206,6 +2206,7 @@ function renderAnalysisStatusPanel() {
       `,
     )
     .join("");
+  actionGrid.innerHTML = actionsBriefingRefreshHtml(status, inquiryBriefings, briefingGrok);
 
   const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
   const showEvidence = state.disclosureLevel === "evidence";
@@ -2224,8 +2225,8 @@ function renderAnalysisStatusPanel() {
     ["Duplicate content hashes", auditStatus ? formatCount(auditStatus.quality_counts?.duplicate_content_hash_count) : "not loaded"],
     ["Inquiry generated", inquiryBriefings ? formatDateTime(inquiryBriefings.generated_at) : "not loaded"],
     ["Grok enrichment", inquiryBriefings ? (briefingGrok.used ? `offline ${briefingGrok.model}` : `not used${briefingGrok.error ? ` · ${briefingGrok.error}` : ""}`) : "not loaded"],
-    ["Grok secret aliases", grokSecretNames],
-    ["Grok boundary", `${grokSecretNames} is for offline artifact generation only; no API key is embedded in Pages.`],
+    ["Grok secret status", "Configured in repository Actions secrets for offline refresh only"],
+    ["Grok boundary", "Repository Actions secrets are available only to offline refresh jobs; no API key is embedded in Pages."],
     ["Local package smoke", packageVerification ? `${packageVerification.status} · ${formatCount(packageVerification.matched_public_unit_count)} matched units · ${formatCount(packageVerification.content_package_record_count)} local review records` : "not recorded"],
   ];
   detailGrid.innerHTML = details
@@ -2310,7 +2311,7 @@ function renderAnalysisStatusPanel() {
     <article class="status-evidence-card">
       <h3>Inquiry Briefing Refresh</h3>
       <p>${escapeHtml(inquiryBriefings ? `${briefingGrok.used ? "Grok-enriched offline" : "Deterministic"} briefing generated ${formatDateTime(inquiryBriefings.generated_at)}.` : "Inquiry briefing artifact is not loaded.")}</p>
-      <p>Actions may use the configured repository secret to refresh aggregate summaries, but Pages never performs browser LLM calls.</p>
+      <p>The refresh control above opens a manual GitHub Actions workflow. Actions may use the configured repository secret to refresh aggregate summaries, but Pages never performs browser LLM calls.</p>
     </article>
     <article class="status-evidence-card">
       <h3>County Geometry</h3>
@@ -2327,6 +2328,50 @@ function renderAnalysisStatusPanel() {
     </article>
   `;
   renderDisclosureButtons();
+}
+
+function actionsBriefingRefreshHtml(status, inquiryBriefings, briefingGrok) {
+  const datasetRevision = status?.dataset_revision || state.analysis.mapLayers?.dataset_revision || "unknown";
+  const generatedAt = inquiryBriefings?.generated_at || status?.generated_at || null;
+  const currentMode = inquiryBriefings
+    ? briefingGrok.used
+      ? `Offline Grok briefing generated ${formatDateTime(inquiryBriefings.generated_at)}`
+      : `Deterministic briefing generated ${formatDateTime(inquiryBriefings.generated_at)}`
+    : "Briefing artifact is not loaded";
+  const validationState = status?.real_locus_rows_published
+    ? "blocked if raw rows appear"
+    : "aggregate-only validation required before deploy";
+  return `
+    <article class="actions-briefing-refresh" aria-label="Actions-only briefing refresh status">
+      <div>
+        <p class="eyebrow">Actions-only refresh</p>
+        <h3>Refresh aggregate inquiry briefings</h3>
+        <p>Use the repository workflow to regenerate static question and briefing artifacts. The browser opens the workflow page only; model calls happen offline during Actions and publish only validated aggregate JSON.</p>
+      </div>
+      <div class="actions-refresh-status" aria-label="Current briefing refresh state">
+        <span>
+          <strong>Current briefing</strong>
+          <em>${escapeHtml(currentMode)}</em>
+        </span>
+        <span>
+          <strong>Dataset revision</strong>
+          <em>${escapeHtml(datasetRevision)}</em>
+        </span>
+        <span>
+          <strong>Validation gate</strong>
+          <em>${escapeHtml(validationState)}</em>
+        </span>
+        <span>
+          <strong>Last artifact timestamp</strong>
+          <em>${escapeHtml(generatedAt ? formatDateTime(generatedAt) : "not loaded")}</em>
+        </span>
+      </div>
+      <div class="actions-refresh-controls">
+        <a class="primary-action-link" href="${ACTIONS_REFRESH_WORKFLOW_URL}" target="_blank" rel="noopener noreferrer">Open refresh workflow</a>
+        <span>Choose a manual run with offline enrichment enabled when the repository Actions secret is configured.</span>
+      </div>
+    </article>
+  `;
 }
 
 function auditGateSummary(auditStatus) {

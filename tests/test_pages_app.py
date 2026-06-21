@@ -220,6 +220,13 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "geo-layer-boundary" in css
     assert "geography-ontology-link" in css
     assert "geography-ontology-detail" in css
+    assert "status-action-grid" in html
+    assert "ACTIONS_REFRESH_WORKFLOW_URL" in js
+    assert "actions/workflows/analysis-refresh.yml" in js
+    assert "actionsBriefingRefreshHtml" in js
+    assert "Open refresh workflow" in js
+    assert "actions-briefing-refresh" in css
+    assert "primary-action-link" in css
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js
     assert "Grok_api_key" not in js
