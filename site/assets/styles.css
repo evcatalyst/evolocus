@@ -440,6 +440,75 @@ textarea {
   line-height: 1.25;
 }
 
+.map-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
+.comparison-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fff;
+}
+
+.comparison-card h3 {
+  margin: 0 0 5px;
+  font-size: 1rem;
+}
+
+.comparison-card p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.comparison-list,
+.score-compare-list {
+  display: grid;
+  gap: 10px;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.9fr) minmax(160px, 1.4fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.comparison-row strong,
+.score-compare-list strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.comparison-row span,
+.score-compare-list span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.comparison-bars {
+  display: grid;
+  gap: 4px;
+}
+
+.comparison-bars i {
+  display: block;
+  min-height: 8px;
+  border-radius: 999px;
+}
+
+.comparison-bars .filtered {
+  background: #326f70;
+}
+
+.comparison-bars .full {
+  background: rgba(50, 111, 112, 0.22);
+}
+
 .tier-legend span {
   display: inline-flex;
   align-items: center;
@@ -820,6 +889,7 @@ th {
   .review-layout,
   .map-layout,
   .map-insight-grid,
+  .map-comparison-grid,
   .analysis-status-grid,
   .chart-grid,
   .ontology-layout,
@@ -846,6 +916,7 @@ th {
   .review-layout,
   .map-layout,
   .map-insight-grid,
+  .map-comparison-grid,
   .analysis-status-grid,
   .chart-grid,
   .ontology-layout,

@@ -413,6 +413,7 @@ function renderMap() {
     $("#tier-legend").innerHTML = "";
     $("#law-map").innerHTML = "";
     $("#map-insight-grid").innerHTML = "";
+    $("#map-comparison-grid").innerHTML = "";
     $("#unit-detail").innerHTML = "<p>No map layer has loaded yet.</p>";
     $("#map-unit-table tbody").innerHTML = "";
     return;
@@ -420,6 +421,7 @@ function renderMap() {
 
   renderMapFilters(allUnits);
   renderMapInsights(units, allUnits);
+  renderMapComparisons(units, allUnits);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -555,6 +557,45 @@ function renderMapInsights(units, allUnits) {
   $("#map-insight-grid").innerHTML = cards.join("");
 }
 
+function renderMapComparisons(units, allUnits) {
+  const summary = summarizeUnits(units);
+  const allSummary = summarizeUnits(allUnits);
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const cards = [
+    comparisonCard(
+      "Topic share",
+      compareCounts(summary.topicCounts, allSummary.topicCounts, summary.lawCount, allSummary.lawCount).slice(0, 6),
+      "Filtered rows vs full published aggregate layer",
+    ),
+    comparisonCard(
+      "Tier unit share",
+      compareCounts(summary.tierCounts, allSummary.tierCounts, units.length, allUnits.length),
+      "Filtered units vs all published units",
+    ),
+  ];
+  if (showUnit) {
+    cards.push(
+      comparisonCard(
+        "Function share",
+        compareCounts(summary.functionCounts, allSummary.functionCounts, summary.lawCount, allSummary.lawCount).slice(0, 6),
+        "Released LOCUS function labels, not human review labels",
+      ),
+    );
+    cards.push(
+      comparisonCard(
+        "Jurisdiction kind",
+        compareCounts(summary.kindCounts, allSummary.kindCounts, units.length, allUnits.length),
+        "County/town source type normalized for the aggregate layer",
+      ),
+    );
+  }
+  if (showEvidence) {
+    cards.push(scoreComparisonCard(summary.scoreMeans, allSummary.scoreMeans));
+  }
+  $("#map-comparison-grid").innerHTML = cards.join("");
+}
+
 function insightCard(label, value, detail) {
   return `
     <article class="insight-card">
@@ -569,6 +610,7 @@ function summarizeUnits(units) {
   const topicCounts = {};
   const functionCounts = {};
   const tierCounts = {};
+  const kindCounts = {};
   const scoreTotals = {};
   const scoreCounts = {};
   let lawCount = 0;
@@ -581,6 +623,7 @@ function summarizeUnits(units) {
     addCounts(topicCounts, unit.topic_counts || {});
     addCounts(functionCounts, unit.function_counts || {});
     tierCounts[unit.tier_label || unit.tier || "Unspecified"] = (tierCounts[unit.tier_label || unit.tier || "Unspecified"] || 0) + 1;
+    kindCounts[unit.kind || "unknown"] = (kindCounts[unit.kind || "unknown"] || 0) + 1;
     for (const [field, value] of Object.entries(unit.model_score_means || {})) {
       const number = Number(value);
       if (Number.isFinite(number)) {
@@ -595,12 +638,100 @@ function summarizeUnits(units) {
   return {
     lawCount,
     substantiveCount,
+    topicCounts,
+    functionCounts,
     tierCounts,
+    kindCounts,
     scoreMeans,
     topTopic: topEntry(topicCounts),
     topFunction: topEntry(functionCounts),
     topUnit,
   };
+}
+
+function compareCounts(filteredCounts, fullCounts, filteredTotal, fullTotal) {
+  const labels = [...new Set([...Object.keys(filteredCounts), ...Object.keys(fullCounts)])];
+  return labels
+    .map((label) => {
+      const filteredValue = Number(filteredCounts[label] || 0);
+      const fullValue = Number(fullCounts[label] || 0);
+      const filteredShare = filteredTotal ? filteredValue / filteredTotal : 0;
+      const fullShare = fullTotal ? fullValue / fullTotal : 0;
+      return {
+        label,
+        filteredValue,
+        fullValue,
+        filteredShare,
+        fullShare,
+        delta: filteredShare - fullShare,
+      };
+    })
+    .filter((row) => row.filteredValue || row.fullValue)
+    .sort((a, b) => b.filteredShare - a.filteredShare || b.fullShare - a.fullShare || a.label.localeCompare(b.label));
+}
+
+function comparisonCard(title, rows, detail) {
+  return `
+    <article class="comparison-card">
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(detail)}</p>
+      <div class="comparison-list">
+        ${
+          rows.length
+            ? rows.map(comparisonRow).join("")
+            : '<p class="muted-note">No matching aggregate rows.</p>'
+        }
+      </div>
+    </article>
+  `;
+}
+
+function comparisonRow(row) {
+  return `
+    <div class="comparison-row">
+      <div>
+        <strong>${escapeHtml(row.label)}</strong>
+        <span>${formatPercent(row.filteredShare, 1)} visible · ${formatPercent(row.fullShare, 1)} full</span>
+      </div>
+      <div class="comparison-bars" aria-hidden="true">
+        <i class="filtered" style="width:${Math.max(2, row.filteredShare * 100)}%"></i>
+        <i class="full" style="width:${Math.max(2, row.fullShare * 100)}%"></i>
+      </div>
+    </div>
+  `;
+}
+
+function scoreComparisonCard(filteredScores, fullScores) {
+  const rows = Object.keys({ ...fullScores, ...filteredScores }).sort();
+  return `
+    <article class="comparison-card">
+      <h3>Neutral score means</h3>
+      <p>Filtered mean vs full-layer mean. Directional legal meaning remains unverified.</p>
+      <div class="score-compare-list">
+        ${
+          rows.length
+            ? rows
+                .map((field) => {
+                  const filtered = filteredScores[field];
+                  const full = fullScores[field];
+                  const delta = Number.isFinite(filtered) && Number.isFinite(full) ? filtered - full : null;
+                  return `
+                    <div>
+                      <strong>${escapeHtml(field)}</strong>
+                      <span>${escapeHtml(formatScoreValue(filtered))} filtered · ${escapeHtml(formatScoreValue(full))} full · delta ${escapeHtml(formatScoreValue(delta))}</span>
+                    </div>
+                  `;
+                })
+                .join("")
+            : '<p class="muted-note">No score data for this view.</p>'
+        }
+      </div>
+    </article>
+  `;
+}
+
+function formatScoreValue(value) {
+  return Number.isFinite(value) ? value.toFixed(3) : "n/a";
 }
 
 function addCounts(target, source) {
