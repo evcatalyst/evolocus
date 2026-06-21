@@ -32,6 +32,7 @@
 - Progressive inquiry should be generated as aggregate-only static JSON; Grok may enrich that artifact offline, but Pages must never make live model calls or expose API endpoints with secrets.
 - Map-to-inquiry drilldowns should answer from the selected aggregate unit and geometry-match artifacts, while preserving the same raw-text and legal-conclusion boundaries as the public map.
 - Selected-unit ontology neighborhoods are useful when they visualize only aggregate model-output relationships and explicitly label geometry matches as machine-generated pending review.
+- Mini ontology path animations should animate aggregate relationships only and include reduced-motion fallbacks so motion supports comprehension without becoming required evidence.
 - A selected-unit progressive trail keeps the demo understandable from the map itself: aggregate color first, neutral model-output summaries second, provenance boundaries third.
 - Map-side ontology drilldown cards make the selected unit actionable without creating claims: each card should route to context, evidence depth, or package focus while staying aggregate-only.
 - Peer comparisons must disclose their matching method and stay framed as aggregate review context, not as best/worst or legal-burden rankings.

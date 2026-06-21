@@ -241,9 +241,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "packageTierCounts" in js
     assert "data-package-ontology-unit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
+    assert "selectedUnitOntologyPathHtml" in js
+    assert "ontologyPathStepHtml" in js
     assert "selectedUnitOntologyNodes" in js
     assert "ontologyNodeSvg" in js
     assert "ontology-neighborhood-svg" in css
+    assert "ontology-path-strip" in css
+    assert "ontology-path-step" in css
+    assert "ontologyPathSweep" in css
+    assert "prefers-reduced-motion" in css
     assert "package-ontology-lane" in css
     assert "package-ontology-bars" in css
     assert "selected-disclosure-trail" in css

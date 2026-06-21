@@ -82,8 +82,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitAnswer" in js
     assert "askAboutMapUnit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
+    assert "selectedUnitOntologyPathHtml" in js
     assert "selected-disclosure-trail" in css
     assert "selected-ontology-drilldown" in css
+    assert "ontology-path-strip" in css
+    assert "ontologyPathSweep" in css
     assert "ontologyNodeSvg" in js
     assert "selectedUnitPeerComparisonHtml" in js
     assert "scoreDeltaSummary" in js

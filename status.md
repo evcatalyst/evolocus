@@ -91,6 +91,7 @@ Current coverage stats:
 - Unit audit-quality counts: 55,816 medium/high OCR-review rows, 29,194 duplicate text-hash rows, max audit attention 30.88/100
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
+- Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
 - Selected-unit progressive trail: GitHub Pages map panel walks from aggregate overview to unit-detail model outputs to evidence/provenance boundaries with disclosure buttons
 - Selected-unit ontology drilldowns: GitHub Pages map panel shows topic/function/tier/score/geometry/package cards that route to ontology context, evidence depth, or package focus without raw text
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, package overlay, topic, function, audit, score, and selected-unit answers
@@ -161,6 +162,7 @@ Latest update:
 - Added a Score Lens tab that visualizes released model-score means from aggregate map units with progressive disclosure and drill-through back to the map.
 - Added an Inquiry question matrix that turns current filters into deterministic aggregate answers for map, topic, function, audit, score, and selected-unit prompts.
 - Added `question_pack.json` and `publish-question-pack` so the Inquiry matrix can render filter-aware static prompts generated from aggregate artifacts, optionally noted by Grok offline.
+- Added a selected-unit mini ontology path animation that shows aggregate topic/function/tier links first, then score and geometry links as progressive disclosure deepens.
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 - Added a review-package request export and `materialize-review-package` local CLI handoff so aggregate visual plans can become bounded browser-import packages without publishing LOCUS text.
 - Added a review-package request preview that displays record budget, state/type/topic mix, and request safety gates before download.

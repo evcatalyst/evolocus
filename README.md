@@ -59,6 +59,7 @@ The Pages app supports:
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - package-to-ontology bridge that connects browser-local package counts to topic, function, tier, and matched map-unit nodes without exposing row text;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
+- selected-unit mini ontology path animation over aggregate topic/function/tier/score/geometry steps;
 - selected-unit ontology drilldown cards for map-side topic/function/tier/score/geometry/package links;
 - selected-unit progressive visual trail that switches overview, unit-detail, and evidence depth from the map panel;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;

@@ -2523,6 +2523,7 @@ function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
           .join("")}
         ${nodes.map(ontologyNodeSvg).join("")}
       </svg>
+      ${selectedUnitOntologyPathHtml(unit, geometry, showUnit, showEvidence)}
       <div class="ontology-neighborhood-facts">
         <span><strong>Topic</strong>${escapeHtml(text(unit.dominant_topic))}</span>
         <span><strong>Function</strong>${escapeHtml(text(unit.dominant_function))}</span>
@@ -2540,6 +2541,62 @@ function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
       </div>
       <p class="muted-note">Neighborhood edges summarize released LOCUS aggregate fields and machine-match artifacts. They are not verified legal relationships.</p>
     </section>
+  `;
+}
+
+function selectedUnitOntologyPathHtml(unit, geometry, showUnit, showEvidence) {
+  const steps = [
+    {
+      label: "Map unit",
+      value: `${displayUnitName(unit)} (${text(unit.state)})`,
+      detail: `${formatCount(unit.law_count)} aggregate law rows`,
+    },
+    {
+      label: "Topic",
+      value: text(unit.dominant_topic),
+      detail: "released model label",
+    },
+    {
+      label: "Function",
+      value: text(unit.dominant_function),
+      detail: "released model label",
+    },
+    {
+      label: "Neutral tier",
+      value: text(unit.tier_label),
+      detail: "map color grouping",
+    },
+  ];
+  if (showUnit) {
+    steps.push({
+      label: "Scores",
+      value: scoreSnapshot(unit.model_score_means || {}),
+      detail: "neutral means; direction unverified",
+    });
+  }
+  if (showEvidence) {
+    steps.push({
+      label: "Geometry",
+      value: geometry.matchStatus,
+      detail: `${geometry.source}; pending review`,
+    });
+  }
+  return `
+    <div class="ontology-path-strip" aria-label="Animated aggregate ontology path">
+      ${steps.map((step, index) => ontologyPathStepHtml(step, index, steps.length)).join("")}
+    </div>
+  `;
+}
+
+function ontologyPathStepHtml(step, index, total) {
+  const progress = total > 1 ? (index / (total - 1)) * 100 : 0;
+  const delay = `${(index * 0.18).toFixed(2)}s`;
+  return `
+    <article class="ontology-path-step" style="--path-progress:${progress}%; --path-delay:${delay}">
+      <span>${escapeHtml(step.label)}</span>
+      <strong>${escapeHtml(step.value)}</strong>
+      <em>${escapeHtml(step.detail)}</em>
+    </article>
   `;
 }
 
