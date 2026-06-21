@@ -51,3 +51,4 @@
 - The public-to-local handoff should export aggregate unit requests from Pages and materialize text-bearing review packages only through ignored local tooling with an explicit content flag.
 - Review-package handoffs should preview record budgets, unit mix, and safety gates before download so users see the public/private boundary before moving into local text-bearing work.
 - After a local package import, the browser should show provenance and text-inclusion state immediately so reviewers can distinguish synthetic demo records from browser-local LOCUS text.
+- Imported package visuals should summarize local queue provenance and review progress without treating browser-local LOCUS text as a public artifact or civic finding.

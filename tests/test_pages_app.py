@@ -18,6 +18,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Export Package Request" in html
     assert "package-request-command" in html
     assert "package-request-preview" in html
+    assert "package-coverage-grid" in html
     assert "Snapshots" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
@@ -25,6 +26,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "localStorage" in js
     assert "renderImportStatus" in js
     assert "importStatusFromPayload" in js
+    assert "renderPackageCoverage" in js
+    assert "packageCoverageSummary" in js
     assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js

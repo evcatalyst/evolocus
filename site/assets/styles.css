@@ -2414,6 +2414,78 @@ th {
   background: #ffffff;
 }
 
+.package-coverage-grid {
+  display: grid;
+  gap: 14px;
+  margin: 16px 0 20px;
+}
+
+.package-coverage-summary,
+.package-coverage-visuals {
+  display: grid;
+  gap: 12px;
+}
+
+.package-coverage-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.package-coverage-visuals {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.package-coverage-card,
+.package-coverage-visual-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.package-coverage-card {
+  display: grid;
+  gap: 6px;
+  border-left: 4px solid #7a8aa0;
+}
+
+.package-coverage-card.imported {
+  border-left-color: #326f70;
+}
+
+.package-coverage-card.demo {
+  border-left-color: #b7892c;
+}
+
+.package-coverage-card.explicit {
+  border-left-color: #c27b4f;
+}
+
+.package-coverage-card.clear {
+  border-left-color: #2f756b;
+}
+
+.package-coverage-card span,
+.package-coverage-card em,
+.package-coverage-visual-card p {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.package-coverage-card strong {
+  font-size: 1.2rem;
+  line-height: 1.15;
+}
+
+.package-coverage-card em {
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.package-coverage-visual-card h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
 .coverage-matrix-heading {
   display: flex;
   gap: 16px;
@@ -2580,6 +2652,8 @@ th {
   .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
+  .package-coverage-summary,
+  .package-coverage-visuals,
   .coverage-matrix-row,
   .score-state-row,
   .score-unit-row,
@@ -2646,6 +2720,8 @@ th {
   .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
+  .package-coverage-summary,
+  .package-coverage-visuals,
   .coverage-matrix-row,
   .score-state-row,
   .score-unit-row,

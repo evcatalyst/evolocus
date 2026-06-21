@@ -49,6 +49,7 @@ flowchart LR
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
 - Imported package status is stored in browser localStorage and displayed as provenance for the current review queue.
+- Imported package coverage charts are computed in the browser from the bounded local queue and review events; they summarize state/topic/function/type/OCR mix and workflow status without writing imported records to public artifacts.
 - Demo mode is synthetic and conspicuously labeled.
 - Real LOCUS aggregate artifacts are published through Pages after local safety checks.
 - Real LOCUS rows and ordinance text are not published through Pages.
@@ -70,6 +71,7 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 
 - append-only review events in localStorage;
 - browser-local import-status metadata for bounded local packages;
+- browser-local package coverage visuals for bounded local packages;
 - blinded model output by default;
 - explicit reveal logging;
 - review save, save-next, skip, and flag actions;

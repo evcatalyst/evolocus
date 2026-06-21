@@ -28,6 +28,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - Queue Plan review-package request export for local ignored materialization from authorized Parquet;
 - Queue Plan package-request preview for record budget, state/type/topic mix, and safety gates before download;
 - browser-local import-status panel after bounded package upload, showing package provenance, text-inclusion state, unit counts, and safety flags;
+- Results-tab package coverage visuals for imported browser-local queues, including state/topic/function/type/OCR mix and review workflow status;
 - ontology and model-output registry views;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -59,6 +60,8 @@ Clearing browser storage removes local unsaved work. Export review events regula
 ## Queue Import
 
 The browser can import a bounded queue JSON file with a top-level `records` array or a plain array of record objects. Imports are capped at 500 records to avoid turning the browser into a full corpus store.
+
+After import, the Results tab summarizes the browser-local package with record/unit counts, state/topic/function/type/OCR distributions, safety markers, and review progress. These visuals read localStorage and the imported package only; they are not copied into public static artifacts.
 
 Imported records should include:
 

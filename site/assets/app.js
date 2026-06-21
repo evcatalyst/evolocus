@@ -2434,6 +2434,7 @@ function renderResults() {
   renderAnalysisCharts();
   renderStateTopicCharts();
   renderCoverageMatrix();
+  renderPackageCoverage();
   const latest = Array.from(latestEvents().values()).filter((event) => event.reviewer_id === state.reviewer);
   const reviewed = latest.filter((event) => ["save", "save_next"].includes(event.event_type));
   const flagged = latest.filter((event) => event.event_type === "flag").length;
@@ -2458,6 +2459,164 @@ function renderResults() {
     )
     .join("");
   $("#confusion-output").innerHTML = confusionTable(reviewed);
+}
+
+function renderPackageCoverage() {
+  const grid = $("#package-coverage-grid");
+  if (!grid) {
+    return;
+  }
+  const summary = packageCoverageSummary();
+  grid.innerHTML = `
+    ${packageCoverageCardsHtml(summary)}
+    ${packageCoverageVisualsHtml(summary)}
+  `;
+}
+
+function packageCoverageSummary() {
+  const imported = !isSyntheticQueue();
+  const meta = imported ? loadImportStatus() || fallbackImportStatus() : null;
+  const metrics = queueMetrics();
+  const unitCounts = meta?.unit_counts || unitCountsFromRecords(records);
+  const stateCounts = countBy(records, (record) => normalizedCountLabel(record.state, "Unknown state"));
+  const topicCounts = countBy(records, (record) => topicLabelForCoverage(record));
+  const functionCounts = countBy(records, (record) => normalizedCountLabel(record.function, "Unknown function"));
+  const kindCounts = countBy(records, (record) => normalizedCountLabel(record.jurisdiction_type_normalized || record.source_jurisdiction_type, "Unknown type"));
+  const ocrCounts = countBy(records, (record) => normalizedCountLabel(record.ocr_risk_level, "not_evaluated"));
+  const sourceFiles = new Set(records.map((record) => record.source_file).filter((value) => value !== null && value !== undefined && String(value).trim() !== ""));
+  return {
+    imported,
+    modeLabel: imported ? "Browser-local imported package" : "Synthetic demo queue",
+    sourceDetail: imported
+      ? `${meta?.file_name || "Imported package"} · imported ${formatDateTime(meta?.imported_at)}`
+      : "No real LOCUS text is loaded into the review queue.",
+    datasetId: meta?.dataset_id || (imported ? "LocalLaws/LOCUS-v1" : "Synthetic demonstration records"),
+    datasetRevision: meta?.dataset_revision || records[0]?.dataset_revision || "demo-revision",
+    recordCount: records.length,
+    unitCount: Number(meta?.unit_count || Object.keys(unitCounts).length),
+    unitCounts,
+    stateCounts,
+    topicCounts,
+    functionCounts,
+    kindCounts,
+    ocrCounts,
+    sourceFileCount: sourceFiles.size,
+    metrics,
+    textIncluded: imported ? Boolean(meta?.ordinance_text_included) : false,
+    sourceLocatorsIncluded: imported ? Boolean(meta?.source_locators_included) : false,
+    reviewEventsIncluded: imported ? Boolean(meta?.review_events_included) : false,
+    publicationAllowed: imported ? Boolean(meta?.github_pages_publication_allowed) : false,
+    offlineModelBoundary: "Offline Actions-only enrichment; Pages makes no live model calls.",
+  };
+}
+
+function packageCoverageCardsHtml(summary) {
+  const reviewedShare = formatPercent(summary.metrics.reviewed, summary.metrics.total);
+  const cards = [
+    [
+      "Queue source",
+      summary.imported ? "Imported" : "Synthetic",
+      summary.sourceDetail,
+      summary.imported ? "imported" : "demo",
+    ],
+    [
+      "Records / units",
+      `${formatCount(summary.recordCount)} / ${formatCount(summary.unitCount)}`,
+      `${summary.datasetId} · revision ${summary.datasetRevision}`,
+      "neutral",
+    ],
+    [
+      "Review progress",
+      `${formatCount(summary.metrics.reviewed)} reviewed`,
+      `${reviewedShare} complete · ${formatCount(summary.metrics.remaining)} remaining · ${formatCount(summary.metrics.skipped)} skipped · ${formatCount(summary.metrics.flagged)} flagged`,
+      "neutral",
+    ],
+    [
+      "Text boundary",
+      summary.textIncluded ? "Local text loaded" : "No local text",
+      summary.imported
+        ? "Imported text stays in this browser and is not a Pages artifact."
+        : "Synthetic demonstration content only.",
+      summary.textIncluded ? "explicit" : "clear",
+    ],
+    [
+      "Model boundary",
+      "Static only",
+      summary.offlineModelBoundary,
+      "clear",
+    ],
+  ];
+  return `
+    <div class="package-coverage-summary">
+      ${cards
+        .map(
+          ([label, value, detail, stateLabel]) => `
+            <article class="package-coverage-card ${escapeHtml(stateLabel)}">
+              <span>${escapeHtml(label)}</span>
+              <strong>${escapeHtml(String(value))}</strong>
+              <em>${escapeHtml(String(detail))}</em>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function packageCoverageVisualsHtml(summary) {
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const limit = showUnit ? 10 : 5;
+  const workflowRows = [
+    { label: "reviewed", value: summary.metrics.reviewed },
+    { label: "remaining", value: summary.metrics.remaining },
+    { label: "skipped", value: summary.metrics.skipped },
+    { label: "flagged", value: summary.metrics.flagged },
+  ];
+  const safetyRows = [
+    { label: summary.textIncluded ? "local ordinance text loaded" : "no local ordinance text", value: summary.recordCount },
+    { label: summary.sourceLocatorsIncluded ? "source locator values loaded" : "no source locator values", value: summary.recordCount },
+    { label: summary.reviewEventsIncluded ? "review events imported" : "no review events imported", value: summary.recordCount },
+    { label: summary.publicationAllowed ? "publication flag needs review" : "local-only package", value: summary.recordCount },
+  ];
+  return `
+    <div class="package-coverage-visuals">
+      ${packageCoverageBarCard("Review queue by state", summary.stateCounts, limit)}
+      ${packageCoverageBarCard("Review queue by topic", summary.topicCounts, limit)}
+      ${packageCoverageBarCard("Review queue by function", summary.functionCounts, limit)}
+      ${packageCoverageBarCard("Review queue by jurisdiction type", summary.kindCounts, limit, titleCase)}
+      ${packageCoverageBarCard("OCR-risk mix", summary.ocrCounts, limit, titleCase)}
+      ${packageCoverageBarCard("Review workflow status", workflowRows, 4)}
+      ${packageCoverageBarCard("Largest local units", summary.unitCounts, limit)}
+      ${packageCoverageBarCard("Package safety markers", safetyRows, 4)}
+    </div>
+    ${
+      !showUnit
+        ? `<p class="muted-note">Switch to Unit detail to show longer imported-package distributions. These charts summarize the browser-local queue only.</p>`
+        : `<p class="muted-note">Browser-local package summary: ${escapeHtml(formatCount(summary.sourceFileCount))} source files are represented when source-file metadata is present. No package content is written to GitHub Pages.</p>`
+    }
+  `;
+}
+
+function packageCoverageBarCard(title, countsOrRows, limit, labeler = (label) => label) {
+  const rows = Array.isArray(countsOrRows) ? countsOrRows.slice(0, limit) : topCountEntries(countsOrRows, limit);
+  return `
+    <article class="package-coverage-visual-card">
+      <h3>${escapeHtml(title)}</h3>
+      <div class="bar-list">${auditBarRows(rows, labeler)}</div>
+    </article>
+  `;
+}
+
+function topicLabelForCoverage(record) {
+  if (record.topic) {
+    return String(record.topic);
+  }
+  return record.is_substantive ? "Unknown topic" : "Not_applicable";
+}
+
+function normalizedCountLabel(value, fallback) {
+  const label = value === null || value === undefined ? "" : String(value).trim();
+  return label || fallback;
 }
 
 function renderAuditLens() {

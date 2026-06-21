@@ -141,6 +141,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "analysis-chart-grid" in html
     assert "state-topic-grid" in html
     assert "coverage-matrix-grid" in html
+    assert "package-coverage-grid" in html
     assert "county-choropleth" in html
     assert "municipal point layer" in html
     assert "geo-color-legend" in html
@@ -180,6 +181,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "STORAGE_IMPORT_STATUS" in js
     assert "renderImportStatus" in js
     assert "importStatusFromPayload" in js
+    assert "renderPackageCoverage" in js
+    assert "packageCoverageSummary" in js
     assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "BROWSER-LOCAL IMPORTED PACKAGE METADATA" in js
     assert "Package status is visible above the workbench" in js
@@ -200,6 +203,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitOntologyNodes" in js
     assert "ontologyNodeSvg" in js
     assert "ontology-neighborhood-svg" in css
+    assert "package-coverage-card" in css
     assert "selectedUnitPeerComparisonHtml" in js
     assert "selectedUnitPeers" in js
     assert "scoreDeltaSummary" in js
