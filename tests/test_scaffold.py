@@ -126,6 +126,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-request-preview" in html
     assert "Question matrix" in html
     assert "selected-ontology-neighborhood" in html
+    assert "ontology-tier-focus" in html
     assert "package-ontology-bridge" in html
     assert "Analysis Status" in html
     assert "map-filter-form" in html
@@ -233,6 +234,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "mapInlineInquiryPrompts" in js
     assert "data-map-inquiry" in js
     assert "tierColorForLabel" in js
+    assert "tierKeyForLabel" in js
+    assert "openTierOntology" in js
+    assert "ontologyTierFocusHtml" in js
+    assert "data-tier-ontology" in js
+    assert "data-tier-ontology-unit" in js
     assert "inquiryPromptCards" in js
     assert "questionPackPromptCards" in js
     assert "applyQuestionPackPrompt" in js
@@ -269,6 +275,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-reading-guide-tiers" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
+    assert "ontology-tier-focus" in css
+    assert "ontology-tier-focus-metrics" in css
     assert "package-map-actions" in css
     assert "checkbox-filter" in css
     assert "package-hit-badge" in css

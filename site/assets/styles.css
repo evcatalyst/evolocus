@@ -1612,6 +1612,7 @@ textarea {
 }
 
 .map-reading-guide-metrics span,
+.map-reading-guide-tiers button,
 .map-reading-guide-tiers span,
 .map-reading-guide-filters span {
   display: inline-flex;
@@ -1622,6 +1623,17 @@ textarea {
   border-radius: 999px;
   background: #ffffff;
   padding: 7px 10px;
+}
+
+.map-reading-guide-tiers button {
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.map-reading-guide-tiers button:hover,
+.map-reading-guide-tiers button:focus-visible {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.14);
 }
 
 .map-reading-guide-metrics strong,
@@ -2387,6 +2399,100 @@ textarea {
 
 .selected-ontology-card {
   margin-bottom: 18px;
+}
+
+.ontology-tier-focus {
+  display: grid;
+  gap: 14px;
+}
+
+.ontology-tier-focus-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.ontology-tier-focus-heading h3,
+.ontology-tier-focus-heading p,
+.ontology-tier-focus-units h4 {
+  margin-top: 0;
+}
+
+.ontology-tier-focus-heading h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ontology-tier-focus-heading i {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(23, 32, 51, 0.18);
+  border-radius: 5px;
+}
+
+.ontology-tier-focus-metrics,
+.ontology-tier-focus-links,
+.ontology-tier-focus-units > div {
+  display: grid;
+  gap: 10px;
+}
+
+.ontology-tier-focus-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.ontology-tier-focus-links {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ontology-tier-focus-metrics span,
+.ontology-tier-focus-links article,
+.ontology-tier-focus-units button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f9fbfd;
+  padding: 10px;
+}
+
+.ontology-tier-focus-metrics span,
+.ontology-tier-focus-links article,
+.ontology-tier-focus-units button {
+  display: grid;
+  gap: 5px;
+}
+
+.ontology-tier-focus-metrics strong,
+.ontology-tier-focus-links strong,
+.ontology-tier-focus-units strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.ontology-tier-focus-metrics em,
+.ontology-tier-focus-links span,
+.ontology-tier-focus-units em {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.ontology-tier-focus-units > div {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.ontology-tier-focus-units button {
+  color: var(--ink);
+  text-align: left;
+}
+
+.ontology-tier-focus-units button:hover,
+.ontology-tier-focus-units button:focus-visible {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.14);
 }
 
 .package-ontology-card {
@@ -3431,6 +3537,10 @@ th {
   .audit-state-row,
   .audit-priority-row,
   .ontology-layout,
+  .ontology-tier-focus-heading,
+  .ontology-tier-focus-metrics,
+  .ontology-tier-focus-links,
+  .ontology-tier-focus-units > div,
   .package-ontology-lane,
   .package-ontology-units > div,
   .package-ontology-facts,
@@ -3517,6 +3627,10 @@ th {
   .audit-state-row,
   .audit-priority-row,
   .ontology-layout,
+  .ontology-tier-focus-heading,
+  .ontology-tier-focus-metrics,
+  .ontology-tier-focus-links,
+  .ontology-tier-focus-units > div,
   .package-ontology-heading,
   .package-ontology-lane,
   .package-ontology-units > div,

@@ -61,6 +61,7 @@ The Pages app supports:
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit mini ontology path animation over aggregate topic/function/tier/score/geometry steps;
 - map-side law-location tier guide with active filters, county/town counts, neutral tier mix, and publication boundary;
+- tier-to-ontology clickthrough from the map guide into a focused neutral-tier context card;
 - map-side chat-style inquiry panel for current filters, selected unit, audit signals, score profile, and browser-local package overlay;
 - selected-unit ontology drilldown cards for map-side topic/function/tier/score/geometry/package links;
 - selected-unit progressive visual trail that switches overview, unit-detail, and evidence depth from the map panel;

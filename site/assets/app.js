@@ -227,6 +227,7 @@ let state = {
   disclosureLevel: "overview",
   geographyColorMode: "tier",
   mapInlineInquiry: "view",
+  ontologyFocusTier: "",
   mapFilters: {
     state: "",
     topic: "",
@@ -665,13 +666,14 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
     .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
     .map(([label, value]) => {
       const definition = Object.values(tierDefinitions).find((item) => item.label === label) || {};
+      const tierKey = definition.key || tierKeyForLabel(label, tierDefinitions);
       const color = definition.color || tierColorForLabel(label, units, tierDefinitions);
       return `
-        <span>
+        <button type="button" data-tier-ontology="${escapeHtml(tierKey)}" aria-label="Open ontology for ${escapeHtml(label)}">
           <i style="background:${escapeHtml(color)}"></i>
           <strong>${escapeHtml(label)}</strong>
           <em>${escapeHtml(formatCount(value))} units</em>
-        </span>
+        </button>
       `;
     })
     .join("");
@@ -1069,6 +1071,20 @@ function tierColorForLabel(label, units, tierDefinitions) {
   }
   const unit = units.find((item) => (item.tier_label || item.tier || "Unspecified") === label);
   return unit?.tier_color || "#d8dee8";
+}
+
+function tierKeyForLabel(label, tierDefinitions) {
+  const entry = Object.entries(tierDefinitions || {}).find(([, definition]) => definition.label === label);
+  return entry ? entry[0] : label;
+}
+
+function tierDefinitionForKey(tierKey) {
+  const definitions = state.analysis.mapLayers?.tier_definitions || {};
+  if (definitions[tierKey]) {
+    return definitions[tierKey];
+  }
+  const entry = Object.entries(definitions).find(([, definition]) => definition.label === tierKey);
+  return entry ? entry[1] : { label: tierKey, color: "#d8dee8" };
 }
 
 function geographyColorLegend(context) {
@@ -2352,6 +2368,15 @@ function applySelectedOntologyDrilldown(action) {
   }
 }
 
+function openTierOntology(tierKey) {
+  state.ontologyFocusTier = tierKey;
+  state.activeTab = "ontology";
+  if (state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  render();
+}
+
 function selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit) {
   const geometry = geometryMatchForUnit(unit.unit_id);
   const scoreSummary = scoreSnapshot(unit.model_score_means || {});
@@ -2489,6 +2514,7 @@ function renderGeoColorButtons() {
 function renderOntology() {
   const ontology = state.analysis.ontology;
   const models = state.analysis.models;
+  const tierFocus = $("#ontology-tier-focus");
   const selectedNeighborhood = $("#selected-ontology-neighborhood");
   const packageBridge = $("#package-ontology-bridge");
   if (!ontology) {
@@ -2497,6 +2523,9 @@ function renderOntology() {
     `;
     if (selectedNeighborhood) {
       selectedNeighborhood.innerHTML = "<p>Selected-unit ontology neighborhood loading.</p>";
+    }
+    if (tierFocus) {
+      tierFocus.innerHTML = "<p>Tier ontology focus loading.</p>";
     }
     if (packageBridge) {
       packageBridge.innerHTML = "<p>Package ontology bridge loading.</p>";
@@ -2528,6 +2557,9 @@ function renderOntology() {
     .slice(0, 80)
     .map((node) => `<span>${escapeHtml(node.type)} · ${escapeHtml(node.label)}${node.count ? ` (${escapeHtml(String(node.count))})` : ""}</span>`)
     .join("");
+  if (tierFocus) {
+    tierFocus.innerHTML = ontologyTierFocusHtml();
+  }
   if (selectedNeighborhood) {
     const selectedUnit = currentSelectedMapUnit();
     selectedNeighborhood.innerHTML = selectedUnit
@@ -2549,6 +2581,86 @@ function renderOntology() {
         )
         .join("")
     : "<span>Model registry loading</span>";
+}
+
+function ontologyTierFocusHtml() {
+  const tierKey = state.ontologyFocusTier;
+  if (!tierKey) {
+    return `
+      <section class="ontology-tier-focus empty" aria-label="Tier ontology focus">
+        <div class="ontology-tier-focus-heading">
+          <div>
+            <p class="eyebrow">Tier focus</p>
+            <h3>Open a tier from the map guide.</h3>
+            <p>Click a neutral tier chip in the law-location guide to see how that color band connects to topics, functions, score summaries, and visible county/town units.</p>
+          </div>
+          <button type="button" data-ontology-action="open-map">Open map</button>
+        </div>
+      </section>
+    `;
+  }
+  const mapUnits = state.analysis.mapLayers?.units || [];
+  const visibleUnits = filterMapUnits(mapUnits).filter((unit) => unit.tier === tierKey || unit.tier_label === tierKey);
+  const definition = tierDefinitionForKey(tierKey);
+  const summary = summarizeUnits(visibleUnits);
+  const topUnits = visibleUnits
+    .slice()
+    .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0))
+    .slice(0, state.disclosureLevel === "overview" ? 6 : 10);
+  const filters = activeFilterLabels().join(" · ") || "No active map filters";
+  return `
+    <section class="ontology-tier-focus" aria-label="Focused tier ontology context">
+      <div class="ontology-tier-focus-heading">
+        <div>
+          <p class="eyebrow">Tier focus</p>
+          <h3><i style="background:${escapeHtml(definition.color || "#d8dee8")}"></i>${escapeHtml(definition.label || tierKey)}</h3>
+          <p>This neutral color band is shown from the current map filters. It is a review grouping over aggregate model outputs, not a legal ranking.</p>
+        </div>
+        <button type="button" data-ontology-action="open-map">Back to map</button>
+      </div>
+      <div class="ontology-tier-focus-metrics">
+        <span><strong>${escapeHtml(formatCount(visibleUnits.length))}</strong><em>visible units</em></span>
+        <span><strong>${escapeHtml(formatCount(summary.lawCount))}</strong><em>aggregate law rows</em></span>
+        <span><strong>${escapeHtml(summary.topTopic.label)}</strong><em>top topic · ${escapeHtml(formatCount(summary.topTopic.value))} rows</em></span>
+        <span><strong>${escapeHtml(summary.topFunction.label)}</strong><em>top function · ${escapeHtml(formatCount(summary.topFunction.value))} rows</em></span>
+        <span><strong>${escapeHtml(scoreSnapshot(summary.scoreMeans))}</strong><em>neutral score means</em></span>
+      </div>
+      <div class="ontology-tier-focus-links">
+        <article>
+          <span>Topic links</span>
+          <strong>${escapeHtml(compactCounts(summary.topicCounts))}</strong>
+        </article>
+        <article>
+          <span>Function links</span>
+          <strong>${escapeHtml(compactCounts(summary.functionCounts))}</strong>
+        </article>
+        <article>
+          <span>Filter context</span>
+          <strong>${escapeHtml(filters)}</strong>
+        </article>
+      </div>
+      <div class="ontology-tier-focus-units">
+        <h4>Visible county/town units in this tier</h4>
+        <div>
+          ${
+            topUnits.length
+              ? topUnits.map((unit) => ontologyTierUnitButton(unit)).join("")
+              : "<p class=\"muted-note\">No units in this tier match the current filters.</p>"
+          }
+        </div>
+      </div>
+      <p class="muted-note">This card reads map_layers.json aggregates and current browser filters only. It does not publish ordinance text, source locators, review events, or legal conclusions.</p>
+    </section>
+  `;
+}
+
+function ontologyTierUnitButton(unit) {
+  return `
+    <button type="button" data-tier-ontology-unit="${escapeHtml(unit.unit_id)}">
+      <strong>${escapeHtml(displayUnitName(unit))}</strong>
+      <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(formatCount(unit.law_count))} rows · ${escapeHtml(text(unit.dominant_topic))}</em>
+    </button>
+  `;
 }
 
 function packageOntologyBridgeHtml() {
@@ -6545,6 +6657,12 @@ function bindEvents() {
       renderMap();
       return;
     }
+    const tierOntologyButton = event.target.closest("[data-tier-ontology]");
+    if (tierOntologyButton) {
+      event.preventDefault();
+      openTierOntology(tierOntologyButton.dataset.tierOntology);
+      return;
+    }
     const askButton = event.target.closest("[data-ask-unit-id]");
     if (askButton) {
       event.preventDefault();
@@ -6578,6 +6696,15 @@ function bindEvents() {
       if (actionButton.dataset.ontologyAction === "demo-package") {
         loadSyntheticPackageDemo();
       }
+      if (actionButton.dataset.ontologyAction === "open-map") {
+        state.activeTab = "map";
+        render();
+      }
+      return;
+    }
+    const tierUnitButton = event.target.closest("[data-tier-ontology-unit]");
+    if (tierUnitButton) {
+      openAuditUnitOnMap(tierUnitButton.dataset.tierOntologyUnit);
       return;
     }
     const unitButton = event.target.closest("[data-package-ontology-unit]");

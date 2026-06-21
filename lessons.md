@@ -34,6 +34,7 @@
 - Selected-unit ontology neighborhoods are useful when they visualize only aggregate model-output relationships and explicitly label geometry matches as machine-generated pending review.
 - Mini ontology path animations should animate aggregate relationships only and include reduced-motion fallbacks so motion supports comprehension without becoming required evidence.
 - Map legends should explain active filters and county/town scope in the same panel as the visual, because tier colors are neutral review bands rather than legal rankings.
+- Tier chips should click through to ontology context rather than stand alone as a legend, so color bands become explainable aggregate relationships.
 - Map-side inquiry should reuse deterministic aggregate answer functions so users can ask questions without exposing live model endpoints, raw rows, or ordinance text.
 - A selected-unit progressive trail keeps the demo understandable from the map itself: aggregate color first, neutral model-output summaries second, provenance boundaries third.
 - Map-side ontology drilldown cards make the selected unit actionable without creating claims: each card should route to context, evidence depth, or package focus while staying aggregate-only.

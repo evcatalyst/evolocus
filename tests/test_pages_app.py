@@ -27,6 +27,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "package-map-summary" in html
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
+    assert "ontology-tier-focus" in html
     assert "Imported package units" in html
     assert "Load Demo Package" in html
     assert "localStorage" in js
@@ -67,6 +68,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "mapInlineInquiryPrompts" in js
     assert "data-map-inquiry" in js
     assert "tierColorForLabel" in js
+    assert "tierKeyForLabel" in js
+    assert "openTierOntology" in js
+    assert "ontologyTierFocusHtml" in js
+    assert "data-tier-ontology" in js
+    assert "data-tier-ontology-unit" in js
     assert "renderWalkthrough" in js
     assert "walkthroughStepHtml" in js
     assert "data-walkthrough-tab" in js
@@ -95,6 +101,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-reading-guide-card" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
+    assert "ontology-tier-focus" in css
+    assert "ontology-tier-focus-metrics" in css
     assert "ontology-path-strip" in css
     assert "ontologyPathSweep" in css
     assert "ontologyNodeSvg" in js
