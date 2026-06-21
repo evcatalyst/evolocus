@@ -11,6 +11,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - synthetic demo queue;
 - law map with state-clustered county/town-style units colored by neutral tier;
 - map filters for state, topic, function, tier, and minimum law count;
+- filtered-view aggregate insight cards and inquiry answers;
 - ontology and model-output registry views;
 - static inquiry over published analysis artifacts;
 - aggregate chart panels and publication gates;

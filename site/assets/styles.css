@@ -411,6 +411,35 @@ textarea {
   min-height: 42px;
 }
 
+.map-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 18px;
+}
+
+.insight-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px;
+  background: #fff;
+}
+
+.insight-card span,
+.insight-card em {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: normal;
+}
+
+.insight-card strong {
+  display: block;
+  margin: 5px 0;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
 .tier-legend span {
   display: inline-flex;
   align-items: center;
@@ -790,6 +819,7 @@ th {
   .map-filter-grid,
   .review-layout,
   .map-layout,
+  .map-insight-grid,
   .analysis-status-grid,
   .chart-grid,
   .ontology-layout,
@@ -815,6 +845,7 @@ th {
   .map-filter-grid,
   .review-layout,
   .map-layout,
+  .map-insight-grid,
   .analysis-status-grid,
   .chart-grid,
   .ontology-layout,

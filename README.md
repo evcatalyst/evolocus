@@ -31,6 +31,7 @@ The Pages app supports:
 
 - state-clustered county/town law map units colored by neutral tier;
 - map filters for state, topic, function, tier, and minimum law count;
+- filtered-view insight cards and inquiry answers over the current aggregate map selection;
 - analysis status from published static JSON artifacts;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - static inquiry over current analysis artifacts;

@@ -103,6 +103,7 @@ Latest update:
 - Generated aggregate LOCUS visual artifacts from local Parquet in ignored storage, safety-checked them for raw text fields, and copied only aggregate JSON into the Pages data layer.
 - Replaced the offscreen abstract unit list with a bounded state-clustered map artifact containing 50 state anchors and all published unit coordinates inside the SVG view box.
 - Added Pages-side aggregate map filters for state, topic, function, tier, and minimum law count.
+- Added filtered-view aggregate insight cards and inquiry answers over the current map selection.
 
 Evaluator implementation state:
 

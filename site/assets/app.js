@@ -24,6 +24,7 @@ const SCORE_OPTIONS = [
 
 const TOPICS = ["Buildings", "Business", "Nuisance", "Zoning", "Other"];
 const FUNCTIONS = ["Context", "Rules", "Process", "Enforcement"];
+const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
 
 const syntheticRecords = [
   {
@@ -411,12 +412,14 @@ function renderMap() {
     $("#map-geometry-status").textContent = "No map layer loaded";
     $("#tier-legend").innerHTML = "";
     $("#law-map").innerHTML = "";
+    $("#map-insight-grid").innerHTML = "";
     $("#unit-detail").innerHTML = "<p>No map layer has loaded yet.</p>";
     $("#map-unit-table tbody").innerHTML = "";
     return;
   }
 
   renderMapFilters(allUnits);
+  renderMapInsights(units, allUnits);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -526,6 +529,123 @@ function fillSelect(select, values, selected, emptyLabel, labeler = (value) => v
 
 function sortedKeys(units, key) {
   return [...new Set(units.flatMap((unit) => Object.keys(unit[key] || {})).filter((value) => value !== "Not_applicable"))].sort();
+}
+
+function renderMapInsights(units, allUnits) {
+  const summary = summarizeUnits(units);
+  const allSummary = summarizeUnits(allUnits);
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const filteredLabel = activeFilterLabels().join(" · ") || "All published aggregate units";
+  const cards = [
+    insightCard("Current filter", filteredLabel, `${formatCount(units.length)} of ${formatCount(allUnits.length)} units`),
+    insightCard("Law records", formatCount(summary.lawCount), `${formatPercent(summary.lawCount, allSummary.lawCount)} of published aggregate layer`),
+    insightCard("Substantive rows", formatCount(summary.substantiveCount), `${formatPercent(summary.substantiveCount, summary.lawCount)} of filtered rows`),
+    insightCard("Top topic", summary.topTopic.label, `${formatCount(summary.topTopic.value)} rows`),
+    insightCard("Top function", summary.topFunction.label, `${formatCount(summary.topFunction.value)} rows`),
+    insightCard("Tier mix", tierMix(summary.tierCounts), "Neutral bands, not legal rankings"),
+  ];
+  if (showUnit) {
+    cards.push(insightCard("Largest unit", summary.topUnit ? displayUnitName(summary.topUnit) : "No matching unit", summary.topUnit ? `${summary.topUnit.state} · ${formatCount(summary.topUnit.law_count)} rows` : "Adjust filters"));
+    cards.push(insightCard("Mean score snapshot", scoreSnapshot(summary.scoreMeans), "Neutral model-score means"));
+  }
+  if (showEvidence) {
+    cards.push(insightCard("Evidence boundary", "Aggregate only", "No ordinance text or source samples are public in this layer"));
+  }
+  $("#map-insight-grid").innerHTML = cards.join("");
+}
+
+function insightCard(label, value, detail) {
+  return `
+    <article class="insight-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <em>${escapeHtml(detail)}</em>
+    </article>
+  `;
+}
+
+function summarizeUnits(units) {
+  const topicCounts = {};
+  const functionCounts = {};
+  const tierCounts = {};
+  const scoreTotals = {};
+  const scoreCounts = {};
+  let lawCount = 0;
+  let substantiveCount = 0;
+  let topUnit = null;
+  for (const unit of units) {
+    lawCount += Number(unit.law_count || 0);
+    substantiveCount += Number(unit.substantive_count || 0);
+    topUnit = !topUnit || Number(unit.law_count || 0) > Number(topUnit.law_count || 0) ? unit : topUnit;
+    addCounts(topicCounts, unit.topic_counts || {});
+    addCounts(functionCounts, unit.function_counts || {});
+    tierCounts[unit.tier_label || unit.tier || "Unspecified"] = (tierCounts[unit.tier_label || unit.tier || "Unspecified"] || 0) + 1;
+    for (const [field, value] of Object.entries(unit.model_score_means || {})) {
+      const number = Number(value);
+      if (Number.isFinite(number)) {
+        scoreTotals[field] = (scoreTotals[field] || 0) + number;
+        scoreCounts[field] = (scoreCounts[field] || 0) + 1;
+      }
+    }
+  }
+  const scoreMeans = Object.fromEntries(
+    Object.entries(scoreTotals).map(([field, total]) => [field, total / scoreCounts[field]]),
+  );
+  return {
+    lawCount,
+    substantiveCount,
+    tierCounts,
+    scoreMeans,
+    topTopic: topEntry(topicCounts),
+    topFunction: topEntry(functionCounts),
+    topUnit,
+  };
+}
+
+function addCounts(target, source) {
+  for (const [label, value] of Object.entries(source)) {
+    if (label === "Not_applicable") {
+      continue;
+    }
+    target[label] = (target[label] || 0) + Number(value || 0);
+  }
+}
+
+function topEntry(counts) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  return entries.length ? { label: entries[0][0], value: entries[0][1] } : { label: "No matching rows", value: 0 };
+}
+
+function tierMix(counts) {
+  const entries = Object.entries(counts);
+  return entries.length ? entries.map(([label, value]) => `${label}: ${formatCount(value)}`).join(" · ") : "No matching units";
+}
+
+function scoreSnapshot(scoreMeans) {
+  const entries = Object.entries(scoreMeans);
+  return entries.length ? entries.map(([field, value]) => `${field}: ${value.toFixed(2)}`).join(" · ") : "No score data";
+}
+
+function activeFilterLabels() {
+  const labels = [];
+  if (state.mapFilters.state) labels.push(`State ${state.mapFilters.state}`);
+  if (state.mapFilters.topic) labels.push(`Topic ${state.mapFilters.topic}`);
+  if (state.mapFilters.function) labels.push(`Function ${state.mapFilters.function}`);
+  if (state.mapFilters.tier) labels.push(`Tier ${state.mapFilters.tier}`);
+  if (state.mapFilters.minLaws) labels.push(`Min ${formatCount(state.mapFilters.minLaws)} laws`);
+  return labels;
+}
+
+function formatCount(value) {
+  return NUMBER_FORMATTER.format(Number(value || 0));
+}
+
+function formatPercent(part, total) {
+  if (!total) {
+    return "0%";
+  }
+  return `${((Number(part || 0) / Number(total)) * 100).toFixed(1)}%`;
 }
 
 function stateCenterSvg(center) {
@@ -1043,9 +1163,12 @@ function answerQuestion(question) {
   if (!normalized) {
     return {
       title: "Ask a question",
-      answer: "Enter a question about status, tiers, topics, map units, models, or Grok integration.",
+      answer: "Enter a question about status, tiers, topics, the current filtered map view, models, or Grok integration.",
       matches: "",
     };
+  }
+  if (/\b(current|filtered|visible|shown|view)\b/.test(normalized) && /\b(map|unit|units|law|laws|topic|tier|state)\b/.test(normalized)) {
+    return filteredViewAnswer();
   }
   const entries = state.analysis.chatIndex ? state.analysis.chatIndex.entries || [] : [];
   const scored = entries
@@ -1080,6 +1203,32 @@ function answerQuestion(question) {
         ${scored
           .map((item) => `<li>${escapeHtml(item.entry.title)} <span>score ${escapeHtml(String(item.score))}</span></li>`)
           .join("")}
+      </ol>
+    `,
+  };
+}
+
+function filteredViewAnswer() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return {
+      title: "Current map view",
+      answer: "The aggregate map artifact has not loaded yet.",
+      matches: "",
+    };
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const summary = summarizeUnits(units);
+  const filters = activeFilterLabels().join(", ") || "no active filters";
+  return {
+    title: "Current filtered map view",
+    answer: `Using ${filters}, the visible aggregate layer contains ${formatCount(units.length)} jurisdiction units and ${formatCount(summary.lawCount)} law records. The largest visible unit is ${summary.topUnit ? displayUnitName(summary.topUnit) : "not available"}. The top non-null topic is ${summary.topTopic.label}, and the top function is ${summary.topFunction.label}. These are aggregate model-output summaries, not legal findings.`,
+    matches: `
+      <h4>Filtered aggregate summary</h4>
+      <ol>
+        <li>Substantive rows: ${escapeHtml(formatCount(summary.substantiveCount))}</li>
+        <li>Tier mix: ${escapeHtml(tierMix(summary.tierCounts))}</li>
+        <li>Evidence boundary: no ordinance text or public samples in this layer</li>
       </ol>
     `,
   };
