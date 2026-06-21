@@ -29,6 +29,7 @@ const SCORE_OPTIONS = [
 
 const TOPICS = ["Buildings", "Business", "Nuisance", "Zoning", "Other"];
 const FUNCTIONS = ["Context", "Rules", "Process", "Enforcement"];
+const SCORE_FIELDS = ["enforcement_discretion", "opacity", "paternalism", "problem_salience"];
 const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
 const TOPIC_COLORS = {
   Buildings: "#5f7fc8",
@@ -362,6 +363,7 @@ function render() {
   renderReview();
   renderExplorer();
   renderResults();
+  renderScoreLens();
   renderAuditLens();
   renderAnalysisStatusPanel();
 }
@@ -2059,6 +2061,316 @@ function renderAuditLens() {
   renderDisclosureButtons();
 }
 
+function renderScoreLens() {
+  const summaryGrid = $("#score-summary-grid");
+  const visualGrid = $("#score-visual-grid");
+  const stateGrid = $("#score-state-grid");
+  const unitList = $("#score-unit-list");
+  if (!summaryGrid || !visualGrid || !stateGrid || !unitList) {
+    return;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    summaryGrid.innerHTML = `<article class="score-lens-card"><h3>Score lens loading</h3><p>Aggregate map score artifact has not loaded yet.</p></article>`;
+    visualGrid.innerHTML = "";
+    stateGrid.innerHTML = "";
+    unitList.innerHTML = "";
+    return;
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const allUnits = mapLayers.units || [];
+  const summary = scoreLensSummary(units, allUnits);
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  summaryGrid.innerHTML = scoreLensSummaryCards(summary);
+  visualGrid.innerHTML = [
+    scoreDimensionBarsHtml(units),
+    scoreDimensionRangeHtml(units),
+    scoreTierMixHtml(units),
+  ].join("");
+  stateGrid.innerHTML = scoreStateGridHtml(units, showUnit);
+  unitList.innerHTML = scoreUnitListHtml(units, showUnit, showEvidence, mapLayers);
+  renderDisclosureButtons();
+}
+
+function scoreLensSummary(units, allUnits) {
+  const visible = summarizeUnits(units);
+  const full = summarizeUnits(allUnits);
+  const unitScores = units.flatMap((unit) => scoreValues(unit));
+  const finiteScores = unitScores.map((entry) => entry.value).filter((value) => Number.isFinite(value));
+  return {
+    visibleUnits: units.length,
+    fullUnits: allUnits.length,
+    rowCount: visible.lawCount,
+    fullRows: full.lawCount,
+    scoreCount: finiteScores.length,
+    minScore: finiteScores.length ? Math.min(...finiteScores) : null,
+    maxScore: finiteScores.length ? Math.max(...finiteScores) : null,
+    meanScores: visible.scoreMeans,
+  };
+}
+
+function scoreLensSummaryCards(summary) {
+  const cards = [
+    ["Visible units", formatCount(summary.visibleUnits), `${formatPercent(summary.visibleUnits, summary.fullUnits)} of published layer`],
+    ["Visible law rows", formatCount(summary.rowCount), `${formatPercent(summary.rowCount, summary.fullRows)} of published layer`],
+    ["Score values", formatCount(summary.scoreCount), "Four released dimensions when available"],
+    ["Visible score range", scoreRangeLabel(summary.minScore, summary.maxScore), "Neutral aggregate model-score means"],
+    ["Mean snapshot", scoreSnapshot(summary.meanScores), "Direction not verified"],
+  ];
+  return cards
+    .map(
+      ([label, value, detail]) => `
+        <article class="score-lens-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <em>${escapeHtml(detail)}</em>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function scoreDimensionBarsHtml(units) {
+  const rows = SCORE_FIELDS.map((field) => {
+    const values = units
+      .map((unit) => Number(unit.model_score_means?.[field]))
+      .filter((value) => Number.isFinite(value));
+    return {
+      label: field,
+      value: values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null,
+      count: values.length,
+    };
+  });
+  return `
+    <article class="score-visual-card">
+      <h3>Mean score by dimension</h3>
+      <p>Aggregate means across visible county/town units.</p>
+      <div class="score-axis-list">
+        ${scoreAxisRows(rows)}
+      </div>
+    </article>
+  `;
+}
+
+function scoreDimensionRangeHtml(units) {
+  const rows = SCORE_FIELDS.map((field) => {
+    const values = units
+      .map((unit) => Number(unit.model_score_means?.[field]))
+      .filter((value) => Number.isFinite(value));
+    return {
+      label: field,
+      min: values.length ? Math.min(...values) : null,
+      max: values.length ? Math.max(...values) : null,
+      median: median(values),
+    };
+  });
+  return `
+    <article class="score-visual-card">
+      <h3>Dimension range</h3>
+      <p>Min, median, and max across visible aggregate units.</p>
+      <div class="score-range-list">
+        ${rows.map(scoreRangeRowHtml).join("")}
+      </div>
+    </article>
+  `;
+}
+
+function scoreTierMixHtml(units) {
+  const rows = Object.entries(summarizeUnits(units).tierCounts)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+  return `
+    <article class="score-visual-card">
+      <h3>Neutral tier mix</h3>
+      <p>Tier bands are review aids over aggregate model-score summaries and law counts.</p>
+      <div class="bar-list">
+        ${auditBarRows(rows, (label) => label)}
+      </div>
+    </article>
+  `;
+}
+
+function scoreAxisRows(rows) {
+  const values = rows.map((row) => Number(row.value)).filter((value) => Number.isFinite(value));
+  const min = values.length ? Math.min(-1, ...values) : -1;
+  const max = values.length ? Math.max(1, ...values) : 1;
+  const span = Math.max(0.000001, max - min);
+  return rows
+    .map((row) => {
+      const value = Number(row.value);
+      const position = Number.isFinite(value) ? ((value - min) / span) * 100 : 50;
+      return `
+        <div class="score-axis-row">
+          <span>${escapeHtml(titleCase(row.label))}</span>
+          <div><i style="left:${Math.max(0, Math.min(100, position)).toFixed(2)}%"></i></div>
+          <strong>${escapeHtml(Number.isFinite(value) ? value.toFixed(3) : "n/a")}</strong>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function scoreRangeRowHtml(row) {
+  const min = Number(row.min);
+  const max = Number(row.max);
+  const mid = Number(row.median);
+  return `
+    <div class="score-range-row">
+      <span>${escapeHtml(titleCase(row.label))}</span>
+      <strong>${escapeHtml(Number.isFinite(min) ? min.toFixed(3) : "n/a")}</strong>
+      <em>${escapeHtml(Number.isFinite(mid) ? mid.toFixed(3) : "n/a")}</em>
+      <strong>${escapeHtml(Number.isFinite(max) ? max.toFixed(3) : "n/a")}</strong>
+    </div>
+  `;
+}
+
+function scoreStateGridHtml(units, showUnit) {
+  const rows = scoreStateRows(units);
+  const visibleRows = showUnit ? rows : rows.slice(0, 10);
+  return `
+    <article class="score-state-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>State score matrix</h3>
+          <p>Each row shows visible unit averages by released model-score dimension. Colors are relative within this filtered view.</p>
+        </div>
+        <span>${escapeHtml(formatCount(rows.length))} states</span>
+      </div>
+      <div class="score-state-list">
+        ${
+          visibleRows.length
+            ? visibleRows.map((row) => scoreStateRowHtml(row, rows)).join("")
+            : '<p class="muted-note">No score rows match the current map filters.</p>'
+        }
+      </div>
+      ${
+        !showUnit && rows.length > visibleRows.length
+          ? `<p class="muted-note">Switch to Unit detail to show all ${escapeHtml(formatCount(rows.length))} state rows.</p>`
+          : ""
+      }
+    </article>
+  `;
+}
+
+function scoreStateRows(units) {
+  const grouped = new Map();
+  for (const unit of units) {
+    const stateCode = unit.state || "NA";
+    if (!grouped.has(stateCode)) {
+      grouped.set(stateCode, { state: stateCode, units: 0, lawCount: 0, totals: {}, counts: {} });
+    }
+    const row = grouped.get(stateCode);
+    row.units += 1;
+    row.lawCount += Number(unit.law_count || 0);
+    for (const field of SCORE_FIELDS) {
+      const value = Number(unit.model_score_means?.[field]);
+      if (Number.isFinite(value)) {
+        row.totals[field] = (row.totals[field] || 0) + value;
+        row.counts[field] = (row.counts[field] || 0) + 1;
+      }
+    }
+  }
+  return [...grouped.values()]
+    .map((row) => ({
+      ...row,
+      means: Object.fromEntries(SCORE_FIELDS.map((field) => [field, row.counts[field] ? row.totals[field] / row.counts[field] : null])),
+    }))
+    .sort((a, b) => b.lawCount - a.lawCount || a.state.localeCompare(b.state));
+}
+
+function scoreStateRowHtml(row, allRows) {
+  return `
+    <div class="score-state-row">
+      <div class="coverage-state">
+        <strong>${escapeHtml(row.state)}</strong>
+        <span>${escapeHtml(formatCount(row.lawCount))} rows · ${escapeHtml(formatCount(row.units))} units</span>
+      </div>
+      <div class="score-state-cells">
+        ${SCORE_FIELDS.map((field) => scoreStateCellHtml(field, row.means[field], allRows)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function scoreStateCellHtml(field, value, rows) {
+  const rangeValues = rows.map((row) => Number(row.means[field])).filter((item) => Number.isFinite(item));
+  const min = rangeValues.length ? Math.min(...rangeValues) : -1;
+  const max = rangeValues.length ? Math.max(...rangeValues) : 1;
+  const ratio = Number.isFinite(Number(value)) ? (Number(value) - min) / Math.max(0.000001, max - min) : 0;
+  const color = interpolateColor("#f2e9c9", "#275f79", Math.max(0, Math.min(1, ratio)));
+  return `
+    <span style="background:${escapeHtml(color)}" title="${escapeHtml(titleCase(field))}: ${escapeHtml(Number.isFinite(Number(value)) ? Number(value).toFixed(3) : "n/a")}">
+      <strong>${escapeHtml(titleCase(field).replace("Enforcement ", "Enf. ").replace("Problem ", "Prob. "))}</strong>
+      <em>${escapeHtml(Number.isFinite(Number(value)) ? Number(value).toFixed(2) : "n/a")}</em>
+    </span>
+  `;
+}
+
+function scoreUnitListHtml(units, showUnit, showEvidence, mapLayers) {
+  const rows = units
+    .slice()
+    .sort((a, b) => scoreSpread(b) - scoreSpread(a) || Number(b.law_count || 0) - Number(a.law_count || 0))
+    .slice(0, showUnit ? 14 : 7);
+  return `
+    <article class="score-unit-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>High-contrast score profiles</h3>
+          <p>Units sorted by spread across the four released model-score dimensions. This highlights records for review, not legal conclusions.</p>
+        </div>
+        <span>${escapeHtml(formatCount(rows.length))} shown</span>
+      </div>
+      <div class="score-unit-rows">
+        ${
+          rows.length
+            ? rows.map(scoreUnitRowHtml).join("")
+            : '<p class="muted-note">No score profiles match the current filters.</p>'
+        }
+      </div>
+      ${
+        showEvidence
+          ? `<p class="muted-note">Source artifact: map_layers.json revision ${escapeHtml(mapLayers.dataset_revision || "unknown")}. Score values are aggregate means of released LOCUS model outputs and are not verified legal classifications.</p>`
+          : `<p class="muted-note">Switch to Evidence trail to show artifact source and score interpretation boundaries.</p>`
+      }
+    </article>
+  `;
+}
+
+function scoreUnitRowHtml(unit) {
+  return `
+    <div class="score-unit-row">
+      <button type="button" data-open-score-unit="${escapeHtml(unit.unit_id)}">${escapeHtml(displayUnitName(unit))}</button>
+      <span>${escapeHtml(unit.state || "NA")} · ${escapeHtml(titleCase(unit.kind || "unknown"))} · ${escapeHtml(formatCount(unit.law_count))} rows</span>
+      <div class="score-chip-row">
+        ${SCORE_FIELDS.map((field) => `<em>${escapeHtml(titleCase(field))}: ${escapeHtml(formatScore(unit.model_score_means?.[field]))}</em>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function scoreValues(unit) {
+  return SCORE_FIELDS.map((field) => ({ field, value: Number(unit.model_score_means?.[field]) })).filter((entry) => Number.isFinite(entry.value));
+}
+
+function scoreSpread(unit) {
+  const values = scoreValues(unit).map((entry) => entry.value);
+  return values.length ? Math.max(...values) - Math.min(...values) : 0;
+}
+
+function scoreRangeLabel(min, max) {
+  return Number.isFinite(Number(min)) && Number.isFinite(Number(max)) ? `${Number(min).toFixed(2)} to ${Number(max).toFixed(2)}` : "n/a";
+}
+
+function median(values) {
+  const sorted = values.filter((value) => Number.isFinite(value)).slice().sort((a, b) => a - b);
+  if (!sorted.length) {
+    return null;
+  }
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
 function visibleAuditRows() {
   const auditRows = state.analysis.unitAuditQuality?.units || [];
   const mapUnits = state.analysis.mapLayers?.units || [];
@@ -3152,6 +3464,10 @@ function openAuditUnitOnMap(unitId) {
   render();
 }
 
+function openScoreUnitOnMap(unitId) {
+  openAuditUnitOnMap(unitId);
+}
+
 function importQueue(event) {
   const file = event.target.files[0];
   if (!file) {
@@ -3418,6 +3734,13 @@ function bindEvents() {
       return;
     }
     openAuditUnitOnMap(button.dataset.openAuditUnit);
+  });
+  $("#score-panel").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-open-score-unit]");
+    if (!button) {
+      return;
+    }
+    openScoreUnitOnMap(button.dataset.openScoreUnit);
   });
   $("#explorer-table").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-open-record]");

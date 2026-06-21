@@ -85,6 +85,7 @@ Current coverage stats:
 - Unit audit-quality artifact: aggregate OCR-risk and duplicate-text-hash review signals for 1,000 published map units covering 1,517,672 LOCUS rows
 - Unit audit-quality counts: 55,816 medium/high OCR-review rows, 29,194 duplicate text-hash rows, max audit attention 30.88/100
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
+- Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
@@ -132,6 +133,7 @@ Latest update:
 - Ran full local LOCUS audit and manifest over 2,211,516 rows; published only aggregate audit status, gates, OCR-risk counts, and duplicate-content counts to Pages.
 - Added aggregate per-unit audit-quality publication for the current top-1,000 map-unit scope, with map filters and official-geography color mode for audit attention.
 - Added an Audit Lens tab that visualizes per-unit aggregate audit signals with progressive disclosure and drill-through back to the map.
+- Added a Score Lens tab that visualizes released model-score means from aggregate map units with progressive disclosure and drill-through back to the map.
 
 Evaluator implementation state:
 

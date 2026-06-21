@@ -48,6 +48,7 @@ The Pages app supports:
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
+- Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;

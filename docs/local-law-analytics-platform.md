@@ -154,6 +154,7 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
 - GitHub Pages must never publish real LOCUS rows, ordinance text, local SQLite state, local exports, or secrets.
 - Unit-level audit quality is a review-priority signal from aggregate OCR-risk and duplicate-text-hash rates, not a legal ranking or proof of text defects.
 - Browser audit visuals must read aggregate unit quality only and keep drill-through bounded to published map units.
+- Browser score visuals must treat released model-score means as neutral relative outputs until score direction is verified from authoritative model documentation.
 - Browser imports must be bounded review queues, not full LOCUS shards.
 - Model outputs are imported as released LOCUS columns; downloading derivative model weights is deferred until model cards are verified.
 

@@ -103,6 +103,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Pages-first UI" in html
     assert "Law Map" in html
     assert "Inquiry" in html
+    assert "Score Lens" in html
     assert "Audit Lens" in html
     assert "selected-ontology-neighborhood" in html
     assert "Analysis Status" in html
@@ -134,6 +135,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data/analysis/inquiry_briefings.json" in js
     assert "data/analysis/county_geometry.json" in js
     assert "data/analysis/municipal_points.json" in js
+    assert "score-summary-grid" in html
+    assert "score-visual-grid" in html
+    assert "score-state-grid" in html
+    assert "score-unit-list" in html
     assert "audit-summary-grid" in html
     assert "audit-visual-grid" in html
     assert "audit-state-grid" in html
@@ -157,6 +162,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "unitAuditQualityFor" in js
     assert "auditAttentionColor" in js
     assert "selectedUnitAuditQualityHtml" in js
+    assert "SCORE_FIELDS" in js
+    assert "renderScoreLens" in js
+    assert "scoreDimensionBarsHtml" in js
+    assert "scoreDimensionRangeHtml" in js
+    assert "scoreStateGridHtml" in js
+    assert "scoreUnitListHtml" in js
+    assert "openScoreUnitOnMap" in js
+    assert "data-open-score-unit" in js
     assert "renderAuditLens" in js
     assert "visibleAuditRows" in js
     assert "auditAttentionDistributionHtml" in js
@@ -169,6 +182,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selected-audit-card" in css
     assert "audit-summary-grid" in css
     assert "audit-priority-row" in css
+    assert "score-summary-grid" in css
+    assert "score-state-row" in css
+    assert "score-unit-row" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

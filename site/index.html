@@ -17,6 +17,7 @@
           <button class="tab-link" type="button" data-tab="inquiry">Inquiry</button>
           <button class="tab-link" type="button" data-tab="ontology">Ontology</button>
           <button class="tab-link" type="button" data-tab="results">Charts</button>
+          <button class="tab-link" type="button" data-tab="score">Score Lens</button>
           <button class="tab-link" type="button" data-tab="audit">Audit Lens</button>
           <button class="tab-link" type="button" data-tab="status">Analysis Status</button>
           <button class="tab-link" type="button" data-tab="review">Review Queue</button>
@@ -457,6 +458,32 @@
         <div id="audit-visual-grid" class="audit-visual-grid"></div>
         <div id="audit-state-grid" class="audit-state-grid"></div>
         <div id="audit-priority-list" class="audit-priority-list"></div>
+      </section>
+
+      <section id="score-panel" class="panel" aria-labelledby="score-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Score Lens</p>
+          <h2 id="score-heading">Released model-score summaries across counties and towns.</h2>
+          <p>
+            This view uses current map filters and aggregate `map_layers.json` score means. Values are neutral
+            relative model scores; score direction and legal meaning are not verified here.
+          </p>
+        </div>
+        <section class="disclosure-control compact-disclosure" aria-label="Score lens disclosure level">
+          <div>
+            <p class="eyebrow">Progressive analysis</p>
+            <h3>Score detail level</h3>
+          </div>
+          <div class="segmented" role="group" aria-label="Score disclosure level">
+            <button class="disclosure-button active" type="button" data-disclosure="overview">Overview</button>
+            <button class="disclosure-button" type="button" data-disclosure="unit">Unit detail</button>
+            <button class="disclosure-button" type="button" data-disclosure="evidence">Evidence trail</button>
+          </div>
+        </section>
+        <div id="score-summary-grid" class="score-summary-grid"></div>
+        <div id="score-visual-grid" class="score-visual-grid"></div>
+        <div id="score-state-grid" class="score-state-grid"></div>
+        <div id="score-unit-list" class="score-unit-list"></div>
       </section>
 
       <section id="status-panel" class="panel" aria-labelledby="status-heading">

@@ -166,6 +166,10 @@ main {
 .toolbar,
 .panel,
 .metric-card,
+.score-lens-card,
+.score-visual-card,
+.score-state-card,
+.score-unit-card,
 .audit-card,
 .audit-visual-card,
 .audit-state-card,
@@ -320,6 +324,158 @@ textarea {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
+}
+
+.score-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.score-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.score-state-grid,
+.score-unit-list {
+  margin-top: 18px;
+}
+
+.score-lens-card,
+.score-visual-card,
+.score-state-card,
+.score-unit-card {
+  padding: 16px;
+}
+
+.score-lens-card span,
+.score-lens-card em {
+  display: block;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.86rem;
+}
+
+.score-lens-card strong {
+  display: block;
+  margin: 8px 0 6px;
+  color: #275f79;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.score-visual-card h3,
+.score-state-card h3,
+.score-unit-card h3 {
+  margin-top: 0;
+}
+
+.score-axis-list,
+.score-range-list,
+.score-state-list,
+.score-unit-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.score-axis-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.55fr) minmax(150px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.score-axis-row div {
+  position: relative;
+  min-height: 22px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f2e9c9, #ffffff 50%, #d8e8ed);
+}
+
+.score-axis-row i {
+  position: absolute;
+  top: 3px;
+  width: 8px;
+  height: 14px;
+  border-radius: 999px;
+  background: #275f79;
+  transform: translateX(-50%);
+}
+
+.score-range-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) repeat(3, minmax(58px, auto));
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.score-range-row em {
+  color: var(--muted);
+  font-style: normal;
+}
+
+.score-state-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.34fr) minmax(320px, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.score-state-cells {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.score-state-cells span {
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 8px;
+  padding: 7px;
+  color: #111827;
+}
+
+.score-state-cells em,
+.score-chip-row em,
+.score-unit-row span {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+.score-unit-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.8fr) minmax(180px, 0.8fr) minmax(280px, 1.4fr);
+  gap: 10px;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.score-unit-row button {
+  text-align: left;
+}
+
+.score-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.score-chip-row em {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 5px 7px;
 }
 
 .audit-visual-grid {
@@ -1792,6 +1948,8 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .score-summary-grid,
+  .score-visual-grid,
   .audit-summary-grid,
   .audit-visual-grid,
   .status-card-grid,
@@ -1800,6 +1958,8 @@ th {
   .chart-grid,
   .state-topic-grid,
   .coverage-matrix-row,
+  .score-state-row,
+  .score-unit-row,
   .audit-state-row,
   .audit-priority-row,
   .ontology-layout,
@@ -1829,6 +1989,8 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .score-summary-grid,
+  .score-visual-grid,
   .audit-summary-grid,
   .audit-visual-grid,
   .status-card-grid,
@@ -1837,6 +1999,8 @@ th {
   .chart-grid,
   .state-topic-grid,
   .coverage-matrix-row,
+  .score-state-row,
+  .score-unit-row,
   .audit-state-row,
   .audit-priority-row,
   .ontology-layout,
@@ -1845,6 +2009,10 @@ th {
   .results-grid,
   .protocol-grid {
     grid-template-columns: 1fr;
+  }
+
+  .score-state-cells {
+    grid-template-columns: 1fr 1fr;
   }
 
   .metadata-grid,
