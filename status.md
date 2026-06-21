@@ -223,3 +223,4 @@ Evaluator implementation state:
 - Freshness surface: Law Map and Inquiry headers show aggregate map, briefing, question-pack, dataset revision, and no-row-text publication boundary before users drill into visuals or answers.
 - Inquiry results log: GitHub Pages stores recent preset/manual aggregate answers in browser localStorage with content-free export and explicit no-text/no-locator/no-review-event policy metadata.
 - Refresh-source surface: Law Map header distinguishes tracked Polars aggregate map artifacts, offline briefing source, analysis commit, deploy guard, and aggregate-only publication boundary.
+- Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.

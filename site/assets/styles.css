@@ -3773,6 +3773,11 @@ legend {
   gap: 8px;
 }
 
+.inquiry-log-entry.active {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
 .inquiry-log-entry h4 {
   margin: 0;
 }
@@ -3795,6 +3800,24 @@ legend {
 .inquiry-log-entry-heading em {
   font-style: normal;
   text-transform: none;
+}
+
+.inquiry-log-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inquiry-log-actions button {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.inquiry-log-actions button:hover,
+.inquiry-log-actions button:focus-visible {
+  border-color: var(--green);
+  background: #ffffff;
 }
 
 .inquiry-log-entry dl {

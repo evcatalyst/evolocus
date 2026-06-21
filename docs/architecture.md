@@ -36,6 +36,7 @@ flowchart LR
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
 - Inquiry results are logged in browser localStorage as aggregate answer summaries with filter context, artifact timestamps, and explicit no-text/no-locator/no-review-event policy flags.
+- Saved inquiry results can replay only safe browser state: map filters, disclosure depth, and selected aggregate unit IDs. Replay does not create row-level evidence or call a model.
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
 - The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - The Pages Analysis Status tab links to that manual workflow as an Actions-only refresh control; the browser never receives a model secret and never performs a live model call.

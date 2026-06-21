@@ -323,6 +323,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "saveInquiryResultsLog" in js
     assert "answerAndLogInquiry" in js
     assert "inquiryResultLogEntry" in js
+    assert "mapFiltersSnapshot" in js
+    assert "normalizedLogMapFilters" in js
+    assert "replayInquiryResultLog" in js
+    assert "activeInquiryReplayId" in js
+    assert "data-replay-inquiry-log" in js
+    assert "data-open-inquiry-log-map" in js
+    assert "Replay answer" in js
+    assert "Open map view" in js
+    assert "Replay state" in js
     assert "aggregateInquiryLogPolicy" in js
     assert "renderInquiryResultsLog" in js
     assert "inquiryResultsLogExportPayload" in js
@@ -453,6 +462,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-question-matrix" in css
     assert "inquiry-results-log-card" in css
     assert "inquiry-log-entry" in css
+    assert "inquiry-log-actions" in css
+    assert "inquiry-log-entry.active" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

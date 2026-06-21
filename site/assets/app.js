@@ -252,6 +252,7 @@ let state = {
   },
   inquiryAnswer: null,
   inquiryResultsLog: loadInquiryResultsLog(),
+  activeInquiryReplayId: "",
   analysis: {
     status: null,
     mapLayers: null,
@@ -4552,6 +4553,7 @@ function answerAndLogInquiry(question, source) {
 
 function appendInquiryResultsLog(question, answer, source) {
   const entry = inquiryResultLogEntry(question, answer, source);
+  state.activeInquiryReplayId = entry.id;
   saveInquiryResultsLog([entry, ...state.inquiryResultsLog.filter((item) => item.id !== entry.id)]);
 }
 
@@ -4571,6 +4573,7 @@ function inquiryResultLogEntry(question, answer, source) {
     answer_title: answer.title,
     answer_excerpt: answer.answer,
     disclosure_level: state.disclosureLevel,
+    map_filters: mapFiltersSnapshot(),
     filter_labels: activeFilterLabels(),
     selected_unit: selectedUnit
       ? {
@@ -4638,23 +4641,49 @@ function inquiryResultLogCardHtml(item) {
   const summary = item.visible_summary || {};
   const provenance = item.artifact_provenance || {};
   const filterLabel = item.filter_labels?.length ? item.filter_labels.join(" · ") : "No active map filters";
+  const activeClass = item.id === state.activeInquiryReplayId ? " active" : "";
+  const replayState = item.map_filters ? "filters restorable" : "summary only";
   return `
-    <article class="inquiry-log-entry">
+    <article class="inquiry-log-entry${activeClass}">
       <div class="inquiry-log-entry-heading">
         <span>${escapeHtml(item.source || "inquiry")}</span>
         <em>${escapeHtml(formatDateTime(item.created_at))}</em>
       </div>
       <h4>${escapeHtml(item.answer_title || "Aggregate answer")}</h4>
       <p>${escapeHtml(item.answer_excerpt || "")}</p>
+      <div class="inquiry-log-actions">
+        <button type="button" data-replay-inquiry-log="${escapeHtml(item.id || "")}">Replay answer</button>
+        <button type="button" data-open-inquiry-log-map="${escapeHtml(item.id || "")}">Open map view</button>
+      </div>
       <dl>
         <dt>Question</dt><dd>${escapeHtml(item.question || "")}</dd>
         <dt>Filters</dt><dd>${escapeHtml(filterLabel)}</dd>
+        <dt>Replay state</dt><dd>${escapeHtml(replayState)}</dd>
         <dt>Visible aggregate</dt><dd>${escapeHtml(formatCount(summary.unit_count || 0))} units · ${escapeHtml(formatCount(summary.law_count || 0))} law rows</dd>
         <dt>Artifacts</dt><dd>${escapeHtml(provenance.briefing_mode || "static")} · map ${escapeHtml(formatDateTime(provenance.map_generated_at))} · briefing ${escapeHtml(formatDateTime(provenance.briefing_generated_at))}</dd>
         <dt>Boundary</dt><dd>No text, headers, locators, review events, or browser model calls</dd>
       </dl>
     </article>
   `;
+}
+
+function replayInquiryResultLog(entryId, destination) {
+  const item = state.inquiryResultsLog.find((entry) => entry.id === entryId);
+  if (!item) {
+    return;
+  }
+  state.mapFilters = normalizedLogMapFilters(item.map_filters);
+  state.selectedUnitId = item.selected_unit?.unit_id || null;
+  state.disclosureLevel = ["overview", "unit", "evidence"].includes(item.disclosure_level) ? item.disclosure_level : state.disclosureLevel;
+  state.activeInquiryReplayId = item.id;
+  const question = String(item.question || "");
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  state.inquiryAnswer = answerQuestion(question);
+  state.activeTab = destination === "map" ? "map" : "inquiry";
+  render();
 }
 
 function inquiryResultsLogExportPayload() {
@@ -4682,6 +4711,7 @@ function exportInquiryResultsLog() {
 }
 
 function clearInquiryResultsLog() {
+  state.activeInquiryReplayId = "";
   saveInquiryResultsLog([]);
   renderInquiry();
 }
@@ -6937,6 +6967,29 @@ function defaultMapFilters() {
   return { state: "", topic: "", function: "", kind: "", tier: "", scoreField: "", scoreBand: "", auditFocus: "", minLaws: 0, minAuditScore: 0, packageOnly: false };
 }
 
+function mapFiltersSnapshot() {
+  return normalizedLogMapFilters(state.mapFilters);
+}
+
+function normalizedLogMapFilters(filters) {
+  const base = defaultMapFilters();
+  const input = filters || {};
+  return {
+    ...base,
+    state: String(input.state || ""),
+    topic: String(input.topic || ""),
+    function: String(input.function || ""),
+    kind: String(input.kind || ""),
+    tier: String(input.tier || ""),
+    scoreField: String(input.scoreField || input.score_field || ""),
+    scoreBand: String(input.scoreBand || input.score_band || ""),
+    auditFocus: String(input.auditFocus || input.audit_focus || ""),
+    minLaws: Math.max(0, Number(input.minLaws || input.min_laws || 0)),
+    minAuditScore: Math.max(0, Number(input.minAuditScore || input.min_audit_score || 0)),
+    packageOnly: Boolean(input.packageOnly || input.package_only),
+  };
+}
+
 function applyPackageMapFilter(action) {
   if (action === "clear") {
     state.mapFilters = defaultMapFilters();
@@ -8041,6 +8094,18 @@ function bindEvents() {
     if (statusButton) {
       event.preventDefault();
       openAnalysisStatusTab();
+      return;
+    }
+    const replayButton = event.target.closest("[data-replay-inquiry-log]");
+    if (replayButton) {
+      event.preventDefault();
+      replayInquiryResultLog(replayButton.dataset.replayInquiryLog, "inquiry");
+      return;
+    }
+    const mapReplayButton = event.target.closest("[data-open-inquiry-log-map]");
+    if (mapReplayButton) {
+      event.preventDefault();
+      replayInquiryResultLog(mapReplayButton.dataset.openInquiryLogMap, "map");
       return;
     }
     const exportButton = event.target.closest("#export-inquiry-log");
