@@ -66,6 +66,7 @@ The Pages app supports:
 - tier-focus mini-chart drilldowns that apply map filters for topic, function, and unit type;
 - map-side chat-style inquiry panel for current filters, selected unit, audit signals, score profile, and browser-local package overlay;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, and comparison rows;
+- browser-local map inquiry history JSON export with aggregate-only policy metadata;
 - inquiry-driven county/town comparison strip with prompt-aware aggregate unit rows and map drillback;
 - selected-unit ontology drilldown cards for map-side topic/function/tier/score/geometry/package links;
 - selected-unit progressive visual trail that switches overview, unit-detail, and evidence depth from the map panel;

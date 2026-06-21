@@ -767,6 +767,7 @@ function renderMapInlineInquiry() {
       </div>
       <div class="map-inline-inquiry-actions">
         <button type="button" data-save-map-inquiry>Save answer snapshot</button>
+        <button type="button" data-export-map-inquiry-history>Export history JSON</button>
         <span>${escapeHtml(formatCount(history.length))} browser-local saved answers</span>
       </div>
       ${mapInlineInquiryHistoryHtml(history)}
@@ -1091,6 +1092,125 @@ function loadMapInquiryHistoryItem(itemId) {
 function deleteMapInquiryHistoryItem(itemId) {
   saveMapInquiryHistory(loadMapInquiryHistory().filter((entry) => entry.id !== itemId));
   renderMap();
+}
+
+function mapInquiryHistoryExportPayload() {
+  const status = state.analysis.status || {};
+  const briefings = state.analysis.inquiryBriefings || {};
+  const history = loadMapInquiryHistory().map(mapInquiryHistoryExportItem);
+  return {
+    schema_version: "evolocus-map-inquiry-history-export-v1",
+    generated_at: new Date().toISOString(),
+    dataset_id: status.dataset_id || briefings.dataset_id || "LocalLaws/LOCUS-v1",
+    dataset_revision: status.dataset_revision || state.analysis.mapLayers?.dataset_revision || briefings.dataset_revision || "unknown",
+    license: status.license || briefings.license || "CC-BY-NC-4.0",
+    citation: status.citation || briefings.citation || "Peskoff, Barrow, Vu, and Davenport. Freeing the Law with LOCUS. arXiv:2606.19334, 2026.",
+    history_count: history.length,
+    source_artifacts: [
+      "status.json",
+      "map_layers.json",
+      "unit_audit_quality.json",
+      "inquiry_briefings.json",
+      "question_pack.json",
+    ],
+    publication_policy: {
+      aggregate_only: true,
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      record_locator_values_included: false,
+      source_locators_included: false,
+      browser_llm_calls: false,
+      review_events_included: false,
+      legal_findings: false,
+      local_database_paths_included: false,
+      secrets_included: false,
+    },
+    history,
+    limitations: [
+      "This export contains browser-local aggregate map inquiry history only.",
+      "It excludes LOCUS ordinance text, headers, raw rows, source locator values, browser review events, local database paths, and secrets.",
+      "Saved answers are deterministic summaries from static aggregate artifacts and current browser state, not legal findings or rankings.",
+    ],
+  };
+}
+
+function mapInquiryHistoryExportItem(item) {
+  return {
+    schema_version: "evolocus-map-inquiry-history-v1",
+    id: String(item.id || ""),
+    created_at: item.created_at || null,
+    prompt_key: item.prompt_key || "",
+    question: item.question || "",
+    question_label: item.question_label || "",
+    answer_title: item.answer_title || "",
+    answer_summary: item.answer_summary || "",
+    disclosure_level: item.disclosure_level || "overview",
+    geography_color_mode: item.geography_color_mode || "tier",
+    filters: {
+      state: item.filters?.state || "",
+      topic: item.filters?.topic || "",
+      function: item.filters?.function || "",
+      kind: item.filters?.kind || "",
+      tier: item.filters?.tier || "",
+      auditFocus: item.filters?.auditFocus || "",
+      minLaws: Number(item.filters?.minLaws || 0),
+      minAuditScore: Number(item.filters?.minAuditScore || 0),
+      packageOnly: Boolean(item.filters?.packageOnly),
+      active_labels: Array.isArray(item.filters?.active_labels) ? item.filters.active_labels.map(String).slice(0, 12) : [],
+    },
+    selected_unit: item.selected_unit
+      ? {
+          unit_id: item.selected_unit.unit_id || "",
+          name: item.selected_unit.name || "",
+          state: item.selected_unit.state || "",
+          kind: item.selected_unit.kind || "",
+          tier_label: item.selected_unit.tier_label || "",
+          law_count: Number(item.selected_unit.law_count || 0),
+        }
+      : null,
+    visible_units: Number(item.visible_units || 0),
+    visible_law_count: Number(item.visible_law_count || 0),
+    visible_tier_mix: safeCountMap(item.visible_tier_mix),
+    package_summary: {
+      imported: Boolean(item.package_summary?.imported),
+      matched_records: Number(item.package_summary?.matched_records || 0),
+      matched_units: Number(item.package_summary?.matched_units || 0),
+      synthetic_demo: Boolean(item.package_summary?.synthetic_demo),
+    },
+    comparison_rows: Array.isArray(item.comparison_rows)
+      ? item.comparison_rows.slice(0, 12).map((row) => ({
+          unit_id: row.unit_id || "",
+          name: row.name || "",
+          state: row.state || "",
+          kind: row.kind || "",
+          tier_label: row.tier_label || "",
+          metric: row.metric || "",
+          detail: row.detail || "",
+          value: Number(row.value || 0),
+        }))
+      : [],
+    publication_policy: {
+      aggregate_only: true,
+      ordinance_text_included: false,
+      source_locators_included: false,
+      record_locator_values_included: false,
+      review_events_included: false,
+      browser_llm_calls: false,
+      legal_findings: false,
+    },
+  };
+}
+
+function safeCountMap(counts) {
+  return Object.fromEntries(
+    Object.entries(counts || {})
+      .slice(0, 24)
+      .map(([label, value]) => [String(label), Number(value || 0)]),
+  );
+}
+
+function exportMapInquiryHistory() {
+  download("evolocus-map-inquiry-history.json", JSON.stringify(mapInquiryHistoryExportPayload(), null, 2), "application/json");
 }
 
 function mapInlineInquiryPromptHtml(prompt, activeKey) {
@@ -7075,6 +7195,12 @@ function bindEvents() {
     if (saveMapInquiryButton) {
       event.preventDefault();
       saveCurrentMapInquiryHistory();
+      return;
+    }
+    const exportMapInquiryButton = event.target.closest("[data-export-map-inquiry-history]");
+    if (exportMapInquiryButton) {
+      event.preventDefault();
+      exportMapInquiryHistory();
       return;
     }
     const loadMapInquiryButton = event.target.closest("[data-load-map-inquiry]");

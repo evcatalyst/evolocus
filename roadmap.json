@@ -81,7 +81,8 @@
         "Accept Grok_api_key Actions secret alias for offline inquiry refresh",
         "Add tier-focus mini charts inside the ontology card",
         "Add browser-local map inquiry history snapshots",
-        "Add tier mini-chart drilldown filters back to the map"
+        "Add tier mini-chart drilldown filters back to the map",
+        "Add aggregate-only map inquiry history export"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

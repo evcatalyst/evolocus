@@ -75,12 +75,21 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "loadMapInquiryHistory" in js
     assert "saveCurrentMapInquiryHistory" in js
     assert "currentMapInquiryHistoryItem" in js
+    assert "mapInquiryHistoryExportPayload" in js
+    assert "mapInquiryHistoryExportItem" in js
+    assert "exportMapInquiryHistory" in js
+    assert "evolocus-map-inquiry-history.json" in js
+    assert "evolocus-map-inquiry-history-export-v1" in js
     assert "data-save-map-inquiry" in js
+    assert "data-export-map-inquiry-history" in js
     assert "data-load-map-inquiry" in js
     assert "data-delete-map-inquiry" in js
     assert "evolocus-map-inquiry-history-v1" in js
+    assert "record_locator_values_included: false" in js
     assert "source_locators_included: false" in js
     assert "review_events_included: false" in js
+    assert "local_database_paths_included: false" in js
+    assert "safeCountMap" in js
     assert "data-map-inquiry" in js
     assert "data-map-compare-unit" in js
     assert "tierColorForLabel" in js

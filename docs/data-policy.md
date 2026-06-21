@@ -29,7 +29,7 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - Browser import-status metadata may describe a local package after upload, but it remains in localStorage and must not be written to `site/` or treated as a public artifact.
 - Browser current-view exports are aggregate snapshots only and must exclude ordinance text, raw rows, record locators, localStorage review events, databases, exports, and secrets.
 - Browser snapshot galleries may persist aggregate current-view snapshots in localStorage, but must not mix in review-event history, imported queue text, source locators, local database paths, or secrets.
-- Browser map inquiry history may persist aggregate answer summaries in localStorage, but must not include ordinance text, raw rows, source locator values, review-event history, local database paths, secrets, legal findings, or browser LLM calls.
+- Browser map inquiry history may persist and export aggregate answer summaries, but must not include ordinance text, raw rows, source locator values, review-event history, local database paths, secrets, legal findings, or browser LLM calls.
 
 ## Future Real Data Rules
 
