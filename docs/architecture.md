@@ -35,6 +35,7 @@ flowchart LR
 - The Walkthrough tab orchestrates the public map, inquiry, ontology, queue planning, and snapshots into a guided real-aggregate demo flow without adding a separate data publication channel.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
+- `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
 - The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - The selected map unit includes a progressive visual trail that switches between overview, unit detail, and evidence trail while preserving aggregate-only publication boundaries.
@@ -101,6 +102,7 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 - `models.json`: imported LOCUS released model outputs and model-import policy.
 - `chat_index.json`: deterministic inquiry entries for the browser chat panel.
 - `inquiry_briefings.json`: progressive static answer briefings derived from aggregate artifacts.
+- `question_pack.json`: aggregate-only filter-aware question prompts with optional offline Grok note.
 
 Map tiers are review-priority bands over available model-score summaries and law counts. They are not rankings of legal burden, legality, freedom, or civic performance.
 
@@ -110,7 +112,7 @@ The Audit Lens uses the same progressive disclosure control as the map and statu
 
 The Score Lens uses the same filters and disclosure levels. It displays score values as neutral relative model outputs only; directional legal interpretations remain out of scope until authoritative model-card verification is added.
 
-The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts. It can fill and answer the inquiry form, but it does not call Grok or any browser-exposed LLM API.
+The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts and `question_pack.json`. It can fill and answer the inquiry form, apply safe filter templates, and change disclosure depth, but it does not call Grok or any browser-exposed LLM API.
 
 The Queue Plan export is a planning artifact, not a real record-level LOCUS evaluation queue. It excludes ordinance text, headers, source locators, raw row data, SQLite state, and browser review events.
 

@@ -1,0 +1,279 @@
+{
+  "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
+  "dataset_id": "LocalLaws/LOCUS-v1",
+  "dataset_revision": "main",
+  "filter_contexts": {
+    "top_audit_unit": {
+      "audit_attention_score": 30.88,
+      "duplicate_text_hash_rows": 15,
+      "name": "bedford_township,_(monroe_co.)",
+      "ocr_review_rows": 459,
+      "state": "MI",
+      "unit_id": "MI:city:bedford_township,_(monroe_co.)"
+    },
+    "top_function": {
+      "label": "Rules",
+      "value": 962831
+    },
+    "top_state": {
+      "label": "CA",
+      "law_count": 126883,
+      "value": 48
+    },
+    "top_tier": {
+      "label": "Tier 1",
+      "value": 334
+    },
+    "top_topic": {
+      "label": "Other",
+      "value": 407704
+    }
+  },
+  "generated_at": "2026-06-21T21:23:58.908993+00:00",
+  "generator": "evolocus-static-question-pack",
+  "grok": {
+    "error": null,
+    "model": "grok-4.3",
+    "secret_env": "GROK_API_KEY",
+    "used": false
+  },
+  "license": "CC-BY-NC-4.0",
+  "paper": "https://arxiv.org/abs/2606.19334",
+  "prompts": [
+    {
+      "detail": "Use active filters and denominators before interpreting color.",
+      "filters": {},
+      "group": "Map",
+      "id": "view-current",
+      "question": "What does the current filtered map view show?",
+      "recommended_disclosure": "overview",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "law_count": 1517672,
+        "unit_count": 1000
+      },
+      "title": "Current view"
+    },
+    {
+      "detail": "Applies the highest-count published state filter from the aggregate layer.",
+      "filters": {
+        "state": "CA"
+      },
+      "group": "State filter",
+      "id": "state-focus",
+      "question": "What changes when I focus the map on CA?",
+      "recommended_disclosure": "overview",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "law_count": 126883,
+        "unit_count": 48
+      },
+      "title": "CA focus"
+    },
+    {
+      "detail": "Pairs topic filtering with selected-unit drilldowns.",
+      "filters": {
+        "topic": "Other"
+      },
+      "group": "Topic filter",
+      "id": "topic-focus",
+      "question": "Which county and town units drive the Other topic view?",
+      "recommended_disclosure": "unit",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "aggregate_rows": 407704
+      },
+      "title": "Other topic"
+    },
+    {
+      "detail": "Keeps function labels framed as released model outputs.",
+      "filters": {
+        "function": "Rules"
+      },
+      "group": "Function filter",
+      "id": "function-focus",
+      "question": "How does the Rules function pattern appear across the map?",
+      "recommended_disclosure": "unit",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "aggregate_rows": 962831
+      },
+      "title": "Rules function"
+    },
+    {
+      "detail": "Tiers are neutral visual bands, not rankings.",
+      "filters": {
+        "tier": "Tier 1"
+      },
+      "group": "Tier filter",
+      "id": "tier-focus",
+      "question": "What should I inspect in Tier 1 units?",
+      "recommended_disclosure": "unit",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "aggregate_rows": 334
+      },
+      "title": "Tier 1 tier"
+    },
+    {
+      "detail": "Uses aggregate audit signals without publishing text or locators.",
+      "filters": {
+        "auditFocus": "review"
+      },
+      "group": "Evidence trail",
+      "id": "audit-focus",
+      "question": "Which visible units need OCR or duplicate-text review first?",
+      "recommended_disclosure": "evidence",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "audit_attention_score": 30.88,
+        "top_audit_unit": "bedford_township,_(monroe_co.)"
+      },
+      "title": "Audit signals"
+    },
+    {
+      "detail": "Starts from the largest published unit if no unit is selected in the browser.",
+      "filters": {
+        "selected_unit_id": "CA:county:los_angeles_county"
+      },
+      "group": "Drilldown",
+      "id": "selected-unit",
+      "question": "What does the selected unit los_angeles_county show?",
+      "recommended_disclosure": "unit",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "law_count": 11503,
+        "state": "CA",
+        "unit_id": "CA:county:los_angeles_county"
+      },
+      "title": "Selected unit"
+    },
+    {
+      "detail": "Only applies after a browser-local package or synthetic package demo is loaded.",
+      "filters": {
+        "packageOnly": true
+      },
+      "group": "Package overlay",
+      "id": "package-focus",
+      "question": "What does the loaded package show on the map?",
+      "recommended_disclosure": "unit",
+      "safety_notes": [
+        "Aggregate-only public artifact.",
+        "No ordinance text, headers, raw rows, source locator values, or review events.",
+        "Model labels and scores are review aids, not legal findings."
+      ],
+      "supporting_facts": {
+        "publication": "browser-local package records are not written to static artifacts"
+      },
+      "title": "Local package"
+    }
+  ],
+  "publication_policy": {
+    "artifact_kind": "aggregate_only_filter_aware_question_pack",
+    "browser_llm_calls": false,
+    "legal_findings": false,
+    "notice": "Questions guide aggregate review and are not legal advice or legal findings.",
+    "ordinance_text_included": false,
+    "raw_rows_included": false,
+    "record_locator_values_included": false
+  },
+  "real_locus_rows_published": false,
+  "schema_version": "evolocus-filter-aware-question-pack-v1",
+  "source_artifacts": [
+    {
+      "generated_at": "2026-06-21T15:37:25.327380+00:00",
+      "id": "status",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-static-analysis-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T15:37:25.346485+00:00",
+      "id": "map_layers",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-static-analysis-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T15:37:25.346346+00:00",
+      "id": "charts",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-static-analysis-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T15:37:25.346479+00:00",
+      "id": "models",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-model-registry-v1",
+      "synthetic": null
+    },
+    {
+      "generated_at": "2026-06-21T18:08:08.355451+00:00",
+      "id": "unit_audit_quality",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-unit-audit-quality-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T16:23:36.005485+00:00",
+      "id": "county_geometry",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-county-geometry-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T16:34:49.979234+00:00",
+      "id": "municipal_points",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-municipal-points-v1",
+      "synthetic": false
+    },
+    {
+      "generated_at": "2026-06-21T18:58:46.702559+00:00",
+      "id": "inquiry_briefings",
+      "real_locus_rows_published": false,
+      "schema_version": "evolocus-progressive-inquiry-v1",
+      "synthetic": false
+    }
+  ],
+  "suggested_questions": [
+    "What does the current filtered map view show?",
+    "What changes when I focus the map on CA?",
+    "Which county and town units drive the Other topic view?",
+    "How does the Rules function pattern appear across the map?",
+    "What should I inspect in Tier 1 units?",
+    "Which visible units need OCR or duplicate-text review first?",
+    "What does the selected unit los_angeles_county show?",
+    "What does the loaded package show on the map?"
+  ],
+  "synthetic": false
+}

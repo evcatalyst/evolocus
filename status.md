@@ -25,6 +25,7 @@ Files saved:
 - `site/data/analysis/ontology.json`
 - `site/data/analysis/chat_index.json`
 - `site/data/analysis/inquiry_briefings.json`
+- `site/data/analysis/question_pack.json`
 - `site/data/analysis/models.json`
 - `site/data/analysis/charts.json`
 - `site/data/analysis/county_geometry.json`
@@ -42,6 +43,7 @@ Files saved:
 - `src/evolocus/evaluation_protocol.py`
 - `src/evolocus/evaluation_sampling.py`
 - `src/evolocus/inquiry_briefings.py`
+- `src/evolocus/static_question_pack.py`
 - `src/evolocus/jurisdiction.py`
 - `src/evolocus/locus_audit.py`
 - `src/evolocus/locus_contract.py`
@@ -92,6 +94,7 @@ Current coverage stats:
 - Selected-unit progressive trail: GitHub Pages map panel walks from aggregate overview to unit-detail model outputs to evidence/provenance boundaries with disclosure buttons
 - Selected-unit ontology drilldowns: GitHub Pages map panel shows topic/function/tier/score/geometry/package cards that route to ontology context, evidence depth, or package focus without raw text
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, package overlay, topic, function, audit, score, and selected-unit answers
+- Static question-pack surface: GitHub Pages reads `question_pack.json` prompts that can apply aggregate map filters and disclosure levels without live browser model calls
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download
@@ -157,6 +160,7 @@ Latest update:
 - Added an Audit Lens tab that visualizes per-unit aggregate audit signals with progressive disclosure and drill-through back to the map.
 - Added a Score Lens tab that visualizes released model-score means from aggregate map units with progressive disclosure and drill-through back to the map.
 - Added an Inquiry question matrix that turns current filters into deterministic aggregate answers for map, topic, function, audit, score, and selected-unit prompts.
+- Added `question_pack.json` and `publish-question-pack` so the Inquiry matrix can render filter-aware static prompts generated from aggregate artifacts, optionally noted by Grok offline.
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 - Added a review-package request export and `materialize-review-package` local CLI handoff so aggregate visual plans can become bounded browser-import packages without publishing LOCUS text.
 - Added a review-package request preview that displays record budget, state/type/topic mix, and request safety gates before download.

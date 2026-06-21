@@ -23,6 +23,7 @@ REQUIRED_PATHS = [
     "site/data/analysis/ontology.json",
     "site/data/analysis/chat_index.json",
     "site/data/analysis/inquiry_briefings.json",
+    "site/data/analysis/question_pack.json",
     "site/data/analysis/models.json",
     "site/data/analysis/charts.json",
     "site/data/analysis/audit_status.json",
@@ -34,6 +35,7 @@ REQUIRED_PATHS = [
     "src/evolocus/cli.py",
     "src/evolocus/county_geometry.py",
     "src/evolocus/inquiry_briefings.py",
+    "src/evolocus/static_question_pack.py",
     "src/evolocus/municipal_points.py",
     "src/evolocus/locus_ingest.py",
     "src/evolocus/public_artifact_guard.py",
@@ -173,6 +175,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data/analysis/audit_status.json" in js
     assert "data/analysis/unit_audit_quality.json" in js
     assert "data/analysis/inquiry_briefings.json" in js
+    assert "data/analysis/question_pack.json" in js
     assert "data/analysis/county_geometry.json" in js
     assert "data/analysis/municipal_points.json" in js
     assert "inquiry-context-grid" in html
@@ -224,6 +227,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js
     assert "inquiryPromptCards" in js
+    assert "questionPackPromptCards" in js
+    assert "applyQuestionPackPrompt" in js
+    assert "data-inquiry-pack" in js
     assert "filteredAuditAnswer" in js
     assert "filteredScoreAnswer" in js
     assert "data-inquiry-prompt" in js
@@ -371,6 +377,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     audit_status = json.loads(read_text("site/data/analysis/audit_status.json"))
     unit_audit_quality = json.loads(read_text("site/data/analysis/unit_audit_quality.json"))
     inquiry_briefings = json.loads(read_text("site/data/analysis/inquiry_briefings.json"))
+    question_pack = json.loads(read_text("site/data/analysis/question_pack.json"))
     county_geometry = json.loads(read_text("site/data/analysis/county_geometry.json"))
     municipal_points = json.loads(read_text("site/data/analysis/municipal_points.json"))
     assert status["synthetic"] is False
@@ -430,6 +437,17 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert inquiry_briefings["grok"]["error"] is None
     assert inquiry_briefings["grok_summary"]
     assert inquiry_briefings["briefings"]
+    assert question_pack["schema_version"] == "evolocus-filter-aware-question-pack-v1"
+    assert question_pack["synthetic"] is False
+    assert question_pack["real_locus_rows_published"] is False
+    assert question_pack["publication_policy"]["raw_rows_included"] is False
+    assert question_pack["publication_policy"]["ordinance_text_included"] is False
+    assert question_pack["publication_policy"]["record_locator_values_included"] is False
+    assert question_pack["publication_policy"]["browser_llm_calls"] is False
+    assert question_pack["publication_policy"]["legal_findings"] is False
+    assert question_pack["grok"]["secret_env"] == "GROK_API_KEY"
+    assert question_pack["prompts"]
+    assert question_pack["suggested_questions"]
     assert county_geometry["schema_version"] == "evolocus-county-geometry-v1"
     assert county_geometry["geometry_status"] == "official_census_county_geometry_machine_matched_pending_review"
     assert county_geometry["source"]["name"] == "U.S. Census Bureau TIGERweb Current Counties layer"
@@ -455,6 +473,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
             "audit_status": audit_status,
             "unit_audit_quality": unit_audit_quality,
             "inquiry_briefings": inquiry_briefings,
+            "question_pack": question_pack,
             "county_geometry": county_geometry,
             "municipal_points": municipal_points,
         }
@@ -473,6 +492,8 @@ def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() ->
     assert "secrets.Grok_api_key" in workflow
     assert "GROK_API_KEY_ALIAS" in workflow
     assert "publish-inquiry-briefings" in workflow
+    assert "publish-question-pack" in workflow
+    assert "question_pack.json" in workflow
     assert "validate-public-artifacts" in workflow
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "publish-analysis" not in workflow

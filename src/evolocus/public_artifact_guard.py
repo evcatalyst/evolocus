@@ -34,6 +34,7 @@ REQUIRED_PUBLIC_ARTIFACTS = [
     "models.json",
     "charts.json",
     "inquiry_briefings.json",
+    "question_pack.json",
 ]
 
 
@@ -86,6 +87,7 @@ def validate_public_analysis_artifacts(analysis_dir: Path) -> PublicArtifactVali
 
     _validate_status_policy(payloads["status.json"])
     _validate_inquiry_briefings_policy(payloads["inquiry_briefings.json"])
+    _validate_question_pack_policy(payloads["question_pack.json"])
     _validate_models_policy(payloads["models.json"])
 
     return PublicArtifactValidationResult(
@@ -125,6 +127,27 @@ def _validate_inquiry_briefings_policy(payload: dict[str, Any]) -> None:
         raise PublicArtifactValidationError("inquiry_briefings.json must reference only the GROK_API_KEY secret name")
     if "api.x.ai" in json.dumps(payload.get("briefings") or []):
         raise PublicArtifactValidationError("briefing content must not expose API endpoints")
+
+
+def _validate_question_pack_policy(payload: dict[str, Any]) -> None:
+    if payload.get("real_locus_rows_published") is not False:
+        raise PublicArtifactValidationError("question_pack.json must declare real_locus_rows_published=false")
+    policy = payload.get("publication_policy") or {}
+    required_false = [
+        "raw_rows_included",
+        "ordinance_text_included",
+        "record_locator_values_included",
+        "browser_llm_calls",
+        "legal_findings",
+    ]
+    for key in required_false:
+        if policy.get(key) is not False:
+            raise PublicArtifactValidationError(f"question_pack.json publication_policy.{key} must be false")
+    grok = payload.get("grok") or {}
+    if grok.get("secret_env") != "GROK_API_KEY":
+        raise PublicArtifactValidationError("question_pack.json must reference only the GROK_API_KEY secret name")
+    if "api.x.ai" in json.dumps(payload):
+        raise PublicArtifactValidationError("question_pack.json must not expose API endpoints")
 
 
 def _validate_models_policy(payload: dict[str, Any]) -> None:

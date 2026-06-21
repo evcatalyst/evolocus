@@ -64,6 +64,7 @@ The Pages app supports:
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
+- static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;
 - Inquiry question matrix with filter-aware prompts for map, package overlay, topic, function, audit, score, and selected-unit questions;
 - package-aware inquiry answer that summarizes browser-local package coverage, map matches, workflow progress, and text/source-locator boundaries without listing record text;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
@@ -106,6 +107,7 @@ Support tooling:
 - CLI commands for audit, queue seeding, and export package creation.
 - `publish-analysis` for generating Pages-ready status, map, ontology, model, and deterministic inquiry JSON.
 - `publish-inquiry-briefings` for generating static progressive inquiry briefings, optionally enriched by Grok in offline jobs only.
+- `publish-question-pack` for generating static filter-aware prompts that can apply safe map filters and disclosure levels from GitHub Pages.
 - `publish-unit-audit-quality` for generating aggregate per-unit audit-quality JSON from local Parquet and the reviewed public map-unit scope.
 - `validate-public-artifacts` for blocking Pages deployment when static analysis JSON contains raw text, source locators, local paths, databases, or secret-shaped values.
 - Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.

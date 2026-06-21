@@ -55,6 +55,7 @@
         "Add Audit Lens tab for aggregate OCR and duplicate-text review signals",
         "Add Score Lens tab for neutral released model-score visuals",
         "Add Inquiry question matrix for filter-aware aggregate answers",
+        "Add static filter-aware question pack artifact for Pages inquiry",
         "Add Queue Plan tab for aggregate review batch planning",
         "Add public artifact guard for Grok inquiry briefing refresh",
         "Persist Grok-enriched aggregate inquiry briefings in Pages data",

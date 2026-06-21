@@ -65,6 +65,21 @@ jobs:
               --analysis-dir site/data/analysis \
               --output site/data/analysis/inquiry_briefings.json
           fi
+      - name: Generate aggregate-only question pack
+        run: |
+          if [ -z "$GROK_API_KEY" ] && [ -n "$GROK_API_KEY_ALIAS" ]; then
+            export GROK_API_KEY="$GROK_API_KEY_ALIAS"
+          fi
+          if [ "$USE_GROK" = "true" ]; then
+            PYTHONPATH=src python -m evolocus.cli publish-question-pack \
+              --analysis-dir site/data/analysis \
+              --output site/data/analysis/question_pack.json \
+              --use-grok
+          else
+            PYTHONPATH=src python -m evolocus.cli publish-question-pack \
+              --analysis-dir site/data/analysis \
+              --output site/data/analysis/question_pack.json
+          fi
       - name: Validate public artifact boundary
         run: PYTHONPATH=src python -m evolocus.cli validate-public-artifacts --analysis-dir site/data/analysis
       - name: Summarize briefing artifact
@@ -74,13 +89,17 @@ jobs:
           from pathlib import Path
 
           payload = json.loads(Path("site/data/analysis/inquiry_briefings.json").read_text(encoding="utf-8"))
+          question_pack = json.loads(Path("site/data/analysis/question_pack.json").read_text(encoding="utf-8"))
           grok = payload.get("grok") or {}
+          question_grok = question_pack.get("grok") or {}
           summary = [
               "## EvoLOCUS inquiry briefing refresh",
               "",
               f"- Dataset revision: `{payload.get('dataset_revision')}`",
               f"- Briefings: `{len(payload.get('briefings') or [])}`",
+              f"- Question prompts: `{len(question_pack.get('prompts') or [])}`",
               f"- Grok used: `{bool(grok.get('used'))}`",
+              f"- Question-pack Grok used: `{bool(question_grok.get('used'))}`",
               f"- Grok model: `{grok.get('model')}`",
               "- Publication boundary: aggregate-only, no ordinance text, no raw rows, no browser LLM calls.",
           ]

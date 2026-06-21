@@ -30,6 +30,7 @@ from .locus_source import CorpusConfig, LocusCorpus
 from .municipal_points import publish_municipal_points_artifact
 from .public_artifact_guard import validate_public_analysis_artifacts
 from .review_package import ReviewPackageError, materialize_review_package
+from .static_question_pack import DEFAULT_QUESTION_PACK_PATH, publish_question_pack
 from .unit_audit_quality import DEFAULT_UNIT_AUDIT_QUALITY_PATH, publish_unit_audit_quality
 
 
@@ -157,6 +158,31 @@ def main(argv: list[str] | None = None) -> int:
     inquiry_briefings_parser.add_argument("--grok-api-key-env", default="GROK_API_KEY")
     inquiry_briefings_parser.add_argument("--grok-model", default="grok-4.3")
     inquiry_briefings_parser.set_defaults(func=_publish_inquiry_briefings)
+
+    question_pack_parser = subparsers.add_parser(
+        "publish-question-pack",
+        help="Publish static filter-aware inquiry prompts from aggregate Pages artifacts.",
+    )
+    question_pack_parser.add_argument(
+        "--analysis-dir",
+        type=Path,
+        default=DEFAULT_ANALYSIS_DIR,
+        help="Directory containing aggregate analysis artifacts.",
+    )
+    question_pack_parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_QUESTION_PACK_PATH,
+        help="Output question_pack.json artifact.",
+    )
+    question_pack_parser.add_argument(
+        "--use-grok",
+        action="store_true",
+        help="Use GROK_API_KEY for offline question-pack note enrichment when the secret is available.",
+    )
+    question_pack_parser.add_argument("--grok-api-key-env", default="GROK_API_KEY")
+    question_pack_parser.add_argument("--grok-model", default="grok-4.3")
+    question_pack_parser.set_defaults(func=_publish_question_pack)
 
     validate_public_parser = subparsers.add_parser(
         "validate-public-artifacts",
@@ -329,6 +355,18 @@ def _publish_unit_audit_quality(args: argparse.Namespace) -> int:
 
 def _publish_inquiry_briefings(args: argparse.Namespace) -> int:
     result = publish_inquiry_briefings(
+        args.analysis_dir,
+        args.output,
+        use_grok=args.use_grok,
+        grok_api_key_env=args.grok_api_key_env,
+        grok_model=args.grok_model,
+    )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _publish_question_pack(args: argparse.Namespace) -> int:
+    result = publish_question_pack(
         args.analysis_dir,
         args.output,
         use_grok=args.use_grok,

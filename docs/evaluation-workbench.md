@@ -38,6 +38,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with released model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over published aggregate artifacts;
+- static filter-aware question pack over published aggregate artifacts;
 - Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
 - package-aware inquiry answer for browser-local package coverage, map matches, workflow progress, and publication boundaries;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
@@ -159,7 +160,7 @@ The current-view snapshot export captures active filters, visible aggregate summ
 
 The Snapshots tab stores those aggregate current-view payloads in browser localStorage, renders comparison bars, and can reload a saved view's map filters. Package-aware snapshot cards compare matched package units and record counts while preserving text and locator exclusion. Gallery export uses the same aggregate-only policy.
 
-The Inquiry question matrix reads current browser filter state and static aggregate artifacts. It is deterministic browser logic unless a future offline workflow publishes refreshed briefing JSON.
+The Inquiry question matrix reads current browser filter state, `question_pack.json`, and static aggregate artifacts. Question-pack prompts can apply safe map filters and disclosure levels from the browser. They remain deterministic browser logic unless an offline workflow publishes refreshed briefing or question-pack JSON.
 
 Refresh static progressive inquiry briefings from the current aggregate artifacts:
 
@@ -167,9 +168,13 @@ Refresh static progressive inquiry briefings from the current aggregate artifact
 PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings \
   --analysis-dir site/data/analysis \
   --output site/data/analysis/inquiry_briefings.json
+
+PYTHONPATH=src python -m evolocus.cli publish-question-pack \
+  --analysis-dir site/data/analysis \
+  --output site/data/analysis/question_pack.json
 ```
 
-Offline jobs may add `--use-grok` when `GROK_API_KEY` is available. The GitHub workflow also accepts the existing `Grok_api_key` secret alias and exports it as the canonical environment variable during the Action. The output must remain aggregate-only and must not include ordinance text, headers, source locators, local paths, or secrets.
+Offline jobs may add `--use-grok` to either command when `GROK_API_KEY` is available. The GitHub workflow also accepts the existing `Grok_api_key` secret alias and exports it as the canonical environment variable during the Action. The output must remain aggregate-only and must not include ordinance text, headers, source locators, local paths, or secrets.
 
 Validate the public artifact boundary:
 

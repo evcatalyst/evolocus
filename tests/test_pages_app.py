@@ -34,6 +34,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "packageCoverageSummary" in js
     assert "snapshotPackageSummary" in js
     assert "snapshotPackageComparisonHtml" in js
+    assert "data/analysis/question_pack.json" in js
+    assert "questionPackPromptCards" in js
+    assert "applyQuestionPackPrompt" in js
+    assert "data-inquiry-pack" in js
     assert "importedPackageMapStats" in js
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js

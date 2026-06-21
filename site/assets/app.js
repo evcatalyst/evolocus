@@ -15,6 +15,7 @@ const ANALYSIS_PATHS = {
   ontology: "data/analysis/ontology.json",
   chatIndex: "data/analysis/chat_index.json",
   inquiryBriefings: "data/analysis/inquiry_briefings.json",
+  questionPack: "data/analysis/question_pack.json",
   models: "data/analysis/models.json",
   charts: "data/analysis/charts.json",
 };
@@ -251,6 +252,7 @@ let state = {
     ontology: null,
     chatIndex: null,
     inquiryBriefings: null,
+    questionPack: null,
     models: null,
     charts: null,
     error: null,
@@ -2751,10 +2753,12 @@ function scoreDeltaSummary(selectedUnit, peerUnit) {
 function renderInquiry() {
   const chatIndex = state.analysis.chatIndex;
   const briefings = state.analysis.inquiryBriefings;
+  const questionPack = state.analysis.questionPack;
   const selectedUnit = currentSelectedMapUnit();
   const selectedQuestions = selectedUnit ? [`What does the selected unit ${displayUnitName(selectedUnit)} show?`] : [];
   const suggested = [
     ...selectedQuestions,
+    ...((questionPack && questionPack.suggested_questions) || []),
     ...((briefings && briefings.suggested_questions) || []),
     ...((chatIndex && chatIndex.suggested_questions) || []),
   ].slice(0, 8);
@@ -2818,11 +2822,12 @@ function renderInquiryMatrix() {
     return;
   }
   const prompts = inquiryPromptCards();
-  summary.textContent = `${formatCount(prompts.length)} static prompts`;
+  const pack = state.analysis.questionPack;
+  summary.textContent = `${formatCount(prompts.length)} static prompts${pack?.grok?.used ? ` · Grok-pack ${pack.grok.model}` : ""}`;
   matrix.innerHTML = prompts
     .map(
       (prompt) => `
-        <button type="button" data-inquiry-prompt="${escapeHtml(prompt.question)}"${prompt.unitId ? ` data-inquiry-unit="${escapeHtml(prompt.unitId)}"` : ""}>
+        <button type="button" data-inquiry-prompt="${escapeHtml(prompt.question)}"${prompt.unitId ? ` data-inquiry-unit="${escapeHtml(prompt.unitId)}"` : ""}${prompt.packId ? ` data-inquiry-pack="${escapeHtml(prompt.packId)}"` : ""}>
           <span>${escapeHtml(prompt.group)}</span>
           <strong>${escapeHtml(prompt.title)}</strong>
           <em>${escapeHtml(prompt.detail)}</em>
@@ -2841,6 +2846,7 @@ function inquiryPromptCards() {
   const auditSummary = inquiryAuditSummary(units);
   const packageSummary = packageCoverageSummary();
   const packageStats = importedPackageMapStats(mapLayers?.units || []);
+  const packCards = questionPackPromptCards();
   const cards = [
     {
       group: "Map",
@@ -2899,7 +2905,48 @@ function inquiryPromptCards() {
       unitId: selectedUnit.unit_id,
     });
   }
-  return cards.slice(0, state.disclosureLevel === "overview" ? 6 : 8);
+  const limit = state.disclosureLevel === "overview" ? 8 : 12;
+  return [...packCards, ...cards].slice(0, limit);
+}
+
+function questionPackPromptCards() {
+  const pack = state.analysis.questionPack;
+  if (!pack?.prompts?.length) {
+    return [];
+  }
+  const limit = state.disclosureLevel === "overview" ? 4 : 6;
+  return pack.prompts.slice(0, limit).map((prompt) => ({
+    group: `Pack · ${prompt.group || "Prompt"}`,
+    title: prompt.title || prompt.id || "Question pack",
+    question: prompt.question,
+    detail: prompt.detail || "Static aggregate question pack",
+    packId: prompt.id,
+    unitId: prompt.filters?.selected_unit_id || null,
+  }));
+}
+
+function applyQuestionPackPrompt(promptId) {
+  const pack = state.analysis.questionPack;
+  const prompt = (pack?.prompts || []).find((item) => item.id === promptId);
+  if (!prompt) {
+    return;
+  }
+  const filters = prompt.filters || {};
+  state.mapFilters = {
+    ...state.mapFilters,
+    state: filters.state || state.mapFilters.state,
+    topic: filters.topic || state.mapFilters.topic,
+    function: filters.function || state.mapFilters.function,
+    tier: filters.tier || state.mapFilters.tier,
+    auditFocus: filters.auditFocus || state.mapFilters.auditFocus,
+    packageOnly: typeof filters.packageOnly === "boolean" ? filters.packageOnly : state.mapFilters.packageOnly,
+  };
+  if (filters.selected_unit_id) {
+    state.selectedUnitId = filters.selected_unit_id;
+  }
+  if (["overview", "unit", "evidence"].includes(prompt.recommended_disclosure)) {
+    state.disclosureLevel = prompt.recommended_disclosure;
+  }
 }
 
 function inquiryAuditSummary(units) {
@@ -6112,7 +6159,7 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, models, charts] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
@@ -6122,10 +6169,11 @@ async function fetchAnalysisArtifacts() {
       fetchJson(ANALYSIS_PATHS.ontology),
       fetchJson(ANALYSIS_PATHS.chatIndex),
       fetchJson(ANALYSIS_PATHS.inquiryBriefings),
+      fetchJson(ANALYSIS_PATHS.questionPack),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, models, charts, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }
@@ -6246,6 +6294,9 @@ function bindEvents() {
     const button = event.target.closest("button[data-inquiry-prompt]");
     if (!button) {
       return;
+    }
+    if (button.dataset.inquiryPack) {
+      applyQuestionPackPrompt(button.dataset.inquiryPack);
     }
     if (button.dataset.inquiryUnit) {
       state.selectedUnitId = button.dataset.inquiryUnit;
