@@ -44,3 +44,4 @@
 - Record-level review queues should still be materialized with local ignored tooling before any ordinance text is reviewed or exported.
 - Grok refreshes need a deployment-time public artifact guard because model enrichment is still generated text and must not weaken raw-data, source-locator, or secret boundaries.
 - xAI currently documents the Responses endpoint and `grok-4.3`; keep the model configurable so future API changes do not require browser changes.
+- A manually refreshed Pages artifact can be lost on the next normal deploy unless the generated JSON is validated, committed, and covered by tests.

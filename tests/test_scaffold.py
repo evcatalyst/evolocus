@@ -87,6 +87,8 @@ def test_pages_workflow_uses_pinned_major_versions_and_site_path() -> None:
     assert "id-token: write" in workflow
     assert "@main" not in workflow
     assert "actions/checkout@v4" in workflow
+    assert "actions/setup-python@v5" in workflow
+    assert "validate-public-artifacts" in workflow
     assert "actions/configure-pages@v5" in workflow
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "actions/deploy-pages@v4" in workflow
@@ -305,6 +307,10 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert inquiry_briefings["publication_policy"]["raw_rows_included"] is False
     assert inquiry_briefings["publication_policy"]["ordinance_text_included"] is False
     assert inquiry_briefings["publication_policy"]["browser_llm_calls"] is False
+    assert inquiry_briefings["grok"]["used"] is True
+    assert inquiry_briefings["grok"]["model"] == "grok-4.3"
+    assert inquiry_briefings["grok"]["error"] is None
+    assert inquiry_briefings["grok_summary"]
     assert inquiry_briefings["briefings"]
     assert county_geometry["schema_version"] == "evolocus-county-geometry-v1"
     assert county_geometry["geometry_status"] == "official_census_county_geometry_machine_matched_pending_review"

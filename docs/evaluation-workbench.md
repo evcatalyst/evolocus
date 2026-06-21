@@ -142,7 +142,7 @@ PYTHONPATH=src python -m evolocus.cli validate-public-artifacts \
   --analysis-dir site/data/analysis
 ```
 
-The manual `Refresh static analysis artifacts` GitHub Actions workflow performs the same briefing refresh and validation before deploying Pages. The Analysis Status tab reports whether the active inquiry briefing artifact is deterministic or Grok-enriched.
+The tracked `site/data/analysis/inquiry_briefings.json` artifact is currently Grok-enriched and aggregate-only. The manual `Refresh static analysis artifacts` GitHub Actions workflow performs the same briefing refresh and validation before deploying Pages. The normal Pages deploy workflow also runs the validator so a later push cannot publish raw rows or secret-shaped values by accident. The Analysis Status tab reports whether the active inquiry briefing artifact is deterministic or Grok-enriched.
 
 ## Support CLI
 

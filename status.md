@@ -74,6 +74,7 @@ Current coverage stats:
 - Real civic findings published: 0
 - Static site data: aggregate-only LOCUS state-clustered map, ontology, model, inquiry, chart, and status artifacts
 - Static inquiry briefings: generated from aggregate-only artifacts; optional Grok enrichment is offline-only
+- Tracked inquiry briefing artifact: Grok-enriched aggregate-only artifact persisted from the validated Actions refresh
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
 - Queue records created from real LOCUS data: 0
@@ -92,6 +93,7 @@ Current coverage stats:
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
+- Pages deploy guard: normal Pages workflow validates public artifacts before upload
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
 - Real LOCUS evaluation: not started
 
@@ -141,6 +143,7 @@ Latest update:
 - Added an Inquiry question matrix that turns current filters into deterministic aggregate answers for map, topic, function, audit, score, and selected-unit prompts.
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
+- Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 
 Evaluator implementation state:
 

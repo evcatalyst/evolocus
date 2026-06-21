@@ -235,7 +235,7 @@ gh secret set GROK_API_KEY --repo evcatalyst/evolocus
 
 The `GROK_API_KEY` repository secret is configured for GitHub Actions offline jobs. The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
 
-Run the manual `Refresh static analysis artifacts` workflow to regenerate static inquiry briefings with the secret. The workflow validates `site/data/analysis/` with `validate-public-artifacts` before deploying Pages.
+The current tracked `site/data/analysis/inquiry_briefings.json` artifact is Grok-enriched and aggregate-only. Run the manual `Refresh static analysis artifacts` workflow to regenerate static inquiry briefings with the secret. Both the normal Pages deploy workflow and the manual refresh workflow validate `site/data/analysis/` with `validate-public-artifacts` before deploying Pages.
 
 ## Hugging Face Download One-Liner
 
