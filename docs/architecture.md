@@ -40,7 +40,7 @@ flowchart LR
 - The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
 - The Audit Lens tab renders `unit_audit_quality.json` as aggregate-only charts, state rows, OCR reason mix, and map drill-through links.
 - The Score Lens tab renders released LOCUS model-score means from `map_layers.json` as neutral distributions, state matrices, and unit profiles.
-- The Queue Plan tab combines current map filters, `map_layers.json`, and `unit_audit_quality.json` to rank aggregate county/town units for future local review packaging. Its exports contain unit IDs, aggregate counts, review signals, strategy metadata, and optional local materialization instructions only.
+- The Queue Plan tab combines current map filters, `map_layers.json`, and `unit_audit_quality.json` to rank aggregate county/town units for future local review packaging. Its preview shows record budget, state/type/topic mix, and safety gates before exporting unit IDs, aggregate counts, review signals, strategy metadata, and optional local materialization instructions only.
 - The Queue Plan review-package request can be consumed by `materialize-review-package` to create a bounded browser-import package from ignored local Parquet. The request itself remains aggregate-only.
 - The map and inquiry tabs can export the current filtered view as aggregate JSON with filters, counts, selected-unit metadata, audit signals, and briefing provenance only.
 - The Snapshots tab saves those aggregate current-view payloads in browser localStorage for comparison and reloads only filter state and selected aggregate unit IDs.

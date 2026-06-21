@@ -459,7 +459,7 @@ textarea {
 
 .queue-plan-form {
   display: grid;
-  grid-template-columns: 1.25fr 0.6fr 1.4fr auto auto;
+  grid-template-columns: 1.15fr 0.55fr 1.2fr auto auto auto;
   align-items: end;
   gap: 12px;
   margin-bottom: 18px;
@@ -502,6 +502,89 @@ textarea {
   padding: 12px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.package-request-output,
+.package-request-preview,
+.package-preview-bars,
+.package-safety-list {
+  display: grid;
+  gap: 12px;
+}
+
+.package-preview-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.package-preview-cards article,
+.package-preview-bar-card,
+.package-safety-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.package-preview-cards span,
+.package-preview-cards em {
+  display: block;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.78rem;
+}
+
+.package-preview-cards strong {
+  display: block;
+  margin: 4px 0;
+  color: #275f79;
+  font-size: 1.05rem;
+}
+
+.package-preview-bars {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.package-preview-bar-card h4,
+.package-safety-card h4 {
+  margin: 0 0 8px;
+}
+
+.package-safety-card div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.package-safety-card span {
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px 10px;
+}
+
+.package-safety-card em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+.package-safety-clear {
+  border-color: #b9d7c8 !important;
+  background: #f0faf4 !important;
+}
+
+.package-safety-explicit {
+  border-color: #e3c36f !important;
+  background: #fff9e8 !important;
+}
+
+.package-safety-blocked {
+  border-color: #dbb2b2 !important;
+  background: #fff1f1 !important;
 }
 
 .queue-plan-card,
@@ -2385,6 +2468,9 @@ th {
   .score-visual-grid,
   .queue-plan-form,
   .package-request-card,
+  .package-preview-cards,
+  .package-preview-bars,
+  .package-safety-card div,
   .queue-plan-summary,
   .queue-plan-visuals,
   .queue-plan-row,
@@ -2443,6 +2529,9 @@ th {
   .score-visual-grid,
   .queue-plan-form,
   .package-request-card,
+  .package-preview-cards,
+  .package-preview-bars,
+  .package-safety-card div,
   .queue-plan-summary,
   .queue-plan-visuals,
   .queue-plan-row,

@@ -48,6 +48,7 @@ The Pages app supports:
 - Audit Lens tab with attention distribution, OCR reason mix, state atlas, and review-priority queue preview;
 - Queue Plan tab for aggregate county/town review batch planning, with content-free unit-level JSON export;
 - Queue Plan review-package request export for local ignored materialization from authorized Parquet;
+- Queue Plan package-request preview with record budget, unit mix, and safety gates before download;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -98,6 +99,7 @@ Support tooling:
 - `validate-public-artifacts` for blocking Pages deployment when static analysis JSON contains raw text, source locators, local paths, databases, or secret-shaped values.
 - Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.
 - Browser review-package request export for handing selected aggregate units to local tooling; the request stays aggregate-only.
+- Browser package-request preview for inspecting unit mix, record budget, and publication safety gates before download.
 - Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.
 - Browser snapshot gallery storage in localStorage for aggregate current-view snapshots only; it does not store LOCUS text or review-event history.
 - Browser walkthrough cards for the real aggregate visual path; these route across existing public tabs and do not introduce a separate data publication channel.

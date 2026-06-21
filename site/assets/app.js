@@ -2964,8 +2964,13 @@ function renderQueuePlan() {
   visuals.innerHTML = queuePlanVisualsHtml(plan);
   list.innerHTML = queuePlanListHtml(plan);
   const packageCommand = $("#package-request-command");
+  const packagePreview = $("#package-request-preview");
+  const requestPayload = reviewPackageRequestPayload(plan);
   if (packageCommand) {
-    packageCommand.textContent = reviewPackageLocalCommand(reviewPackageRequestPayload(plan));
+    packageCommand.textContent = requestPayload.local_command;
+  }
+  if (packagePreview) {
+    packagePreview.innerHTML = reviewPackagePreviewHtml(requestPayload, plan);
   }
   renderDisclosureButtons();
 }
@@ -3291,6 +3296,99 @@ function reviewPackageRequestPayload(plan = buildQueuePlan()) {
   };
   payload.local_command = reviewPackageLocalCommand(payload);
   return payload;
+}
+
+function reviewPackagePreviewHtml(requestPayload, plan) {
+  const units = requestPayload.units || [];
+  const materialization = requestPayload.materialization || {};
+  const policy = requestPayload.publication_policy || {};
+  const stateCounts = countBy(units, (unit) => unit.state || "NA");
+  const kindCounts = countBy(units, (unit) => unit.kind || "unknown");
+  const topicCounts = countBy(units, (unit) => unit.dominant_topic || "Unknown");
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const cards = [
+    ["Requested units", formatCount(units.length), `${queuePlanStrategyLabel(plan.strategy)} strategy`],
+    ["Record budget", formatCount(materialization.max_records || 0), `${formatCount(materialization.max_records_per_unit || 0)} per unit`],
+    ["States", formatCount(Object.keys(stateCounts).length), topCountEntries(stateCounts, 3).map((row) => row.label).join(", ") || "none"],
+    ["Public request", "Aggregate only", "No text, raw rows, source locator values, or review events"],
+  ];
+  return `
+    <div class="package-preview-cards">
+      ${cards
+        .map(
+          ([label, value, detail]) => `
+            <article>
+              <span>${escapeHtml(label)}</span>
+              <strong>${escapeHtml(String(value))}</strong>
+              <em>${escapeHtml(detail)}</em>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+    <div class="package-preview-bars">
+      ${packagePreviewBarCard("State mix", stateCounts, showUnit ? 8 : 4)}
+      ${packagePreviewBarCard("Unit type mix", kindCounts, showUnit ? 6 : 3, titleCase)}
+      ${packagePreviewBarCard("Topic mix", topicCounts, showUnit ? 6 : 3)}
+    </div>
+    <div class="package-safety-list">
+      ${packageSafetyRows(policy, materialization, showEvidence)}
+    </div>
+  `;
+}
+
+function packagePreviewBarCard(title, counts, limit, labeler = (label) => label) {
+  const rows = topCountEntries(counts, limit);
+  return `
+    <article class="package-preview-bar-card">
+      <h4>${escapeHtml(title)}</h4>
+      <div class="bar-list">${auditBarRows(rows, labeler)}</div>
+    </article>
+  `;
+}
+
+function packageSafetyRows(policy, materialization, showEvidence) {
+  const rows = [
+    ["Request text", policy.ordinance_text_included ? "blocked" : "clear", policy.ordinance_text_included ? "Text included" : "No ordinance text"],
+    ["Raw rows", policy.raw_rows_included ? "blocked" : "clear", policy.raw_rows_included ? "Raw rows included" : "No raw rows"],
+    ["Source locator values", policy.source_locators_included ? "blocked" : "clear", policy.source_locators_included ? "Values included" : "No source locator values"],
+    ["Review events", policy.review_events_included ? "blocked" : "clear", policy.review_events_included ? "Events included" : "No review history"],
+    ["Browser LLM calls", policy.browser_llm_calls ? "blocked" : "clear", policy.browser_llm_calls ? "Live calls enabled" : "No browser model calls"],
+    ["Local text package", materialization.include_content_flag_required_for_browser_review ? "explicit" : "review", "--include-content required"],
+  ];
+  const visibleRows = showEvidence ? rows : rows.slice(0, 4);
+  return `
+    <article class="package-safety-card">
+      <h4>Safety gates before download</h4>
+      <div>
+        ${visibleRows
+          .map(
+            ([label, stateLabel, detail]) => `
+              <span class="package-safety-${escapeHtml(stateLabel)}">
+                <strong>${escapeHtml(label)}</strong>
+                <em>${escapeHtml(detail)}</em>
+              </span>
+            `,
+          )
+          .join("")}
+      </div>
+      ${
+        showEvidence
+          ? `<p class="muted-note">The downloaded request is safe aggregate metadata. The materialized package is local-only and must stay under ignored paths such as data/exports/.</p>`
+          : `<p class="muted-note">Switch to Evidence trail to show all request safety gates.</p>`
+      }
+    </article>
+  `;
+}
+
+function countBy(rows, keyFn) {
+  const counts = {};
+  for (const row of rows || []) {
+    const key = keyFn(row);
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  return counts;
 }
 
 function reviewPackageLocalCommand(requestPayload = reviewPackageRequestPayload()) {
