@@ -233,6 +233,7 @@ let state = {
     state: "",
     topic: "",
     function: "",
+    kind: "",
     tier: "",
     auditFocus: "",
     minLaws: 0,
@@ -2146,6 +2147,9 @@ function unitMatchesMapFilters(unit) {
   if (state.mapFilters.function && !Number(unit.function_counts?.[state.mapFilters.function] || 0)) {
     return false;
   }
+  if (state.mapFilters.kind && normalizePackageKind(unit.kind) !== state.mapFilters.kind) {
+    return false;
+  }
   if (Number(unit.law_count || 0) < state.mapFilters.minLaws) {
     return false;
   }
@@ -2169,6 +2173,7 @@ function renderMapFilters(units) {
   fillSelect(form.elements.state, [...new Set(units.map((unit) => unit.state).filter(Boolean))].sort(), state.mapFilters.state, "All states");
   fillSelect(form.elements.topic, sortedKeys(units, "topic_counts"), state.mapFilters.topic, "All topics");
   fillSelect(form.elements["function"], sortedKeys(units, "function_counts"), state.mapFilters.function, "All functions");
+  fillSelect(form.elements.kind, [...new Set(units.map((unit) => normalizePackageKind(unit.kind)).filter(Boolean))].sort(), state.mapFilters.kind, "All unit types", titleCase);
   fillSelect(form.elements.tier, [...new Set(units.map((unit) => unit.tier).filter(Boolean))].sort(), state.mapFilters.tier, "All tiers", (tier) => {
     const definitions = state.analysis.mapLayers?.tier_definitions || {};
     return definitions[tier]?.label || tier;
@@ -2419,6 +2424,7 @@ function activeFilterLabels() {
   if (state.mapFilters.state) labels.push(`State ${state.mapFilters.state}`);
   if (state.mapFilters.topic) labels.push(`Topic ${state.mapFilters.topic}`);
   if (state.mapFilters.function) labels.push(`Function ${state.mapFilters.function}`);
+  if (state.mapFilters.kind) labels.push(`Unit type ${titleCase(state.mapFilters.kind)}`);
   if (state.mapFilters.tier) labels.push(`Tier ${state.mapFilters.tier}`);
   if (state.mapFilters.minLaws) labels.push(`Min ${formatCount(state.mapFilters.minLaws)} laws`);
   if (state.mapFilters.auditFocus) labels.push(`Audit ${auditFocusLabel(state.mapFilters.auditFocus)}`);
@@ -2964,15 +2970,15 @@ function ontologyTierMiniChartsHtml(summary) {
   const rowLimit = state.disclosureLevel === "overview" ? 4 : 6;
   return `
     <div class="ontology-tier-mini-charts" aria-label="Tier-focus aggregate mini charts">
-      ${ontologyTierBarChartHtml("Topic mix", topCountEntries(summary.topicCounts, rowLimit), "aggregate law rows")}
-      ${ontologyTierBarChartHtml("Function mix", topCountEntries(summary.functionCounts, rowLimit), "aggregate law rows")}
-      ${ontologyTierBarChartHtml("Unit type mix", topCountEntries(summary.kindCounts, rowLimit), "visible units", titleCase)}
+      ${ontologyTierBarChartHtml("Topic mix", topCountEntries(summary.topicCounts, rowLimit), "aggregate law rows", "topic")}
+      ${ontologyTierBarChartHtml("Function mix", topCountEntries(summary.functionCounts, rowLimit), "aggregate law rows", "function")}
+      ${ontologyTierBarChartHtml("Unit type mix", topCountEntries(summary.kindCounts, rowLimit), "visible units", "kind", titleCase)}
       ${ontologyTierScoreChartHtml(summary.scoreMeans)}
     </div>
   `;
 }
 
-function ontologyTierBarChartHtml(title, rows, detail, labeler = (value) => value) {
+function ontologyTierBarChartHtml(title, rows, detail, filterType = "", labeler = (value) => value) {
   const maxValue = Math.max(1, ...rows.map((row) => Number(row.value || 0)));
   return `
     <article class="ontology-tier-mini-chart">
@@ -2983,7 +2989,7 @@ function ontologyTierBarChartHtml(title, rows, detail, labeler = (value) => valu
       <div class="ontology-tier-mini-bars">
         ${
           rows.length
-            ? rows.map((row) => ontologyTierBarRowHtml(row, maxValue, labeler)).join("")
+            ? rows.map((row) => ontologyTierBarRowHtml(row, maxValue, labeler, filterType)).join("")
             : '<p class="muted-note">No aggregate counts for this tier under current filters.</p>'
         }
       </div>
@@ -2991,15 +2997,40 @@ function ontologyTierBarChartHtml(title, rows, detail, labeler = (value) => valu
   `;
 }
 
-function ontologyTierBarRowHtml(row, maxValue, labeler) {
+function ontologyTierBarRowHtml(row, maxValue, labeler, filterType = "") {
   const width = Math.max(4, (Number(row.value || 0) / Math.max(1, Number(maxValue || 1))) * 100);
+  const tagName = filterType ? "button" : "span";
+  const actionAttrs = filterType
+    ? ` type="button" data-tier-mini-filter="${escapeHtml(filterType)}" data-tier-mini-value="${escapeHtml(row.label)}" aria-label="Filter map to ${escapeHtml(labeler(row.label))} within this tier"`
+    : "";
   return `
-    <span class="ontology-tier-mini-bar">
+    <${tagName}${actionAttrs} class="ontology-tier-mini-bar">
       <strong>${escapeHtml(labeler(row.label))}</strong>
       <i><u style="width:${width.toFixed(2)}%"></u></i>
       <em>${escapeHtml(formatCount(row.value))}</em>
-    </span>
+    </${tagName}>
   `;
+}
+
+function applyTierMiniFilter(filterType, value) {
+  const tierKey = state.ontologyFocusTier;
+  state.mapFilters = {
+    ...state.mapFilters,
+    tier: tierKey || state.mapFilters.tier,
+  };
+  if (filterType === "topic") {
+    state.mapFilters.topic = value;
+  }
+  if (filterType === "function") {
+    state.mapFilters.function = value;
+  }
+  if (filterType === "kind") {
+    state.mapFilters.kind = normalizePackageKind(value);
+  }
+  state.selectedUnitId = null;
+  state.disclosureLevel = "unit";
+  state.activeTab = "map";
+  render();
 }
 
 function ontologyTierScoreChartHtml(scoreMeans) {
@@ -3643,6 +3674,7 @@ function applyQuestionPackPrompt(promptId) {
     state: filters.state || state.mapFilters.state,
     topic: filters.topic || state.mapFilters.topic,
     function: filters.function || state.mapFilters.function,
+    kind: filters.kind || state.mapFilters.kind,
     tier: filters.tier || state.mapFilters.tier,
     auditFocus: filters.auditFocus || state.mapFilters.auditFocus,
     packageOnly: typeof filters.packageOnly === "boolean" ? filters.packageOnly : state.mapFilters.packageOnly,
@@ -5902,6 +5934,7 @@ function applyMapFilters(event) {
     state: String(form.get("state") || ""),
     topic: String(form.get("topic") || ""),
     function: String(form.get("function") || ""),
+    kind: String(form.get("kind") || ""),
     tier: String(form.get("tier") || ""),
     auditFocus: String(form.get("audit_focus") || ""),
     minLaws: Math.max(0, Number(form.get("min_laws") || 0)),
@@ -5919,7 +5952,7 @@ function resetMapFilters() {
 }
 
 function defaultMapFilters() {
-  return { state: "", topic: "", function: "", tier: "", auditFocus: "", minLaws: 0, minAuditScore: 0, packageOnly: false };
+  return { state: "", topic: "", function: "", kind: "", tier: "", auditFocus: "", minLaws: 0, minAuditScore: 0, packageOnly: false };
 }
 
 function applyPackageMapFilter(action) {
@@ -7110,6 +7143,11 @@ function bindEvents() {
     const tierUnitButton = event.target.closest("[data-tier-ontology-unit]");
     if (tierUnitButton) {
       openAuditUnitOnMap(tierUnitButton.dataset.tierOntologyUnit);
+      return;
+    }
+    const tierMiniFilterButton = event.target.closest("[data-tier-mini-filter]");
+    if (tierMiniFilterButton) {
+      applyTierMiniFilter(tierMiniFilterButton.dataset.tierMiniFilter, tierMiniFilterButton.dataset.tierMiniValue);
       return;
     }
     const unitButton = event.target.closest("[data-package-ontology-unit]");

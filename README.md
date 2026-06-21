@@ -63,6 +63,7 @@ The Pages app supports:
 - map-side law-location tier guide with active filters, county/town counts, neutral tier mix, and publication boundary;
 - tier-to-ontology clickthrough from the map guide into a focused neutral-tier context card;
 - tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means;
+- tier-focus mini-chart drilldowns that apply map filters for topic, function, and unit type;
 - map-side chat-style inquiry panel for current filters, selected unit, audit signals, score profile, and browser-local package overlay;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, and comparison rows;
 - inquiry-driven county/town comparison strip with prompt-aware aggregate unit rows and map drillback;

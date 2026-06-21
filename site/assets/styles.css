@@ -2700,6 +2700,25 @@ textarea {
   align-items: center;
 }
 
+button.ontology-tier-mini-bar {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+}
+
+button.ontology-tier-mini-bar:hover strong,
+button.ontology-tier-mini-bar:focus-visible strong {
+  color: var(--green);
+}
+
+button.ontology-tier-mini-bar:focus-visible {
+  outline: 2px solid rgba(50, 111, 112, 0.38);
+  outline-offset: 3px;
+}
+
 .ontology-tier-mini-bar strong {
   color: var(--ink);
   font-size: 0.78rem;

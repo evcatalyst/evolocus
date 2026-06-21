@@ -28,6 +28,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
     assert "ontology-tier-focus" in html
+    assert "Unit type" in html
+    assert 'name="kind"' in html
     assert "Imported package units" in html
     assert "Load Demo Package" in html
     assert "localStorage" in js
@@ -88,6 +90,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontologyTierMiniChartsHtml" in js
     assert "ontologyTierBarChartHtml" in js
     assert "ontologyTierScoreChartHtml" in js
+    assert "applyTierMiniFilter" in js
+    assert "data-tier-mini-filter" in js
+    assert "data-tier-mini-value" in js
+    assert "mapFilters.kind" in js
+    assert "form.elements.kind" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "renderWalkthrough" in js
@@ -126,6 +133,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontology-tier-focus-metrics" in css
     assert "ontology-tier-mini-charts" in css
     assert "ontology-tier-mini-bar" in css
+    assert "button.ontology-tier-mini-bar" in css
     assert "ontology-path-strip" in css
     assert "ontologyPathSweep" in css
     assert "ontologyNodeSvg" in js

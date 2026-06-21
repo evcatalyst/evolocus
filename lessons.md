@@ -36,6 +36,7 @@
 - Map legends should explain active filters and county/town scope in the same panel as the visual, because tier colors are neutral review bands rather than legal rankings.
 - Tier chips should click through to ontology context rather than stand alone as a legend, so color bands become explainable aggregate relationships.
 - Tier-focus cards are stronger when aggregate mini charts make topic/function/type/score relationships visible without row-level evidence.
+- Tier mini charts become navigational when their aggregate bars can apply map filters directly, as long as the route only changes browser state.
 - Map-side inquiry should reuse deterministic aggregate answer functions so users can ask questions without exposing live model endpoints, raw rows, or ordinance text.
 - Inquiry answers become more useful when paired with prompt-aware comparison strips that can drill back to aggregate map units without publishing records.
 - Browser-local question history is useful only when it stores aggregate answer context and comparison rows, not ordinance text, source locators, review events, or live model output.

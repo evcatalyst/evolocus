@@ -134,6 +134,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-inline-inquiry" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
+    assert "Unit type" in html
+    assert 'name="kind"' in html
     assert "package-map-summary" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
@@ -254,6 +256,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontologyTierMiniChartsHtml" in js
     assert "ontologyTierBarChartHtml" in js
     assert "ontologyTierScoreChartHtml" in js
+    assert "applyTierMiniFilter" in js
+    assert "data-tier-mini-filter" in js
+    assert "data-tier-mini-value" in js
+    assert "mapFilters.kind" in js
+    assert "form.elements.kind" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "inquiryPromptCards" in js
@@ -300,6 +307,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontology-tier-focus-metrics" in css
     assert "ontology-tier-mini-charts" in css
     assert "ontology-tier-mini-bar" in css
+    assert "button.ontology-tier-mini-bar" in css
     assert "package-map-actions" in css
     assert "checkbox-filter" in css
     assert "package-hit-badge" in css
