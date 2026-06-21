@@ -37,3 +37,4 @@
 - Model-substantive-share visuals must show denominators and describe substantivity as a released model label, not as a verified legal classification.
 - Full audit outputs can stay in ignored processed storage while Pages receives only aggregate status, gates, rates, and digest metadata.
 - Per-unit audit signals should be scoped to published map units and framed as review priority, not legal ranking or proof of OCR defects.
+- Audit visuals should share map filters and progressive disclosure so users can move from national aggregate context to unit drill-through without exposing raw text.

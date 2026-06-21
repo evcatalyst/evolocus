@@ -362,6 +362,7 @@ function render() {
   renderReview();
   renderExplorer();
   renderResults();
+  renderAuditLens();
   renderAnalysisStatusPanel();
 }
 
@@ -2027,6 +2028,288 @@ function renderResults() {
   $("#confusion-output").innerHTML = confusionTable(reviewed);
 }
 
+function renderAuditLens() {
+  const summaryGrid = $("#audit-summary-grid");
+  const visualGrid = $("#audit-visual-grid");
+  const stateGrid = $("#audit-state-grid");
+  const priorityList = $("#audit-priority-list");
+  if (!summaryGrid || !visualGrid || !stateGrid || !priorityList) {
+    return;
+  }
+  const auditQuality = state.analysis.unitAuditQuality;
+  if (!auditQuality) {
+    summaryGrid.innerHTML = `<article class="audit-card"><h3>Audit lens loading</h3><p>Aggregate unit audit-quality artifact has not loaded yet.</p></article>`;
+    visualGrid.innerHTML = "";
+    stateGrid.innerHTML = "";
+    priorityList.innerHTML = "";
+    return;
+  }
+  const rows = visibleAuditRows();
+  const summary = auditLensSummary(rows, auditQuality);
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  summaryGrid.innerHTML = auditLensSummaryCards(summary);
+  visualGrid.innerHTML = [
+    auditAttentionDistributionHtml(rows),
+    auditReasonBarsHtml(rows),
+    auditKindBarsHtml(rows),
+  ].join("");
+  stateGrid.innerHTML = auditStateGridHtml(rows, showUnit);
+  priorityList.innerHTML = auditPriorityListHtml(rows, showUnit, showEvidence, auditQuality);
+  renderDisclosureButtons();
+}
+
+function visibleAuditRows() {
+  const auditRows = state.analysis.unitAuditQuality?.units || [];
+  const mapUnits = state.analysis.mapLayers?.units || [];
+  const mapUnitById = new Map(mapUnits.map((unit) => [unit.unit_id, unit]));
+  const visibleIds = mapUnits.length
+    ? new Set(filterMapUnits(mapUnits).map((unit) => unit.unit_id))
+    : new Set(auditRows.map((unit) => unit.unit_id));
+  return auditRows
+    .filter((unit) => visibleIds.has(unit.unit_id))
+    .map((unit) => ({
+      ...unit,
+      mapUnit: mapUnitById.get(unit.unit_id) || null,
+    }));
+}
+
+function auditLensSummary(rows, auditQuality) {
+  const rowCount = rows.reduce((sum, row) => sum + Number(row.law_count || 0), 0);
+  const ocrRows = rows.reduce((sum, row) => sum + Number(row.ocr_review_rows || 0), 0);
+  const duplicateRows = rows.reduce((sum, row) => sum + Number(row.duplicate_text_hash_rows || 0), 0);
+  const attentionScores = rows.map((row) => Number(row.audit_attention_score || 0)).filter((value) => Number.isFinite(value));
+  return {
+    units: rows.length,
+    rowCount,
+    ocrRows,
+    duplicateRows,
+    maxAttention: attentionScores.length ? Math.max(...attentionScores) : 0,
+    fullUnits: Number(auditQuality.summary?.unit_count || auditQuality.units?.length || 0),
+    fullRows: Number(auditQuality.summary?.row_count || auditQuality.row_count || 0),
+  };
+}
+
+function auditLensSummaryCards(summary) {
+  const cards = [
+    ["Visible units", formatCount(summary.units), `${formatPercent(summary.units, summary.fullUnits)} of audit artifact`],
+    ["Scoped rows", formatCount(summary.rowCount), `${formatPercent(summary.rowCount, summary.fullRows)} of published audit scope`],
+    ["OCR review rows", formatCount(summary.ocrRows), `${formatPercent(summary.ocrRows, summary.rowCount)} of visible rows`],
+    ["Duplicate text-hash rows", formatCount(summary.duplicateRows), `${formatPercent(summary.duplicateRows, summary.rowCount)} of visible rows`],
+    ["Max audit attention", `${formatNumber(summary.maxAttention)} / 100`, "Review-priority signal, not a ranking"],
+  ];
+  return cards
+    .map(
+      ([label, value, detail]) => `
+        <article class="audit-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <em>${escapeHtml(detail)}</em>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function auditAttentionDistributionHtml(rows) {
+  const buckets = [
+    { label: "0-2", min: 0, max: 2, count: 0 },
+    { label: "2-5", min: 2, max: 5, count: 0 },
+    { label: "5-10", min: 5, max: 10, count: 0 },
+    { label: "10-20", min: 10, max: 20, count: 0 },
+    { label: "20+", min: 20, max: Infinity, count: 0 },
+  ];
+  for (const row of rows) {
+    const score = Number(row.audit_attention_score || 0);
+    const bucket = buckets.find((item) => score >= item.min && score < item.max) || buckets[buckets.length - 1];
+    bucket.count += 1;
+  }
+  return `
+    <article class="audit-visual-card">
+      <h3>Audit attention distribution</h3>
+      <p>Counts of visible county/town aggregate units by review-priority score band.</p>
+      <div class="audit-band-list">
+        ${auditBandRows(buckets)}
+      </div>
+    </article>
+  `;
+}
+
+function auditReasonBarsHtml(rows) {
+  const reasonCounts = {};
+  for (const row of rows) {
+    for (const [reason, value] of Object.entries(row.ocr_reason_counts || {})) {
+      reasonCounts[reason] = (reasonCounts[reason] || 0) + Number(value || 0);
+    }
+  }
+  const sorted = Object.entries(reasonCounts)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, state.disclosureLevel === "overview" ? 5 : 8);
+  return `
+    <article class="audit-visual-card">
+      <h3>OCR heuristic reason mix</h3>
+      <p>Aggregate flag reasons across visible units. These are review cues, not ground truth.</p>
+      <div class="bar-list">
+        ${auditBarRows(sorted, (label) => titleCase(label))}
+      </div>
+    </article>
+  `;
+}
+
+function auditKindBarsHtml(rows) {
+  const counts = {};
+  for (const row of rows) {
+    const label = row.kind || row.mapUnit?.kind || "unknown";
+    counts[label] = (counts[label] || 0) + 1;
+  }
+  const sorted = Object.entries(counts)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+  return `
+    <article class="audit-visual-card">
+      <h3>Unit type mix</h3>
+      <p>Visible audit units by normalized source type.</p>
+      <div class="bar-list">
+        ${auditBarRows(sorted, (label) => titleCase(label))}
+      </div>
+    </article>
+  `;
+}
+
+function auditBandRows(rows) {
+  const max = Math.max(1, ...rows.map((row) => Number(row.count || 0)));
+  return rows
+    .map(
+      (row) => `
+        <div class="audit-band-row">
+          <span>${escapeHtml(row.label)}</span>
+          <div><i style="width:${Math.max(row.count ? 4 : 0, (Number(row.count || 0) / max) * 100)}%"></i></div>
+          <strong>${escapeHtml(formatCount(row.count))}</strong>
+        </div>
+      `,
+    )
+    .join("");
+}
+
+function auditBarRows(rows, labeler = (label) => label) {
+  const max = Math.max(1, ...rows.map((row) => Number(row.value || 0)));
+  return rows
+    .map(
+      (row) => `
+        <div class="bar-row">
+          <span>${escapeHtml(labeler(row.label))}</span>
+          <div><i style="width:${Math.max(row.value ? 3 : 0, (Number(row.value || 0) / max) * 100)}%"></i></div>
+          <strong>${escapeHtml(formatCount(row.value))}</strong>
+        </div>
+      `,
+    )
+    .join("") || "<p>No aggregate audit rows.</p>";
+}
+
+function auditStateGridHtml(rows, showUnit) {
+  const stateRows = auditStateRows(rows);
+  const visibleRows = showUnit ? stateRows : stateRows.slice(0, 10);
+  return `
+    <article class="audit-state-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>State audit signal atlas</h3>
+          <p>Rows summarize visible county/town aggregate units. The bars compare OCR-review and duplicate-text-hash rows.</p>
+        </div>
+        <span>${escapeHtml(formatCount(stateRows.length))} states</span>
+      </div>
+      <div class="audit-state-list">
+        ${
+          visibleRows.length
+            ? visibleRows.map(auditStateRowHtml).join("")
+            : '<p class="muted-note">No audit rows match the current map filters.</p>'
+        }
+      </div>
+      ${
+        !showUnit && stateRows.length > visibleRows.length
+          ? `<p class="muted-note">Switch to Unit detail to show all ${escapeHtml(formatCount(stateRows.length))} state rows.</p>`
+          : ""
+      }
+    </article>
+  `;
+}
+
+function auditStateRows(rows) {
+  const grouped = new Map();
+  for (const row of rows) {
+    const stateCode = row.state || "NA";
+    if (!grouped.has(stateCode)) {
+      grouped.set(stateCode, { state: stateCode, units: 0, lawCount: 0, ocrRows: 0, duplicateRows: 0, maxAttention: 0 });
+    }
+    const stateRow = grouped.get(stateCode);
+    stateRow.units += 1;
+    stateRow.lawCount += Number(row.law_count || 0);
+    stateRow.ocrRows += Number(row.ocr_review_rows || 0);
+    stateRow.duplicateRows += Number(row.duplicate_text_hash_rows || 0);
+    stateRow.maxAttention = Math.max(stateRow.maxAttention, Number(row.audit_attention_score || 0));
+  }
+  return [...grouped.values()].sort((a, b) => b.ocrRows + b.duplicateRows - (a.ocrRows + a.duplicateRows) || a.state.localeCompare(b.state));
+}
+
+function auditStateRowHtml(row) {
+  const total = Math.max(1, row.ocrRows + row.duplicateRows);
+  return `
+    <div class="audit-state-row">
+      <div class="coverage-state">
+        <strong>${escapeHtml(row.state)}</strong>
+        <span>${escapeHtml(formatCount(row.lawCount))} rows · ${escapeHtml(formatCount(row.units))} units</span>
+      </div>
+      <div class="audit-signal-bars" aria-label="Audit signal mix">
+        <span class="ocr" style="width:${Math.max(row.ocrRows ? 7 : 0, (row.ocrRows / total) * 100)}%"><strong>OCR</strong><em>${escapeHtml(formatCount(row.ocrRows))}</em></span>
+        <span class="duplicate" style="width:${Math.max(row.duplicateRows ? 7 : 0, (row.duplicateRows / total) * 100)}%"><strong>Dup hash</strong><em>${escapeHtml(formatCount(row.duplicateRows))}</em></span>
+      </div>
+      <span class="coverage-topic">Max audit attention: ${escapeHtml(formatNumber(row.maxAttention))} / 100</span>
+    </div>
+  `;
+}
+
+function auditPriorityListHtml(rows, showUnit, showEvidence, auditQuality) {
+  const sorted = rows
+    .slice()
+    .sort((a, b) => Number(b.audit_attention_score || 0) - Number(a.audit_attention_score || 0) || Number(b.ocr_review_rows || 0) - Number(a.ocr_review_rows || 0))
+    .slice(0, showUnit ? 14 : 7);
+  return `
+    <article class="audit-priority-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>Review-priority unit queue preview</h3>
+          <p>Sorted by aggregate audit attention to help decide where human review should start. This is not a legal ranking.</p>
+        </div>
+        <span>${escapeHtml(formatCount(sorted.length))} shown</span>
+      </div>
+      <div class="audit-priority-rows">
+        ${
+          sorted.length
+            ? sorted.map(auditPriorityRowHtml).join("")
+            : '<p class="muted-note">No visible audit-priority units match the current filters.</p>'
+        }
+      </div>
+      ${
+        showEvidence
+          ? `<p class="muted-note">Artifact scope: ${escapeHtml(auditQuality.scope || "published map units")}. ${(auditQuality.limitations || []).map(escapeHtml).join(" ")}</p>`
+          : `<p class="muted-note">Switch to Evidence trail to show artifact scope and limitations.</p>`
+      }
+    </article>
+  `;
+}
+
+function auditPriorityRowHtml(row) {
+  return `
+    <div class="audit-priority-row">
+      <button type="button" data-open-audit-unit="${escapeHtml(row.unit_id)}">${escapeHtml(displayUnitName(row))}</button>
+      <span>${escapeHtml(row.state || "NA")} · ${escapeHtml(titleCase(row.kind || "unknown"))}</span>
+      <strong>${escapeHtml(formatNumber(row.audit_attention_score))} / 100</strong>
+      <em>${escapeHtml(formatCount(row.ocr_review_rows))} OCR · ${escapeHtml(formatCount(row.duplicate_text_hash_rows))} duplicate hash</em>
+    </div>
+  `;
+}
+
 function renderAnalysisCharts() {
   const charts = state.analysis.charts ? state.analysis.charts.charts || {} : null;
   const grid = $("#analysis-chart-grid");
@@ -2857,6 +3140,18 @@ function askAboutMapUnit(unitId) {
   render();
 }
 
+function openAuditUnitOnMap(unitId) {
+  const units = state.analysis.mapLayers ? state.analysis.mapLayers.units || [] : [];
+  const unit = units.find((item) => item.unit_id === unitId);
+  if (!unit) {
+    return;
+  }
+  state.selectedUnitId = unit.unit_id;
+  state.disclosureLevel = "unit";
+  state.activeTab = "map";
+  render();
+}
+
 function importQueue(event) {
   const file = event.target.files[0];
   if (!file) {
@@ -3116,6 +3411,13 @@ function bindEvents() {
     }
     state.selectedUnitId = target.dataset.unitId;
     renderMap();
+  });
+  $("#audit-panel").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-open-audit-unit]");
+    if (!button) {
+      return;
+    }
+    openAuditUnitOnMap(button.dataset.openAuditUnit);
   });
   $("#explorer-table").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-open-record]");

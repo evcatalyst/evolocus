@@ -44,6 +44,7 @@ The Pages app supports:
 - full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
 - per-unit audit review signals for the published map layer, including OCR-risk and duplicate-text-hash rates;
 - audit-driven map filters and an audit-attention geography color mode, framed as review priority rather than ranking;
+- Audit Lens tab with attention distribution, OCR reason mix, state atlas, and review-priority queue preview;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;

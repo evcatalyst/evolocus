@@ -9,6 +9,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Review Queue" in html
     assert "Dataset Explorer" in html
     assert "Charts" in html
+    assert "Audit Lens" in html
     assert "localStorage" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js
@@ -28,6 +29,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "unitAuditQualityFor" in js
     assert "auditAttentionColor" in js
     assert "selectedUnitAuditQualityHtml" in js
+    assert "renderAuditLens" in js
+    assert "auditPriorityListHtml" in js
+    assert "openAuditUnitOnMap" in js
     assert "auditGateSummary" in js
     assert "auditOcrBarsHtml" in js
     assert "fetchAnalysisArtifacts" in js

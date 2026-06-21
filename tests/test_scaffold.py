@@ -103,6 +103,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Pages-first UI" in html
     assert "Law Map" in html
     assert "Inquiry" in html
+    assert "Audit Lens" in html
     assert "selected-ontology-neighborhood" in html
     assert "Analysis Status" in html
     assert "map-filter-form" in html
@@ -133,6 +134,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data/analysis/inquiry_briefings.json" in js
     assert "data/analysis/county_geometry.json" in js
     assert "data/analysis/municipal_points.json" in js
+    assert "audit-summary-grid" in html
+    assert "audit-visual-grid" in html
+    assert "audit-state-grid" in html
+    assert "audit-priority-list" in html
     assert "inquiry-provenance" in html
     assert "Ask about this unit" in js
     assert "data-ask-unit-id" in js
@@ -152,8 +157,18 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "unitAuditQualityFor" in js
     assert "auditAttentionColor" in js
     assert "selectedUnitAuditQualityHtml" in js
+    assert "renderAuditLens" in js
+    assert "visibleAuditRows" in js
+    assert "auditAttentionDistributionHtml" in js
+    assert "auditReasonBarsHtml" in js
+    assert "auditStateGridHtml" in js
+    assert "auditPriorityListHtml" in js
+    assert "openAuditUnitOnMap" in js
+    assert "data-open-audit-unit" in js
     assert "audit-gradient" in css
     assert "selected-audit-card" in css
+    assert "audit-summary-grid" in css
+    assert "audit-priority-row" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

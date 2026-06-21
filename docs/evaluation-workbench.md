@@ -22,6 +22,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
 - full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
 - per-unit audit review signals for the published map units, including medium/high OCR risk and duplicate-text-hash rates;
+- Audit Lens tab with attention distribution, OCR heuristic reason mix, state audit atlas, and review-priority queue preview;
 - ontology and model-output registry views;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -112,6 +113,8 @@ PYTHONPATH=src python -m evolocus.cli publish-unit-audit-quality \
 ```
 
 The audit-attention color mode is a review-priority signal from aggregate OCR and duplicate-text-hash rates. It is not a legal ranking and is not proof of an OCR defect.
+
+The Audit Lens reads the same aggregate artifact and current map filters. It never renders ordinance text, headers, source locators, or full-row records.
 
 Refresh static progressive inquiry briefings from the current aggregate artifacts:
 

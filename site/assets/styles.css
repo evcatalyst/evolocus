@@ -166,6 +166,10 @@ main {
 .toolbar,
 .panel,
 .metric-card,
+.audit-card,
+.audit-visual-card,
+.audit-state-card,
+.audit-priority-card,
 .status-card,
 .status-detail-card,
 .status-evidence-card,
@@ -309,6 +313,128 @@ textarea {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
+}
+
+.audit-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.audit-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.audit-state-grid,
+.audit-priority-list {
+  margin-top: 18px;
+}
+
+.audit-card,
+.audit-visual-card,
+.audit-state-card,
+.audit-priority-card {
+  padding: 16px;
+}
+
+.audit-card span,
+.audit-card em {
+  display: block;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.86rem;
+}
+
+.audit-card strong {
+  display: block;
+  margin: 8px 0 6px;
+  color: #7a3b31;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.audit-visual-card h3,
+.audit-state-card h3,
+.audit-priority-card h3 {
+  margin-top: 0;
+}
+
+.audit-band-list,
+.audit-state-list,
+.audit-priority-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.audit-band-row,
+.audit-state-row,
+.audit-priority-row {
+  display: grid;
+  grid-template-columns: minmax(82px, 0.35fr) minmax(160px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.audit-band-row div,
+.audit-signal-bars {
+  display: flex;
+  overflow: hidden;
+  min-height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+}
+
+.audit-band-row i {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f2e9c9, #7a3b31);
+}
+
+.audit-signal-bars span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.audit-signal-bars .ocr {
+  background: #7a3b31;
+}
+
+.audit-signal-bars .duplicate {
+  background: #326f70;
+}
+
+.audit-signal-bars em {
+  font-style: normal;
+}
+
+.audit-priority-row {
+  grid-template-columns: minmax(160px, 1.2fr) minmax(120px, 0.8fr) minmax(72px, auto) minmax(160px, 1fr);
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.audit-priority-row button {
+  text-align: left;
+}
+
+.audit-priority-row span,
+.audit-priority-row em,
+.audit-state-row .coverage-topic {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.86rem;
 }
 
 .disclosure-control,
@@ -1666,12 +1792,16 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .audit-summary-grid,
+  .audit-visual-grid,
   .status-card-grid,
   .status-detail-grid,
   .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
   .coverage-matrix-row,
+  .audit-state-row,
+  .audit-priority-row,
   .ontology-layout,
   .results-grid,
   .protocol-grid {
@@ -1699,12 +1829,16 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .audit-summary-grid,
+  .audit-visual-grid,
   .status-card-grid,
   .status-detail-grid,
   .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
   .coverage-matrix-row,
+  .audit-state-row,
+  .audit-priority-row,
   .ontology-layout,
   .inquiry-form,
   .metric-grid,
