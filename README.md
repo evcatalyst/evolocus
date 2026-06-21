@@ -7,9 +7,10 @@ EvoLOCUS is an open-source, local-first platform for reviewing and enriching the
 - Phase: 1 in progress
 - Primary user surface: GitHub Pages browser workbench from `site/`
 - Evaluator MVP: complete for synthetic browser demo validation
-- Real LOCUS ingest: not run
+- Real LOCUS local shard download: complete in ignored `data/raw/`
+- Real LOCUS aggregate visual publish: complete for top 1,000 jurisdiction units
 - Real LOCUS evaluation: not started
-- Data state: no real LOCUS rows committed or published
+- Data state: no real LOCUS rows or ordinance text committed or published
 - Completion method: phase checklist, not weighted overall percentage
 
 The public site is the only supported user-facing surface for this milestone. It runs as a static browser app on GitHub Pages, stores review state in browser localStorage, and exports files only when the user explicitly clicks export.
@@ -87,7 +88,7 @@ Serve the Pages app locally with any static server, for example:
 python -m http.server 8000 --directory site
 ```
 
-Refresh the synthetic static analysis artifacts:
+Refresh synthetic static analysis artifacts:
 
 ```bash
 PYTHONPATH=src python -m evolocus.cli publish-analysis \
@@ -115,7 +116,7 @@ PYTHONPATH=src python -m evolocus.cli publish-analysis \
   --output data/exports/analysis-preview
 ```
 
-Writing real-data aggregates into `site/data/analysis/` should happen only after provenance, license, geometry, and non-disclosure checks. The default site artifacts are synthetic.
+The current public `site/data/analysis/` artifacts are aggregate-only LOCUS outputs generated from local Parquet with Polars. They include no ordinance text, no raw LOCUS rows, no local evaluation database, and no exported review history. Regenerate into `data/exports/analysis-preview` first, inspect the JSON for text/secrets, then copy only the reviewed aggregate artifacts into `site/data/analysis/`.
 
 Audit demo or local Parquet:
 
@@ -166,8 +167,8 @@ Ignored storage locations:
 ## Data Policy
 
 - Real LOCUS data belongs in ignored local paths such as `data/raw/` and `data/processed/`.
-- GitHub Pages must not publish real LOCUS rows, local databases, or exports.
-- Static site examples must be synthetic and clearly labeled.
+- GitHub Pages may publish reviewed aggregate-only analysis artifacts, but must not publish real LOCUS rows, ordinance text, local databases, local exports, or secrets.
+- Review-queue examples remain synthetic unless a user imports a bounded queue locally in the browser.
 - Browser exports are user-triggered downloads.
 - Future public exports require explicit source, license, and provenance checks.
 

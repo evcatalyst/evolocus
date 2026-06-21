@@ -2,7 +2,7 @@
 
 Phase: 1 in progress
 
-Completion: Phase 0 complete. Phase 1 now includes a GitHub Pages-first browser evaluation workbench MVP validated in synthetic demo mode. No overall percentage is reported because `roadmap.json` does not define a weighted completion model.
+Completion: Phase 0 complete. Phase 1 now includes a GitHub Pages-first browser evaluation workbench MVP validated in synthetic demo mode plus aggregate-only LOCUS visual artifacts generated from local Parquet. No overall percentage is reported because `roadmap.json` does not define a weighted completion model.
 
 Files saved:
 
@@ -19,8 +19,15 @@ Files saved:
 - `scrapers/README.md`
 - `site/assets/styles.css`
 - `site/assets/app.js`
+- `site/data/analysis/status.json`
+- `site/data/analysis/map_layers.json`
+- `site/data/analysis/ontology.json`
+- `site/data/analysis/chat_index.json`
+- `site/data/analysis/models.json`
+- `site/data/analysis/charts.json`
 - `site/index.html`
 - `src/evolocus/__init__.py`
+- `src/evolocus/analysis_publish.py`
 - `src/evolocus/cli.py`
 - `src/evolocus/config.py`
 - `src/evolocus/demo_data.py`
@@ -53,22 +60,22 @@ Files saved:
 
 Current coverage stats:
 
-- LOCUS records downloaded: 0
+- LOCUS Parquet shards downloaded locally: 8, in ignored `data/raw/locus-v1/main/data/`
 - Scrapers run: 0
 - Databases created: 0
 - Embeddings created: 0
 - Real civic findings published: 0
-- Static site data: synthetic placeholders only
+- Static site data: aggregate-only LOCUS map, ontology, model, inquiry, chart, and status artifacts
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
 - Queue records created from real LOCUS data: 0
 - Evaluator code: complete
 - Synthetic end-to-end validation: complete
 - Primary UI: GitHub Pages browser workbench
-- Static analysis artifacts: synthetic demo generated with map, ontology, model registry, inquiry, charts, and publication gates
+- Static analysis artifacts: real aggregate preview generated with Polars and published without raw rows or ordinance text
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
-- Real LOCUS ingest: not run
+- Real LOCUS aggregate scan: run for top 1,000 jurisdiction units; artifact law count 1,517,672 within the published unit cap
 - Real LOCUS evaluation: not started
 
 Verified LOCUS source:
@@ -80,7 +87,7 @@ Verified LOCUS source:
 
 Beautiful next visualization idea:
 
-A full-screen national coverage atlas that starts with a synthetic county-style choropleth and city coverage point layer, then swaps to real LOCUS-derived aggregates only after Phase 1 provenance and licensing checks pass.
+A full-screen national coverage atlas that upgrades the current abstract aggregate tile map into reviewed county and town geometries, still using neutral tiers and progressive disclosure with no ordinance text published.
 
 Latest update:
 
@@ -88,17 +95,19 @@ Latest update:
 - Added `src/evolocus/cli.py` with `status`, `ingest-locus`, and `build-master` commands.
 - Added `update-cycle` CLI stub that reports safe next steps without downloads or scrapers.
 - Added tests using synthetic LOCUS-like records only.
-- Did not download LOCUS-v1, run scrapers, create databases, or create embeddings.
+- Current run downloaded LOCUS-v1 Parquet shards into ignored local storage only; no scrapers, databases, embeddings, raw-row commits, or ordinance-text publication occurred.
 - Recorded the canonical arXiv source page supplied by the user: https://arxiv.org/abs/2606.19334.
 - Added production Local Law Analytics Platform plan; it is now aligned to the GitHub Pages + browser localStorage + Polars support-tooling evaluator path, with DuckDB/LanceDB/RAG/FastAPI deferred.
 - Promoted GitHub Pages from a static status page to the primary browser-based evaluator surface with localStorage review history and explicit exports.
 - Added static analysis artifacts for law map tiers, ontology, model-output registry, status, charts, publication gates, progressive disclosure, and browser inquiry.
+- Generated aggregate LOCUS visual artifacts from local Parquet in ignored storage, safety-checked them for raw text fields, and copied only aggregate JSON into the Pages data layer.
 
 Evaluator implementation state:
 
 - Evaluator code: complete
 - Synthetic end-to-end validation: complete
-- Real LOCUS ingest: not run
+- Real LOCUS full ingest/audit manifest: not run
+- Real LOCUS aggregate visual publish: complete for top 1,000 jurisdiction units
 - Real LOCUS evaluation: not started
 - Default exports omit ordinance text
 - Primary evaluator surface: GitHub Pages browser app

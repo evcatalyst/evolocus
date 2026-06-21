@@ -1,7 +1,7 @@
 {
   "entries": [
     {
-      "answer": "Analysis state is synthetic_demo. 6 map units and 6 law records are represented in the current artifact.",
+      "answer": "Analysis state is local_aggregate_ready. 1000 map units and 1517672 law records are represented in the current artifact.",
       "id": "status",
       "keywords": [
         "status",
@@ -24,7 +24,7 @@
       "title": "Tier meaning"
     },
     {
-      "answer": "The current ontology has 25 nodes and 18 edges.",
+      "answer": "The current ontology has 1018 nodes and 3000 edges.",
       "id": "ontology",
       "keywords": [
         "ontology",
@@ -47,79 +47,607 @@
       "title": "Grok integration policy"
     },
     {
-      "answer": "Demo County has 1 records in this artifact, dominant topic Nuisance, dominant function Enforcement, and neutral tier Tier 2.",
-      "id": "unit:CA:county:Demo County",
+      "answer": "los_angeles_county has 11503 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:CA:county:los_angeles_county",
       "keywords": [
-        "Demo County",
+        "los_angeles_county",
         "CA",
-        "Nuisance",
-        "Enforcement",
-        "tier_2"
-      ],
-      "title": "Demo County"
-    },
-    {
-      "answer": "Unknown jurisdiction has 1 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
-      "id": "unit:FL:city:Unknown",
-      "keywords": [
-        "Unknown jurisdiction",
-        "FL",
         "Other",
         "Rules",
         "tier_1"
       ],
-      "title": "Unknown jurisdiction"
+      "title": "los_angeles_county"
     },
     {
-      "answer": "Unknown jurisdiction has 1 records in this artifact, dominant topic Buildings, dominant function Structural, and neutral tier Tier 3.",
-      "id": "unit:N Y:unknown:Unknown",
+      "answer": "san_jose has 10148 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:CA:city:san_jose",
       "keywords": [
-        "Unknown jurisdiction",
-        "N Y",
-        "Buildings",
-        "Structural",
-        "tier_3"
-      ],
-      "title": "Unknown jurisdiction"
-    },
-    {
-      "answer": "Sample Valley has 1 records in this artifact, dominant topic Not_applicable, dominant function Context, and neutral tier Tier 1.",
-      "id": "unit:NY:city:Sample Valley",
-      "keywords": [
-        "Sample Valley",
-        "NY",
-        "Not_applicable",
-        "Context",
+        "san_jose",
+        "CA",
+        "Other",
+        "Rules",
         "tier_1"
       ],
-      "title": "Sample Valley"
+      "title": "san_jose"
     },
     {
-      "answer": "Example Township has 1 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 2.",
-      "id": "unit:PA:city:Example Township",
+      "answer": "chicago has 8667 records in this artifact, dominant topic Buildings, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:IL:city:chicago",
       "keywords": [
-        "Example Township",
-        "PA",
+        "chicago",
+        "IL",
+        "Buildings",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "chicago"
+    },
+    {
+      "answer": "detroit has 8224 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:MI:city:detroit",
+      "keywords": [
+        "detroit",
+        "MI",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "detroit"
+    },
+    {
+      "answer": "santa_barbara_county has 6525 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:CA:county:santa_barbara_county",
+      "keywords": [
+        "santa_barbara_county",
+        "CA",
         "Zoning",
         "Rules",
         "tier_2"
       ],
-      "title": "Example Township"
+      "title": "santa_barbara_county"
     },
     {
-      "answer": "Demo City has 1 records in this artifact, dominant topic Business, dominant function Process, and neutral tier Tier 2.",
-      "id": "unit:TX:city:Demo City",
+      "answer": "tulsa has 6104 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:OK:city:tulsa",
       "keywords": [
-        "Demo City",
-        "TX",
-        "Business",
-        "Process",
+        "tulsa",
+        "OK",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "tulsa"
+    },
+    {
+      "answer": "saint_louis has 5892 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:MO:city:saint_louis",
+      "keywords": [
+        "saint_louis",
+        "MO",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "saint_louis"
+    },
+    {
+      "answer": "anchorage has 5859 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:AK:city:anchorage",
+      "keywords": [
+        "anchorage",
+        "AK",
+        "Other",
+        "Rules",
         "tier_2"
       ],
-      "title": "Demo City"
+      "title": "anchorage"
+    },
+    {
+      "answer": "portland has 5720 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:OR:city:portland",
+      "keywords": [
+        "portland",
+        "OR",
+        "Zoning",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "portland"
+    },
+    {
+      "answer": "san_diego has 5707 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 3.",
+      "id": "unit:CA:city:san_diego",
+      "keywords": [
+        "san_diego",
+        "CA",
+        "Zoning",
+        "Rules",
+        "tier_3"
+      ],
+      "title": "san_diego"
+    },
+    {
+      "answer": "baltimore has 5460 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:MD:city:baltimore",
+      "keywords": [
+        "baltimore",
+        "MD",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "baltimore"
+    },
+    {
+      "answer": "snohomish_county has 5389 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:WA:county:snohomish_county",
+      "keywords": [
+        "snohomish_county",
+        "WA",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "snohomish_county"
+    },
+    {
+      "answer": "seattle has 5268 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 3.",
+      "id": "unit:WA:city:seattle",
+      "keywords": [
+        "seattle",
+        "WA",
+        "Other",
+        "Rules",
+        "tier_3"
+      ],
+      "title": "seattle"
+    },
+    {
+      "answer": "cleveland has 4906 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 3.",
+      "id": "unit:OH:city:cleveland",
+      "keywords": [
+        "cleveland",
+        "OH",
+        "Other",
+        "Rules",
+        "tier_3"
+      ],
+      "title": "cleveland"
+    },
+    {
+      "answer": "milwaukee has 4896 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:WI:city:milwaukee",
+      "keywords": [
+        "milwaukee",
+        "WI",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "milwaukee"
+    },
+    {
+      "answer": "jacksonville has 4811 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:FL:city:jacksonville",
+      "keywords": [
+        "jacksonville",
+        "FL",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "jacksonville"
+    },
+    {
+      "answer": "atlanta has 4386 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 3.",
+      "id": "unit:GA:city:atlanta",
+      "keywords": [
+        "atlanta",
+        "GA",
+        "Other",
+        "Rules",
+        "tier_3"
+      ],
+      "title": "atlanta"
+    },
+    {
+      "answer": "honolulu has 4200 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:HI:city:honolulu",
+      "keywords": [
+        "honolulu",
+        "HI",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "honolulu"
+    },
+    {
+      "answer": "new_orleans has 4003 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:LA:city:new_orleans",
+      "keywords": [
+        "new_orleans",
+        "LA",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "new_orleans"
+    },
+    {
+      "answer": "cincinnati has 3906 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:OH:city:cincinnati",
+      "keywords": [
+        "cincinnati",
+        "OH",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "cincinnati"
+    },
+    {
+      "answer": "fresno has 3896 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:CA:city:fresno",
+      "keywords": [
+        "fresno",
+        "CA",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "fresno"
+    },
+    {
+      "answer": "santa_cruz has 3857 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:CA:city:santa_cruz",
+      "keywords": [
+        "santa_cruz",
+        "CA",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "santa_cruz"
+    },
+    {
+      "answer": "toledo has 3738 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:OH:city:toledo",
+      "keywords": [
+        "toledo",
+        "OH",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "toledo"
+    },
+    {
+      "answer": "lincoln has 3665 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:NE:city:lincoln",
+      "keywords": [
+        "lincoln",
+        "NE",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "lincoln"
+    },
+    {
+      "answer": "santa_fe has 3547 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:NM:city:santa_fe",
+      "keywords": [
+        "santa_fe",
+        "NM",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "santa_fe"
+    },
+    {
+      "answer": "houston has 3450 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 3.",
+      "id": "unit:TX:city:houston",
+      "keywords": [
+        "houston",
+        "TX",
+        "Other",
+        "Rules",
+        "tier_3"
+      ],
+      "title": "houston"
+    },
+    {
+      "answer": "sacramento_county has 3423 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:CA:county:sacramento_county",
+      "keywords": [
+        "sacramento_county",
+        "CA",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "sacramento_county"
+    },
+    {
+      "answer": "provo_city has 3423 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:UT:city:provo_city",
+      "keywords": [
+        "provo_city",
+        "UT",
+        "Zoning",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "provo_city"
+    },
+    {
+      "answer": "pueblo has 3422 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:CO:city:pueblo",
+      "keywords": [
+        "pueblo",
+        "CO",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "pueblo"
+    },
+    {
+      "answer": "riverside_county has 3411 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:CA:county:riverside_county",
+      "keywords": [
+        "riverside_county",
+        "CA",
+        "Zoning",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "riverside_county"
+    },
+    {
+      "answer": "prince_george's_county has 3365 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 3.",
+      "id": "unit:MD:county:prince_george's_county",
+      "keywords": [
+        "prince_george's_county",
+        "MD",
+        "Other",
+        "Rules",
+        "tier_3"
+      ],
+      "title": "prince_george's_county"
+    },
+    {
+      "answer": "austin has 3331 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:TX:city:austin",
+      "keywords": [
+        "austin",
+        "TX",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "austin"
+    },
+    {
+      "answer": "college_station has 3271 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:TX:city:college_station",
+      "keywords": [
+        "college_station",
+        "TX",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "college_station"
+    },
+    {
+      "answer": "independence has 3270 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:MO:city:independence",
+      "keywords": [
+        "independence",
+        "MO",
+        "Zoning",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "independence"
+    },
+    {
+      "answer": "chattanooga has 3207 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:TN:city:chattanooga",
+      "keywords": [
+        "chattanooga",
+        "TN",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "chattanooga"
+    },
+    {
+      "answer": "humboldt_county has 3188 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:CA:county:humboldt_county",
+      "keywords": [
+        "humboldt_county",
+        "CA",
+        "Zoning",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "humboldt_county"
+    },
+    {
+      "answer": "des_moines has 3178 records in this artifact, dominant topic Nuisance, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:IA:city:des_moines",
+      "keywords": [
+        "des_moines",
+        "IA",
+        "Nuisance",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "des_moines"
+    },
+    {
+      "answer": "metro_government_of_nashville_and_davidson_county has 3113 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:TN:county:metro_government_of_nashville_and_davidson_county",
+      "keywords": [
+        "metro_government_of_nashville_and_davidson_county",
+        "TN",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "metro_government_of_nashville_and_davidson_county"
+    },
+    {
+      "answer": "birmingham has 3104 records in this artifact, dominant topic Business, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:AL:city:birmingham",
+      "keywords": [
+        "birmingham",
+        "AL",
+        "Business",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "birmingham"
+    },
+    {
+      "answer": "columbus has 3074 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:OH:city:columbus",
+      "keywords": [
+        "columbus",
+        "OH",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "columbus"
+    },
+    {
+      "answer": "dallas has 3074 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 3.",
+      "id": "unit:TX:city:dallas",
+      "keywords": [
+        "dallas",
+        "TX",
+        "Other",
+        "Rules",
+        "tier_3"
+      ],
+      "title": "dallas"
+    },
+    {
+      "answer": "siouxfalls has 3064 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:SD:city:siouxfalls",
+      "keywords": [
+        "siouxfalls",
+        "SD",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "siouxfalls"
+    },
+    {
+      "answer": "indianapolis_marion_county has 3042 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:IN:county:indianapolis_marion_county",
+      "keywords": [
+        "indianapolis_marion_county",
+        "IN",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "indianapolis_marion_county"
+    },
+    {
+      "answer": "hernando_county has 3022 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:FL:county:hernando_county",
+      "keywords": [
+        "hernando_county",
+        "FL",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "hernando_county"
+    },
+    {
+      "answer": "kitsap_county has 3011 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:WA:county:kitsap_county",
+      "keywords": [
+        "kitsap_county",
+        "WA",
+        "Zoning",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "kitsap_county"
+    },
+    {
+      "answer": "mendocino_county has 3005 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:CA:county:mendocino_county",
+      "keywords": [
+        "mendocino_county",
+        "CA",
+        "Zoning",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "mendocino_county"
+    },
+    {
+      "answer": "stockton has 2976 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:CA:city:stockton",
+      "keywords": [
+        "stockton",
+        "CA",
+        "Other",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "stockton"
+    },
+    {
+      "answer": "memphis has 2931 records in this artifact, dominant topic Other, dominant function Rules, and neutral tier Tier 2.",
+      "id": "unit:TN:city:memphis",
+      "keywords": [
+        "memphis",
+        "TN",
+        "Other",
+        "Rules",
+        "tier_2"
+      ],
+      "title": "memphis"
+    },
+    {
+      "answer": "thurston_county has 2923 records in this artifact, dominant topic Zoning, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:WA:county:thurston_county",
+      "keywords": [
+        "thurston_county",
+        "WA",
+        "Zoning",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "thurston_county"
+    },
+    {
+      "answer": "omaha has 2918 records in this artifact, dominant topic Buildings, dominant function Rules, and neutral tier Tier 1.",
+      "id": "unit:NE:city:omaha",
+      "keywords": [
+        "omaha",
+        "NE",
+        "Buildings",
+        "Rules",
+        "tier_1"
+      ],
+      "title": "omaha"
     }
   ],
-  "generated_at": "2026-06-21T15:13:11.660258+00:00",
+  "generated_at": "2026-06-21T15:29:13.523915+00:00",
   "schema_version": "evolocus-static-analysis-v1",
   "suggested_questions": [
     "What is the current analysis status?",

@@ -20,7 +20,8 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - Default exports omit full ordinance content and include source locators for authorized local joins.
 - GitHub Pages is the primary user surface and must not publish real LOCUS rows, generated local databases, or real evaluation exports.
 - Browser review events stay in localStorage until the reviewer explicitly exports them.
-- Public map and ontology artifacts must be synthetic by default or reviewed aggregate-only outputs.
+- Public map, chart, inquiry, and ontology artifacts may be synthetic or reviewed aggregate-only outputs.
+- Aggregate-only public artifacts may include jurisdiction-unit names, counts, neutral tiers, topic/function aggregates, and model-score summaries, but must omit ordinance text, raw LOCUS rows, local SQLite state, local exports, credentials, and private machine paths.
 - Grok API keys belong only in GitHub Actions secrets or local environment variables, never in browser JavaScript.
 
 ## Future Real Data Rules

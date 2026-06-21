@@ -1,6 +1,6 @@
 {
   "dataset": "LocalLaws/LOCUS-v1",
-  "generated_at": "2026-06-21T15:13:11.660265+00:00",
+  "generated_at": "2026-06-21T15:29:13.523918+00:00",
   "grok": {
     "allowed_use": "offline analysis jobs that generate static artifacts",
     "forbidden_use": "embedding the key in GitHub Pages JavaScript",

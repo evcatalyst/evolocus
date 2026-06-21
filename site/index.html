@@ -27,12 +27,13 @@
         <h1>Blinded LOCUS evaluation in the browser.</h1>
         <p class="lede">
           This public site is the primary EvoLOCUS user surface. It runs entirely in your browser using
-          synthetic demonstration data by default, local browser storage for review history, and explicit exports.
+          aggregate LOCUS analysis artifacts, synthetic or imported bounded review queues, local browser storage
+          for review history, and explicit exports.
         </p>
         <div class="status-strip" aria-label="Workbench status summary">
           <span>Pages-first UI</span>
-          <span>Synthetic only by default</span>
-          <span>Map + ontology artifacts</span>
+          <span>Aggregate-only LOCUS visuals</span>
+          <span>Map + ontology + charts</span>
           <span>No server database</span>
           <span>No real LOCUS rows published</span>
         </div>
@@ -42,9 +43,11 @@
     <main>
       <section class="notice" aria-label="Legal and data notice">
         <strong>Research use only. Not legal advice.</strong>
-        This site stores reviews only in your browser unless you export them. Displayed demo records are synthetic.
-        Real LOCUS text may contain OCR errors, model labels and scores are not legal facts, the corpus is not complete
-        or continuously current, and users should consult official legal sources. LOCUS-v1 is licensed CC-BY-NC-4.0.
+        This site stores reviews only in your browser unless you export them. The review queue remains synthetic
+        unless you import a bounded queue locally. Published map and chart artifacts are aggregate-only and omit
+        ordinance text. Real LOCUS text may contain OCR errors, model labels and scores are not legal facts, the
+        corpus is not complete or continuously current, and users should consult official legal sources. LOCUS-v1
+        is licensed CC-BY-NC-4.0.
       </section>
 
       <section class="toolbar" aria-label="Workbench controls">
@@ -77,8 +80,8 @@
           <p class="eyebrow">Law Map</p>
           <h2 id="map-heading">County and town law presence by neutral tier.</h2>
           <p>
-            The current public layer is synthetic. Real map artifacts must be generated locally from reviewed data
-            and published only after provenance and license checks.
+            The public layer loads static aggregate artifacts generated locally from LOCUS Parquet with Polars.
+            Tiers are neutral analysis bands over released model-output fields, not legal rankings or findings.
           </p>
         </div>
         <div class="analysis-status-grid" id="analysis-status-grid"></div>
@@ -100,7 +103,7 @@
               <span id="map-geometry-status">Geometry status unknown</span>
             </div>
             <div id="tier-legend" class="tier-legend"></div>
-            <svg id="law-map" viewBox="0 0 100 100" role="img" aria-label="Synthetic tier map"></svg>
+            <svg id="law-map" viewBox="0 0 100 100" role="img" aria-label="Aggregate tier map"></svg>
             <p class="map-note" id="map-note"></p>
           </article>
           <aside class="unit-detail" id="unit-detail" aria-live="polite"></aside>
@@ -307,7 +310,7 @@
         <div class="section-heading">
           <p class="eyebrow">Dataset Explorer</p>
           <h2 id="explorer-heading">Bounded browser-side filtering.</h2>
-          <p>Explorer results are paginated and limited to the currently loaded demo or imported bounded queue.</p>
+          <p>Explorer results are paginated and limited to the currently loaded synthetic demo or imported bounded queue.</p>
         </div>
         <form id="explorer-form" class="filter-grid">
           <label>State <input name="state" type="text" maxlength="2" placeholder="TN"></label>

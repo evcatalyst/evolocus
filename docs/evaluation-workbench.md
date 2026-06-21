@@ -23,6 +23,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - evaluation metrics from saved reviews;
 - latest-review CSV export without ordinance content;
 - review-event JSON export.
+- aggregate-only LOCUS public artifacts generated from local Parquet with Polars.
 
 ## Browser Storage
 
@@ -71,7 +72,7 @@ PYTHONPATH=src python -m evolocus.cli publish-analysis \
   --output data/exports/analysis-preview
 ```
 
-Only copy reviewed, license-compliant, non-text aggregate artifacts into `site/data/analysis/`.
+Only copy reviewed, license-compliant, non-text aggregate artifacts into `site/data/analysis/`. The current public artifacts are real LOCUS aggregates for a capped top-1,000 jurisdiction-unit layer; they omit raw rows, ordinance text, local SQLite state, and local exports.
 
 ## Support CLI
 

@@ -21,3 +21,5 @@
 - A static GitHub Pages app can support useful browser-local evaluation workflows when review state stays local and exports are explicit.
 - Map, ontology, model registry, and inquiry panels should read static JSON artifacts so local Polars analysis can update the public site without moving the full corpus into the browser.
 - `GROK_API_KEY` can be a GitHub secret for offline artifact generation, but it must never be embedded in Pages assets.
+- Real LOCUS aggregate visuals can be published to GitHub Pages only after a local safety scan confirms the artifacts contain no raw `header`, `content`, record text, SQLite state, exports, secrets, or machine paths.
+- For aggregate publication, derive jurisdiction units and neutral tiers with Polars, publish bounded unit summaries, and keep source Parquet under ignored `data/raw/`.

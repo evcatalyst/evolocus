@@ -4,178 +4,308 @@
       {
         "id": "Rules",
         "label": "Rules",
-        "value": 2
-      },
-      {
-        "id": "Context",
-        "label": "Context",
-        "value": 1
+        "value": 962831
       },
       {
         "id": "Enforcement",
         "label": "Enforcement",
-        "value": 1
+        "value": 218341
+      },
+      {
+        "id": "Context",
+        "label": "Context",
+        "value": 205617
       },
       {
         "id": "Process",
         "label": "Process",
-        "value": 1
-      },
-      {
-        "id": "Structural",
-        "label": "Structural",
-        "value": 1
+        "value": 130883
       }
     ],
     "kind_counts": [
       {
         "id": "city",
         "label": "city",
-        "value": 4
+        "value": 823
       },
       {
         "id": "county",
         "label": "county",
-        "value": 1
-      },
-      {
-        "id": "unknown",
-        "label": "unknown",
-        "value": 1
+        "value": 177
       }
     ],
     "score_means": [
       {
         "label": "enforcement_discretion",
-        "value": 0.358
+        "value": -0.0997
       },
       {
         "label": "opacity",
-        "value": 0.4733
+        "value": 0.0353
       },
       {
         "label": "paternalism",
-        "value": 0.222
+        "value": -0.0648
       },
       {
         "label": "problem_salience",
-        "value": 0.4017
+        "value": -0.1404
       }
     ],
     "tier_counts": [
       {
-        "id": "tier_2",
-        "label": "Tier 2",
-        "value": 3
-      },
-      {
         "id": "tier_1",
         "label": "Tier 1",
-        "value": 2
+        "value": 334
+      },
+      {
+        "id": "tier_2",
+        "label": "Tier 2",
+        "value": 333
       },
       {
         "id": "tier_3",
         "label": "Tier 3",
-        "value": 1
+        "value": 333
       }
     ],
     "top_units": [
       {
-        "dominant_topic": "Nuisance",
+        "dominant_topic": "Other",
         "kind": "county",
-        "law_count": 1,
-        "name": "Demo County",
+        "law_count": 11503,
+        "name": "los_angeles_county",
         "state": "CA",
-        "tier": "tier_2",
-        "tier_label": "Tier 2",
-        "unit_id": "CA:county:Demo County"
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "CA:county:los_angeles_county"
       },
       {
         "dominant_topic": "Other",
         "kind": "city",
-        "law_count": 1,
-        "name": "Unknown jurisdiction",
-        "state": "FL",
+        "law_count": 10148,
+        "name": "san_jose",
+        "state": "CA",
         "tier": "tier_1",
         "tier_label": "Tier 1",
-        "unit_id": "FL:city:Unknown"
+        "unit_id": "CA:city:san_jose"
       },
       {
         "dominant_topic": "Buildings",
-        "kind": "unknown",
-        "law_count": 1,
-        "name": "Unknown jurisdiction",
-        "state": "N Y",
-        "tier": "tier_3",
-        "tier_label": "Tier 3",
-        "unit_id": "N Y:unknown:Unknown"
+        "kind": "city",
+        "law_count": 8667,
+        "name": "chicago",
+        "state": "IL",
+        "tier": "tier_2",
+        "tier_label": "Tier 2",
+        "unit_id": "IL:city:chicago"
       },
       {
-        "dominant_topic": "Not_applicable",
+        "dominant_topic": "Other",
         "kind": "city",
-        "law_count": 1,
-        "name": "Sample Valley",
-        "state": "NY",
+        "law_count": 8224,
+        "name": "detroit",
+        "state": "MI",
         "tier": "tier_1",
         "tier_label": "Tier 1",
-        "unit_id": "NY:city:Sample Valley"
+        "unit_id": "MI:city:detroit"
+      },
+      {
+        "dominant_topic": "Zoning",
+        "kind": "county",
+        "law_count": 6525,
+        "name": "santa_barbara_county",
+        "state": "CA",
+        "tier": "tier_2",
+        "tier_label": "Tier 2",
+        "unit_id": "CA:county:santa_barbara_county"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 6104,
+        "name": "tulsa",
+        "state": "OK",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "OK:city:tulsa"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 5892,
+        "name": "saint_louis",
+        "state": "MO",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "MO:city:saint_louis"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 5859,
+        "name": "anchorage",
+        "state": "AK",
+        "tier": "tier_2",
+        "tier_label": "Tier 2",
+        "unit_id": "AK:city:anchorage"
       },
       {
         "dominant_topic": "Zoning",
         "kind": "city",
-        "law_count": 1,
-        "name": "Example Township",
-        "state": "PA",
-        "tier": "tier_2",
-        "tier_label": "Tier 2",
-        "unit_id": "PA:city:Example Township"
+        "law_count": 5720,
+        "name": "portland",
+        "state": "OR",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "OR:city:portland"
       },
       {
-        "dominant_topic": "Business",
+        "dominant_topic": "Zoning",
         "kind": "city",
-        "law_count": 1,
-        "name": "Demo City",
-        "state": "TX",
+        "law_count": 5707,
+        "name": "san_diego",
+        "state": "CA",
+        "tier": "tier_3",
+        "tier_label": "Tier 3",
+        "unit_id": "CA:city:san_diego"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 5460,
+        "name": "baltimore",
+        "state": "MD",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "MD:city:baltimore"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "county",
+        "law_count": 5389,
+        "name": "snohomish_county",
+        "state": "WA",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "WA:county:snohomish_county"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 5268,
+        "name": "seattle",
+        "state": "WA",
+        "tier": "tier_3",
+        "tier_label": "Tier 3",
+        "unit_id": "WA:city:seattle"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 4906,
+        "name": "cleveland",
+        "state": "OH",
+        "tier": "tier_3",
+        "tier_label": "Tier 3",
+        "unit_id": "OH:city:cleveland"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 4896,
+        "name": "milwaukee",
+        "state": "WI",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "WI:city:milwaukee"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 4811,
+        "name": "jacksonville",
+        "state": "FL",
         "tier": "tier_2",
         "tier_label": "Tier 2",
-        "unit_id": "TX:city:Demo City"
+        "unit_id": "FL:city:jacksonville"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 4386,
+        "name": "atlanta",
+        "state": "GA",
+        "tier": "tier_3",
+        "tier_label": "Tier 3",
+        "unit_id": "GA:city:atlanta"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 4200,
+        "name": "honolulu",
+        "state": "HI",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "HI:city:honolulu"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 4003,
+        "name": "new_orleans",
+        "state": "LA",
+        "tier": "tier_2",
+        "tier_label": "Tier 2",
+        "unit_id": "LA:city:new_orleans"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 3906,
+        "name": "cincinnati",
+        "state": "OH",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "OH:city:cincinnati"
       }
     ],
     "topic_counts": [
       {
-        "id": "Buildings",
-        "label": "Buildings",
-        "value": 1
-      },
-      {
-        "id": "Business",
-        "label": "Business",
-        "value": 1
+        "id": "Other",
+        "label": "Other",
+        "value": 407704
       },
       {
         "id": "Not_applicable",
         "label": "Not_applicable",
-        "value": 1
-      },
-      {
-        "id": "Nuisance",
-        "label": "Nuisance",
-        "value": 1
-      },
-      {
-        "id": "Other",
-        "label": "Other",
-        "value": 1
+        "value": 336500
       },
       {
         "id": "Zoning",
         "label": "Zoning",
-        "value": 1
+        "value": 231664
+      },
+      {
+        "id": "Nuisance",
+        "label": "Nuisance",
+        "value": 200025
+      },
+      {
+        "id": "Buildings",
+        "label": "Buildings",
+        "value": 177301
+      },
+      {
+        "id": "Business",
+        "label": "Business",
+        "value": 164478
       }
     ]
   },
-  "generated_at": "2026-06-21T15:13:11.660207+00:00",
+  "generated_at": "2026-06-21T15:29:13.523795+00:00",
   "notice": "Charts are aggregate visual aids for review prioritization, not legal rankings.",
   "schema_version": "evolocus-static-analysis-v1",
-  "synthetic": true
+  "synthetic": false
 }

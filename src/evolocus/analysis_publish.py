@@ -12,6 +12,7 @@ from typing import Any
 import polars as pl
 
 from .locus_contract import CITATION, DATASET_ID, DATASET_LICENSE, PAPER_URL, SCORE_FIELDS
+from .locus_normalize import jurisdiction_name_expr, jurisdiction_type_expr
 from .locus_source import LocusCorpus, current_commit
 
 
@@ -117,7 +118,11 @@ def publish_analysis_artifacts(
     output_dir.mkdir(parents=True, exist_ok=True)
     rows = _collect_aggregate_rows(corpus, max_units=max_units)
     samples = _collect_samples(corpus, rows, include_samples=include_samples)
-    units = [_unit_from_row(index, row, samples.get(row["unit_id"], [])) for index, row in enumerate(rows)]
+    tier_thresholds = _tier_thresholds(rows)
+    units = [
+        _unit_from_row(index, row, samples.get(row["unit_id"], []), tier_thresholds=tier_thresholds)
+        for index, row in enumerate(rows)
+    ]
     ontology = _ontology_artifact(units)
     status = _status_artifact(corpus, units, synthetic=synthetic)
     charts = _charts_artifact(units, synthetic=synthetic)
@@ -153,7 +158,7 @@ def publish_analysis_artifacts(
 
 
 def _collect_aggregate_rows(corpus: LocusCorpus, *, max_units: int) -> list[dict[str, Any]]:
-    lf = corpus.derived_lazy()
+    lf = _aggregate_lazy(corpus)
     unit_expr = (
         pl.col("state_normalized")
         + pl.lit(":")
@@ -209,7 +214,7 @@ def _function_counts(corpus: LocusCorpus, unit_ids: set[str]) -> dict[str, dict[
 
 
 def _value_counts_by_unit(corpus: LocusCorpus, unit_ids: set[str], field: str) -> dict[str, dict[str, int]]:
-    lf = corpus.derived_lazy()
+    lf = _aggregate_lazy(corpus)
     unit_expr = (
         pl.col("state_normalized")
         + pl.lit(":")
@@ -230,6 +235,21 @@ def _value_counts_by_unit(corpus: LocusCorpus, unit_ids: set[str], field: str) -
         value = row[field] if row[field] is not None else "Not_applicable"
         counts[row["unit_id"]][str(value)] = int(row["n"])
     return dict(counts)
+
+
+def _aggregate_lazy(corpus: LocusCorpus) -> pl.LazyFrame:
+    """Return derived aggregate fields without scanning ordinance text content."""
+
+    return corpus.lazy().with_columns(
+        [
+            jurisdiction_name_expr().alias("jurisdiction_name"),
+            jurisdiction_type_expr().alias("jurisdiction_type_normalized"),
+            pl.col("state").cast(pl.Utf8).str.strip_chars().str.to_uppercase().alias("state_normalized"),
+            pl.col("city").cast(pl.Utf8).str.strip_chars().alias("city_normalized"),
+            pl.col("county").cast(pl.Utf8).str.strip_chars().alias("county_normalized"),
+            pl.lit("not_evaluated_for_aggregate").alias("ocr_risk_level"),
+        ]
+    )
 
 
 def _collect_samples(
@@ -261,10 +281,16 @@ def _collect_samples(
     return dict(samples)
 
 
-def _unit_from_row(index: int, row: dict[str, Any], samples: list[dict[str, Any]]) -> dict[str, Any]:
+def _unit_from_row(
+    index: int,
+    row: dict[str, Any],
+    samples: list[dict[str, Any]],
+    *,
+    tier_thresholds: tuple[float, float] | None,
+) -> dict[str, Any]:
     means = {field: _clean_float(row.get(f"{field}_mean")) for field in SCORE_FIELDS}
     tier_score = _tier_score(means)
-    tier = _tier_for_score(tier_score, row.get("law_count") or 0)
+    tier = _tier_for_score(tier_score, row.get("law_count") or 0, thresholds=tier_thresholds)
     layout = _layout_for_index(index, row.get("jurisdiction_type_normalized"))
     return {
         "unit_id": row["unit_id"],
@@ -316,9 +342,31 @@ def _tier_score(means: dict[str, float | None]) -> float | None:
     return sum(values) / len(values)
 
 
-def _tier_for_score(score: float | None, law_count: int) -> str:
+def _tier_thresholds(rows: list[dict[str, Any]]) -> tuple[float, float] | None:
+    scores = sorted(
+        score
+        for row in rows
+        if (score := _tier_score({field: _clean_float(row.get(f"{field}_mean")) for field in SCORE_FIELDS})) is not None
+    )
+    if len(scores) < 3:
+        return None
+    low = scores[len(scores) // 3]
+    high = scores[(len(scores) * 2) // 3]
+    if low == high:
+        return None
+    return (low, high)
+
+
+def _tier_for_score(score: float | None, law_count: int, *, thresholds: tuple[float, float] | None = None) -> str:
     if law_count <= 0 or score is None:
         return "no_data"
+    if thresholds is not None:
+        low, high = thresholds
+        if score <= low:
+            return "tier_1"
+        if score <= high:
+            return "tier_2"
+        return "tier_3"
     if score < 0.33:
         return "tier_1"
     if score < 0.66:

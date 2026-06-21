@@ -1,14 +1,14 @@
 {
-  "analysis_state": "synthetic_demo",
+  "analysis_state": "local_aggregate_ready",
   "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
-  "code_commit": "82102faee58585b8c272995ef722cd1483a83674",
-  "data_mode": "demo",
+  "code_commit": "d284907a114474fed94e5eaf64de355b5f24a9df",
+  "data_mode": "local",
   "dataset_id": "LocalLaws/LOCUS-v1",
-  "dataset_revision": "synthetic-demo",
-  "generated_at": "2026-06-21T15:13:11.647325+00:00",
+  "dataset_revision": "main",
+  "generated_at": "2026-06-21T15:29:13.505795+00:00",
   "grok_browser_policy": "Grok API keys must never be embedded in GitHub Pages JavaScript.",
   "grok_secret_name": "GROK_API_KEY",
-  "law_count": 6,
+  "law_count": 1517672,
   "license": "CC-BY-NC-4.0",
   "next_analysis_goal": "Generate bounded real aggregate map artifacts from local LOCUS Parquet after license/provenance review.",
   "paper": "https://arxiv.org/abs/2606.19334",
@@ -21,7 +21,7 @@
     {
       "id": "source_schema_validated",
       "label": "Source schema validated",
-      "status": "complete"
+      "status": "pending_review"
     },
     {
       "id": "aggregate_only",
@@ -31,16 +31,16 @@
     {
       "id": "geometry_reviewed",
       "label": "Geometry/county-town layout reviewed",
-      "status": "demo_placeholder"
+      "status": "pending_review"
     },
     {
       "id": "license_reviewed",
       "label": "License/provenance reviewed",
-      "status": "demo_placeholder"
+      "status": "pending_review"
     }
   ],
   "real_locus_rows_published": false,
   "schema_version": "evolocus-static-analysis-v1",
-  "synthetic": true,
-  "unit_count": 6
+  "synthetic": false,
+  "unit_count": 1000
 }

@@ -30,10 +30,12 @@
         "Run bounded browser demo smoke test",
         "Refresh GitHub Pages evaluator status",
         "Promote GitHub Pages to primary browser evaluator surface",
-        "Publish synthetic map, ontology, model registry, inquiry, chart, and progressive-disclosure artifacts"
+        "Publish synthetic map, ontology, model registry, inquiry, chart, and progressive-disclosure artifacts",
+        "Download LOCUS-v1 Parquet shards into ignored local storage",
+        "Publish aggregate-only LOCUS map, ontology, inquiry, model, chart, and status artifacts for top 1,000 jurisdiction units"
       ],
       "remaining_items": [
-        "Run real LOCUS local-Parquet audit when user supplies or downloads source shards",
+        "Run full real LOCUS local-Parquet audit and manifest generation",
         "Begin real LOCUS evaluation queues"
       ]
     },
@@ -87,10 +89,11 @@
     "phase_0_database_created": false,
     "phase_0_embeddings_created": false,
     "phase_1_real_locus_records_committed": false,
-    "phase_1_hf_download_run": false,
+    "phase_1_hf_download_run": true,
     "phase_1_master_table_contract": true,
     "phase_1_evaluator_code": "complete",
     "phase_1_synthetic_validation": "complete",
+    "phase_1_real_aggregate_visuals": "published_aggregate_only_top_1000_units",
     "phase_1_real_locus_evaluation": "not_started",
     "phase_1_database_created": false,
     "phase_1_embeddings_created": false

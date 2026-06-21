@@ -25,7 +25,8 @@ flowchart LR
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - Browser storage is local to the reviewer and is not a shared database.
 - Demo mode is synthetic and conspicuously labeled.
-- Real LOCUS rows are not published through Pages.
+- Real LOCUS aggregate artifacts are published through Pages after local safety checks.
+- Real LOCUS rows and ordinance text are not published through Pages.
 - Polars remains the support engine for local Parquet validation and queue preparation.
 
 ## Corpus Support Layer
@@ -61,6 +62,8 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 - `chat_index.json`: deterministic inquiry entries for the browser chat panel.
 
 Map tiers are review-priority bands over available model-score summaries and law counts. They are not rankings of legal burden, legality, freedom, or civic performance.
+
+The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It is intentionally abstract geometry until reviewed county/town geometry crosswalks are added.
 
 ## Grok Integration Boundary
 

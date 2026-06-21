@@ -303,6 +303,19 @@ function text(value) {
   return String(value);
 }
 
+function titleCase(value) {
+  return text(value)
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function displayUnitName(unitOrName) {
+  const raw = typeof unitOrName === "string" ? unitOrName : unitOrName.name || unitOrName.unit_id;
+  return titleCase(raw);
+}
+
 function render() {
   renderTabs();
   renderToolbar();
@@ -415,7 +428,7 @@ function renderMap() {
     .map(
       (unit) => `
         <tr>
-          <td><button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">${escapeHtml(unit.name)}</button></td>
+          <td><button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">${escapeHtml(displayUnitName(unit))}</button></td>
           <td>${escapeHtml(text(unit.state))}</td>
           <td>${escapeHtml(text(unit.kind))}</td>
           <td>${escapeHtml(text(unit.tier_label))}</td>
@@ -468,9 +481,9 @@ function unitSvg(unit) {
   const selected = state.selectedUnitId === unit.unit_id ? " selected" : "";
   const common = `data-unit-id="${escapeHtml(unit.unit_id)}" class="map-unit${selected}" fill="${escapeHtml(fill)}" tabindex="0"`;
   if (layout.type === "point") {
-    return `<circle ${common} cx="${Number(layout.x || 0)}" cy="${Number(layout.y || 0)}" r="${Number(layout.r || 3.5)}"><title>${escapeHtml(unit.name)}: ${escapeHtml(unit.tier_label)}</title></circle>`;
+    return `<circle ${common} cx="${Number(layout.x || 0)}" cy="${Number(layout.y || 0)}" r="${Number(layout.r || 3.5)}"><title>${escapeHtml(displayUnitName(unit))}: ${escapeHtml(unit.tier_label)}</title></circle>`;
   }
-  return `<rect ${common} x="${Number(layout.x || 0)}" y="${Number(layout.y || 0)}" width="${Number(layout.w || 8)}" height="${Number(layout.h || 8)}" rx="1.5"><title>${escapeHtml(unit.name)}: ${escapeHtml(unit.tier_label)}</title></rect>`;
+  return `<rect ${common} x="${Number(layout.x || 0)}" y="${Number(layout.y || 0)}" width="${Number(layout.w || 8)}" height="${Number(layout.h || 8)}" rx="1.5"><title>${escapeHtml(displayUnitName(unit))}: ${escapeHtml(unit.tier_label)}</title></rect>`;
 }
 
 function renderSelectedUnit() {
@@ -499,7 +512,7 @@ function renderSelectedUnit() {
         .join("")
     : "";
   $("#unit-detail").innerHTML = `
-    <h3>${escapeHtml(unit.name)}</h3>
+    <h3>${escapeHtml(displayUnitName(unit))}</h3>
     <p>${escapeHtml(text(unit.state))} ${escapeHtml(text(unit.kind))} · ${escapeHtml(unit.tier_label)}</p>
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
@@ -605,7 +618,7 @@ function renderInquiry() {
     .join("");
   $("#inquiry-answer").innerHTML = state.inquiryAnswer
     ? `<h3>${escapeHtml(state.inquiryAnswer.title)}</h3><p>${escapeHtml(state.inquiryAnswer.answer)}</p>${state.inquiryAnswer.matches}`
-    : "<p>Ask about status, tiers, topics, specific synthetic units, model outputs, or Grok integration.</p>";
+    : "<p>Ask about status, tiers, topics, map units, model outputs, or Grok integration.</p>";
 }
 
 function renderPrediction(record) {
@@ -740,18 +753,23 @@ function chartCard(title, rows) {
 }
 
 function scoreCard(title, rows) {
+  const values = rows.map((row) => Number(row.value)).filter((value) => Number.isFinite(value));
+  const min = values.length ? Math.min(0, ...values) : 0;
+  const max = values.length ? Math.max(0, ...values) : 1;
+  const span = Math.max(0.000001, max - min);
   return `
     <article class="chart-card">
       <h3>${escapeHtml(title)}</h3>
       <div class="bar-list">
         ${rows
           .map((row) => {
-            const value = row.value === null ? 0 : Number(row.value);
+            const value = Number(row.value);
+            const width = Number.isFinite(value) ? ((value - min) / span) * 100 : 0;
             return `
               <div class="bar-row">
                 <span>${escapeHtml(row.label)}</span>
-                <div><i style="width:${Math.max(3, value * 100)}%"></i></div>
-                <strong>${escapeHtml(row.value === null ? "n/a" : value.toFixed(3))}</strong>
+                <div><i style="width:${Math.max(3, width)}%"></i></div>
+                <strong>${escapeHtml(Number.isFinite(value) ? value.toFixed(3) : "n/a")}</strong>
               </div>
             `;
           })
@@ -769,7 +787,7 @@ function topUnitsCard(rows) {
       <ol class="top-unit-list">
         ${rows
           .slice(0, 8)
-          .map((row) => `<li>${escapeHtml(row.name)} <span>${escapeHtml(row.state)} · ${escapeHtml(String(row.law_count))} laws · ${escapeHtml(row.tier_label)}</span></li>`)
+          .map((row) => `<li>${escapeHtml(displayUnitName(row.name))} <span>${escapeHtml(row.state)} · ${escapeHtml(String(row.law_count))} laws · ${escapeHtml(row.tier_label)}</span></li>`)
           .join("")}
       </ol>
     </article>

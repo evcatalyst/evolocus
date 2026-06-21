@@ -83,13 +83,13 @@ def test_pages_workflow_uses_pinned_major_versions_and_site_path() -> None:
     assert "actions/deploy-pages@v4" in workflow
 
 
-def test_static_site_is_relative_and_synthetic_only() -> None:
+def test_static_site_is_relative_and_aggregate_only() -> None:
     html = read_text("site/index.html")
     css = read_text("site/assets/styles.css")
     js = read_text("site/assets/app.js")
     assert 'href="assets/styles.css"' in html
     assert 'src="assets/app.js"' in html
-    assert "Synthetic only by default" in html
+    assert "Aggregate-only LOCUS visuals" in html
     assert "SYNTHETIC DEMONSTRATION DATA" in js
     assert "No real LOCUS rows published" in html
     assert "Pages-first UI" in html
@@ -105,22 +105,27 @@ def test_static_site_is_relative_and_synthetic_only() -> None:
     assert "analytics" not in html.lower()
 
 
-def test_static_analysis_artifacts_are_synthetic_and_bounded() -> None:
+def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     status = json.loads(read_text("site/data/analysis/status.json"))
     map_layers = json.loads(read_text("site/data/analysis/map_layers.json"))
     models = json.loads(read_text("site/data/analysis/models.json"))
     charts = json.loads(read_text("site/data/analysis/charts.json"))
-    assert status["synthetic"] is True
+    assert status["synthetic"] is False
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
-    assert map_layers["synthetic"] is True
+    assert map_layers["synthetic"] is False
     assert map_layers["geometry_status"] == "abstract_layout_until_reviewed_geometries_available"
-    assert len(map_layers["units"]) <= 250
+    assert len(map_layers["units"]) <= 1000
+    assert all(not unit.get("samples") for unit in map_layers["units"])
+    assert len({unit["tier"] for unit in map_layers["units"]}) >= 2
     assert models["import_policy"]["status"] == "released_dataset_outputs_imported"
     assert models["grok"]["forbidden_use"] == "embedding the key in GitHub Pages JavaScript"
-    assert charts["synthetic"] is True
+    assert charts["synthetic"] is False
     assert charts["charts"]["tier_counts"]
     assert charts["charts"]["score_means"]
+    serialized = json.dumps({"status": status, "map_layers": map_layers, "charts": charts})
+    assert '"content"' not in serialized
+    assert '"header"' not in serialized
 
 
 def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() -> None:
