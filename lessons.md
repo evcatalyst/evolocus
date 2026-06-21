@@ -38,6 +38,7 @@
 - Tier-focus cards are stronger when aggregate mini charts make topic/function/type/score relationships visible without row-level evidence.
 - Map-side inquiry should reuse deterministic aggregate answer functions so users can ask questions without exposing live model endpoints, raw rows, or ordinance text.
 - Inquiry answers become more useful when paired with prompt-aware comparison strips that can drill back to aggregate map units without publishing records.
+- Browser-local question history is useful only when it stores aggregate answer context and comparison rows, not ordinance text, source locators, review events, or live model output.
 - A selected-unit progressive trail keeps the demo understandable from the map itself: aggregate color first, neutral model-output summaries second, provenance boundaries third.
 - Map-side ontology drilldown cards make the selected unit actionable without creating claims: each card should route to context, evidence depth, or package focus while staying aggregate-only.
 - Peer comparisons must disclose their matching method and stay framed as aggregate review context, not as best/worst or legal-burden rankings.

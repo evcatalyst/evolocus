@@ -42,6 +42,7 @@ flowchart LR
 - Tier chips in the map guide click through to an ontology tier-focus card that summarizes visible units, topic/function links, neutral score means, and filter context.
 - The tier-focus ontology card includes mini charts for topic mix, function mix, unit type mix, and neutral score means under the current filters.
 - The map card also includes a chat-style inquiry panel that reuses static aggregate answer functions for current filters, selected unit, audit signals, model-score profile, and browser-local package overlay.
+- Map-side inquiry history snapshots are stored only in browser localStorage and include aggregate prompt context, filters, selected unit metadata, package counts, and comparison rows without text, source locators, review events, or browser LLM calls.
 - The map inquiry panel renders a prompt-aware county/town comparison strip and lets users drill comparison rows back into the selected map unit.
 - The selected map unit includes a progressive visual trail that switches between overview, unit detail, and evidence trail while preserving aggregate-only publication boundaries.
 - The selected ontology neighborhood includes a mini animated path from map unit to released topic/function/tier, then score and geometry nodes as disclosure depth increases.
@@ -127,6 +128,8 @@ The review-package request export is also aggregate-only. `materialize-review-pa
 The current-view snapshot export is a shareable analysis artifact, not an evidence record. It excludes ordinance text, headers, raw row data, record locators, browser review events, local databases, and secrets.
 
 The snapshot gallery is browser-local visual state. It compares saved aggregate views and exports gallery JSON with the same no-text/no-locator boundary.
+
+The map-side inquiry history is also browser-local visual state. It stores bounded aggregate answer summaries for quick comparison in the map card and keeps the same no-text, no-locator, no-review-event, no-browser-LLM boundary.
 
 The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 

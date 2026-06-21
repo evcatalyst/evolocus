@@ -4,6 +4,7 @@ const STORAGE_BLIND = "evolocus.pages.blind.v1";
 const STORAGE_RECORDS = "evolocus.pages.records.v1";
 const STORAGE_SNAPSHOTS = "evolocus.pages.viewSnapshots.v1";
 const STORAGE_IMPORT_STATUS = "evolocus.pages.importStatus.v1";
+const STORAGE_MAP_INQUIRY_HISTORY = "evolocus.pages.mapInquiryHistory.v1";
 
 const ANALYSIS_PATHS = {
   status: "data/analysis/status.json",
@@ -323,6 +324,21 @@ function clearImportStatus() {
 
 function saveSnapshots(snapshots) {
   localStorage.setItem(STORAGE_SNAPSHOTS, JSON.stringify(snapshots.slice(0, 24)));
+}
+
+function loadMapInquiryHistory() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_MAP_INQUIRY_HISTORY) || "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => item?.schema_version === "evolocus-map-inquiry-history-v1")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMapInquiryHistory(history) {
+  localStorage.setItem(STORAGE_MAP_INQUIRY_HISTORY, JSON.stringify(history.slice(0, 12)));
 }
 
 function eventId() {
@@ -726,6 +742,7 @@ function renderMapInlineInquiry() {
   const activePrompt = prompts.find((prompt) => prompt.key === state.mapInlineInquiry) || prompts[0];
   state.mapInlineInquiry = activePrompt.key;
   const answer = answerQuestion(activePrompt.question);
+  const history = loadMapInquiryHistory();
   panel.innerHTML = `
     <section class="map-inline-inquiry-card" aria-label="Map-side aggregate inquiry">
       <div class="map-inline-inquiry-heading">
@@ -747,6 +764,11 @@ function renderMapInlineInquiry() {
           ${inquiryAnswerHtml(answer)}
         </div>
       </div>
+      <div class="map-inline-inquiry-actions">
+        <button type="button" data-save-map-inquiry>Save answer snapshot</button>
+        <span>${escapeHtml(formatCount(history.length))} browser-local saved answers</span>
+      </div>
+      ${mapInlineInquiryHistoryHtml(history)}
       ${mapInlineComparisonStripHtml(activePrompt.key)}
       <p class="map-inline-inquiry-boundary">
         Answers are recomputed from current filters, selected unit, package overlay, and progressive disclosure level. They omit ordinance text, source locator values, review events, and legal conclusions.
@@ -775,6 +797,50 @@ function mapInlineComparisonStripHtml(promptKey) {
         }
       </div>
     </section>
+  `;
+}
+
+function mapInlineInquiryHistoryHtml(history) {
+  const rows = history.slice(0, state.disclosureLevel === "overview" ? 3 : 6);
+  return `
+    <section class="map-inline-inquiry-history" aria-label="Browser-local map inquiry history">
+      <div class="map-inline-history-heading">
+        <div>
+          <span>Question history</span>
+          <strong>Saved aggregate answers in this browser</strong>
+        </div>
+        <em>No text, locators, or review events</em>
+      </div>
+      <div class="map-inline-history-list">
+        ${
+          rows.length
+            ? rows.map(mapInlineInquiryHistoryRowHtml).join("")
+            : '<p class="muted-note">Save a map answer to compare how filters, selected units, packages, and disclosure depth change the aggregate response.</p>'
+        }
+      </div>
+    </section>
+  `;
+}
+
+function mapInlineInquiryHistoryRowHtml(item) {
+  const unitLabel = item.selected_unit?.name
+    ? `${item.selected_unit.name}${item.selected_unit.state ? `, ${item.selected_unit.state}` : ""}`
+    : "No selected unit";
+  const filters = item.filters?.active_labels?.length ? item.filters.active_labels.join(" · ") : "No active filters";
+  return `
+    <article class="map-inline-history-row">
+      <button type="button" data-load-map-inquiry="${escapeHtml(item.id)}">
+        <span>${escapeHtml(formatDateTime(item.created_at))}</span>
+        <strong>${escapeHtml(item.question_label || item.prompt_key || "Saved map answer")}</strong>
+        <em>${escapeHtml(item.answer_title || "Aggregate answer")}</em>
+      </button>
+      <div>
+        <span>${escapeHtml(unitLabel)}</span>
+        <span>${escapeHtml(formatCount(item.visible_units))} units · ${escapeHtml(formatCount(item.visible_law_count))} rows</span>
+        <span>${escapeHtml(filters)}</span>
+      </div>
+      <button type="button" class="secondary" data-delete-map-inquiry="${escapeHtml(item.id)}">Delete</button>
+    </article>
   `;
 }
 
@@ -928,6 +994,102 @@ function mapInlineInquiryPrompts() {
       question: "What does the loaded package show on the map?",
     },
   ];
+}
+
+function currentMapInquiryHistoryItem() {
+  const prompts = mapInlineInquiryPrompts();
+  const activePrompt = prompts.find((prompt) => prompt.key === state.mapInlineInquiry) || prompts[0];
+  const answer = answerQuestion(activePrompt.question);
+  const units = state.analysis.mapLayers ? filterMapUnits(state.analysis.mapLayers.units || []) : [];
+  const summary = summarizeUnits(units);
+  const selectedUnit = currentSelectedMapUnit();
+  const packageStats = importedPackageMapStats(state.analysis.mapLayers?.units || []);
+  const comparisonRows = mapInlineComparisonRows(activePrompt.key).map((row) => ({
+    unit_id: row.unit?.unit_id || "",
+    name: row.unit ? displayUnitName(row.unit) : "Unknown unit",
+    state: row.unit?.state || "",
+    kind: row.unit?.kind || "",
+    tier_label: row.unit?.tier_label || "",
+    metric: row.metric || "",
+    detail: row.detail || "",
+    value: Number(row.value || 0),
+  }));
+  return {
+    schema_version: "evolocus-map-inquiry-history-v1",
+    id: eventId(),
+    created_at: new Date().toISOString(),
+    prompt_key: activePrompt.key,
+    question: activePrompt.question,
+    question_label: activePrompt.label,
+    answer_title: answer.title || "Aggregate map answer",
+    answer_summary: answer.answer || "",
+    disclosure_level: state.disclosureLevel,
+    geography_color_mode: state.geographyColorMode,
+    filters: {
+      ...state.mapFilters,
+      active_labels: activeFilterLabels(),
+    },
+    selected_unit: selectedUnit
+      ? {
+          unit_id: selectedUnit.unit_id,
+          name: displayUnitName(selectedUnit),
+          state: selectedUnit.state || "",
+          kind: selectedUnit.kind || "",
+          tier_label: selectedUnit.tier_label || "",
+          law_count: Number(selectedUnit.law_count || 0),
+        }
+      : null,
+    visible_units: units.length,
+    visible_law_count: Number(summary.lawCount || 0),
+    visible_tier_mix: summary.tierCounts || {},
+    package_summary: {
+      imported: Boolean(packageStats.imported),
+      matched_records: Number(packageStats.matchedRecords || 0),
+      matched_units: packageStats.units ? packageStats.units.size : 0,
+      synthetic_demo: Boolean(packageStats.syntheticDemo),
+    },
+    comparison_rows: comparisonRows,
+    publication_policy: {
+      aggregate_only: true,
+      ordinance_text_included: false,
+      source_locators_included: false,
+      review_events_included: false,
+      browser_llm_calls: false,
+      legal_findings: false,
+    },
+  };
+}
+
+function saveCurrentMapInquiryHistory() {
+  const item = currentMapInquiryHistoryItem();
+  const history = loadMapInquiryHistory().filter((entry) => entry.id !== item.id);
+  saveMapInquiryHistory([item, ...history]);
+  renderMap();
+}
+
+function loadMapInquiryHistoryItem(itemId) {
+  const item = loadMapInquiryHistory().find((entry) => entry.id === itemId);
+  if (!item) {
+    return;
+  }
+  state.mapInlineInquiry = item.prompt_key || "view";
+  state.disclosureLevel = item.disclosure_level || state.disclosureLevel;
+  state.geographyColorMode = item.geography_color_mode || state.geographyColorMode;
+  state.mapFilters = {
+    ...state.mapFilters,
+    ...(item.filters || {}),
+    active_labels: undefined,
+  };
+  delete state.mapFilters.active_labels;
+  if (item.selected_unit?.unit_id) {
+    state.selectedUnitId = item.selected_unit.unit_id;
+  }
+  renderMap();
+}
+
+function deleteMapInquiryHistoryItem(itemId) {
+  saveMapInquiryHistory(loadMapInquiryHistory().filter((entry) => entry.id !== itemId));
+  renderMap();
 }
 
 function mapInlineInquiryPromptHtml(prompt, activeKey) {
@@ -6874,6 +7036,24 @@ function bindEvents() {
       event.preventDefault();
       state.mapInlineInquiry = mapInquiryButton.dataset.mapInquiry;
       renderMap();
+      return;
+    }
+    const saveMapInquiryButton = event.target.closest("[data-save-map-inquiry]");
+    if (saveMapInquiryButton) {
+      event.preventDefault();
+      saveCurrentMapInquiryHistory();
+      return;
+    }
+    const loadMapInquiryButton = event.target.closest("[data-load-map-inquiry]");
+    if (loadMapInquiryButton) {
+      event.preventDefault();
+      loadMapInquiryHistoryItem(loadMapInquiryButton.dataset.loadMapInquiry);
+      return;
+    }
+    const deleteMapInquiryButton = event.target.closest("[data-delete-map-inquiry]");
+    if (deleteMapInquiryButton) {
+      event.preventDefault();
+      deleteMapInquiryHistoryItem(deleteMapInquiryButton.dataset.deleteMapInquiry);
       return;
     }
     const mapCompareButton = event.target.closest("[data-map-compare-unit]");

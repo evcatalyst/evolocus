@@ -235,6 +235,16 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "mapInlineComparisonStripHtml" in js
     assert "mapInlineComparisonRows" in js
     assert "largestVisibleComparisonRows" in js
+    assert "STORAGE_MAP_INQUIRY_HISTORY" in js
+    assert "loadMapInquiryHistory" in js
+    assert "saveCurrentMapInquiryHistory" in js
+    assert "currentMapInquiryHistoryItem" in js
+    assert "data-save-map-inquiry" in js
+    assert "data-load-map-inquiry" in js
+    assert "data-delete-map-inquiry" in js
+    assert "evolocus-map-inquiry-history-v1" in js
+    assert "source_locators_included: false" in js
+    assert "review_events_included: false" in js
     assert "data-map-inquiry" in js
     assert "data-map-compare-unit" in js
     assert "tierColorForLabel" in js
@@ -282,6 +292,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-reading-guide-tiers" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
+    assert "map-inline-inquiry-history" in css
+    assert "map-inline-history-row" in css
     assert "map-inline-comparison-strip" in css
     assert "map-inline-comparison-row" in css
     assert "ontology-tier-focus" in css

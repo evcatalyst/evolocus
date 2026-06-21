@@ -46,6 +46,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - tier-to-ontology clickthrough from neutral tier chips into a focused ontology context card for visible units, topic/function links, and score summaries;
 - tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology card;
 - map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
+- browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;
 - inquiry-driven county/town comparison strip that changes by prompt and opens aggregate units back on the map;
 - selected-unit ontology drilldown cards for topic/function/tier/score/geometry/package links inside the map panel;
 - selected-unit mini ontology path animation that adds score and geometry nodes as disclosure depth increases;
@@ -165,6 +166,8 @@ After a bounded package is imported, the browser stores a small import-status re
 The current-view snapshot export captures active filters, visible aggregate summaries, selected-unit metadata, audit signals, Grok briefing provenance, and local package aggregate counts when a package is active. It excludes ordinance text, headers, raw rows, record locators, browser review events, local databases, and secrets.
 
 The Snapshots tab stores those aggregate current-view payloads in browser localStorage, renders comparison bars, and can reload a saved view's map filters. Package-aware snapshot cards compare matched package units and record counts while preserving text and locator exclusion. Gallery export uses the same aggregate-only policy.
+
+The map-side inquiry card can save a bounded local history of aggregate answers. History entries are browser-local only and store prompt context, filters, selected unit metadata, package counts, and comparison rows; they exclude ordinance text, source locator values, review events, local databases, secrets, and browser LLM calls.
 
 The Inquiry question matrix reads current browser filter state, `question_pack.json`, and static aggregate artifacts. Question-pack prompts can apply safe map filters and disclosure levels from the browser. They remain deterministic browser logic unless an offline workflow publishes refreshed briefing or question-pack JSON.
 
