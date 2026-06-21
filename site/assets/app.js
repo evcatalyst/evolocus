@@ -1918,12 +1918,140 @@ function renderInquiry() {
       <span>No live browser LLM calls</span>
     `
     : "<span>Inquiry briefings loading</span>";
+  renderInquiryContext();
+  renderInquiryMatrix();
   $("#suggested-questions").innerHTML = suggested
     .map((question) => `<button type="button" data-question="${escapeHtml(question)}">${escapeHtml(question)}</button>`)
     .join("");
   $("#inquiry-answer").innerHTML = state.inquiryAnswer
     ? inquiryAnswerHtml(state.inquiryAnswer)
     : "<p>Ask about status, tiers, topics, map units, model outputs, or Grok integration.</p>";
+}
+
+function renderInquiryContext() {
+  const grid = $("#inquiry-context-grid");
+  if (!grid) {
+    return;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    grid.innerHTML = `<article class="inquiry-context-card"><span>Analysis</span><strong>Loading</strong><em>Aggregate map artifact unavailable</em></article>`;
+    return;
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const summary = summarizeUnits(units);
+  const auditSummary = inquiryAuditSummary(units);
+  const cards = [
+    ["Visible units", formatCount(units.length), activeFilterLabels().join(" · ") || "No active map filters"],
+    ["Visible law rows", formatCount(summary.lawCount), `${formatPercent(summary.lawCount, summarizeUnits(mapLayers.units || []).lawCount)} of published layer`],
+    ["Top topic", summary.topTopic.label, `${formatCount(summary.topTopic.value)} aggregate rows`],
+    ["Top function", summary.topFunction.label, `${formatCount(summary.topFunction.value)} aggregate rows`],
+    ["Audit signals", formatCount(auditSummary.reviewRows), `${formatCount(auditSummary.duplicateRows)} duplicate text-hash rows`],
+  ];
+  grid.innerHTML = cards
+    .map(
+      ([label, value, detail]) => `
+        <article class="inquiry-context-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <em>${escapeHtml(detail)}</em>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderInquiryMatrix() {
+  const matrix = $("#inquiry-question-matrix");
+  const summary = $("#inquiry-matrix-summary");
+  if (!matrix || !summary) {
+    return;
+  }
+  const prompts = inquiryPromptCards();
+  summary.textContent = `${formatCount(prompts.length)} static prompts`;
+  matrix.innerHTML = prompts
+    .map(
+      (prompt) => `
+        <button type="button" data-inquiry-prompt="${escapeHtml(prompt.question)}"${prompt.unitId ? ` data-inquiry-unit="${escapeHtml(prompt.unitId)}"` : ""}>
+          <span>${escapeHtml(prompt.group)}</span>
+          <strong>${escapeHtml(prompt.title)}</strong>
+          <em>${escapeHtml(prompt.detail)}</em>
+        </button>
+      `,
+    )
+    .join("");
+}
+
+function inquiryPromptCards() {
+  const mapLayers = state.analysis.mapLayers;
+  const units = mapLayers ? filterMapUnits(mapLayers.units || []) : [];
+  const summary = summarizeUnits(units);
+  const topUnit = summary.topUnit;
+  const selectedUnit = currentSelectedMapUnit();
+  const auditSummary = inquiryAuditSummary(units);
+  const cards = [
+    {
+      group: "Map",
+      title: "Current filtered view",
+      question: "What does the current filtered map view show?",
+      detail: `${formatCount(units.length)} units · ${formatCount(summary.lawCount)} rows`,
+    },
+    {
+      group: "Topic",
+      title: `Why ${summary.topTopic.label}?`,
+      question: `What does the current filtered map view show for ${summary.topTopic.label} laws?`,
+      detail: `${formatCount(summary.topTopic.value)} aggregate rows`,
+    },
+    {
+      group: "Function",
+      title: `Function mix: ${summary.topFunction.label}`,
+      question: `What does the current filtered map view show for ${summary.topFunction.label} functions?`,
+      detail: `${formatCount(summary.topFunction.value)} aggregate rows`,
+    },
+    {
+      group: "Audit",
+      title: "Review signals",
+      question: "What audit review signals are visible in the current filtered map view?",
+      detail: `${formatCount(auditSummary.reviewRows)} OCR · ${formatCount(auditSummary.duplicateRows)} duplicate hash`,
+    },
+    {
+      group: "Scores",
+      title: "Neutral score profile",
+      question: "What model score patterns are visible in the current filtered map view?",
+      detail: scoreSnapshot(summary.scoreMeans),
+    },
+  ];
+  if (topUnit) {
+    cards.push({
+      group: "Unit",
+      title: displayUnitName(topUnit),
+      question: `What does the selected unit ${displayUnitName(topUnit)} show?`,
+      detail: `${topUnit.state} · ${formatCount(topUnit.law_count)} rows`,
+      unitId: topUnit.unit_id,
+    });
+  }
+  if (selectedUnit) {
+    cards.unshift({
+      group: "Selected",
+      title: displayUnitName(selectedUnit),
+      question: `What does the selected unit ${displayUnitName(selectedUnit)} show?`,
+      detail: `${selectedUnit.state} · ${selectedUnit.tier_label}`,
+      unitId: selectedUnit.unit_id,
+    });
+  }
+  return cards.slice(0, state.disclosureLevel === "overview" ? 6 : 8);
+}
+
+function inquiryAuditSummary(units) {
+  const unitIds = new Set(units.map((unit) => unit.unit_id));
+  const rows = (state.analysis.unitAuditQuality?.units || []).filter((row) => unitIds.has(row.unit_id));
+  return rows.reduce(
+    (summary, row) => ({
+      reviewRows: summary.reviewRows + Number(row.ocr_review_rows || 0),
+      duplicateRows: summary.duplicateRows + Number(row.duplicate_text_hash_rows || 0),
+    }),
+    { reviewRows: 0, duplicateRows: 0 },
+  );
 }
 
 function inquiryAnswerHtml(answer) {
@@ -3116,6 +3244,12 @@ function answerQuestion(question) {
   if (/\b(selected|current|this)\b/.test(normalized) && /\b(unit|county|town|municipal|municipality|jurisdiction|place)\b/.test(normalized)) {
     return selectedUnitAnswer();
   }
+  if (/\b(audit|ocr|duplicate|quality|review signal|review signals)\b/.test(normalized)) {
+    return filteredAuditAnswer();
+  }
+  if (/\b(score|scores|opacity|paternalism|salience|enforcement|model output|model outputs)\b/.test(normalized)) {
+    return filteredScoreAnswer();
+  }
   if (/\b(current|filtered|visible|shown|view)\b/.test(normalized) && /\b(map|unit|units|law|laws|topic|tier|state)\b/.test(normalized)) {
     return filteredViewAnswer();
   }
@@ -3161,6 +3295,123 @@ function answerQuestion(question) {
       </ol>
     `,
   };
+}
+
+function filteredAuditAnswer() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return {
+      title: "Audit signals unavailable",
+      answer: "Aggregate map artifacts have not loaded yet.",
+      sections: "",
+      matches: "",
+    };
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const auditSummary = inquiryAuditSummary(units);
+  const visibleUnitIds = new Set(units.map((unit) => unit.unit_id));
+  const topAuditRows = (state.analysis.unitAuditQuality?.units || [])
+    .filter((row) => visibleUnitIds.has(row.unit_id))
+    .sort((a, b) => Number(b.audit_attention_score || 0) - Number(a.audit_attention_score || 0))
+    .slice(0, state.disclosureLevel === "overview" ? 5 : 10);
+  return {
+    title: "Current audit review signals",
+    answer: `The current filtered aggregate view contains ${formatCount(auditSummary.reviewRows)} medium/high OCR-review rows and ${formatCount(auditSummary.duplicateRows)} duplicate text-hash rows across ${formatCount(units.length)} visible units. These are review-priority cues, not legal findings or proof of text defects.`,
+    sections: inquiryAuditSectionsHtml(topAuditRows),
+    matches: `
+      <h4>Audit evidence boundary</h4>
+      <dl class="briefing-facts">
+        <dt>Source artifact</dt><dd>unit_audit_quality.json <span>aggregate only</span></dd>
+        <dt>Visible filters</dt><dd>${escapeHtml(activeFilterLabels().join(" · ") || "No active map filters")} <span>browser state</span></dd>
+        <dt>Raw text</dt><dd>Not published <span>publication policy</span></dd>
+      </dl>
+    `,
+  };
+}
+
+function inquiryAuditSectionsHtml(rows) {
+  if (!rows.length) {
+    return "";
+  }
+  return `
+    <div class="briefing-sections">
+      <section>
+        <span>unit</span>
+        <h4>Highest visible audit-attention units</h4>
+        <p>Sorted by aggregate audit-attention score within the current filter.</p>
+        <div class="briefing-row-list">
+          ${rows
+            .map(
+              (row) => `
+                <span>
+                  <strong>${escapeHtml(displayUnitName(row))}</strong>
+                  ${escapeHtml(row.state || "NA")} · ${escapeHtml(formatNumber(row.audit_attention_score))}/100 · ${escapeHtml(formatCount(row.ocr_review_rows))} OCR · ${escapeHtml(formatCount(row.duplicate_text_hash_rows))} duplicate hash
+                </span>
+              `,
+            )
+            .join("")}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function filteredScoreAnswer() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return {
+      title: "Score profile unavailable",
+      answer: "Aggregate map artifacts have not loaded yet.",
+      sections: "",
+      matches: "",
+    };
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const summary = summarizeUnits(units);
+  const highContrast = units
+    .slice()
+    .sort((a, b) => scoreSpread(b) - scoreSpread(a))
+    .slice(0, state.disclosureLevel === "overview" ? 5 : 10);
+  return {
+    title: "Current neutral score profile",
+    answer: `The visible aggregate layer has ${formatCount(units.length)} units and mean released model-score values of ${scoreSnapshot(summary.scoreMeans)}. Score direction and legal meaning are not verified here, so this is only a relative model-output profile.`,
+    sections: inquiryScoreSectionsHtml(highContrast),
+    matches: `
+      <h4>Score evidence boundary</h4>
+      <dl class="briefing-facts">
+        <dt>Source artifact</dt><dd>map_layers.json <span>aggregate score means</span></dd>
+        <dt>Dimensions</dt><dd>${escapeHtml(SCORE_FIELDS.join(", "))} <span>released LOCUS model outputs</span></dd>
+        <dt>Interpretation</dt><dd>Neutral relative scores only <span>direction unverified</span></dd>
+      </dl>
+    `,
+  };
+}
+
+function inquiryScoreSectionsHtml(rows) {
+  if (!rows.length) {
+    return "";
+  }
+  return `
+    <div class="briefing-sections">
+      <section>
+        <span>unit</span>
+        <h4>High-contrast visible score profiles</h4>
+        <p>Units sorted by spread across the four released model-score dimensions.</p>
+        <div class="briefing-row-list">
+          ${rows
+            .map(
+              (unit) => `
+                <span>
+                  <strong>${escapeHtml(displayUnitName(unit))}</strong>
+                  ${escapeHtml(unit.state || "NA")} · spread ${escapeHtml(scoreSpread(unit).toFixed(3))} · ${escapeHtml(scoreSnapshot(unit.model_score_means || {}))}
+                </span>
+              `,
+            )
+            .join("")}
+        </div>
+      </section>
+    </div>
+  `;
 }
 
 function currentSelectedMapUnit() {
@@ -3713,6 +3964,18 @@ function bindEvents() {
     $("#inquiry-form input[name='question']").value = button.dataset.question;
     state.inquiryAnswer = answerQuestion(button.dataset.question);
     renderInquiry();
+  });
+  $("#inquiry-question-matrix").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-inquiry-prompt]");
+    if (!button) {
+      return;
+    }
+    if (button.dataset.inquiryUnit) {
+      state.selectedUnitId = button.dataset.inquiryUnit;
+    }
+    $("#inquiry-form input[name='question']").value = button.dataset.inquiryPrompt;
+    state.inquiryAnswer = answerQuestion(button.dataset.inquiryPrompt);
+    render();
   });
   $("#map-panel").addEventListener("click", (event) => {
     const askButton = event.target.closest("[data-ask-unit-id]");

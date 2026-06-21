@@ -1502,6 +1502,81 @@ legend {
   margin-bottom: 14px;
 }
 
+.inquiry-context-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.inquiry-context-card,
+.inquiry-matrix-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.inquiry-context-card span,
+.inquiry-context-card em {
+  display: block;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+.inquiry-context-card strong {
+  display: block;
+  margin: 6px 0;
+  color: #326f70;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-matrix-card {
+  margin-bottom: 14px;
+}
+
+.inquiry-question-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.inquiry-question-matrix button {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  min-height: 112px;
+  border-color: var(--line);
+  background: #f8fafc;
+  color: var(--ink);
+  text-align: left;
+}
+
+.inquiry-question-matrix button:hover {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
+.inquiry-question-matrix span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-question-matrix strong {
+  font-size: 1rem;
+}
+
+.inquiry-question-matrix em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.84rem;
+}
+
 .suggested-questions {
   display: flex;
   flex-wrap: wrap;
@@ -1942,6 +2017,8 @@ th {
   .toolbar,
   .filter-grid,
   .map-filter-grid,
+  .inquiry-context-grid,
+  .inquiry-question-matrix,
   .review-layout,
   .map-layout,
   .county-layer-heading,
@@ -1983,6 +2060,8 @@ th {
   .toolbar,
   .filter-grid,
   .map-filter-grid,
+  .inquiry-context-grid,
+  .inquiry-question-matrix,
   .review-layout,
   .map-layout,
   .county-layer-heading,

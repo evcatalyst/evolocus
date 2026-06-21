@@ -11,6 +11,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Charts" in html
     assert "Score Lens" in html
     assert "Audit Lens" in html
+    assert "Question matrix" in html
     assert "localStorage" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js
@@ -18,6 +19,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderOntology" in js
     assert "renderInquiry" in js
     assert "matchInquiryBriefing" in js
+    assert "renderInquiryContext" in js
+    assert "renderInquiryMatrix" in js
+    assert "filteredAuditAnswer" in js
+    assert "filteredScoreAnswer" in js
     assert "briefingSectionsHtml" in js
     assert "selectedUnitAnswer" in js
     assert "askAboutMapUnit" in js

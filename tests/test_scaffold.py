@@ -105,6 +105,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Inquiry" in html
     assert "Score Lens" in html
     assert "Audit Lens" in html
+    assert "Question matrix" in html
     assert "selected-ontology-neighborhood" in html
     assert "Analysis Status" in html
     assert "map-filter-form" in html
@@ -135,6 +136,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data/analysis/inquiry_briefings.json" in js
     assert "data/analysis/county_geometry.json" in js
     assert "data/analysis/municipal_points.json" in js
+    assert "inquiry-context-grid" in html
+    assert "inquiry-question-matrix" in html
     assert "score-summary-grid" in html
     assert "score-visual-grid" in html
     assert "score-state-grid" in html
@@ -149,6 +152,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "briefing-sections" in js
     assert "matchInquiryBriefing" in js
     assert "selectedUnitAnswer" in js
+    assert "renderInquiryContext" in js
+    assert "renderInquiryMatrix" in js
+    assert "inquiryPromptCards" in js
+    assert "filteredAuditAnswer" in js
+    assert "filteredScoreAnswer" in js
+    assert "data-inquiry-prompt" in js
+    assert "data-inquiry-unit" in js
     assert "askAboutMapUnit" in js
     assert "geometryMatchForUnit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
@@ -185,6 +195,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "score-summary-grid" in css
     assert "score-state-row" in css
     assert "score-unit-row" in css
+    assert "inquiry-context-grid" in css
+    assert "inquiry-question-matrix" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

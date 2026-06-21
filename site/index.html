@@ -223,6 +223,17 @@
           <button type="submit">Ask</button>
         </form>
         <div id="inquiry-provenance" class="inquiry-provenance"></div>
+        <div id="inquiry-context-grid" class="inquiry-context-grid"></div>
+        <section class="inquiry-matrix-card" aria-labelledby="inquiry-matrix-heading">
+          <div class="coverage-matrix-heading">
+            <div>
+              <h3 id="inquiry-matrix-heading">Question matrix</h3>
+              <p>Prompt cards use the current map filters and static aggregate artifacts. No live model call runs in the browser.</p>
+            </div>
+            <span id="inquiry-matrix-summary">Loading prompts</span>
+          </div>
+          <div id="inquiry-question-matrix" class="inquiry-question-matrix"></div>
+        </section>
         <div id="suggested-questions" class="suggested-questions"></div>
         <article id="inquiry-answer" class="inquiry-answer"></article>
       </section>

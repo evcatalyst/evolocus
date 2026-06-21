@@ -28,6 +28,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with released model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over published aggregate artifacts;
+- Inquiry question matrix for filter-aware map, topic, function, audit, score, and selected-unit prompts;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate chart panels and publication gates;
 - progressive disclosure from overview to unit detail to evidence trail;
@@ -118,6 +119,8 @@ The audit-attention color mode is a review-priority signal from aggregate OCR an
 The Audit Lens reads the same aggregate artifact and current map filters. It never renders ordinance text, headers, source locators, or full-row records.
 
 The Score Lens reads aggregate `map_layers.json` score means and current map filters. It describes values as neutral relative model scores because score direction has not been authoritatively verified in this milestone.
+
+The Inquiry question matrix reads current browser filter state and static aggregate artifacts. It is deterministic browser logic unless a future offline workflow publishes refreshed briefing JSON.
 
 Refresh static progressive inquiry briefings from the current aggregate artifacts:
 

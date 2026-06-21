@@ -39,3 +39,4 @@
 - Per-unit audit signals should be scoped to published map units and framed as review priority, not legal ranking or proof of OCR defects.
 - Audit visuals should share map filters and progressive disclosure so users can move from national aggregate context to unit drill-through without exposing raw text.
 - Score visuals should remain neutral and relative until score direction is verified from authoritative LOCUS model documentation.
+- Browser inquiry should make the active filter state visible in prompt cards so answers feel connected to the map without requiring live LLM calls.

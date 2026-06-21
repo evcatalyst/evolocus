@@ -50,6 +50,7 @@ The Pages app supports:
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
+- Inquiry question matrix with filter-aware prompts for map, topic, function, audit, score, and selected-unit questions;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
 - progressive disclosure from overview to unit detail to evidence trail;

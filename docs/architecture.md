@@ -24,6 +24,7 @@ flowchart LR
 - Browser JavaScript handles queue review, explorer filters, metrics, local persistence, and exports.
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
+- Inquiry prompt cards use current map filters and static artifacts to answer map, topic, function, audit, score, and selected-unit questions without live model calls.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - The Analysis Status tab reads `audit_status.json`, a full-row-count audit summary that excludes raw rows, ordinance text, sampled findings, and record locators.
 - The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
@@ -78,6 +79,8 @@ Audit attention is a review-priority signal from aggregate OCR-risk and duplicat
 The Audit Lens uses the same progressive disclosure control as the map and status views: overview summarizes the aggregate scan, unit detail expands state and unit rows, and evidence trail exposes artifact scope and limitations.
 
 The Score Lens uses the same filters and disclosure levels. It displays score values as neutral relative model outputs only; directional legal interpretations remain out of scope until authoritative model-card verification is added.
+
+The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts. It can fill and answer the inquiry form, but it does not call Grok or any browser-exposed LLM API.
 
 The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 
