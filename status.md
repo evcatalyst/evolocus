@@ -26,6 +26,7 @@ Files saved:
 - `site/data/analysis/models.json`
 - `site/data/analysis/charts.json`
 - `site/data/analysis/county_geometry.json`
+- `site/data/analysis/municipal_points.json`
 - `site/index.html`
 - `src/evolocus/__init__.py`
 - `src/evolocus/analysis_publish.py`
@@ -75,6 +76,7 @@ Current coverage stats:
 - Primary UI: GitHub Pages browser workbench
 - Static analysis artifacts: real aggregate state-clustered preview generated with Polars and published without raw rows or ordinance text
 - County geometry artifact: official Census TIGERweb county polygons for 177 matched aggregate county units, machine-matched and pending review
+- Municipal point artifact: official Census TIGERweb place/subdivision points for 815 of 823 aggregate municipal units, machine-matched and pending review
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
@@ -111,6 +113,7 @@ Latest update:
 - Added an Analysis Status tab on GitHub Pages with artifact freshness, publication gates, aggregate-only boundaries, geometry-review status, and Grok secret policy.
 - Added a Charts-tab county/town aggregate coverage atlas by state, source-unit type, neutral tier, law count, and top topic.
 - Added an official Census TIGERweb county choropleth layer for all 177 aggregate county units, with machine-match pending-review labeling and no raw LOCUS text.
+- Added an official Census TIGERweb municipal/town point layer for 815 matched aggregate municipal units, with 8 unmatched units left explicit rather than guessed.
 
 Evaluator implementation state:
 

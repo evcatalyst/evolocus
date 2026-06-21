@@ -25,6 +25,7 @@ from .locus_ingest import (
     write_master_jurisdictions,
 )
 from .locus_source import CorpusConfig, LocusCorpus
+from .municipal_points import publish_municipal_points_artifact
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -109,6 +110,24 @@ def main(argv: list[str] | None = None) -> int:
     county_geometry_parser.add_argument("--max-allowable-offset", type=float, default=0.02)
     county_geometry_parser.add_argument("--geometry-precision", type=int, default=4)
     county_geometry_parser.set_defaults(func=_publish_county_geometry)
+
+    municipal_points_parser = subparsers.add_parser(
+        "publish-municipal-points",
+        help="Publish official Census place/subdivision points matched to aggregate Pages units.",
+    )
+    municipal_points_parser.add_argument(
+        "--map-layers",
+        type=Path,
+        default=DEFAULT_OUTPUT_DIR / "map_layers.json",
+        help="Existing aggregate map_layers.json input.",
+    )
+    municipal_points_parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT_DIR / "municipal_points.json",
+        help="Output municipal points JSON artifact.",
+    )
+    municipal_points_parser.set_defaults(func=_publish_municipal_points)
 
     args = parser.parse_args(argv)
     return int(args.func(args) or 0)
@@ -210,6 +229,12 @@ def _publish_county_geometry(args: argparse.Namespace) -> int:
         max_allowable_offset=args.max_allowable_offset,
         geometry_precision=args.geometry_precision,
     )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _publish_municipal_points(args: argparse.Namespace) -> int:
+    result = publish_municipal_points_artifact(args.map_layers, args.output)
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0
 

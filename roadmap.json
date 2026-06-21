@@ -39,7 +39,8 @@
         "Add Charts-tab state/topic small multiples from the aggregate map layer",
         "Add GitHub Pages analysis-status panel with publication gates and artifact provenance",
         "Add county/town aggregate coverage atlas in the Charts tab",
-        "Add official Census TIGERweb county choropleth for matched aggregate county units"
+        "Add official Census TIGERweb county choropleth for matched aggregate county units",
+        "Add official Census TIGERweb municipal/town point layer for matched aggregate municipal units"
       ],
       "remaining_items": [
         "Run full real LOCUS local-Parquet audit and manifest generation",

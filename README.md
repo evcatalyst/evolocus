@@ -31,6 +31,7 @@ The Pages app supports:
 
 - state-clustered county/town law map units colored by neutral tier;
 - official Census TIGERweb county choropleth for matched aggregate county units;
+- official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
 - map filters for state, topic, function, tier, and minimum law count;
 - filtered-view insight cards and inquiry answers over the current aggregate map selection;
 - filtered-vs-full comparison panels for topic, tier, function, jurisdiction kind, and neutral score means;
@@ -122,7 +123,7 @@ PYTHONPATH=src python -m evolocus.cli publish-analysis \
   --output data/exports/analysis-preview
 ```
 
-The current public `site/data/analysis/` artifacts are aggregate-only LOCUS outputs generated from local Parquet with Polars. The map includes approximate state-clustered county/town units plus a generalized Census TIGERweb county choropleth for matched aggregate county units. County matches are machine-generated and pending review. The artifacts include no ordinance text, no raw LOCUS rows, no local evaluation database, and no exported review history. Regenerate into `data/exports/analysis-preview` first, inspect the JSON for text/secrets, then copy only the reviewed aggregate artifacts into `site/data/analysis/`.
+The current public `site/data/analysis/` artifacts are aggregate-only LOCUS outputs generated from local Parquet with Polars. The map includes approximate state-clustered county/town units, a generalized Census TIGERweb county choropleth for matched aggregate county units, and Census TIGERweb municipal/town internal points for matched aggregate municipal units. Geography matches are machine-generated and pending review. The artifacts include no ordinance text, no raw LOCUS rows, no local evaluation database, and no exported review history. Regenerate into `data/exports/analysis-preview` first, inspect the JSON for text/secrets, then copy only the reviewed aggregate artifacts into `site/data/analysis/`.
 
 Refresh the official county geometry artifact after updating `map_layers.json`:
 
@@ -130,6 +131,10 @@ Refresh the official county geometry artifact after updating `map_layers.json`:
 PYTHONPATH=src python -m evolocus.cli publish-county-geometry \
   --map-layers site/data/analysis/map_layers.json \
   --output site/data/analysis/county_geometry.json
+
+PYTHONPATH=src python -m evolocus.cli publish-municipal-points \
+  --map-layers site/data/analysis/map_layers.json \
+  --output site/data/analysis/municipal_points.json
 ```
 
 Audit demo or local Parquet:

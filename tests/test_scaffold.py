@@ -25,10 +25,12 @@ REQUIRED_PATHS = [
     "site/data/analysis/models.json",
     "site/data/analysis/charts.json",
     "site/data/analysis/county_geometry.json",
+    "site/data/analysis/municipal_points.json",
     "site/index.html",
     "src/evolocus/__init__.py",
     "src/evolocus/cli.py",
     "src/evolocus/county_geometry.py",
+    "src/evolocus/municipal_points.py",
     "src/evolocus/locus_ingest.py",
     "tests/test_scaffold.py",
     "tests/test_locus_ingest.py",
@@ -107,12 +109,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "state-topic-grid" in html
     assert "coverage-matrix-grid" in html
     assert "county-choropleth" in html
+    assert "municipal point layer" in html
     assert "status-card-grid" in html
     assert "status-detail-grid" in html
     assert "status-gate-grid" in html
     assert "data/analysis/status.json" in js
     assert "data/analysis/charts.json" in js
     assert "data/analysis/county_geometry.json" in js
+    assert "data/analysis/municipal_points.json" in js
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js
@@ -123,6 +127,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderCoverageMatrix" in js
     assert "coverageMatrixRows" in js
     assert "renderCountyChoropleth" in js
+    assert "municipalPointSvg" in js
     assert "official_census_county_geometry_machine_matched_pending_review" not in js
     assert "renderAnalysisStatusPanel" in js
     assert "publication_gates" in js
@@ -139,6 +144,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     models = json.loads(read_text("site/data/analysis/models.json"))
     charts = json.loads(read_text("site/data/analysis/charts.json"))
     county_geometry = json.loads(read_text("site/data/analysis/county_geometry.json"))
+    municipal_points = json.loads(read_text("site/data/analysis/municipal_points.json"))
     assert status["synthetic"] is False
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
@@ -170,7 +176,23 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert county_geometry["unmatched_count"] == 0
     assert len(county_geometry["feature_collection"]["features"]) == county_geometry["matched_count"]
     assert all(feature["properties"]["match_status"] == "machine_matched_pending_review" for feature in county_geometry["feature_collection"]["features"])
-    serialized = json.dumps({"status": status, "map_layers": map_layers, "charts": charts, "county_geometry": county_geometry})
+    assert municipal_points["schema_version"] == "evolocus-municipal-points-v1"
+    assert municipal_points["geometry_status"] == "official_census_municipal_points_machine_matched_pending_review"
+    assert municipal_points["real_locus_rows_published"] is False
+    assert municipal_points["municipal_unit_count"] == 823
+    assert municipal_points["matched_count"] == 815
+    assert municipal_points["unmatched_count"] == 8
+    assert len(municipal_points["points"]) == municipal_points["matched_count"]
+    assert all(point["match_status"] == "machine_matched_pending_review" for point in municipal_points["points"])
+    serialized = json.dumps(
+        {
+            "status": status,
+            "map_layers": map_layers,
+            "charts": charts,
+            "county_geometry": county_geometry,
+            "municipal_points": municipal_points,
+        }
+    )
     assert '"content"' not in serialized
     assert '"header"' not in serialized
     assert "source_locator" not in serialized

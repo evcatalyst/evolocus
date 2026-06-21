@@ -7,6 +7,7 @@ const ANALYSIS_PATHS = {
   status: "data/analysis/status.json",
   mapLayers: "data/analysis/map_layers.json",
   countyGeometry: "data/analysis/county_geometry.json",
+  municipalPoints: "data/analysis/municipal_points.json",
   ontology: "data/analysis/ontology.json",
   chatIndex: "data/analysis/chat_index.json",
   models: "data/analysis/models.json",
@@ -213,6 +214,7 @@ let state = {
     status: null,
     mapLayers: null,
     countyGeometry: null,
+    municipalPoints: null,
     ontology: null,
     chatIndex: null,
     models: null,
@@ -469,6 +471,7 @@ function renderMap() {
 
 function renderCountyChoropleth(units) {
   const artifact = state.analysis.countyGeometry;
+  const municipalArtifact = state.analysis.municipalPoints;
   const summary = $("#county-layer-summary");
   const svg = $("#county-choropleth");
   const detail = $("#county-layer-detail");
@@ -476,32 +479,42 @@ function renderCountyChoropleth(units) {
     return;
   }
   if (!artifact) {
-    summary.innerHTML = "<span>County geometry loading</span>";
+    summary.innerHTML = "<span>Official geography loading</span>";
     svg.innerHTML = "";
-    detail.innerHTML = "<p>Official county geometry artifact has not loaded yet.</p>";
+    detail.innerHTML = "<p>Official geography artifacts have not loaded yet.</p>";
     return;
   }
   const visibleCountyIds = new Set(units.filter((unit) => unit.kind === "county").map((unit) => unit.unit_id));
+  const visibleMunicipalIds = new Set(units.filter((unit) => unit.kind === "city").map((unit) => unit.unit_id));
   const features = (artifact.feature_collection?.features || []).filter((feature) =>
     visibleCountyIds.has(feature.properties?.unit_id),
   );
+  const municipalPoints = (municipalArtifact?.points || []).filter((point) => visibleMunicipalIds.has(point.unit_id));
   const allFeatures = artifact.feature_collection?.features || [];
   summary.innerHTML = `
     <span>${escapeHtml(formatCount(features.length))} visible counties</span>
+    <span>${escapeHtml(formatCount(municipalPoints.length))} visible municipal points</span>
     <span>${escapeHtml(formatCount(artifact.matched_count || allFeatures.length))}/${escapeHtml(formatCount(artifact.county_unit_count || allFeatures.length))} matched</span>
+    <span>${escapeHtml(formatCount(municipalArtifact?.matched_count || 0))}/${escapeHtml(formatCount(municipalArtifact?.municipal_unit_count || 0))} municipal matched</span>
     <span>${escapeHtml(artifact.geometry_status || "geometry status unknown")}</span>
   `;
   svg.setAttribute("viewBox", "0 0 960 560");
-  if (!features.length) {
-    svg.innerHTML = `<text x="32" y="54">No matched county polygons under the current filters.</text>`;
-    detail.innerHTML = "<p>No county geometry matches the active filters. Clear filters or select county units.</p>";
+  if (!features.length && !municipalPoints.length) {
+    svg.innerHTML = `<text x="32" y="54">No matched county polygons or municipal points under the current filters.</text>`;
+    detail.innerHTML = "<p>No official geography matches the active filters. Clear filters or select matched county/municipal units.</p>";
     return;
   }
-  const bounds = geoBounds(features);
-  svg.innerHTML = features.map((feature) => countyFeatureSvg(feature, bounds)).join("");
-  const selectedFeature =
-    features.find((feature) => feature.properties?.unit_id === state.selectedUnitId) || features[0];
-  renderCountyGeometryDetail(selectedFeature, artifact);
+  const bounds = geoBounds(features, municipalPoints);
+  svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds)).join("")}${municipalPoints.map((point) => municipalPointSvg(point, bounds)).join("")}`;
+  const selectedPoint = municipalPoints.find((point) => point.unit_id === state.selectedUnitId);
+  const selectedFeature = features.find((feature) => feature.properties?.unit_id === state.selectedUnitId);
+  if (selectedPoint) {
+    renderMunicipalPointDetail(selectedPoint, municipalArtifact);
+  } else if (features.length) {
+    renderCountyGeometryDetail(selectedFeature || features[0], artifact, municipalArtifact);
+  } else {
+    renderMunicipalPointDetail(municipalPoints[0], municipalArtifact);
+  }
 }
 
 function countyFeatureSvg(feature, bounds) {
@@ -542,6 +555,47 @@ function renderCountyGeometryDetail(feature, artifact) {
   `;
 }
 
+function municipalPointSvg(point, bounds) {
+  const [x, y] = projectLonLat(point.lon, point.lat, bounds);
+  const selected = point.unit_id === state.selectedUnitId ? " selected" : "";
+  const lawCount = Math.max(0, Number(point.law_count || 0));
+  const radius = 3.2 + Math.min(4.8, Math.log10(lawCount + 1) * 0.95);
+  return `
+    <circle
+      class="municipal-point${selected}"
+      data-unit-id="${escapeHtml(point.unit_id)}"
+      cx="${x.toFixed(2)}"
+      cy="${y.toFixed(2)}"
+      r="${radius.toFixed(2)}"
+      fill="${escapeHtml(point.tier_color || "#d8dee8")}"
+      tabindex="0"
+    >
+      <title>${escapeHtml(point.census_name || point.unit_name)} · ${escapeHtml(point.tier_label || "No tier")} · ${escapeHtml(formatCount(point.law_count))} laws</title>
+    </circle>
+  `;
+}
+
+function renderMunicipalPointDetail(point, artifact) {
+  const showEvidence = state.disclosureLevel === "evidence";
+  $("#county-layer-detail").innerHTML = `
+    <dl class="metadata-grid compact-metadata">
+      <dt>Municipality</dt><dd>${escapeHtml(point.census_name || "Unknown")}</dd>
+      <dt>State</dt><dd>${escapeHtml(point.state || "Unknown")}</dd>
+      <dt>GEOID</dt><dd>${escapeHtml(point.geoid || "Unknown")}</dd>
+      <dt>Layer</dt><dd>${escapeHtml(point.census_layer || "Unknown")}</dd>
+      <dt>Tier</dt><dd>${escapeHtml(point.tier_label || "No tier")}</dd>
+      <dt>Laws</dt><dd>${escapeHtml(formatCount(point.law_count))}</dd>
+      <dt>Dominant topic</dt><dd>${escapeHtml(point.dominant_topic || "Unknown")}</dd>
+      <dt>Match status</dt><dd>${escapeHtml(point.match_status || "Unknown")}</dd>
+    </dl>
+    ${
+      showEvidence
+        ? `<p class="muted-note">Municipal point source: ${escapeHtml((artifact?.source?.layers || []).find((layer) => layer.id === point.census_layer)?.name || "U.S. Census Bureau TIGERweb")}. ${escapeHtml(formatCount(artifact?.unmatched_count || 0))} aggregate municipal units remain unmatched rather than guessed.</p>`
+        : `<p class="muted-note">Switch to Evidence trail to reveal municipal point source and match-status details.</p>`
+    }
+  `;
+}
+
 function geometryPath(geometry, bounds) {
   if (!geometry) {
     return "";
@@ -568,7 +622,7 @@ function polygonPath(polygon, bounds) {
     .join(" ");
 }
 
-function geoBounds(features) {
+function geoBounds(features, points = []) {
   const bounds = { minLon: Infinity, maxLon: -Infinity, minLat: Infinity, maxLat: -Infinity };
   for (const feature of features) {
     visitCoordinates(feature.geometry, ([lon, lat]) => {
@@ -577,6 +631,14 @@ function geoBounds(features) {
       bounds.minLat = Math.min(bounds.minLat, Number(lat));
       bounds.maxLat = Math.max(bounds.maxLat, Number(lat));
     });
+  }
+  for (const point of points) {
+    if (Number.isFinite(Number(point.lon)) && Number.isFinite(Number(point.lat))) {
+      bounds.minLon = Math.min(bounds.minLon, Number(point.lon));
+      bounds.maxLon = Math.max(bounds.maxLon, Number(point.lon));
+      bounds.minLat = Math.min(bounds.minLat, Number(point.lat));
+      bounds.maxLat = Math.max(bounds.maxLat, Number(point.lat));
+    }
   }
   if (!Number.isFinite(bounds.minLon)) {
     return { minLon: -125, maxLon: -66, minLat: 24, maxLat: 50 };
@@ -634,6 +696,7 @@ function renderAnalysisStatusPanel() {
   const status = state.analysis.status;
   const mapLayers = state.analysis.mapLayers;
   const countyGeometry = state.analysis.countyGeometry;
+  const municipalPoints = state.analysis.municipalPoints;
   const cardsGrid = $("#status-card-grid");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
@@ -683,6 +746,7 @@ function renderAnalysisStatusPanel() {
     ["Artifact commit", shortCommit(status.code_commit)],
     ["Geometry status", mapLayers?.geometry_status || "not loaded"],
     ["County geometry", countyGeometry ? `${formatCount(countyGeometry.matched_count)} matched / ${formatCount(countyGeometry.county_unit_count)} county units` : "not loaded"],
+    ["Municipal points", municipalPoints ? `${formatCount(municipalPoints.matched_count)} matched / ${formatCount(municipalPoints.municipal_unit_count)} municipal units` : "not loaded"],
     ["Grok boundary", `${status.grok_secret_name || "Configured offline secret"} is for offline artifact generation only; no API key is embedded in Pages.`],
   ];
   detailGrid.innerHTML = details
@@ -732,6 +796,10 @@ function renderAnalysisStatusPanel() {
     <article class="status-evidence-card">
       <h3>County Geometry</h3>
       <p>${escapeHtml(countyGeometry?.notice || "County geometry artifact is not loaded.")}</p>
+    </article>
+    <article class="status-evidence-card">
+      <h3>Municipal Points</h3>
+      <p>${escapeHtml(municipalPoints?.notice || "Municipal point artifact is not loaded.")}</p>
     </article>
     <article class="status-evidence-card">
       <h3>Citation</h3>
@@ -1994,16 +2062,17 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, ontology, chatIndex, models, charts] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, models, charts] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
+      fetchJson(ANALYSIS_PATHS.municipalPoints),
       fetchJson(ANALYSIS_PATHS.ontology),
       fetchJson(ANALYSIS_PATHS.chatIndex),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, ontology, chatIndex, models, charts, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, models, charts, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }
