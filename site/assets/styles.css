@@ -814,6 +814,14 @@ textarea {
   margin-bottom: 6px;
 }
 
+.ask-unit-button {
+  margin: 0 0 12px;
+}
+
+.selected-unit-briefing section {
+  border-left: 4px solid var(--green);
+}
+
 .unit-detail ul,
 .unit-detail ol {
   padding-left: 1.2rem;

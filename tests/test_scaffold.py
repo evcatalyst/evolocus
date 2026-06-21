@@ -125,8 +125,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data/analysis/county_geometry.json" in js
     assert "data/analysis/municipal_points.json" in js
     assert "inquiry-provenance" in html
+    assert "Ask about this unit" in js
+    assert "data-ask-unit-id" in js
     assert "briefing-sections" in js
     assert "matchInquiryBriefing" in js
+    assert "selectedUnitAnswer" in js
+    assert "askAboutMapUnit" in js
+    assert "geometryMatchForUnit" in js
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

@@ -30,3 +30,4 @@
 - Census TIGERweb incorporated-place points plus unique county-subdivision points can make the town/municipal layer useful while leaving ambiguous names unmatched instead of fabricating locations.
 - Color modes should stay tied to aggregate model-output fields and visible denominators; topic/function/tier/law-count views are exploratory review aids, not legal rankings.
 - Progressive inquiry should be generated as aggregate-only static JSON; Grok may enrich that artifact offline, but Pages must never make live model calls or expose API endpoints with secrets.
+- Map-to-inquiry drilldowns should answer from the selected aggregate unit and geometry-match artifacts, while preserving the same raw-text and legal-conclusion boundaries as the public map.

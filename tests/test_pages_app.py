@@ -17,4 +17,6 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderInquiry" in js
     assert "matchInquiryBriefing" in js
     assert "briefingSectionsHtml" in js
+    assert "selectedUnitAnswer" in js
+    assert "askAboutMapUnit" in js
     assert "fetchAnalysisArtifacts" in js

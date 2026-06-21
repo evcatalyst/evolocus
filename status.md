@@ -120,6 +120,7 @@ Latest update:
 - Added an official Census TIGERweb municipal/town point layer for 815 matched aggregate municipal units, with 8 unmatched units left explicit rather than guessed.
 - Added official geography color modes for neutral tier, dominant topic, dominant function, and law-count intensity.
 - Added `inquiry_briefings.json` and a `publish-inquiry-briefings` CLI/workflow path so GitHub Pages can answer questions from progressive aggregate-only static briefings, optionally enriched by Grok offline.
+- Added selected-unit inquiry drilldowns so a county/town map selection can open an aggregate-only Q&A answer with geometry-match provenance and disclosure-level details.
 
 Evaluator implementation state:
 

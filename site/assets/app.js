@@ -565,6 +565,7 @@ function renderCountyGeometryDetail(feature, artifact) {
   const properties = feature.properties || {};
   const showEvidence = state.disclosureLevel === "evidence";
   $("#county-layer-detail").innerHTML = `
+    <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(properties.unit_id)}">Ask about this county</button>
     <dl class="metadata-grid compact-metadata">
       <dt>County</dt><dd>${escapeHtml(properties.census_name || "Unknown")}</dd>
       <dt>State</dt><dd>${escapeHtml(properties.state || "Unknown")}</dd>
@@ -606,6 +607,7 @@ function municipalPointSvg(point, bounds, colorContext) {
 function renderMunicipalPointDetail(point, artifact) {
   const showEvidence = state.disclosureLevel === "evidence";
   $("#county-layer-detail").innerHTML = `
+    <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(point.unit_id)}">Ask about this municipality</button>
     <dl class="metadata-grid compact-metadata">
       <dt>Municipality</dt><dd>${escapeHtml(point.census_name || "Unknown")}</dd>
       <dt>State</dt><dd>${escapeHtml(point.state || "Unknown")}</dd>
@@ -1302,6 +1304,7 @@ function renderSelectedUnit() {
   $("#unit-detail").innerHTML = `
     <h3>${escapeHtml(displayUnitName(unit))}</h3>
     <p>${escapeHtml(text(unit.state))} ${escapeHtml(text(unit.kind))} · ${escapeHtml(unit.tier_label)}</p>
+    <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(unit.unit_id)}">Ask about this unit</button>
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
       <dt>Substantive</dt><dd>${escapeHtml(String(unit.substantive_count))}</dd>
@@ -1407,7 +1410,10 @@ function renderOntology() {
 function renderInquiry() {
   const chatIndex = state.analysis.chatIndex;
   const briefings = state.analysis.inquiryBriefings;
+  const selectedUnit = currentSelectedMapUnit();
+  const selectedQuestions = selectedUnit ? [`What does the selected unit ${displayUnitName(selectedUnit)} show?`] : [];
   const suggested = [
+    ...selectedQuestions,
     ...((briefings && briefings.suggested_questions) || []),
     ...((chatIndex && chatIndex.suggested_questions) || []),
   ].slice(0, 8);
@@ -2022,6 +2028,9 @@ function answerQuestion(question) {
       matches: "",
     };
   }
+  if (/\b(selected|current|this)\b/.test(normalized) && /\b(unit|county|town|municipal|municipality|jurisdiction|place)\b/.test(normalized)) {
+    return selectedUnitAnswer();
+  }
   if (/\b(current|filtered|visible|shown|view)\b/.test(normalized) && /\b(map|unit|units|law|laws|topic|tier|state)\b/.test(normalized)) {
     return filteredViewAnswer();
   }
@@ -2067,6 +2076,129 @@ function answerQuestion(question) {
       </ol>
     `,
   };
+}
+
+function currentSelectedMapUnit() {
+  const units = state.analysis.mapLayers ? state.analysis.mapLayers.units || [] : [];
+  return units.find((item) => item.unit_id === state.selectedUnitId) || null;
+}
+
+function selectedUnitAnswer(unit = currentSelectedMapUnit()) {
+  if (!unit) {
+    return {
+      title: "No selected unit",
+      answer: "Select a county, town, or aggregate map unit first. The browser will answer from published aggregate artifacts only.",
+      sections: "",
+      matches: "",
+    };
+  }
+  const geometry = geometryMatchForUnit(unit.unit_id);
+  return {
+    title: `Selected unit: ${displayUnitName(unit)}`,
+    answer: `${displayUnitName(unit)} is a ${text(unit.kind)} aggregate unit in ${text(unit.state)} with ${formatCount(unit.law_count)} LOCUS law records, dominant topic ${text(unit.dominant_topic)}, dominant function ${text(unit.dominant_function)}, and neutral tier ${text(unit.tier_label)}. These are aggregate model-output summaries, not legal findings.`,
+    sections: selectedUnitSectionsHtml(unit, geometry),
+    matches: `
+      <h4>Supporting aggregate facts</h4>
+      <dl class="briefing-facts">
+        <dt>Substantive rows</dt><dd>${escapeHtml(formatCount(unit.substantive_count))} <span>map_layers.json</span></dd>
+        <dt>Official geography</dt><dd>${escapeHtml(geometry.summary)} <span>${escapeHtml(geometry.source)}</span></dd>
+        <dt>Evidence boundary</dt><dd>No ordinance text or raw LOCUS rows are published <span>publication policy</span></dd>
+      </dl>
+    `,
+  };
+}
+
+function selectedUnitSectionsHtml(unit, geometry) {
+  const sections = [
+    {
+      level: "overview",
+      heading: "Aggregate map reading",
+      body: `${displayUnitName(unit)} is shown in the current map layer as ${text(unit.tier_label)}. Tier colors are neutral review bands, not rankings.`,
+      rows: [
+        { field: "state", value: unit.state || "Unknown" },
+        { field: "unit type", value: unit.kind || "unknown" },
+        { field: "law records", value: formatCount(unit.law_count) },
+      ],
+    },
+  ];
+  if (["unit", "evidence"].includes(state.disclosureLevel)) {
+    sections.push({
+      level: "unit",
+      heading: "Model-output profile",
+      body: "Topic, function, and score fields are released LOCUS model outputs aggregated for this unit.",
+      rows: [
+        { field: "dominant topic", value: unit.dominant_topic || "Unknown" },
+        { field: "dominant function", value: unit.dominant_function || "Unknown" },
+        { field: "topic mix", value: compactCounts(unit.topic_counts || {}) },
+        { field: "function mix", value: compactCounts(unit.function_counts || {}) },
+        { field: "score means", value: scoreSnapshot(unit.model_score_means || {}) },
+      ],
+    });
+  }
+  if (state.disclosureLevel === "evidence") {
+    sections.push({
+      level: "evidence",
+      heading: "Provenance and boundary",
+      body: "This answer is generated in the browser from static aggregate artifacts. It omits headers, ordinance text, raw rows, and source locator values.",
+      rows: [
+        { field: "unit id", value: unit.unit_id },
+        { field: "geometry match", value: geometry.summary },
+        { field: "match status", value: geometry.matchStatus },
+        { field: "source artifact", value: geometry.source },
+      ],
+    });
+  }
+  return `
+    <div class="briefing-sections selected-unit-briefing">
+      ${sections
+        .map(
+          (section) => `
+            <section>
+              <span>${escapeHtml(section.level)}</span>
+              <h4>${escapeHtml(section.heading)}</h4>
+              <p>${escapeHtml(section.body)}</p>
+              ${briefingRowsHtml(section.rows)}
+            </section>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function geometryMatchForUnit(unitId) {
+  const countyFeature = (state.analysis.countyGeometry?.feature_collection?.features || []).find(
+    (feature) => feature.properties?.unit_id === unitId,
+  );
+  if (countyFeature) {
+    const properties = countyFeature.properties || {};
+    return {
+      summary: `${properties.census_name || properties.unit_name || "matched county"} polygon (${properties.geoid || "GEOID unavailable"})`,
+      source: "county_geometry.json",
+      matchStatus: properties.match_status || "machine_matched_pending_review",
+    };
+  }
+  const municipalPoint = (state.analysis.municipalPoints?.points || []).find((point) => point.unit_id === unitId);
+  if (municipalPoint) {
+    return {
+      summary: `${municipalPoint.census_name || municipalPoint.unit_name || "matched municipal point"} point (${municipalPoint.geoid || "GEOID unavailable"})`,
+      source: "municipal_points.json",
+      matchStatus: municipalPoint.match_status || "machine_matched_pending_review",
+    };
+  }
+  return {
+    summary: "No reviewed official county/town geometry match in the current public artifact",
+    source: "map_layers.json",
+    matchStatus: "aggregate_state_cluster_only",
+  };
+}
+
+function compactCounts(counts) {
+  const rows = Object.entries(counts)
+    .filter(([, value]) => Number(value || 0) > 0)
+    .sort((a, b) => Number(b[1] || 0) - Number(a[1] || 0))
+    .slice(0, 4);
+  return rows.length ? rows.map(([label, value]) => `${label}: ${formatCount(value)}`).join(" · ") : "No aggregate counts";
 }
 
 function matchInquiryBriefing(normalizedQuestion) {
@@ -2214,6 +2346,23 @@ function submitInquiry(event) {
   const question = new FormData(event.currentTarget).get("question") || "";
   state.inquiryAnswer = answerQuestion(String(question));
   renderInquiry();
+}
+
+function askAboutMapUnit(unitId) {
+  const units = state.analysis.mapLayers ? state.analysis.mapLayers.units || [] : [];
+  const unit = units.find((item) => item.unit_id === unitId);
+  if (!unit) {
+    return;
+  }
+  state.selectedUnitId = unit.unit_id;
+  const question = `What does the selected unit ${displayUnitName(unit)} show?`;
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  state.inquiryAnswer = selectedUnitAnswer(unit);
+  state.activeTab = "inquiry";
+  render();
 }
 
 function importQueue(event) {
@@ -2461,6 +2610,12 @@ function bindEvents() {
     renderInquiry();
   });
   $("#map-panel").addEventListener("click", (event) => {
+    const askButton = event.target.closest("[data-ask-unit-id]");
+    if (askButton) {
+      event.preventDefault();
+      askAboutMapUnit(askButton.dataset.askUnitId);
+      return;
+    }
     const target = event.target.closest("[data-unit-id]");
     if (!target) {
       return;
