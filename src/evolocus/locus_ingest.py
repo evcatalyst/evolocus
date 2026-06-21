@@ -8,13 +8,15 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Mapping
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
 import csv
 import hashlib
 import json
 import re
 from typing import Any
+
+from .jurisdiction import derive_jurisdiction_name
 
 
 LOCUS_DATASET_ID = "LocalLaws/LOCUS-v1"
@@ -169,9 +171,15 @@ def build_master_jurisdictions(
 
     for record in records:
         name = _clean_text(_first(record, fmap.jurisdiction))
+        if not name:
+            name = _clean_text(derive_jurisdiction_name(
+                _first(record, fmap.jurisdiction_type),
+                _first(record, fmap.city),
+                _first(record, fmap.county),
+            )[0])
         state = _normalize_state(_first(record, fmap.state))
         if not name or not state:
-            raise LocusIngestError("Each LOCUS record must include jurisdiction/name and state.")
+            raise LocusIngestError("Each LOCUS record must include state and derivable jurisdiction metadata.")
         jurisdiction_type = infer_jurisdiction_type(record, fmap)
         grouped[(state, name, jurisdiction_type)].append(record)
 
@@ -203,9 +211,9 @@ def write_master_jurisdictions(rows: Iterable[MasterJurisdiction], path: Path) -
 def infer_jurisdiction_type(record: Mapping[str, Any], field_map: LocusFieldMap | None = None) -> str:
     fmap = field_map or LocusFieldMap()
     explicit = _slug(_first(record, fmap.jurisdiction_type))
-    if explicit in {"city", "town", "village", "municipality", "borough"}:
+    if explicit in {"city", "cities", "town", "towns", "village", "villages", "municipality", "municipalities", "borough"}:
         return "city"
-    if explicit == "county":
+    if explicit in {"county", "counties"}:
         return "county"
 
     name = _clean_text(_first(record, fmap.jurisdiction))
@@ -354,8 +362,15 @@ def _iter_parquet(path: Path) -> Iterator[dict[str, Any]]:
         import polars as pl  # type: ignore[import-not-found]
     except ImportError as exc:
         raise LocusIngestError("Parquet input requires polars. Install requirements.txt first.") from exc
-    for row in pl.scan_parquet(path).collect().iter_rows(named=True):
-        yield dict(row)
+    offset = 0
+    batch_size = 1000
+    while True:
+        frame = pl.scan_parquet(path).slice(offset, batch_size).collect()
+        if frame.is_empty():
+            break
+        for row in frame.iter_rows(named=True):
+            yield dict(row)
+        offset += batch_size
 
 
 def _limit(records: Iterable[dict[str, Any]], limit: int | None) -> Iterator[dict[str, Any]]:
@@ -421,4 +436,3 @@ def _mode(values: Iterable[str], *, default: str) -> str:
 def _max_text(values: Iterable[Any]) -> str | None:
     cleaned = sorted(_clean_text(value) for value in values if _clean_text(value))
     return cleaned[-1] if cleaned else None
-

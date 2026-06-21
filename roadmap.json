@@ -24,11 +24,14 @@
       "completed_items": [
         "Add guarded LOCUS ingestion script without committing downloaded records",
         "Create master jurisdiction table contract",
-        "Draft production Local Law Analytics Platform architecture and starter code"
+        "Draft production Local Law Analytics Platform architecture and starter code",
+        "Implement Polars-first evaluator vertical slice",
+        "Complete mandatory synthetic validation",
+        "Run bounded Streamlit demo smoke test"
       ],
       "remaining_items": [
-        "Build gap analysis script",
-        "Seed queue with high-value synthetic or source-backed targets"
+        "Run real LOCUS local-Parquet audit when user supplies or downloads source shards",
+        "Begin real LOCUS evaluation queues"
       ]
     },
     {
@@ -83,6 +86,9 @@
     "phase_1_real_locus_records_committed": false,
     "phase_1_hf_download_run": false,
     "phase_1_master_table_contract": true,
+    "phase_1_evaluator_code": "complete",
+    "phase_1_synthetic_validation": "complete",
+    "phase_1_real_locus_evaluation": "not_started",
     "phase_1_database_created": false,
     "phase_1_embeddings_created": false
   }

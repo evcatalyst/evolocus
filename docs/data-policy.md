@@ -11,6 +11,15 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - No real ordinance excerpts are committed.
 - Static site visuals are synthetic and labeled as synthetic.
 
+## Evaluator Data Policy
+
+- Real LOCUS Parquet must stay in `data/raw/`, which is ignored by git.
+- Derived audit artifacts must stay in `data/processed/`, which is ignored by git.
+- SQLite review stores must stay in `data/evaluation/`, which is ignored by git.
+- Evaluation exports must stay in `data/exports/`, which is ignored by git.
+- Default exports omit full ordinance content and include source locators for authorized local joins.
+- Streamlit runs locally and must not be published through GitHub Pages.
+
 ## Future Real Data Rules
 
 - Store downloaded data only in ignored local directories unless a user explicitly approves publication.
@@ -29,4 +38,3 @@ Use names such as:
 - Demo Capital Project Fund
 
 Synthetic examples must never be mixed with real source-backed records without explicit labeling.
-

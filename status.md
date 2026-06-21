@@ -2,7 +2,7 @@
 
 Phase: 1 in progress
 
-Completion: Phase 0 complete. Phase 1 has started with guarded LOCUS ingest contracts and master jurisdiction table generation. No overall percentage is reported because `roadmap.json` does not define a weighted completion model.
+Completion: Phase 0 complete. Phase 1 now includes a Polars-first evaluation workbench MVP validated in synthetic demo mode. No overall percentage is reported because `roadmap.json` does not define a weighted completion model.
 
 Files saved:
 
@@ -12,13 +12,33 @@ Files saved:
 - `docs/architecture.md`
 - `docs/data-policy.md`
 - `docs/local-law-analytics-platform.md`
+- `docs/evaluation-gap-analysis.md`
+- `docs/evaluation-protocol.md`
+- `docs/evaluation-workbench.md`
 - `notebooks/README.md`
 - `scrapers/README.md`
 - `site/assets/styles.css`
 - `site/index.html`
 - `src/evolocus/__init__.py`
 - `src/evolocus/cli.py`
+- `src/evolocus/config.py`
+- `src/evolocus/demo_data.py`
+- `src/evolocus/evaluation_db.py`
+- `src/evolocus/evaluation_exports.py`
+- `src/evolocus/evaluation_metrics.py`
+- `src/evolocus/evaluation_protocol.py`
+- `src/evolocus/evaluation_sampling.py`
+- `src/evolocus/jurisdiction.py`
+- `src/evolocus/locus_audit.py`
+- `src/evolocus/locus_contract.py`
 - `src/evolocus/locus_ingest.py`
+- `src/evolocus/locus_normalize.py`
+- `src/evolocus/locus_source.py`
+- `dashboards/app.py`
+- `dashboards/pages/1_Review_Queue.py`
+- `dashboards/pages/2_Dataset_Explorer.py`
+- `dashboards/pages/3_Evaluation_Results.py`
+- `dashboards/pages/4_Protocol_and_Provenance.py`
 - `tests/test_scaffold.py`
 - `tests/test_locus_ingest.py`
 - `.gitignore`
@@ -40,7 +60,11 @@ Current coverage stats:
 - Static site data: synthetic placeholders only
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
-- Queue records created: 0
+- Queue records created from real LOCUS data: 0
+- Evaluator code: complete
+- Synthetic end-to-end validation: complete
+- Real LOCUS ingest: not run
+- Real LOCUS evaluation: not started
 
 Verified LOCUS source:
 
@@ -61,4 +85,13 @@ Latest update:
 - Added tests using synthetic LOCUS-like records only.
 - Did not download LOCUS-v1, run scrapers, create databases, or create embeddings.
 - Recorded the canonical arXiv source page supplied by the user: https://arxiv.org/abs/2606.19334.
-- Added production Local Law Analytics Platform plan with starter code for DuckDB ingest, validation, enrichment, embeddings, Streamlit, FastAPI, and RAG retrieval.
+- Added production Local Law Analytics Platform plan; it is now aligned to the Polars + Parquet + SQLite + Streamlit evaluator path, with DuckDB/LanceDB/RAG/FastAPI deferred.
+
+Evaluator implementation state:
+
+- Evaluator code: complete
+- Synthetic end-to-end validation: complete
+- Real LOCUS ingest: not run
+- Real LOCUS evaluation: not started
+- Default exports omit ordinance text
+- Streamlit evaluator runs locally, not on GitHub Pages

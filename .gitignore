@@ -10,6 +10,7 @@ htmlcov/
 # Environments and local config
 .venv/
 venv/
+.pip-cache/
 .env
 .env.*
 !.env.example
@@ -18,6 +19,7 @@ venv/
 data/raw/
 data/processed/
 data/cache/
+data/evaluation/
 data/exports/
 *.parquet
 *.duckdb
@@ -42,4 +44,3 @@ data/exports/
 .DS_Store
 *.log
 site/.build/
-

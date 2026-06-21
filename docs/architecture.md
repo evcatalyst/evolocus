@@ -1,45 +1,64 @@
 # EvoLOCUS Architecture
 
-EvoLOCUS is planned as a local-first Python platform with a static public companion site.
+EvoLOCUS is a local-first evaluation and analytics platform for LOCUS-v1.
 
-## Phase 0
+Current evaluator architecture:
 
-- Static GitHub Pages site in `site/`
-- Project status in `status.md`
-- Roadmap in `roadmap.json`
-- Data policy and scaffold tests
+```mermaid
+flowchart LR
+  A["LOCUS Parquet"] --> B["Polars lazy corpus service"]
+  B --> C["Validation and derived metadata"]
+  C --> D["Reproducible queue sampler"]
+  D --> E["Bounded queue snapshot in SQLite"]
+  E --> F["Streamlit human review"]
+  F --> G["Append-only review events"]
+  G --> H["Evaluation metrics and exports"]
+```
 
-## Future Data Flow
+## Current Milestone
 
-1. Load LOCUS-v1 from Hugging Face into ignored local storage.
-2. Normalize records into local analytical tables.
-3. Enrich records with FIPS, Census, ACS, population, density, and geometry.
-4. Add embeddings, topic clustering, and custom scoring.
-5. Maintain a master jurisdiction table and prioritized scrape queue.
-6. Serve dashboards through Streamlit.
-7. Publish only reviewed static summaries or exports.
+- Polars is the primary corpus engine.
+- Parquet is read lazily from demo or local modes.
+- SQLite stores mutable evaluation state, not a copy of the full corpus.
+- Streamlit runs the local human-evaluation workbench.
+- GitHub Pages remains static documentation only.
 
-## Phase 1 Ingest Module
+## Corpus Layer
 
-`src/evolocus/locus_ingest.py` defines the first production contract:
+`src/evolocus/locus_source.py` supports:
 
-- Hugging Face LOCUS-v1 access is blocked unless `allow_download=True`.
-- Local JSON, JSONL, CSV, and Parquet extracts can be read for offline development.
-- Master jurisdiction rows include `fips`, `name`, `state`, `type`, `vendor`, `last_scrape`, `next_priority_score`, `status`, and `tags`.
-- FIPS and geospatial fields remain unverified until a later enrichment step; generated rows use `needs_geocoding`.
-- Priority scores are deterministic planning signals, not civic findings.
+- `demo`: synthetic records, no network, safe default.
+- `local`: one Parquet file or deterministic sorted glob of Parquet shards.
+- `download`: blocked unless explicitly allowed by CLI code.
 
-## Storage
+Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_locator`, normalized jurisdiction metadata, content lengths, content hash, and OCR-risk flags are added separately.
 
-- Local Parquet for large analytical tables.
-- SQLite for queue state in early phases.
-- DuckDB for local analysis.
-- PostgreSQL/PostGIS optional later through `docker-compose.yml`.
+## Evaluation Layer
 
-## Publication Boundary
+`src/evolocus/evaluation_db.py` owns SQLite migrations and append-only review events. Queue items snapshot bounded selected text and model metadata so a queue is reproducible and resumable without copying the full 2.2M-row corpus into SQLite.
 
-GitHub Pages must not expose unreviewed real civic claims, downloaded records, credentials, local caches, or generated embeddings. Static previews must remain synthetic until source-backed outputs are explicitly curated.
+## UI Layer
 
-## Citation
+Run locally:
 
-Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. "Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States." arXiv:2606.19334, 2026. Dataset: https://huggingface.co/datasets/LocalLaws/LOCUS-v1
+```bash
+EVOLOCUS_MODE=demo streamlit run dashboards/app.py
+```
+
+Pages:
+
+- Review Queue
+- Dataset Explorer
+- Evaluation Results
+- Protocol and Provenance
+
+Every frontend surface includes research-only, OCR, model-label, current-law, and CC-BY-NC-4.0 notices.
+
+## Optional Future Components
+
+- DuckDB: optional ad hoc analytical SQL after evaluator MVP.
+- LanceDB: optional semantic retrieval after human evaluation exists.
+- Postgres: optional multi-user review store later.
+- Census/FIPS/geospatial enrichment: deferred until reviewed crosswalks exist.
+
+DuckDB is not required for the evaluator path and must not be used as a browser-side database.

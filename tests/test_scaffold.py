@@ -56,28 +56,11 @@ def test_roadmap_is_valid_and_phase_zero_complete() -> None:
 
 def test_requirements_include_requested_stack() -> None:
     requirements = set(read_text("requirements.txt").splitlines())
-    expected = {
-        "streamlit",
-        "pandas",
-        "polars",
-        "geopandas",
-        "pydeck",
-        "folium",
-        "streamlit-folium",
-        "duckdb",
-        "SQLAlchemy",
-        "chromadb",
-        "sentence-transformers",
-        "faiss-cpu",
-        "playwright",
-        "datasets",
-        "tqdm",
-        "plotly",
-        "altair",
-        "streamlit-aggrid",
-        "st-pages",
-    }
-    assert expected.issubset(requirements)
+    assert any(req.startswith("polars") for req in requirements)
+    assert any(req.startswith("pyarrow") for req in requirements)
+    assert any(req.startswith("streamlit") for req in requirements)
+    assert any(req.startswith("huggingface_hub") for req in requirements)
+    assert all(not req.startswith("duckdb") for req in requirements)
 
 
 def test_pages_workflow_uses_pinned_major_versions_and_site_path() -> None:
