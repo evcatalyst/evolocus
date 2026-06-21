@@ -87,7 +87,8 @@
         "Add progressive ontology-link legend for official geography layer",
         "Add map-driven ontology query presets",
         "Add aggregate-only map inquiry history export",
-        "Add Pages Actions-only inquiry briefing refresh control"
+        "Add Pages Actions-only inquiry briefing refresh control",
+        "Add map and inquiry artifact freshness badges"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

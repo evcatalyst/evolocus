@@ -220,3 +220,4 @@ Evaluator implementation state:
 - Primary evaluator surface: GitHub Pages browser app
 - Primary inquiry/map surface: GitHub Pages browser app reading `site/data/analysis/`
 - Actions refresh surface: GitHub Pages Analysis Status tab exposes an Actions-only refresh control that opens the manual aggregate briefing workflow without browser-side model calls or embedded keys.
+- Freshness surface: Law Map and Inquiry headers show aggregate map, briefing, question-pack, dataset revision, and no-row-text publication boundary before users drill into visuals or answers.

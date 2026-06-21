@@ -374,6 +374,71 @@ textarea {
   color: var(--muted);
 }
 
+.artifact-freshness {
+  margin: -6px 0 18px;
+}
+
+.artifact-freshness-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.artifact-freshness-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.artifact-freshness-heading h3 {
+  margin: 0;
+  font-size: 1.02rem;
+}
+
+.artifact-freshness-heading button {
+  border: 1px solid #204f54;
+  background: var(--green);
+  color: #ffffff;
+}
+
+.artifact-freshness-heading button:hover,
+.artifact-freshness-heading button:focus-visible {
+  background: #255e63;
+}
+
+.artifact-freshness-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.artifact-freshness-grid span {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px 10px;
+}
+
+.artifact-freshness-grid strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.artifact-freshness-grid em {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -4156,6 +4221,7 @@ th {
   .import-unit-strip,
   .filter-grid,
   .map-filter-grid,
+  .artifact-freshness-grid,
   .inquiry-context-grid,
   .inquiry-question-matrix,
   .review-layout,
@@ -4252,6 +4318,7 @@ th {
   .import-unit-strip,
   .filter-grid,
   .map-filter-grid,
+  .artifact-freshness-grid,
   .inquiry-context-grid,
   .inquiry-question-matrix,
   .review-layout,

@@ -23,6 +23,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - state/topic small-multiple charts in the Charts tab;
 - county/town aggregate coverage atlas by state, source-unit type, and neutral tier;
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
+- Law Map and Inquiry freshness badges showing aggregate layer, briefing, question-pack, dataset revision, and no-row-text publication boundary;
 - full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
 - per-unit audit review signals for the published map units, including medium/high OCR risk and duplicate-text-hash rates;
 - Audit Lens tab with attention distribution, OCR heuristic reason mix, state audit atlas, and review-priority queue preview;

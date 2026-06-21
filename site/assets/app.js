@@ -422,6 +422,7 @@ function render() {
   renderTabs();
   renderToolbar();
   renderImportStatus();
+  renderArtifactFreshnessBadges();
   renderMap();
   renderWalkthrough();
   renderOntology();
@@ -672,6 +673,106 @@ function renderMap() {
   renderDisclosureButtons();
   renderGeoColorButtons();
   renderGeoLayerControls();
+}
+
+function renderArtifactFreshnessBadges() {
+  artifactFreshnessTargets().forEach(({ targetId, title, context }) => {
+    const target = $(`#${targetId}`);
+    if (!target) {
+      return;
+    }
+    target.innerHTML = artifactFreshnessBadgeHtml(title, context);
+  });
+}
+
+function artifactFreshnessTargets() {
+  return [
+    {
+      targetId: "map-freshness-badge",
+      title: "Map artifact freshness",
+      context: "Real aggregate map layer",
+    },
+    {
+      targetId: "inquiry-freshness-badge",
+      title: "Inquiry artifact freshness",
+      context: "Static aggregate question layer",
+    },
+  ];
+}
+
+function artifactFreshnessBadgeHtml(title, context) {
+  const status = state.analysis.status;
+  const mapLayers = state.analysis.mapLayers;
+  const inquiryBriefings = state.analysis.inquiryBriefings;
+  const questionPack = state.analysis.questionPack;
+  const briefingGrok = inquiryBriefings?.grok || {};
+  const datasetRevision = status?.dataset_revision || mapLayers?.dataset_revision || inquiryBriefings?.dataset_revision || "loading";
+  const mapGenerated = mapLayers?.generated_at || status?.generated_at || null;
+  const briefingGenerated = inquiryBriefings?.generated_at || null;
+  const questionPackGenerated = questionPack?.generated_at || null;
+  const currentMode = inquiryBriefings
+    ? briefingGrok.used
+      ? `Offline Grok ${briefingGrok.model || "enrichment"}`
+      : "Deterministic static briefing"
+    : "Briefing loading";
+  const rowBoundary = status?.real_locus_rows_published === false ? "No row text published" : "Publication boundary loading";
+  const rows = [
+    ["Dataset", datasetRevision],
+    ["Map layer", mapGenerated ? `${formatDateTime(mapGenerated)} · ${artifactAgeLabel(mapGenerated)}` : "loading"],
+    ["Briefing", briefingGenerated ? `${formatDateTime(briefingGenerated)} · ${artifactAgeLabel(briefingGenerated)}` : "loading"],
+    ["Question pack", questionPackGenerated ? `${formatDateTime(questionPackGenerated)} · ${artifactAgeLabel(questionPackGenerated)}` : "loading"],
+    ["Mode", currentMode],
+    ["Boundary", rowBoundary],
+  ];
+  return `
+    <article class="artifact-freshness-card">
+      <div class="artifact-freshness-heading">
+        <div>
+          <p class="eyebrow">${escapeHtml(context)}</p>
+          <h3>${escapeHtml(title)}</h3>
+        </div>
+        <button type="button" data-open-status-tab>Open Analysis Status</button>
+      </div>
+      <div class="artifact-freshness-grid">
+        ${rows
+          .map(
+            ([label, value]) => `
+              <span>
+                <strong>${escapeHtml(label)}</strong>
+                <em>${escapeHtml(String(value))}</em>
+              </span>
+            `,
+          )
+          .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function artifactAgeLabel(isoValue) {
+  const parsed = new Date(isoValue).getTime();
+  if (!Number.isFinite(parsed)) {
+    return "age unknown";
+  }
+  const elapsedMs = Math.max(0, Date.now() - parsed);
+  const minutes = Math.floor(elapsedMs / 60000);
+  if (minutes < 1) {
+    return "just now";
+  }
+  if (minutes < 60) {
+    return `${formatCount(minutes)} min ago`;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 48) {
+    return `${formatCount(hours)} hr ago`;
+  }
+  const days = Math.floor(hours / 24);
+  return `${formatCount(days)} days ago`;
+}
+
+function openAnalysisStatusTab() {
+  state.activeTab = "status";
+  render();
 }
 
 function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
@@ -7709,7 +7810,21 @@ function bindEvents() {
     state.inquiryAnswer = answerQuestion(button.dataset.inquiryPrompt);
     render();
   });
+  $("#inquiry-panel").addEventListener("click", (event) => {
+    const statusButton = event.target.closest("[data-open-status-tab]");
+    if (!statusButton) {
+      return;
+    }
+    event.preventDefault();
+    openAnalysisStatusTab();
+  });
   $("#map-panel").addEventListener("click", (event) => {
+    const statusButton = event.target.closest("[data-open-status-tab]");
+    if (statusButton) {
+      event.preventDefault();
+      openAnalysisStatusTab();
+      return;
+    }
     const selectedDisclosureButton = event.target.closest("[data-selected-disclosure]");
     if (selectedDisclosureButton) {
       event.preventDefault();

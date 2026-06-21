@@ -27,6 +27,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "package-map-summary" in html
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
+    assert "map-freshness-badge" in html
+    assert "inquiry-freshness-badge" in html
     assert "ontology-tier-focus" in html
     assert "ontology-query-presets" in html
     assert "Unit type" in html
@@ -231,3 +233,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "GROK_API_KEY" not in js
     assert "Grok_api_key" not in js
     assert "fetchAnalysisArtifacts" in js
+    assert "renderArtifactFreshnessBadges" in js
+    assert "artifactFreshnessBadgeHtml" in js
+    assert "artifactAgeLabel" in js
+    assert "openAnalysisStatusTab" in js
+    assert "data-open-status-tab" in js
+    assert "No row text published" in js
+    assert "artifact-freshness-card" in css
+    assert "artifact-freshness-grid" in css
