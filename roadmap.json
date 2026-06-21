@@ -60,7 +60,8 @@
         "Add browser-local aggregate snapshot gallery",
         "Add guided public aggregate walkthrough across map, inquiry, ontology, queue planning, and snapshots",
         "Add aggregate review-package request export and local materializer handoff",
-        "Add Queue Plan package-request preview with record budget, unit mix, and safety gates"
+        "Add Queue Plan package-request preview with record budget, unit mix, and safety gates",
+        "Add browser-local import-status visuals for materialized package uploads"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

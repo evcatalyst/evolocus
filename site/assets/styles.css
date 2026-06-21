@@ -218,6 +218,98 @@ main {
   padding: 14px;
 }
 
+.import-status {
+  margin-bottom: 20px;
+}
+
+.import-status-card {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.3fr);
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.import-status-card.demo {
+  border-color: #d7c894;
+  background: #fffaf0;
+}
+
+.import-status-card h3 {
+  margin: 0 0 6px;
+}
+
+.import-status-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.import-status-facts,
+.import-safety-grid,
+.import-unit-strip {
+  display: grid;
+  gap: 8px;
+}
+
+.import-status-facts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.import-status-facts span,
+.import-safety-grid span,
+.import-unit-strip span {
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px 10px;
+}
+
+.import-status-facts strong,
+.import-unit-strip strong {
+  overflow-wrap: anywhere;
+}
+
+.import-status-facts em,
+.import-safety-grid em,
+.import-unit-strip em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+.import-safety-grid,
+.import-unit-strip {
+  grid-column: 1 / -1;
+}
+
+.import-safety-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.import-unit-strip {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.import-safety-clear {
+  border-color: #b9d7c8 !important;
+  background: #f0faf4 !important;
+}
+
+.import-safety-explicit {
+  border-color: #e3c36f !important;
+  background: #fff9e8 !important;
+}
+
+.import-safety-blocked {
+  border-color: #dbb2b2 !important;
+  background: #fff1f1 !important;
+}
+
 label {
   display: grid;
   gap: 5px;
@@ -2448,6 +2540,10 @@ th {
 
 @media (max-width: 1100px) {
   .toolbar,
+  .import-status-card,
+  .import-status-facts,
+  .import-safety-grid,
+  .import-unit-strip,
   .filter-grid,
   .map-filter-grid,
   .inquiry-context-grid,
@@ -2508,6 +2604,10 @@ th {
   }
 
   .toolbar,
+  .import-status-card,
+  .import-status-facts,
+  .import-safety-grid,
+  .import-unit-strip,
   .filter-grid,
   .map-filter-grid,
   .inquiry-context-grid,

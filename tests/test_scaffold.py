@@ -105,6 +105,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "SYNTHETIC DEMONSTRATION DATA" in js
     assert "No real LOCUS rows published" in html
     assert "Pages-first UI" in html
+    assert "import-status" in html
     assert "Law Map" in html
     assert "Walkthrough" in html
     assert "walkthrough-panel" in html
@@ -176,6 +177,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "queue-plan-list" in html
     assert "inquiry-provenance" in html
     assert "Ask about this unit" in js
+    assert "STORAGE_IMPORT_STATUS" in js
+    assert "renderImportStatus" in js
+    assert "importStatusFromPayload" in js
+    assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
+    assert "BROWSER-LOCAL IMPORTED PACKAGE METADATA" in js
+    assert "Package status is visible above the workbench" in js
     assert "data-ask-unit-id" in js
     assert "briefing-sections" in js
     assert "matchInquiryBriefing" in js
@@ -240,6 +247,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "record_locator_values_included" in js
     assert "review_events_included" in js
     assert "audit-gradient" in css
+    assert "import-status-card" in css
+    assert "import-safety-grid" in css
     assert "selected-audit-card" in css
     assert "audit-summary-grid" in css
     assert "audit-priority-row" in css

@@ -3,6 +3,7 @@ const STORAGE_REVIEWER = "evolocus.pages.reviewer.v1";
 const STORAGE_BLIND = "evolocus.pages.blind.v1";
 const STORAGE_RECORDS = "evolocus.pages.records.v1";
 const STORAGE_SNAPSHOTS = "evolocus.pages.viewSnapshots.v1";
+const STORAGE_IMPORT_STATUS = "evolocus.pages.importStatus.v1";
 
 const ANALYSIS_PATHS = {
   status: "data/analysis/status.json",
@@ -299,6 +300,22 @@ function loadSnapshots() {
   }
 }
 
+function loadImportStatus() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_IMPORT_STATUS) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveImportStatus(status) {
+  localStorage.setItem(STORAGE_IMPORT_STATUS, JSON.stringify(status));
+}
+
+function clearImportStatus() {
+  localStorage.removeItem(STORAGE_IMPORT_STATUS);
+}
+
 function saveSnapshots(snapshots) {
   localStorage.setItem(STORAGE_SNAPSHOTS, JSON.stringify(snapshots.slice(0, 24)));
 }
@@ -378,6 +395,7 @@ function displayUnitName(unitOrName) {
 function render() {
   renderTabs();
   renderToolbar();
+  renderImportStatus();
   renderMap();
   renderWalkthrough();
   renderOntology();
@@ -404,7 +422,93 @@ function renderTabs() {
 function renderToolbar() {
   $("#reviewer-input").value = state.reviewer;
   $("#blind-toggle").checked = state.blind;
-  $("#mode-select").value = records === syntheticRecords ? "demo" : "imported";
+  $("#mode-select").value = isSyntheticQueue() ? "demo" : "imported";
+}
+
+function renderImportStatus() {
+  const panel = $("#import-status");
+  if (!panel) {
+    return;
+  }
+  if (isSyntheticQueue()) {
+    panel.innerHTML = `
+      <article class="import-status-card demo">
+        <div>
+          <p class="eyebrow">Queue source</p>
+          <h3>Synthetic demo queue active.</h3>
+          <p>No local review package is loaded. Public maps and charts still read aggregate LOCUS artifacts; the review queue uses synthetic records until you import a bounded local package.</p>
+        </div>
+        <div class="import-status-facts">
+          <span><strong>${escapeHtml(formatCount(records.length))}</strong><em>synthetic records</em></span>
+          <span><strong>No LOCUS text</strong><em>in browser review queue</em></span>
+          <span><strong>Pages-safe</strong><em>no upload occurs</em></span>
+        </div>
+      </article>
+    `;
+    return;
+  }
+  const meta = loadImportStatus() || fallbackImportStatus();
+  panel.innerHTML = importStatusHtml(meta);
+}
+
+function importStatusHtml(meta) {
+  const policy = meta.package_policy || {};
+  const textLabel = meta.ordinance_text_included ? "Text included locally" : "Metadata only";
+  const publicationLabel = meta.github_pages_publication_allowed ? "Publication blocked" : "Local only";
+  const unitRows = topCountEntries(meta.unit_counts || {}, 5);
+  return `
+    <article class="import-status-card imported">
+      <div>
+        <p class="eyebrow">Browser-local package</p>
+        <h3>${escapeHtml(meta.file_name || "Imported bounded package")}</h3>
+        <p>${escapeHtml(meta.dataset_id || "LocalLaws/LOCUS-v1")} · revision ${escapeHtml(meta.dataset_revision || "unknown")} · imported ${escapeHtml(formatDateTime(meta.imported_at))}</p>
+      </div>
+      <div class="import-status-facts">
+        <span><strong>${escapeHtml(formatCount(meta.record_count || 0))}</strong><em>records loaded</em></span>
+        <span><strong>${escapeHtml(formatCount(meta.unit_count || 0))}</strong><em>aggregate units</em></span>
+        <span><strong>${escapeHtml(textLabel)}</strong><em>${escapeHtml(meta.ordinance_text_included ? "review text stays in this browser" : "no ordinance text loaded")}</em></span>
+        <span><strong>${escapeHtml(publicationLabel)}</strong><em>${escapeHtml(meta.github_pages_publication_allowed ? "do not publish package" : "not a Pages artifact")}</em></span>
+      </div>
+      <div class="import-safety-grid">
+        ${importSafetyBadge("Publication", policy.github_pages_publication_allowed ? "blocked" : "clear", policy.github_pages_publication_allowed ? "Package says publication allowed; treat as unsafe." : "Package is marked local-only.")}
+        ${importSafetyBadge("Ordinance text", meta.ordinance_text_included ? "explicit" : "clear", meta.ordinance_text_included ? "Text loaded by explicit local package import." : "No text field was loaded.")}
+        ${importSafetyBadge("Source locators", meta.source_locators_included ? "explicit" : "clear", meta.source_locators_included ? "Present for local provenance joins only." : "No source locator values loaded.")}
+        ${importSafetyBadge("Review history", meta.review_events_included ? "blocked" : "clear", meta.review_events_included ? "Unexpected review history present." : "No review events imported.")}
+      </div>
+      ${
+        unitRows.length
+          ? `<div class="import-unit-strip">${unitRows.map((row) => `<span><strong>${escapeHtml(row.label)}</strong><em>${escapeHtml(formatCount(row.value))}</em></span>`).join("")}</div>`
+          : ""
+      }
+    </article>
+  `;
+}
+
+function importSafetyBadge(label, stateLabel, detail) {
+  return `
+    <span class="import-safety-${escapeHtml(stateLabel)}">
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(detail)}</em>
+    </span>
+  `;
+}
+
+function isSyntheticQueue() {
+  return records === syntheticRecords || !localStorage.getItem(STORAGE_RECORDS);
+}
+
+function recordSourceBadge(_record) {
+  if (isSyntheticQueue()) {
+    return "SYNTHETIC DEMONSTRATION DATA";
+  }
+  const meta = loadImportStatus();
+  if (meta?.ordinance_text_included) {
+    return "BROWSER-LOCAL IMPORTED LOCUS TEXT";
+  }
+  if (meta?.browser_import_compatible) {
+    return "BROWSER-LOCAL IMPORTED PACKAGE METADATA";
+  }
+  return "BROWSER-LOCAL IMPORTED QUEUE";
 }
 
 function renderReview() {
@@ -427,7 +531,7 @@ function renderReview() {
   $("#record-content").textContent = record.content || "";
 
   const badges = [
-    "SYNTHETIC DEMONSTRATION DATA",
+    recordSourceBadge(record),
     `status: ${statusForRecord(record)}`,
     `ocr risk: ${text(record.ocr_risk_level)}`,
   ];
@@ -4734,17 +4838,100 @@ function importQueue(event) {
       if (imported.length > 500) {
         throw new Error("Browser queue imports are bounded to 500 records. Create a smaller evaluation package.");
       }
+      const importStatus = importStatusFromPayload(parsed, imported, file);
       records = imported.map(normalizeImportedRecord);
       localStorage.setItem(STORAGE_RECORDS, JSON.stringify(records));
+      saveImportStatus(importStatus);
       state.currentIndex = 0;
       state.explorerRows = records;
-      alert("Imported bounded queue into browser storage. No upload occurred.");
+      state.activeTab = "review";
+      alert("Imported bounded queue into browser storage. No upload occurred. Package status is visible above the workbench.");
       render();
     } catch (error) {
       alert(`Import failed: ${error.message}`);
     }
   };
   reader.readAsText(file);
+}
+
+function importStatusFromPayload(payload, imported, file) {
+  const packagePolicy = payload?.package_policy || {};
+  const unitCounts = payload?.unit_counts || unitCountsFromRecords(imported);
+  const contentIncluded = Boolean(packagePolicy.ordinance_text_included) || imported.some((record) => hasNonemptyField(record, "content") || hasNonemptyField(record, "header"));
+  const sourceLocatorsIncluded = Boolean(packagePolicy.source_locators_included) || imported.some((record) => hasNonemptyField(record, "source_locator"));
+  return {
+    schema_version: "evolocus-browser-import-status-v1",
+    imported_at: new Date().toISOString(),
+    file_name: file?.name || "imported-queue.json",
+    source_schema_version: payload?.schema_version || "plain-record-array",
+    browser_import_compatible: Boolean(payload?.browser_import_compatible),
+    dataset_id: payload?.dataset_id || "Unknown dataset",
+    dataset_revision: payload?.dataset_revision || imported[0]?.dataset_revision || "imported-bounded-queue",
+    generated_at: payload?.generated_at || null,
+    license: payload?.license || null,
+    citation: payload?.citation || null,
+    record_count: imported.length,
+    unit_count: Object.keys(unitCounts).length,
+    unit_counts: Object.fromEntries(topCountEntries(unitCounts, 12).map((row) => [row.label, row.value])),
+    ordinance_text_included: contentIncluded,
+    source_locators_included: sourceLocatorsIncluded,
+    review_events_included: Array.isArray(payload?.events) || Array.isArray(payload?.review_events),
+    github_pages_publication_allowed: Boolean(packagePolicy.github_pages_publication_allowed),
+    package_policy: {
+      local_only: packagePolicy.local_only !== false,
+      github_pages_publication_allowed: Boolean(packagePolicy.github_pages_publication_allowed),
+      raw_rows_included: Boolean(packagePolicy.raw_rows_included),
+      ordinance_text_included: contentIncluded,
+      source_locators_included: sourceLocatorsIncluded,
+      review_events_included: Array.isArray(payload?.events) || Array.isArray(payload?.review_events),
+      legal_findings: Boolean(packagePolicy.legal_findings),
+    },
+    limitations: Array.isArray(payload?.limitations) ? payload.limitations.slice(0, 4) : [],
+  };
+}
+
+function fallbackImportStatus() {
+  const unitCounts = unitCountsFromRecords(records);
+  return {
+    schema_version: "evolocus-browser-import-status-v1",
+    imported_at: new Date().toISOString(),
+    file_name: "Previously imported bounded queue",
+    source_schema_version: "unknown",
+    browser_import_compatible: false,
+    dataset_id: "Unknown dataset",
+    dataset_revision: records[0]?.dataset_revision || "imported-bounded-queue",
+    record_count: records.length,
+    unit_count: Object.keys(unitCounts).length,
+    unit_counts: unitCounts,
+    ordinance_text_included: records.some((record) => hasNonemptyField(record, "content") || hasNonemptyField(record, "header")),
+    source_locators_included: records.some((record) => hasNonemptyField(record, "source_locator")),
+    review_events_included: false,
+    github_pages_publication_allowed: false,
+    package_policy: {
+      local_only: true,
+      github_pages_publication_allowed: false,
+      raw_rows_included: false,
+      ordinance_text_included: records.some((record) => hasNonemptyField(record, "content") || hasNonemptyField(record, "header")),
+      source_locators_included: records.some((record) => hasNonemptyField(record, "source_locator")),
+      review_events_included: false,
+      legal_findings: false,
+    },
+    limitations: ["Legacy browser import metadata was reconstructed from local records."],
+  };
+}
+
+function unitCountsFromRecords(items) {
+  const counts = {};
+  for (const record of items || []) {
+    const label = record.unit_id || record.jurisdiction_name || record.city || record.county || record.state || "Unknown unit";
+    counts[label] = (counts[label] || 0) + 1;
+  }
+  return counts;
+}
+
+function hasNonemptyField(record, field) {
+  const value = record?.[field];
+  return value !== null && value !== undefined && String(value).trim() !== "";
 }
 
 function normalizeImportedRecord(record, index) {
@@ -4772,6 +4959,7 @@ function resetDemoQueue() {
   state.explorerRows = records;
   state.revealed = {};
   localStorage.removeItem(STORAGE_RECORDS);
+  clearImportStatus();
   render();
 }
 

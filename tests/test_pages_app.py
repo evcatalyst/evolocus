@@ -9,6 +9,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Review Queue" in html
     assert "Dataset Explorer" in html
     assert "Charts" in html
+    assert "import-status" in html
     assert "Walkthrough" in html
     assert "walkthrough-panel" in html
     assert "Score Lens" in html
@@ -22,6 +23,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Save to Snapshots" in html
     assert "Question matrix" in html
     assert "localStorage" in js
+    assert "renderImportStatus" in js
+    assert "importStatusFromPayload" in js
+    assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js
     assert "renderMap" in js

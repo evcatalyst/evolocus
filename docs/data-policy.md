@@ -26,6 +26,7 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - Grok API keys belong only in GitHub Actions secrets or local environment variables, never in browser JavaScript.
 - Public static analysis artifacts must pass `validate-public-artifacts` before deployment; the guard rejects raw text fields, source locators, local data paths, database/export references, API bearer strings, and secret-shaped tokens.
 - Browser review-package requests are aggregate-only handoff files. Local materialized packages must write outside `site/`, stay ignored, and require explicit `--include-content` before including ordinance text.
+- Browser import-status metadata may describe a local package after upload, but it remains in localStorage and must not be written to `site/` or treated as a public artifact.
 - Browser current-view exports are aggregate snapshots only and must exclude ordinance text, raw rows, record locators, localStorage review events, databases, exports, and secrets.
 - Browser snapshot galleries may persist aggregate current-view snapshots in localStorage, but must not mix in review-event history, imported queue text, source locators, local database paths, or secrets.
 

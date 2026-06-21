@@ -16,6 +16,7 @@ flowchart LR
   S --> A
   D --> X["Aggregate current-view snapshot export"]
   X --> Y["Browser-local snapshot gallery"]
+  A --> Z["Browser-local import-status panel"]
   D --> E["Append-only localStorage review events"]
   E --> F["Browser metrics and disagreement summaries"]
   E --> G["User-triggered CSV/JSON exports"]
@@ -47,6 +48,7 @@ flowchart LR
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
+- Imported package status is stored in browser localStorage and displayed as provenance for the current review queue.
 - Demo mode is synthetic and conspicuously labeled.
 - Real LOCUS aggregate artifacts are published through Pages after local safety checks.
 - Real LOCUS rows and ordinance text are not published through Pages.
@@ -67,6 +69,7 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 `site/assets/app.js` owns the public workbench behavior:
 
 - append-only review events in localStorage;
+- browser-local import-status metadata for bounded local packages;
 - blinded model output by default;
 - explicit reveal logging;
 - review save, save-next, skip, and flag actions;

@@ -92,6 +92,7 @@ Current coverage stats:
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download
+- Import status surface: GitHub Pages shows browser-local package provenance, text-inclusion state, and safety flags after upload
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots
 - Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, and snapshots
@@ -149,6 +150,7 @@ Latest update:
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 - Added a review-package request export and `materialize-review-package` local CLI handoff so aggregate visual plans can become bounded browser-import packages without publishing LOCUS text.
 - Added a review-package request preview that displays record budget, state/type/topic mix, and request safety gates before download.
+- Added browser-local import-status visuals so materialized package uploads show provenance, text-inclusion state, unit counts, and safety flags before review.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.
