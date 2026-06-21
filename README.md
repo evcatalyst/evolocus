@@ -59,6 +59,7 @@ The Pages app supports:
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - package-to-ontology bridge that connects browser-local package counts to topic, function, tier, and matched map-unit nodes without exposing row text;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
+- selected-unit ontology drilldown cards for map-side topic/function/tier/score/geometry/package links;
 - selected-unit progressive visual trail that switches overview, unit-detail, and evidence depth from the map panel;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
@@ -117,6 +118,7 @@ Support tooling:
 - Browser package-to-map overlay for imported local queues; it joins local `unit_id` values to public aggregate units and highlights matches without writing records to public artifacts.
 - Browser imported-package-only map filter for focusing aggregate map, inquiry, snapshot, score, and audit views on local package coverage.
 - Browser selected-unit progressive trail for walking from aggregate map color to unit metrics and evidence boundaries without exposing ordinance text.
+- Browser selected-unit ontology drilldown cards for opening ontology context, evidence depth, and package focus from the map panel.
 - Browser package-coverage charts for imported local queues; these summarize only browser-local records and are never written to `site/data/analysis/`.
 - Local package materializer verified against real LOCUS Parquet for a bounded 24-record smoke package; public Pages shows aggregate verification counts only.
 - Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.

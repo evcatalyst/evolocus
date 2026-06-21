@@ -2035,6 +2035,82 @@ textarea {
   color: var(--ink);
 }
 
+.selected-ontology-drilldown {
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  margin: 14px 0;
+  padding: 12px;
+}
+
+.selected-ontology-drilldown-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.selected-ontology-drilldown-heading h4,
+.selected-ontology-drilldown-heading p {
+  margin: 0;
+}
+
+.selected-ontology-drilldown-heading span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 5px 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.selected-ontology-drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.selected-ontology-drilldown-card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--node-color, var(--green));
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 10px;
+}
+
+.selected-ontology-drilldown-card span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.selected-ontology-drilldown-card strong {
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.selected-ontology-drilldown-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.selected-ontology-drilldown-card button {
+  justify-self: start;
+  margin-top: 2px;
+}
+
 .selected-ontology-card {
   margin-bottom: 18px;
 }
@@ -3085,6 +3161,7 @@ th {
   .package-ontology-units > div,
   .package-ontology-facts,
   .selected-disclosure-steps,
+  .selected-ontology-drilldown-grid,
   .results-grid,
   .protocol-grid {
     grid-template-columns: 1fr 1fr;
@@ -3160,6 +3237,8 @@ th {
   .package-ontology-facts,
   .selected-disclosure-heading,
   .selected-disclosure-steps,
+  .selected-ontology-drilldown-heading,
+  .selected-ontology-drilldown-grid,
   .inquiry-form,
   .metric-grid,
   .results-grid,

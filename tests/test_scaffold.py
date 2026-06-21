@@ -202,6 +202,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitProgressiveTrailHtml" in js
     assert "selectedUnitDisclosureStepHtml" in js
     assert "data-selected-disclosure" in js
+    assert "selectedUnitOntologyDrilldownHtml" in js
+    assert "selectedUnitOntologyDrilldownCards" in js
+    assert "applySelectedOntologyDrilldown" in js
+    assert "data-selected-ontology-drilldown" in js
     assert "applyPackageMapFilter" in js
     assert "packageOnly" in js
     assert "data-package-map-filter" in js
@@ -238,6 +242,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-ontology-bars" in css
     assert "selected-disclosure-trail" in css
     assert "selected-disclosure-step" in css
+    assert "selected-ontology-drilldown" in css
+    assert "selected-ontology-drilldown-card" in css
     assert "package-coverage-card" in css
     assert "package-map-card" in css
     assert "package-map-actions" in css

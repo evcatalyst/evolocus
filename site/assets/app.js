@@ -2061,6 +2061,7 @@ function renderSelectedUnit() {
     </dl>
     ${selectedUnitPackageCoverageHtml(packageHit)}
     ${selectedUnitOntologyNeighborhoodHtml(unit, { compact: true })}
+    ${selectedUnitOntologyDrilldownHtml(unit, auditQuality, packageHit)}
     ${selectedUnitPeerComparisonHtml(unit)}
     ${selectedUnitAuditQualityHtml(auditQuality)}
     ${
@@ -2074,6 +2075,123 @@ function renderSelectedUnit() {
         : `<p class="muted-note">Switch to Evidence trail to reveal source locators and public samples when allowed.</p>`
     }
   `;
+}
+
+function selectedUnitOntologyDrilldownHtml(unit, auditQuality, packageHit) {
+  const cards = selectedUnitOntologyDrilldownCards(unit, auditQuality, packageHit);
+  return `
+    <section class="selected-ontology-drilldown" aria-label="Selected unit ontology drilldown cards">
+      <div class="selected-ontology-drilldown-heading">
+        <div>
+          <p class="eyebrow">Ontology drilldown</p>
+          <h4>Aggregate links for this map unit</h4>
+        </div>
+        <span>${escapeHtml(formatCount(cards.length))} nodes</span>
+      </div>
+      <div class="selected-ontology-drilldown-grid">
+        ${cards.map(selectedUnitOntologyDrilldownCardHtml).join("")}
+      </div>
+      <p class="muted-note">These cards link aggregate LOCUS model outputs, geometry-match artifacts, and browser-local package state. They are not legal conclusions.</p>
+    </section>
+  `;
+}
+
+function selectedUnitOntologyDrilldownCards(unit, auditQuality, packageHit) {
+  const geometry = geometryMatchForUnit(unit.unit_id);
+  const packageValue = packageHit
+    ? `${formatCount(packageHit.recordCount)} local records`
+    : "No local package match";
+  return [
+    {
+      key: "topic",
+      label: "Topic node",
+      value: text(unit.dominant_topic),
+      detail: `${formatCount(unit.law_count)} aggregate rows connect this unit to its dominant released topic label.`,
+      color: TOPIC_COLORS[unit.dominant_topic] || TOPIC_COLORS.Unknown,
+      action: "ontology",
+      actionLabel: "Open ontology",
+    },
+    {
+      key: "function",
+      label: "Function node",
+      value: text(unit.dominant_function),
+      detail: "Function labels are model-produced aggregate context for review and comparison.",
+      color: FUNCTION_COLORS[unit.dominant_function] || FUNCTION_COLORS.Unknown,
+      action: "ontology",
+      actionLabel: "Open ontology",
+    },
+    {
+      key: "tier",
+      label: "Map tier",
+      value: text(unit.tier_label),
+      detail: "Tier color is a neutral visual grouping over published aggregate model-score means.",
+      color: unit.tier_color || "#d8dee8",
+      action: "overview",
+      actionLabel: "Show overview",
+    },
+    {
+      key: "scores",
+      label: "Model outputs",
+      value: scoreSnapshot(unit.model_score_means || {}),
+      detail: `${formatPercentRatio(modelSubstantiveShare(unit))} model-substantive share; score direction remains unverified.`,
+      color: "#8d6aa8",
+      action: "unit",
+      actionLabel: "Show details",
+    },
+    {
+      key: "geometry",
+      label: "Geometry link",
+      value: geometry.matchStatus,
+      detail: `${geometry.summary}; audit attention ${auditQuality ? `${formatNumber(auditQuality.audit_attention_score)} / 100` : "not available"}.`,
+      color: "#b7892c",
+      action: "evidence",
+      actionLabel: "Show evidence",
+    },
+    {
+      key: "package",
+      label: "Local package",
+      value: packageValue,
+      detail: packageHit
+        ? `${formatCount(packageHit.reviewed)} reviewed, ${formatCount(packageHit.remaining)} remaining in this browser only.`
+        : "Import a bounded local package or load the synthetic package demo to connect review records.",
+      color: "#6b4fd6",
+      action: packageHit ? "package" : "evidence",
+      actionLabel: packageHit ? "Focus package" : "Show boundary",
+    },
+  ];
+}
+
+function selectedUnitOntologyDrilldownCardHtml(card) {
+  return `
+    <article class="selected-ontology-drilldown-card" style="--node-color:${escapeHtml(card.color)}">
+      <span>${escapeHtml(card.label)}</span>
+      <strong>${escapeHtml(card.value)}</strong>
+      <p>${escapeHtml(card.detail)}</p>
+      <button type="button" data-selected-ontology-drilldown="${escapeHtml(card.action)}">${escapeHtml(card.actionLabel)}</button>
+    </article>
+  `;
+}
+
+function applySelectedOntologyDrilldown(action) {
+  if (action === "ontology") {
+    state.activeTab = "ontology";
+    state.disclosureLevel = "unit";
+    render();
+    return;
+  }
+  if (action === "package") {
+    state.mapFilters = {
+      ...state.mapFilters,
+      packageOnly: true,
+    };
+    state.disclosureLevel = "unit";
+    render();
+    return;
+  }
+  if (["overview", "unit", "evidence"].includes(action)) {
+    state.disclosureLevel = action;
+    render();
+  }
 }
 
 function selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit) {
@@ -6142,6 +6260,12 @@ function bindEvents() {
       event.preventDefault();
       state.disclosureLevel = selectedDisclosureButton.dataset.selectedDisclosure;
       render();
+      return;
+    }
+    const ontologyDrilldownButton = event.target.closest("[data-selected-ontology-drilldown]");
+    if (ontologyDrilldownButton) {
+      event.preventDefault();
+      applySelectedOntologyDrilldown(ontologyDrilldownButton.dataset.selectedOntologyDrilldown);
       return;
     }
     const packageFilterButton = event.target.closest("[data-package-map-filter]");

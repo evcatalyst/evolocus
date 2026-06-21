@@ -90,6 +90,7 @@ Current coverage stats:
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Selected-unit progressive trail: GitHub Pages map panel walks from aggregate overview to unit-detail model outputs to evidence/provenance boundaries with disclosure buttons
+- Selected-unit ontology drilldowns: GitHub Pages map panel shows topic/function/tier/score/geometry/package cards that route to ontology context, evidence depth, or package focus without raw text
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, package overlay, topic, function, audit, score, and selected-unit answers
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
@@ -171,6 +172,7 @@ Latest update:
 - Added package-aware snapshot summaries and comparisons so saved browser-local aggregate views can show local package counts and matched units without text, locators, or review-event history.
 - Added Actions support for the existing `Grok_api_key` secret alias while keeping generated artifacts normalized to `GROK_API_KEY` and browser JavaScript key-free.
 - Added a selected-unit progressive visual trail in the map panel so real aggregate county/town visuals can step through overview, model-output detail, and evidence boundaries without leaving the map.
+- Added selected-unit ontology drilldown cards in the map panel for topic, function, neutral tier, model outputs, geometry provenance, and browser-local package context.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.

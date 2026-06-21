@@ -47,6 +47,7 @@
         "Add selected-unit map inquiry drilldowns with geometry-match provenance",
         "Add selected-unit ontology neighborhood visuals for aggregate topic/function/tier/score/geography links",
         "Add selected-unit progressive visual trail on the map panel",
+        "Add selected-unit ontology drilldown cards on the map panel",
         "Add selected-unit peer comparison visuals for similar published aggregate units",
         "Verify GROK_API_KEY GitHub Actions secret for offline aggregate-only inquiry enrichment",
         "Run full local LOCUS audit and publish aggregate-only audit status",

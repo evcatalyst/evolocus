@@ -39,6 +39,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitPackageCoverageHtml" in js
     assert "selectedUnitProgressiveTrailHtml" in js
     assert "data-selected-disclosure" in js
+    assert "selectedUnitOntologyDrilldownHtml" in js
+    assert "applySelectedOntologyDrilldown" in js
+    assert "data-selected-ontology-drilldown" in js
     assert "applyPackageMapFilter" in js
     assert "packageOnly" in js
     assert "package-hit" in js
@@ -76,6 +79,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "askAboutMapUnit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
     assert "selected-disclosure-trail" in css
+    assert "selected-ontology-drilldown" in css
     assert "ontologyNodeSvg" in js
     assert "selectedUnitPeerComparisonHtml" in js
     assert "scoreDeltaSummary" in js

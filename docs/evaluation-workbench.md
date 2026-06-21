@@ -41,6 +41,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
 - package-aware inquiry answer for browser-local package coverage, map matches, workflow progress, and publication boundaries;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
+- selected-unit ontology drilldown cards for topic/function/tier/score/geometry/package links inside the map panel;
 - selected-unit progressive visual trail for overview, unit-detail, and evidence disclosure inside the map panel;
 - current-view snapshot export for filtered map/inquiry context without LOCUS text or review events;
 - browser-local snapshot gallery for comparing saved aggregate map/inquiry exports;
@@ -70,6 +71,8 @@ The browser can import a bounded queue JSON file with a top-level `records` arra
 After import, the Law Map highlights imported package units in the state-clustered aggregate map, official county polygons, municipal points, selected-unit detail, and map table. A binary imported-package-units filter narrows the aggregate map and downstream inquiry/snapshot context to locally loaded package units. The Results tab summarizes the browser-local package with record/unit counts, state/topic/function/type/OCR distributions, safety markers, and review progress. These visuals read localStorage and the imported package only; they are not copied into public static artifacts.
 
 The selected-unit panel has an in-place progressive visual trail. Overview shows aggregate row count and neutral topic/function/tier context; Unit detail reveals released model-output summaries and denominators; Evidence trail adds audit and geometry-match provenance. Each step is a button bound to the same disclosure state used across the map, score, audit, queue, and status panels.
+
+The same panel now includes ontology drilldown cards. Cards expose the selected unit's aggregate topic, function, neutral tier, model-output summary, geometry match, and browser-local package link. Card actions move to the ontology tab, adjust disclosure depth, or focus package-covered map units while keeping all raw text and source locator values out of public artifacts.
 
 The toolbar and Walkthrough can also load a synthetic browser package generated from the current published aggregate units. That demo creates placeholder review records in localStorage, highlights their aggregate units, enables package-only filtering, and populates Results-tab package charts. It is labeled synthetic and does not load LOCUS ordinance text, source locators, raw rows, review history, or secrets.
 
