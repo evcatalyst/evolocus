@@ -566,6 +566,7 @@ function renderMap() {
   const status = state.analysis.status;
   const allUnits = mapLayers ? mapLayers.units || [] : [];
   const units = filterMapUnits(allUnits);
+  const packageStats = importedPackageMapStats(allUnits);
   renderAnalysisStatus(status, units);
 
   if (!mapLayers) {
@@ -575,6 +576,7 @@ function renderMap() {
     $("#law-map").innerHTML = "";
     $("#map-insight-grid").innerHTML = "";
     $("#map-comparison-grid").innerHTML = "";
+    $("#package-map-summary").innerHTML = "";
     $("#unit-detail").innerHTML = "<p>No map layer has loaded yet.</p>";
     $("#map-unit-table tbody").innerHTML = "";
     return;
@@ -583,7 +585,8 @@ function renderMap() {
   renderMapFilters(allUnits);
   renderMapInsights(units, allUnits);
   renderMapComparisons(units, allUnits);
-  renderCountyChoropleth(units);
+  renderPackageMapSummary(packageStats, units);
+  renderCountyChoropleth(units, packageStats);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -605,19 +608,23 @@ function renderMap() {
   const visibleStates = new Set(units.map((unit) => unit.state).filter(Boolean));
   const stateCenters = (mapLayers.state_centers || []).filter((center) => visibleStates.has(center.state));
   $("#law-map").setAttribute("viewBox", mapLayers.view_box || "0 0 100 100");
-  $("#law-map").innerHTML = `${stateCenters.map(stateCenterSvg).join("")}${units.map(unitSvg).join("")}`;
+  $("#law-map").innerHTML = `${stateCenters.map(stateCenterSvg).join("")}${units.map((unit) => unitSvg(unit, packageStats)).join("")}`;
   $("#map-unit-table tbody").innerHTML = units
     .map(
-      (unit) => `
-        <tr>
+      (unit) => {
+        const packageHit = packageStats.units.get(unit.unit_id);
+        return `
+        <tr class="${packageHit ? "package-hit" : ""}">
           <td><button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">${escapeHtml(displayUnitName(unit))}</button></td>
           <td>${escapeHtml(text(unit.state))}</td>
           <td>${escapeHtml(text(unit.kind))}</td>
           <td>${escapeHtml(text(unit.tier_label))}</td>
           <td>${escapeHtml(String(unit.law_count))}</td>
           <td>${escapeHtml(text(unit.dominant_topic))}</td>
+          <td>${packageHit ? `<span class="package-hit-badge">${escapeHtml(formatCount(packageHit.recordCount))} local</span>` : "none"}</td>
         </tr>
-      `,
+      `;
+      },
     )
     .join("");
   renderSelectedUnit();
@@ -626,7 +633,72 @@ function renderMap() {
   renderGeoColorButtons();
 }
 
-function renderCountyChoropleth(units) {
+function renderPackageMapSummary(packageStats, visibleUnits) {
+  const panel = $("#package-map-summary");
+  if (!panel) {
+    return;
+  }
+  if (!packageStats.imported) {
+    panel.innerHTML = `
+      <article class="package-map-card demo">
+        <div>
+          <p class="eyebrow">Local package overlay</p>
+          <h3>No bounded review package is imported.</h3>
+          <p>The public map is real aggregate LOCUS data. Import a local review package to highlight its county/town units here without publishing record text.</p>
+        </div>
+        <span>No local LOCUS text in browser</span>
+      </article>
+    `;
+    return;
+  }
+  const visibleIds = new Set(visibleUnits.map((unit) => unit.unit_id));
+  const visibleHits = [...packageStats.units.values()].filter((hit) => visibleIds.has(hit.unitId));
+  const reviewed = [...packageStats.units.values()].reduce((sum, hit) => sum + hit.reviewed, 0);
+  const cards = [
+    ["Matched records", `${formatCount(packageStats.matchedRecords)}/${formatCount(packageStats.recordCount)}`, `${formatCount(packageStats.unmatchedRecords)} could not be joined to a public map unit`],
+    ["Highlighted units", formatCount(packageStats.units.size), `${formatCount(visibleHits.length)} visible under current filters`],
+    ["Reviewed locally", formatCount(reviewed), `${formatPercent(reviewed, packageStats.recordCount)} of imported package records`],
+    ["Text boundary", packageStats.textIncluded ? "browser-local text loaded" : "metadata only", "Package records remain in localStorage, not public artifacts"],
+  ];
+  panel.innerHTML = `
+    <article class="package-map-card imported">
+      <div>
+        <p class="eyebrow">Local package overlay</p>
+        <h3>Imported package units are highlighted on the map.</h3>
+        <p>${escapeHtml(packageStats.fileName)} · ${escapeHtml(packageStats.datasetRevision)} · ${escapeHtml(formatDateTime(packageStats.importedAt))}</p>
+      </div>
+      <div class="package-map-card-grid">
+        ${cards
+          .map(
+            ([label, value, detail]) => `
+              <span>
+                <strong>${escapeHtml(String(value))}</strong>
+                <em>${escapeHtml(label)}</em>
+                <b>${escapeHtml(detail)}</b>
+              </span>
+            `,
+          )
+          .join("")}
+      </div>
+      ${
+        visibleHits.length
+          ? `<div class="package-map-hit-list">${visibleHits.slice(0, 8).map((hit) => packageMapHitPill(hit)).join("")}</div>`
+          : `<p class="muted-note">No imported units are visible under the current filters. Clear filters to locate package units.</p>`
+      }
+    </article>
+  `;
+}
+
+function packageMapHitPill(hit) {
+  return `
+    <button type="button" data-unit-id="${escapeHtml(hit.unitId)}">
+      ${escapeHtml(displayUnitName(hit.unit || hit.unitId))}
+      <em>${escapeHtml(formatCount(hit.recordCount))} records · ${escapeHtml(formatCount(hit.remaining))} remaining</em>
+    </button>
+  `;
+}
+
+function renderCountyChoropleth(units, packageStats = importedPackageMapStats()) {
   const artifact = state.analysis.countyGeometry;
   const municipalArtifact = state.analysis.municipalPoints;
   const summary = $("#county-layer-summary");
@@ -668,41 +740,43 @@ function renderCountyChoropleth(units) {
   const bounds = geoBounds(features, municipalPoints);
   const colorContext = geographyColorContext(features, municipalPoints);
   legend.innerHTML = geographyColorLegend(colorContext);
-  svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds, colorContext)).join("")}${municipalPoints.map((point) => municipalPointSvg(point, bounds, colorContext)).join("")}`;
+  svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds, colorContext, packageStats)).join("")}${municipalPoints.map((point) => municipalPointSvg(point, bounds, colorContext, packageStats)).join("")}`;
   const selectedPoint = municipalPoints.find((point) => point.unit_id === state.selectedUnitId);
   const selectedFeature = features.find((feature) => feature.properties?.unit_id === state.selectedUnitId);
   if (selectedPoint) {
-    renderMunicipalPointDetail(selectedPoint, municipalArtifact);
+    renderMunicipalPointDetail(selectedPoint, municipalArtifact, packageStats);
   } else if (features.length) {
-    renderCountyGeometryDetail(selectedFeature || features[0], artifact, municipalArtifact);
+    renderCountyGeometryDetail(selectedFeature || features[0], artifact, municipalArtifact, packageStats);
   } else {
-    renderMunicipalPointDetail(municipalPoints[0], municipalArtifact);
+    renderMunicipalPointDetail(municipalPoints[0], municipalArtifact, packageStats);
   }
 }
 
-function countyFeatureSvg(feature, bounds, colorContext) {
+function countyFeatureSvg(feature, bounds, colorContext, packageStats) {
   const properties = feature.properties || {};
   const d = geometryPath(feature.geometry, bounds);
   const selected = properties.unit_id === state.selectedUnitId ? " selected" : "";
+  const packageHit = packageStats.units.get(properties.unit_id) ? " package-hit" : "";
   const fill = geographyDatumColor(properties, colorContext);
   return `
     <path
-      class="county-feature${selected}"
+      class="county-feature${selected}${packageHit}"
       data-unit-id="${escapeHtml(properties.unit_id)}"
       d="${d}"
       fill="${escapeHtml(fill)}"
       tabindex="0"
     >
-      <title>${escapeHtml(properties.census_name || properties.unit_name)} · ${escapeHtml(properties.tier_label || "No tier")} · ${escapeHtml(formatCount(properties.law_count))} laws</title>
+      <title>${escapeHtml(properties.census_name || properties.unit_name)} · ${escapeHtml(properties.tier_label || "No tier")} · ${escapeHtml(formatCount(properties.law_count))} laws${packageHit ? ` · ${escapeHtml(formatCount(packageStats.units.get(properties.unit_id).recordCount))} local package records` : ""}</title>
     </path>
   `;
 }
 
-function renderCountyGeometryDetail(feature, artifact) {
+function renderCountyGeometryDetail(feature, artifact, _municipalArtifact, packageStats = importedPackageMapStats()) {
   const properties = feature.properties || {};
   const showEvidence = state.disclosureLevel === "evidence";
   const substantiveShare = modelSubstantiveShare(properties);
   const auditQuality = unitAuditQualityFor(properties.unit_id);
+  const packageHit = packageStats.units.get(properties.unit_id);
   $("#county-layer-detail").innerHTML = `
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(properties.unit_id)}">Ask about this county</button>
     <dl class="metadata-grid compact-metadata">
@@ -716,6 +790,7 @@ function renderCountyGeometryDetail(feature, artifact) {
       <dt>Dominant topic</dt><dd>${escapeHtml(properties.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(properties.match_status || "Unknown")}</dd>
     </dl>
+    ${selectedUnitPackageCoverageHtml(packageHit)}
     ${
       showEvidence
         ? `<p class="muted-note">Geometry source: ${escapeHtml(artifact.source?.name || "U.S. Census Bureau TIGERweb")} layer ${escapeHtml(String(artifact.source?.layer_id || "82"))}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(properties.substantive_count || 0))}/${escapeHtml(formatCount(properties.law_count || 0))} rows. Audit attention is a local aggregate review signal, not a legal ranking. Generalized for static display; ${escapeHtml(formatCount(artifact.unmatched_count || 0))} aggregate county units are unmatched.</p>`
@@ -724,15 +799,16 @@ function renderCountyGeometryDetail(feature, artifact) {
   `;
 }
 
-function municipalPointSvg(point, bounds, colorContext) {
+function municipalPointSvg(point, bounds, colorContext, packageStats) {
   const [x, y] = projectLonLat(point.lon, point.lat, bounds);
   const selected = point.unit_id === state.selectedUnitId ? " selected" : "";
+  const packageHit = packageStats.units.get(point.unit_id) ? " package-hit" : "";
   const lawCount = Math.max(0, Number(point.law_count || 0));
   const radius = 3.2 + Math.min(4.8, Math.log10(lawCount + 1) * 0.95);
   const fill = geographyDatumColor(point, colorContext);
   return `
     <circle
-      class="municipal-point${selected}"
+      class="municipal-point${selected}${packageHit}"
       data-unit-id="${escapeHtml(point.unit_id)}"
       cx="${x.toFixed(2)}"
       cy="${y.toFixed(2)}"
@@ -740,15 +816,16 @@ function municipalPointSvg(point, bounds, colorContext) {
       fill="${escapeHtml(fill)}"
       tabindex="0"
     >
-      <title>${escapeHtml(point.census_name || point.unit_name)} · ${escapeHtml(point.tier_label || "No tier")} · ${escapeHtml(formatCount(point.law_count))} laws</title>
+      <title>${escapeHtml(point.census_name || point.unit_name)} · ${escapeHtml(point.tier_label || "No tier")} · ${escapeHtml(formatCount(point.law_count))} laws${packageHit ? ` · ${escapeHtml(formatCount(packageStats.units.get(point.unit_id).recordCount))} local package records` : ""}</title>
     </circle>
   `;
 }
 
-function renderMunicipalPointDetail(point, artifact) {
+function renderMunicipalPointDetail(point, artifact, packageStats = importedPackageMapStats()) {
   const showEvidence = state.disclosureLevel === "evidence";
   const substantiveShare = modelSubstantiveShare(point);
   const auditQuality = unitAuditQualityFor(point.unit_id);
+  const packageHit = packageStats.units.get(point.unit_id);
   $("#county-layer-detail").innerHTML = `
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(point.unit_id)}">Ask about this municipality</button>
     <dl class="metadata-grid compact-metadata">
@@ -763,6 +840,7 @@ function renderMunicipalPointDetail(point, artifact) {
       <dt>Dominant topic</dt><dd>${escapeHtml(point.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(point.match_status || "Unknown")}</dd>
     </dl>
+    ${selectedUnitPackageCoverageHtml(packageHit)}
     ${
       showEvidence
         ? `<p class="muted-note">Municipal point source: ${escapeHtml((artifact?.source?.layers || []).find((layer) => layer.id === point.census_layer)?.name || "U.S. Census Bureau TIGERweb")}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(point.substantive_count || 0))}/${escapeHtml(formatCount(point.law_count || 0))} rows. Audit attention is a local aggregate review signal, not a legal ranking. ${escapeHtml(formatCount(artifact?.unmatched_count || 0))} aggregate municipal units remain unmatched rather than guessed.</p>`
@@ -1420,6 +1498,105 @@ function unitAuditQualityFor(unitId) {
   return rows.find((row) => row.unit_id === unitId) || null;
 }
 
+function importedPackageMapStats(allUnits = state.analysis.mapLayers?.units || []) {
+  const imported = !isSyntheticQueue();
+  const meta = imported ? loadImportStatus() || fallbackImportStatus() : null;
+  const aliasIndex = packageUnitAliasIndex(allUnits);
+  const units = new Map();
+  let matchedRecords = 0;
+  let unmatchedRecords = 0;
+  for (const record of imported ? records : []) {
+    const match = matchPackageRecordUnit(record, aliasIndex);
+    if (!match) {
+      unmatchedRecords += 1;
+      continue;
+    }
+    matchedRecords += 1;
+    if (!units.has(match.unit_id)) {
+      units.set(match.unit_id, {
+        unitId: match.unit_id,
+        unit: match,
+        recordCount: 0,
+        reviewed: 0,
+        skipped: 0,
+        flagged: 0,
+        remaining: 0,
+      });
+    }
+    const hit = units.get(match.unit_id);
+    hit.recordCount += 1;
+    hit[statusForRecord(record)] += 1;
+  }
+  return {
+    imported,
+    meta,
+    fileName: meta?.file_name || "Imported bounded package",
+    datasetRevision: meta?.dataset_revision || records[0]?.dataset_revision || "imported-bounded-queue",
+    importedAt: meta?.imported_at || null,
+    recordCount: imported ? records.length : 0,
+    matchedRecords,
+    unmatchedRecords,
+    units,
+    textIncluded: Boolean(meta?.ordinance_text_included),
+  };
+}
+
+function packageUnitAliasIndex(units) {
+  const index = new Map();
+  for (const unit of units || []) {
+    for (const alias of packageUnitAliases(unit)) {
+      index.set(alias, unit);
+    }
+  }
+  return index;
+}
+
+function packageUnitAliases(unit) {
+  return [
+    unit.unit_id,
+    packageUnitAlias(unit.state, unit.kind, unit.name),
+    packageUnitAlias(unit.state, unit.kind, unit.unit_name),
+  ].filter(Boolean).map(packageAliasKey);
+}
+
+function matchPackageRecordUnit(record, aliasIndex) {
+  const candidates = [
+    record.unit_id,
+    packageUnitAlias(record.state_normalized || record.state, record.jurisdiction_type_normalized || record.source_jurisdiction_type, record.jurisdiction_name),
+    packageUnitAlias(record.state_normalized || record.state, "county", record.county),
+    packageUnitAlias(record.state_normalized || record.state, "city", record.city),
+  ].filter(Boolean).map(packageAliasKey);
+  for (const candidate of candidates) {
+    const unit = aliasIndex.get(candidate);
+    if (unit) {
+      return unit;
+    }
+  }
+  return null;
+}
+
+function packageUnitAlias(stateCode, kind, name) {
+  if (!stateCode || !kind || !name) {
+    return "";
+  }
+  return `${String(stateCode).trim().toUpperCase()}:${normalizePackageKind(kind)}:${String(name).trim()}`;
+}
+
+function normalizePackageKind(kind) {
+  const value = String(kind || "").trim().toLowerCase();
+  if (["county", "counties"].includes(value)) {
+    return "county";
+  }
+  if (["city", "cities", "municipal", "municipality", "town", "township", "village", "borough", "place"].includes(value)) {
+    return "city";
+  }
+  return value || "unknown";
+}
+
+function packageAliasKey(value) {
+  return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 function filterMapUnits(units) {
   return units.filter((unit) => {
     const auditQuality = unitAuditQualityFor(unit.unit_id);
@@ -1770,15 +1947,18 @@ function stateCenterSvg(center) {
   `;
 }
 
-function unitSvg(unit) {
+function unitSvg(unit, packageStats = importedPackageMapStats()) {
   const layout = unit.layout || {};
   const fill = unit.tier_color || "#d8dee8";
   const selected = state.selectedUnitId === unit.unit_id ? " selected" : "";
-  const common = `data-unit-id="${escapeHtml(unit.unit_id)}" class="map-unit${selected}" fill="${escapeHtml(fill)}" tabindex="0"`;
+  const packageHit = packageStats.units.get(unit.unit_id);
+  const packageClass = packageHit ? " package-hit" : "";
+  const title = `${displayUnitName(unit)}: ${unit.tier_label}${packageHit ? ` · ${formatCount(packageHit.recordCount)} local package records` : ""}`;
+  const common = `data-unit-id="${escapeHtml(unit.unit_id)}" class="map-unit${selected}${packageClass}" fill="${escapeHtml(fill)}" tabindex="0"`;
   if (layout.type === "point") {
-    return `<circle ${common} cx="${Number(layout.x || 0)}" cy="${Number(layout.y || 0)}" r="${Number(layout.r || 3.5)}"><title>${escapeHtml(displayUnitName(unit))}: ${escapeHtml(unit.tier_label)}</title></circle>`;
+    return `<circle ${common} cx="${Number(layout.x || 0)}" cy="${Number(layout.y || 0)}" r="${Number(layout.r || 3.5)}"><title>${escapeHtml(title)}</title></circle>`;
   }
-  return `<rect ${common} x="${Number(layout.x || 0)}" y="${Number(layout.y || 0)}" width="${Number(layout.w || 8)}" height="${Number(layout.h || 8)}" rx="1.5"><title>${escapeHtml(displayUnitName(unit))}: ${escapeHtml(unit.tier_label)}</title></rect>`;
+  return `<rect ${common} x="${Number(layout.x || 0)}" y="${Number(layout.y || 0)}" width="${Number(layout.w || 8)}" height="${Number(layout.h || 8)}" rx="1.5"><title>${escapeHtml(title)}</title></rect>`;
 }
 
 function renderSelectedUnit() {
@@ -1795,6 +1975,7 @@ function renderSelectedUnit() {
   const showEvidence = state.disclosureLevel === "evidence";
   const substantiveShare = modelSubstantiveShare(unit);
   const auditQuality = unitAuditQualityFor(unit.unit_id);
+  const packageHit = importedPackageMapStats(state.analysis.mapLayers?.units || []).units.get(unit.unit_id);
   const samples = showEvidence
     ? (unit.samples || [])
         .map(
@@ -1821,6 +2002,7 @@ function renderSelectedUnit() {
       <dt>Dominant function</dt><dd>${escapeHtml(text(unit.dominant_function))}</dd>
       <dt>OCR risk</dt><dd>${escapeHtml(text(unit.ocr_risk_level))}</dd>
     </dl>
+    ${selectedUnitPackageCoverageHtml(packageHit)}
     ${selectedUnitOntologyNeighborhoodHtml(unit, { compact: true })}
     ${selectedUnitPeerComparisonHtml(unit)}
     ${selectedUnitAuditQualityHtml(auditQuality)}
@@ -1834,6 +2016,29 @@ function renderSelectedUnit() {
         ? `<h4>Evidence trail</h4><p class="muted-note">Model substantive share denominator: ${escapeHtml(formatCount(unit.substantive_count || 0))}/${escapeHtml(formatCount(unit.law_count || 0))} released LOCUS rows in this aggregate unit. This is a model output, not a verified legal classification.</p><ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>`
         : `<p class="muted-note">Switch to Evidence trail to reveal source locators and public samples when allowed.</p>`
     }
+  `;
+}
+
+function selectedUnitPackageCoverageHtml(packageHit) {
+  if (!packageHit) {
+    return !isSyntheticQueue()
+      ? `<section class="selected-package-card empty"><h4>Imported package coverage</h4><p class="muted-note">This selected aggregate unit is not represented in the current browser-local review package.</p></section>`
+      : "";
+  }
+  return `
+    <section class="selected-package-card" aria-label="Imported package coverage for selected unit">
+      <div class="selected-package-heading">
+        <h4>Imported package coverage</h4>
+        <span>${escapeHtml(formatCount(packageHit.recordCount))} browser-local records</span>
+      </div>
+      <dl class="metadata-grid compact-metadata">
+        <dt>Reviewed</dt><dd>${escapeHtml(formatCount(packageHit.reviewed))}</dd>
+        <dt>Remaining</dt><dd>${escapeHtml(formatCount(packageHit.remaining))}</dd>
+        <dt>Skipped</dt><dd>${escapeHtml(formatCount(packageHit.skipped))}</dd>
+        <dt>Flagged</dt><dd>${escapeHtml(formatCount(packageHit.flagged))}</dd>
+      </dl>
+      <p class="muted-note">These counts are browser-local review workflow state for the imported package. They are not public evidence, legal findings, or part of the aggregate Pages artifact.</p>
+    </section>
   `;
 }
 

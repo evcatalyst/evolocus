@@ -128,6 +128,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-filter-form" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
+    assert "package-map-summary" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
     assert "snapshots-panel" in html
@@ -183,6 +184,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "importStatusFromPayload" in js
     assert "renderPackageCoverage" in js
     assert "packageCoverageSummary" in js
+    assert "importedPackageMapStats" in js
+    assert "matchPackageRecordUnit" in js
+    assert "selectedUnitPackageCoverageHtml" in js
+    assert "package-hit" in js
     assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "BROWSER-LOCAL IMPORTED PACKAGE METADATA" in js
     assert "Package status is visible above the workbench" in js
@@ -204,6 +209,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontologyNodeSvg" in js
     assert "ontology-neighborhood-svg" in css
     assert "package-coverage-card" in css
+    assert "package-map-card" in css
+    assert "package-hit-badge" in css
+    assert "selected-package-card" in css
     assert "selectedUnitPeerComparisonHtml" in js
     assert "selectedUnitPeers" in js
     assert "scoreDeltaSummary" in js

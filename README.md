@@ -50,6 +50,7 @@ The Pages app supports:
 - Queue Plan review-package request export for local ignored materialization from authorized Parquet;
 - Queue Plan package-request preview with record budget, unit mix, and safety gates before download;
 - browser-local import-status panel after bounded package upload, including provenance, text-inclusion state, unit counts, and safety flags;
+- browser-local package-to-map overlay that highlights imported review-package units on the aggregate law map and official geography layer;
 - Results-tab package coverage visuals after bounded package upload, including state/topic/function/type/OCR mix and review progress;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
@@ -103,6 +104,7 @@ Support tooling:
 - Browser review-package request export for handing selected aggregate units to local tooling; the request stays aggregate-only.
 - Browser package-request preview for inspecting unit mix, record budget, and publication safety gates before download.
 - Browser import-status panel for local package provenance and review readiness after upload; this state remains in localStorage.
+- Browser package-to-map overlay for imported local queues; it joins local `unit_id` values to public aggregate units and highlights matches without writing records to public artifacts.
 - Browser package-coverage charts for imported local queues; these summarize only browser-local records and are never written to `site/data/analysis/`.
 - Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.
 - Browser snapshot gallery storage in localStorage for aggregate current-view snapshots only; it does not store LOCUS text or review-event history.
