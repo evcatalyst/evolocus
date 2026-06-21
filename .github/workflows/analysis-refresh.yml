@@ -2,6 +2,12 @@ name: Refresh static analysis artifacts
 
 on:
   workflow_dispatch:
+    inputs:
+      use_grok:
+        description: "Use GROK_API_KEY for offline aggregate-only briefing enrichment when available."
+        required: true
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -18,8 +24,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+      USE_GROK: ${{ inputs.use_grok }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,17 +39,50 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Check optional Grok secret presence
         run: |
-          if [ -n "$GROK_API_KEY" ]; then
+          if [ "$USE_GROK" = "true" ] && [ -n "$GROK_API_KEY" ]; then
             echo "GROK_API_KEY is configured for offline analysis jobs."
-          else
+          elif [ "$USE_GROK" = "true" ]; then
             echo "GROK_API_KEY is not configured; deterministic static analysis will run without LLM enrichment."
+          else
+            echo "Grok enrichment disabled by workflow input; deterministic static analysis will run."
           fi
       - name: Generate aggregate-only inquiry briefings
-        run: PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings --analysis-dir site/data/analysis --output site/data/analysis/inquiry_briefings.json --use-grok
+        run: |
+          if [ "$USE_GROK" = "true" ]; then
+            PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings \
+              --analysis-dir site/data/analysis \
+              --output site/data/analysis/inquiry_briefings.json \
+              --use-grok
+          else
+            PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings \
+              --analysis-dir site/data/analysis \
+              --output site/data/analysis/inquiry_briefings.json
+          fi
+      - name: Validate public artifact boundary
+        run: PYTHONPATH=src python -m evolocus.cli validate-public-artifacts --analysis-dir site/data/analysis
+      - name: Summarize briefing artifact
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path("site/data/analysis/inquiry_briefings.json").read_text(encoding="utf-8"))
+          grok = payload.get("grok") or {}
+          summary = [
+              "## EvoLOCUS inquiry briefing refresh",
+              "",
+              f"- Dataset revision: `{payload.get('dataset_revision')}`",
+              f"- Briefings: `{len(payload.get('briefings') or [])}`",
+              f"- Grok used: `{bool(grok.get('used'))}`",
+              f"- Grok model: `{grok.get('model')}`",
+              "- Publication boundary: aggregate-only, no ordinance text, no raw rows, no browser LLM calls.",
+          ]
+          Path(__import__("os").environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(summary) + "\n", encoding="utf-8")
+          PY
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: site
       - name: Deploy to GitHub Pages

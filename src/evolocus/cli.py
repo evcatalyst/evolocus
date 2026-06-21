@@ -28,6 +28,7 @@ from .locus_ingest import (
 )
 from .locus_source import CorpusConfig, LocusCorpus
 from .municipal_points import publish_municipal_points_artifact
+from .public_artifact_guard import validate_public_analysis_artifacts
 from .unit_audit_quality import DEFAULT_UNIT_AUDIT_QUALITY_PATH, publish_unit_audit_quality
 
 
@@ -137,6 +138,13 @@ def main(argv: list[str] | None = None) -> int:
     inquiry_briefings_parser.add_argument("--grok-api-key-env", default="GROK_API_KEY")
     inquiry_briefings_parser.add_argument("--grok-model", default="grok-4.3")
     inquiry_briefings_parser.set_defaults(func=_publish_inquiry_briefings)
+
+    validate_public_parser = subparsers.add_parser(
+        "validate-public-artifacts",
+        help="Validate aggregate-only Pages analysis artifacts before publication.",
+    )
+    validate_public_parser.add_argument("--analysis-dir", type=Path, default=DEFAULT_ANALYSIS_DIR)
+    validate_public_parser.set_defaults(func=_validate_public_artifacts)
 
     county_geometry_parser = subparsers.add_parser(
         "publish-county-geometry",
@@ -290,6 +298,12 @@ def _publish_inquiry_briefings(args: argparse.Namespace) -> int:
         grok_api_key_env=args.grok_api_key_env,
         grok_model=args.grok_model,
     )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _validate_public_artifacts(args: argparse.Namespace) -> int:
+    result = validate_public_analysis_artifacts(args.analysis_dir)
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0
 

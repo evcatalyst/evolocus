@@ -91,6 +91,7 @@ Support tooling:
 - `publish-analysis` for generating Pages-ready status, map, ontology, model, and deterministic inquiry JSON.
 - `publish-inquiry-briefings` for generating static progressive inquiry briefings, optionally enriched by Grok in offline jobs only.
 - `publish-unit-audit-quality` for generating aggregate per-unit audit-quality JSON from local Parquet and the reviewed public map-unit scope.
+- `validate-public-artifacts` for blocking Pages deployment when static analysis JSON contains raw text, source locators, local paths, databases, or secret-shaped values.
 - Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
@@ -140,6 +141,13 @@ PYTHONPATH=src python -m evolocus.cli publish-analysis \
 ```
 
 The current public `site/data/analysis/` artifacts are aggregate-only LOCUS outputs generated from local Parquet with Polars. The map includes approximate state-clustered county/town units, a generalized Census TIGERweb county choropleth for matched aggregate county units, and Census TIGERweb municipal/town internal points for matched aggregate municipal units. Geography matches are machine-generated and pending review. The artifacts include no ordinance text, no raw LOCUS rows, no local evaluation database, and no exported review history. Regenerate into `data/exports/analysis-preview` first, inspect the JSON for text/secrets, then copy only the reviewed aggregate artifacts into `site/data/analysis/`.
+
+Validate the public artifact boundary:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli validate-public-artifacts \
+  --analysis-dir site/data/analysis
+```
 
 Refresh the official county geometry artifact after updating `map_layers.json`:
 
@@ -226,6 +234,8 @@ gh secret set GROK_API_KEY --repo evcatalyst/evolocus
 ```
 
 The `GROK_API_KEY` repository secret is configured for GitHub Actions offline jobs. The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
+
+Run the manual `Refresh static analysis artifacts` workflow to regenerate static inquiry briefings with the secret. The workflow validates `site/data/analysis/` with `validate-public-artifacts` before deploying Pages.
 
 ## Hugging Face Download One-Liner
 

@@ -135,6 +135,15 @@ PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings \
 
 Offline jobs may add `--use-grok` when `GROK_API_KEY` is available. The output must remain aggregate-only and must not include ordinance text, headers, source locators, local paths, or secrets.
 
+Validate the public artifact boundary:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli validate-public-artifacts \
+  --analysis-dir site/data/analysis
+```
+
+The manual `Refresh static analysis artifacts` GitHub Actions workflow performs the same briefing refresh and validation before deploying Pages. The Analysis Status tab reports whether the active inquiry briefing artifact is deterministic or Grok-enriched.
+
 ## Support CLI
 
 Python CLI commands may prepare audits, local SQLite queues, or export packages, but they are support tooling, not the user interface.

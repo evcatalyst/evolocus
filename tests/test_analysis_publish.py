@@ -5,6 +5,7 @@ import json
 from evolocus.analysis_publish import publish_analysis_artifacts
 from evolocus.inquiry_briefings import publish_inquiry_briefings
 from evolocus.locus_source import LocusCorpus
+from evolocus.public_artifact_guard import PublicArtifactValidationError, validate_public_analysis_artifacts
 
 
 def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
@@ -41,3 +42,45 @@ def test_publish_inquiry_briefings_are_aggregate_only(tmp_path) -> None:
     assert '"content"' not in serialized
     assert '"header"' not in serialized
     assert "source_locator" not in serialized
+
+
+def test_public_artifact_guard_accepts_aggregate_artifacts(tmp_path) -> None:
+    output_dir = tmp_path / "analysis"
+    publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
+    publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
+
+    result = validate_public_analysis_artifacts(output_dir)
+
+    assert result.artifact_count >= 6
+    assert "inquiry_briefings.json" in result.checked_artifacts
+
+
+def test_public_artifact_guard_rejects_raw_text_fields(tmp_path) -> None:
+    output_dir = tmp_path / "analysis"
+    publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
+    publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
+    (output_dir / "unsafe.json").write_text('{"content": "do not publish ordinance text"}', encoding="utf-8")
+
+    try:
+        validate_public_analysis_artifacts(output_dir)
+    except PublicArtifactValidationError as exc:
+        assert "boundary violation" in str(exc)
+    else:  # pragma: no cover - defensive assertion path
+        raise AssertionError("expected raw text field to be rejected")
+
+
+def test_public_artifact_guard_rejects_browser_llm_policy(tmp_path) -> None:
+    output_dir = tmp_path / "analysis"
+    publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
+    publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
+    path = output_dir / "inquiry_briefings.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["publication_policy"]["browser_llm_calls"] = True
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    try:
+        validate_public_analysis_artifacts(output_dir)
+    except PublicArtifactValidationError as exc:
+        assert "browser_llm_calls" in str(exc)
+    else:  # pragma: no cover - defensive assertion path
+        raise AssertionError("expected browser LLM policy violation to be rejected")

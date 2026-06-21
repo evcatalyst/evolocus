@@ -48,6 +48,7 @@ Files saved:
 - `src/evolocus/locus_ingest.py`
 - `src/evolocus/locus_normalize.py`
 - `src/evolocus/locus_source.py`
+- `src/evolocus/public_artifact_guard.py`
 - `dashboards/app.py`
 - `dashboards/pages/1_Review_Queue.py`
 - `dashboards/pages/2_Dataset_Explorer.py`
@@ -90,6 +91,7 @@ Current coverage stats:
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
+- Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
 - Real LOCUS evaluation: not started
 
@@ -138,6 +140,7 @@ Latest update:
 - Added a Score Lens tab that visualizes released model-score means from aggregate map units with progressive disclosure and drill-through back to the map.
 - Added an Inquiry question matrix that turns current filters into deterministic aggregate answers for map, topic, function, audit, score, and selected-unit prompts.
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
+- Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 
 Evaluator implementation state:
 

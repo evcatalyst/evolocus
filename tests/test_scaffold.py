@@ -36,6 +36,7 @@ REQUIRED_PATHS = [
     "src/evolocus/inquiry_briefings.py",
     "src/evolocus/municipal_points.py",
     "src/evolocus/locus_ingest.py",
+    "src/evolocus/public_artifact_guard.py",
     "tests/test_scaffold.py",
     "tests/test_locus_ingest.py",
     ".gitignore",
@@ -342,8 +343,12 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
 def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() -> None:
     workflow = read_text(".github/workflows/analysis-refresh.yml")
     js = read_text("site/assets/app.js")
+    assert "workflow_dispatch" in workflow
+    assert "use_grok" in workflow
     assert "secrets.GROK_API_KEY" in workflow
     assert "publish-inquiry-briefings" in workflow
+    assert "validate-public-artifacts" in workflow
+    assert "actions/upload-pages-artifact@v3" in workflow
     assert "publish-analysis" not in workflow
     assert "GROK_API_KEY" not in js
     assert "api.x.ai" not in js

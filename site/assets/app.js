@@ -928,6 +928,8 @@ function renderAnalysisStatusPanel() {
   const countyGeometry = state.analysis.countyGeometry;
   const municipalPoints = state.analysis.municipalPoints;
   const auditStatus = state.analysis.auditStatus;
+  const inquiryBriefings = state.analysis.inquiryBriefings;
+  const briefingGrok = inquiryBriefings?.grok || {};
   const cardsGrid = $("#status-card-grid");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
@@ -959,6 +961,11 @@ function renderAnalysisStatusPanel() {
           ["Audit gates", auditGateSummary(auditStatus), "Review-needed gates are data-quality priorities"],
         ]
       : [["Audit status", "not loaded", "Full audit summary artifact is unavailable"]]),
+    [
+      "Inquiry briefings",
+      inquiryBriefings ? (briefingGrok.used ? `Grok (${briefingGrok.model})` : "deterministic") : "not loaded",
+      "Static aggregate Q&A artifact; no browser LLM calls",
+    ],
   ];
   cardsGrid.innerHTML = statusCards
     .map(
@@ -987,6 +994,8 @@ function renderAnalysisStatusPanel() {
     ["Full LOCUS audit", auditStatus ? `${formatCount(auditStatus.row_count)} rows · schema ${auditStatus.schema?.is_compatible ? "compatible" : "review needed"}` : "not loaded"],
     ["OCR heuristic review", auditStatus ? auditOcrSummary(auditStatus) : "not loaded"],
     ["Duplicate content hashes", auditStatus ? formatCount(auditStatus.quality_counts?.duplicate_content_hash_count) : "not loaded"],
+    ["Inquiry generated", inquiryBriefings ? formatDateTime(inquiryBriefings.generated_at) : "not loaded"],
+    ["Grok enrichment", inquiryBriefings ? (briefingGrok.used ? `offline ${briefingGrok.model}` : `not used${briefingGrok.error ? ` · ${briefingGrok.error}` : ""}`) : "not loaded"],
     ["Grok boundary", `${status.grok_secret_name || "Configured offline secret"} is for offline artifact generation only; no API key is embedded in Pages.`],
   ];
   detailGrid.innerHTML = details
@@ -1062,6 +1071,11 @@ function renderAnalysisStatusPanel() {
     <article class="status-evidence-card">
       <h3>Boundary</h3>
       <p>No raw LOCUS rows, ordinance text, SQLite databases, exports, credentials, or machine-specific paths are published through this artifact layer.</p>
+    </article>
+    <article class="status-evidence-card">
+      <h3>Inquiry Briefing Refresh</h3>
+      <p>${escapeHtml(inquiryBriefings ? `${briefingGrok.used ? "Grok-enriched offline" : "Deterministic"} briefing generated ${formatDateTime(inquiryBriefings.generated_at)}.` : "Inquiry briefing artifact is not loaded.")}</p>
+      <p>Actions may use the configured repository secret to refresh aggregate summaries, but Pages never performs browser LLM calls.</p>
     </article>
     <article class="status-evidence-card">
       <h3>County Geometry</h3>

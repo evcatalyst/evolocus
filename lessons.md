@@ -42,3 +42,5 @@
 - Browser inquiry should make the active filter state visible in prompt cards so answers feel connected to the map without requiring live LLM calls.
 - Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.
 - Record-level review queues should still be materialized with local ignored tooling before any ordinance text is reviewed or exported.
+- Grok refreshes need a deployment-time public artifact guard because model enrichment is still generated text and must not weaken raw-data, source-locator, or secret boundaries.
+- xAI currently documents the Responses endpoint and `grok-4.3`; keep the model configurable so future API changes do not require browser changes.

@@ -16,6 +16,7 @@ flowchart LR
   H["LOCUS Parquet support tooling"] --> I["Polars lazy validation and aggregation"]
   I --> J["Bounded queue/export packages"]
   I --> C
+  C --> V["Public artifact guard"]
   J --> A
 ```
 
@@ -26,6 +27,7 @@ flowchart LR
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, topic, function, audit, score, and selected-unit questions without live model calls.
+- The manual analysis-refresh workflow can use `GROK_API_KEY` to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - The Analysis Status tab reads `audit_status.json`, a full-row-count audit summary that excludes raw rows, ordinance text, sampled findings, and record locators.
 - The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
@@ -91,6 +93,8 @@ The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer
 ## Grok Integration Boundary
 
 The repository secret name is `GROK_API_KEY`. It may be used by offline GitHub Actions or local jobs to produce static aggregate-only inquiry briefings. It must not be exposed in Pages JavaScript because every browser-delivered asset is public.
+
+The Actions refresh path uses the xAI Responses endpoint with model `grok-4.3` for offline enrichment when available. The generated artifact records whether Grok was used, and the Analysis Status tab surfaces that state.
 
 ## Optional Support Components
 
