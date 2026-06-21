@@ -2155,12 +2155,16 @@ function renderOntology() {
   const ontology = state.analysis.ontology;
   const models = state.analysis.models;
   const selectedNeighborhood = $("#selected-ontology-neighborhood");
+  const packageBridge = $("#package-ontology-bridge");
   if (!ontology) {
     $("#ontology-summary").innerHTML = `
       <article class="metric-card"><span class="metric-value">...</span><span class="metric-label">Loading ontology</span></article>
     `;
     if (selectedNeighborhood) {
       selectedNeighborhood.innerHTML = "<p>Selected-unit ontology neighborhood loading.</p>";
+    }
+    if (packageBridge) {
+      packageBridge.innerHTML = "<p>Package ontology bridge loading.</p>";
     }
     $("#ontology-node-list").innerHTML = "";
     $("#model-list").innerHTML = "";
@@ -2195,6 +2199,9 @@ function renderOntology() {
       ? selectedUnitOntologyNeighborhoodHtml(selectedUnit, { compact: false })
       : "<h3>Selected-unit ontology neighborhood</h3><p>Select a county or town on the map to show its aggregate ontology neighborhood.</p>";
   }
+  if (packageBridge) {
+    packageBridge.innerHTML = packageOntologyBridgeHtml();
+  }
   $("#model-list").innerHTML = models
     ? models.models
         .map(
@@ -2207,6 +2214,113 @@ function renderOntology() {
         )
         .join("")
     : "<span>Model registry loading</span>";
+}
+
+function packageOntologyBridgeHtml() {
+  const mapUnits = state.analysis.mapLayers?.units || [];
+  const summary = packageCoverageSummary();
+  const packageStats = importedPackageMapStats(mapUnits);
+  if (!summary.imported) {
+    return `
+      <section class="package-ontology-bridge empty" aria-label="Package ontology bridge">
+        <div class="package-ontology-heading">
+          <div>
+            <p class="eyebrow">Package ontology bridge</p>
+            <h3>No browser-local package is loaded.</h3>
+            <p>Load a synthetic package or import a bounded local package to see how its topic, function, tier, and map-unit counts connect to the ontology.</p>
+          </div>
+          <button type="button" data-ontology-action="demo-package">Load Demo Package</button>
+        </div>
+        <div class="package-ontology-facts">
+          <span><strong>Public ontology</strong>loaded from aggregate artifacts</span>
+          <span><strong>Package records</strong>not loaded</span>
+          <span><strong>LOCUS text</strong>not published</span>
+        </div>
+      </section>
+    `;
+  }
+  const matchedHits = [...packageStats.units.values()].sort(
+    (a, b) => b.recordCount - a.recordCount || displayUnitName(a.unit).localeCompare(displayUnitName(b.unit)),
+  );
+  const tierCounts = packageTierCounts(matchedHits);
+  const title = summary.syntheticPackage ? "Synthetic package ontology bridge" : "Imported package ontology bridge";
+  const textState = summary.syntheticPackage ? "synthetic placeholders only" : summary.textIncluded ? "local LOCUS text present" : "metadata only";
+  return `
+    <section class="package-ontology-bridge" aria-label="Package ontology bridge">
+      <div class="package-ontology-heading">
+        <div>
+          <p class="eyebrow">Package ontology bridge</p>
+          <h3>${escapeHtml(title)}</h3>
+          <p>Package records stay in browser localStorage. This bridge summarizes ontology context from counts and aggregate map matches only.</p>
+        </div>
+        <span>${escapeHtml(formatCount(summary.recordCount))} records · ${escapeHtml(formatCount(packageStats.units.size))} matched units</span>
+      </div>
+      <div class="package-ontology-lane">
+        ${packageOntologyNodeCard("Package", summary.syntheticPackage ? "Demo package" : "Local package", `${formatCount(summary.recordCount)} records · ${formatCount(summary.unitCount)} units`, "localStorage")}
+        ${packageOntologyNodeCard("Topic", topCountEntries(summary.topicCounts, 3), "Record labels", "package counts")}
+        ${packageOntologyNodeCard("Function", topCountEntries(summary.functionCounts, 3), "Record labels", "package counts")}
+        ${packageOntologyNodeCard("Tier", topCountEntries(tierCounts, 3), "Matched map units", "aggregate units")}
+      </div>
+      <div class="package-ontology-units">
+        <h4>Matched aggregate units</h4>
+        <div>
+          ${matchedHits
+            .slice(0, state.disclosureLevel === "overview" ? 6 : 10)
+            .map((hit) => packageOntologyUnitButton(hit))
+            .join("")}
+        </div>
+      </div>
+      <div class="package-ontology-facts">
+        <span><strong>Text state</strong>${escapeHtml(textState)}</span>
+        <span><strong>Source locators</strong>${escapeHtml(summary.sourceLocatorsIncluded ? "present locally, not listed" : "not loaded")}</span>
+        <span><strong>Evidence boundary</strong>no text, headers, locator values, or review-event details are rendered here</span>
+      </div>
+    </section>
+  `;
+}
+
+function packageOntologyNodeCard(label, value, detail, source) {
+  const body = Array.isArray(value)
+    ? value.length
+      ? `<div class="package-ontology-bars">${value.map((row) => packageOntologyBar(row, value[0]?.value || 1)).join("")}</div>`
+      : `<p>No package counts available.</p>`
+    : `<strong>${escapeHtml(String(value))}</strong>`;
+  return `
+    <article class="package-ontology-node-card">
+      <span>${escapeHtml(label)}</span>
+      ${body}
+      <em>${escapeHtml(detail)} · ${escapeHtml(source)}</em>
+    </article>
+  `;
+}
+
+function packageOntologyBar(row, maxValue) {
+  const width = maxValue ? Math.max(4, (Number(row.value || 0) / Number(maxValue)) * 100) : 0;
+  return `
+    <span>
+      <b>${escapeHtml(row.label)}</b>
+      <i><u style="width:${width.toFixed(2)}%"></u></i>
+      <em>${escapeHtml(formatCount(row.value))}</em>
+    </span>
+  `;
+}
+
+function packageOntologyUnitButton(hit) {
+  const unit = hit.unit || {};
+  return `
+    <button type="button" data-package-ontology-unit="${escapeHtml(hit.unitId)}">
+      <strong>${escapeHtml(displayUnitName(unit || hit.unitId))}</strong>
+      <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.dominant_topic))} · ${escapeHtml(formatCount(hit.recordCount))} package records</em>
+    </button>
+  `;
+}
+
+function packageTierCounts(hits) {
+  return hits.reduce((counts, hit) => {
+    const label = hit.unit?.tier_label || hit.unit?.tier || "Unknown tier";
+    counts[label] = (counts[label] || 0) + Number(hit.recordCount || 0);
+    return counts;
+  }, {});
 }
 
 function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
@@ -5887,6 +6001,19 @@ function bindEvents() {
       return;
     }
     openScoreUnitOnMap(button.dataset.openScoreUnit);
+  });
+  $("#ontology-panel").addEventListener("click", (event) => {
+    const actionButton = event.target.closest("[data-ontology-action]");
+    if (actionButton) {
+      if (actionButton.dataset.ontologyAction === "demo-package") {
+        loadSyntheticPackageDemo();
+      }
+      return;
+    }
+    const unitButton = event.target.closest("[data-package-ontology-unit]");
+    if (unitButton) {
+      openAuditUnitOnMap(unitButton.dataset.packageOntologyUnit);
+    }
   });
   $("#queue-plan-form").addEventListener("submit", applyQueuePlan);
   $("#export-queue-plan").addEventListener("click", exportQueuePlan);

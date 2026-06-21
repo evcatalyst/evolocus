@@ -33,6 +33,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - imported-package-units map filter for focusing the aggregate map on browser-local review-package coverage;
 - Results-tab package coverage visuals for imported browser-local queues, including state/topic/function/type/OCR mix and review workflow status;
 - ontology and model-output registry views;
+- package-to-ontology bridge that connects active package counts to topic, function, tier, and matched map-unit context without exposing row text;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with released model-score distributions, state matrix, and high-contrast unit profiles;
@@ -70,6 +71,8 @@ After import, the Law Map highlights imported package units in the state-cluster
 The toolbar and Walkthrough can also load a synthetic browser package generated from the current published aggregate units. That demo creates placeholder review records in localStorage, highlights their aggregate units, enables package-only filtering, and populates Results-tab package charts. It is labeled synthetic and does not load LOCUS ordinance text, source locators, raw rows, review history, or secrets.
 
 When a package is active, the Inquiry tab adds a Package prompt. The answer reports matched aggregate units, record counts, review workflow status, text/source-locator state, and localStorage provenance. It never lists ordinance text, headers, source locator values, or row-level LOCUS samples.
+
+The Ontology tab also shows a package bridge when a browser-local package is active. It renders package topic, function, tier, and matched-unit lanes from counts and aggregate map-unit joins only. Matched unit buttons jump back to the map, but the bridge never renders package text, headers, source locator values, or review-event details.
 
 The local package handoff has been smoke-tested against real LOCUS Parquet: 24 records across 12 public aggregate units were materialized into ignored `data/exports/` packages, including one metadata-only package and one local text-bearing review package. Pages publishes only aggregate verification counts from that smoke test.
 

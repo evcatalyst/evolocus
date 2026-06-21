@@ -124,6 +124,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-request-preview" in html
     assert "Question matrix" in html
     assert "selected-ontology-neighborhood" in html
+    assert "package-ontology-bridge" in html
     assert "Analysis Status" in html
     assert "map-filter-form" in html
     assert "map-insight-grid" in html
@@ -221,10 +222,16 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-inquiry-unit" in js
     assert "askAboutMapUnit" in js
     assert "geometryMatchForUnit" in js
+    assert "packageOntologyBridgeHtml" in js
+    assert "packageOntologyNodeCard" in js
+    assert "packageTierCounts" in js
+    assert "data-package-ontology-unit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
     assert "selectedUnitOntologyNodes" in js
     assert "ontologyNodeSvg" in js
     assert "ontology-neighborhood-svg" in css
+    assert "package-ontology-lane" in css
+    assert "package-ontology-bars" in css
     assert "package-coverage-card" in css
     assert "package-map-card" in css
     assert "package-map-actions" in css

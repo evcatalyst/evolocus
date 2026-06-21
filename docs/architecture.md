@@ -48,6 +48,7 @@ flowchart LR
 - The map and inquiry tabs can export the current filtered view as aggregate JSON with filters, counts, selected-unit metadata, audit signals, and briefing provenance only.
 - The Snapshots tab saves those aggregate current-view payloads in browser localStorage for comparison and reloads only filter state and selected aggregate unit IDs.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
+- Active packages render an ontology bridge from browser-local topic/function counts, matched aggregate unit tiers, and map-unit joins without exposing record text or source locator values.
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
 - Imported package status is stored in browser localStorage and displayed as provenance for the current review queue.

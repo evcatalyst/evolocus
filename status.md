@@ -99,6 +99,7 @@ Current coverage stats:
 - Package map overlay surface: GitHub Pages highlights imported browser-local package units on the aggregate map, official county polygons, municipal points, selected-unit panel, and map table
 - Imported package filter surface: GitHub Pages can narrow map-driven aggregate visuals to units represented in the browser-local review package
 - Package inquiry surface: GitHub Pages explains active browser-local package coverage, map matches, workflow status, and safety boundaries without listing text or source locator values
+- Package ontology surface: GitHub Pages bridges active browser-local package counts into topic, function, tier, and matched-unit ontology context without rendering row text
 - Package coverage surface: GitHub Pages Results tab summarizes imported browser-local queues by state, topic, function, jurisdiction type, OCR-risk mix, safety markers, and review progress
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots
@@ -165,6 +166,7 @@ Latest update:
 - Added safe local-package verification counts to the Pages Analysis Status tab; no package text, headers, record IDs, or locator values are published.
 - Added a one-click synthetic package demo in the toolbar and Walkthrough so the public site can demonstrate imported-unit map overlays, package-only filters, package coverage charts, and review flow without loading LOCUS row text.
 - Added a package-aware Inquiry prompt and answer that summarizes local package map coverage, workflow progress, and publication boundaries without exposing record text or source locator values.
+- Added a package-to-ontology bridge that connects browser-local package topic/function/tier counts to matched aggregate map units without exposing text, headers, locator values, or review-event details.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.

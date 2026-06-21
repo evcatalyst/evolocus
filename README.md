@@ -57,6 +57,7 @@ The Pages app supports:
 - one-click imported-package-units map filter for narrowing real aggregate visuals to locally reviewed units;
 - Results-tab package coverage visuals after bounded package upload, including state/topic/function/type/OCR mix and review progress;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
+- package-to-ontology bridge that connects browser-local package counts to topic, function, tier, and matched map-unit nodes without exposing row text;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
@@ -111,6 +112,7 @@ Support tooling:
 - Browser import-status panel for local package provenance and review readiness after upload; this state remains in localStorage.
 - Browser synthetic package demo for exercising package import, package-to-map overlay, package-only filtering, Results-tab package charts, and review workflow without loading LOCUS row text.
 - Browser package inquiry answer for explaining the active local package overlay from counts, map-unit matches, workflow status, and safety flags only.
+- Browser package-to-ontology bridge for showing active package topic/function/tier/unit context from local counts and aggregate map matches only.
 - Browser package-to-map overlay for imported local queues; it joins local `unit_id` values to public aggregate units and highlights matches without writing records to public artifacts.
 - Browser imported-package-only map filter for focusing aggregate map, inquiry, snapshot, score, and audit views on local package coverage.
 - Browser package-coverage charts for imported local queues; these summarize only browser-local records and are never written to `site/data/analysis/`.

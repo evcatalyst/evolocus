@@ -52,6 +52,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "walkthroughStepHtml" in js
     assert "data-walkthrough-tab" in js
     assert "renderOntology" in js
+    assert "package-ontology-bridge" in html
+    assert "packageOntologyBridgeHtml" in js
+    assert "packageOntologyNodeCard" in js
+    assert "data-package-ontology-unit" in js
     assert "renderInquiry" in js
     assert "matchInquiryBriefing" in js
     assert "renderInquiryContext" in js
