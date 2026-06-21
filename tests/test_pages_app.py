@@ -23,4 +23,6 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontologyNodeSvg" in js
     assert "selectedUnitPeerComparisonHtml" in js
     assert "scoreDeltaSummary" in js
+    assert "modelSubstantiveShare" in js
+    assert "substantiveShareColor" in js
     assert "fetchAnalysisArtifacts" in js

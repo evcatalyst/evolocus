@@ -32,7 +32,7 @@ The Pages app supports:
 - state-clustered county/town law map units colored by neutral tier;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
-- geography color modes for neutral tier, dominant topic, dominant function, and law-count intensity;
+- geography color modes for neutral tier, dominant topic, dominant function, model-substantive share, and law-count intensity;
 - map filters for state, topic, function, tier, and minimum law count;
 - filtered-view insight cards and inquiry answers over the current aggregate map selection;
 - filtered-vs-full comparison panels for topic, tier, function, jurisdiction kind, and neutral score means;

@@ -116,6 +116,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "geo-color-legend" in html
     assert "data-geo-color=\"topic\"" in html
     assert "data-geo-color=\"function\"" in html
+    assert "data-geo-color=\"substantive_share\"" in html
     assert "data-geo-color=\"law_count\"" in html
     assert "status-card-grid" in html
     assert "status-detail-grid" in html
@@ -154,6 +155,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "municipalPointSvg" in js
     assert "geographyDatumColor" in js
     assert "geographyColorLegend" in js
+    assert "modelSubstantiveShare" in js
+    assert "substantiveShareColor" in js
+    assert "formatPercentRatio" in js
+    assert "Model substantive share" in js
     assert "lawCountColor" in js
     assert "official_census_county_geometry_machine_matched_pending_review" not in js
     assert "renderAnalysisStatusPanel" in js

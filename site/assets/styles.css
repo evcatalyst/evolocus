@@ -764,6 +764,10 @@ textarea {
   background: linear-gradient(90deg, #f3ead2, #2f756b);
 }
 
+.geo-color-legend .substantive-gradient i {
+  background: linear-gradient(90deg, #f2e9c9, #275f79);
+}
+
 #county-choropleth {
   width: 100%;
   min-height: 420px;

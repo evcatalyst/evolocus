@@ -564,6 +564,7 @@ function countyFeatureSvg(feature, bounds, colorContext) {
 function renderCountyGeometryDetail(feature, artifact) {
   const properties = feature.properties || {};
   const showEvidence = state.disclosureLevel === "evidence";
+  const substantiveShare = modelSubstantiveShare(properties);
   $("#county-layer-detail").innerHTML = `
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(properties.unit_id)}">Ask about this county</button>
     <dl class="metadata-grid compact-metadata">
@@ -572,12 +573,13 @@ function renderCountyGeometryDetail(feature, artifact) {
       <dt>GEOID</dt><dd>${escapeHtml(properties.geoid || "Unknown")}</dd>
       <dt>Tier</dt><dd>${escapeHtml(properties.tier_label || "No tier")}</dd>
       <dt>Laws</dt><dd>${escapeHtml(formatCount(properties.law_count))}</dd>
+      <dt>Model substantive share</dt><dd>${escapeHtml(formatPercentRatio(substantiveShare))}</dd>
       <dt>Dominant topic</dt><dd>${escapeHtml(properties.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(properties.match_status || "Unknown")}</dd>
     </dl>
     ${
       showEvidence
-        ? `<p class="muted-note">Geometry source: ${escapeHtml(artifact.source?.name || "U.S. Census Bureau TIGERweb")} layer ${escapeHtml(String(artifact.source?.layer_id || "82"))}. Generalized for static display; ${escapeHtml(formatCount(artifact.unmatched_count || 0))} aggregate county units are unmatched.</p>`
+        ? `<p class="muted-note">Geometry source: ${escapeHtml(artifact.source?.name || "U.S. Census Bureau TIGERweb")} layer ${escapeHtml(String(artifact.source?.layer_id || "82"))}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(properties.substantive_count || 0))}/${escapeHtml(formatCount(properties.law_count || 0))} rows. Generalized for static display; ${escapeHtml(formatCount(artifact.unmatched_count || 0))} aggregate county units are unmatched.</p>`
         : `<p class="muted-note">Switch to Evidence trail to reveal geometry source and match-status details.</p>`
     }
   `;
@@ -606,6 +608,7 @@ function municipalPointSvg(point, bounds, colorContext) {
 
 function renderMunicipalPointDetail(point, artifact) {
   const showEvidence = state.disclosureLevel === "evidence";
+  const substantiveShare = modelSubstantiveShare(point);
   $("#county-layer-detail").innerHTML = `
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(point.unit_id)}">Ask about this municipality</button>
     <dl class="metadata-grid compact-metadata">
@@ -615,12 +618,13 @@ function renderMunicipalPointDetail(point, artifact) {
       <dt>Layer</dt><dd>${escapeHtml(point.census_layer || "Unknown")}</dd>
       <dt>Tier</dt><dd>${escapeHtml(point.tier_label || "No tier")}</dd>
       <dt>Laws</dt><dd>${escapeHtml(formatCount(point.law_count))}</dd>
+      <dt>Model substantive share</dt><dd>${escapeHtml(formatPercentRatio(substantiveShare))}</dd>
       <dt>Dominant topic</dt><dd>${escapeHtml(point.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(point.match_status || "Unknown")}</dd>
     </dl>
     ${
       showEvidence
-        ? `<p class="muted-note">Municipal point source: ${escapeHtml((artifact?.source?.layers || []).find((layer) => layer.id === point.census_layer)?.name || "U.S. Census Bureau TIGERweb")}. ${escapeHtml(formatCount(artifact?.unmatched_count || 0))} aggregate municipal units remain unmatched rather than guessed.</p>`
+        ? `<p class="muted-note">Municipal point source: ${escapeHtml((artifact?.source?.layers || []).find((layer) => layer.id === point.census_layer)?.name || "U.S. Census Bureau TIGERweb")}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(point.substantive_count || 0))}/${escapeHtml(formatCount(point.law_count || 0))} rows. ${escapeHtml(formatCount(artifact?.unmatched_count || 0))} aggregate municipal units remain unmatched rather than guessed.</p>`
         : `<p class="muted-note">Switch to Evidence trail to reveal municipal point source and match-status details.</p>`
     }
   `;
@@ -632,10 +636,15 @@ function geographyColorContext(features, municipalPoints) {
     ...municipalPoints,
   ];
   const maxLawCount = Math.max(1, ...data.map((item) => Number(item.law_count || 0)));
+  const substantiveShares = data
+    .map(modelSubstantiveShare)
+    .filter((value) => Number.isFinite(value));
   return {
     mode: state.geographyColorMode,
     data,
     maxLawCount,
+    minSubstantiveShare: Math.min(1, ...substantiveShares),
+    maxSubstantiveShare: Math.max(0, ...substantiveShares),
     tierDefinitions: state.analysis.mapLayers?.tier_definitions || {},
   };
 }
@@ -650,10 +659,20 @@ function geographyDatumColor(datum, context) {
   if (context.mode === "law_count") {
     return lawCountColor(datum.law_count, context.maxLawCount);
   }
+  if (context.mode === "substantive_share") {
+    return substantiveShareColor(modelSubstantiveShare(datum), context);
+  }
   return datum.tier_color || context.tierDefinitions?.[datum.tier]?.color || "#d8dee8";
 }
 
 function geographyColorLegend(context) {
+  if (context.mode === "substantive_share") {
+    return `
+      <span class="geo-gradient substantive-gradient"><i></i>Lower to higher model-substantive share</span>
+      <span>Visible range: ${escapeHtml(formatPercentRatio(context.minSubstantiveShare))} to ${escapeHtml(formatPercentRatio(context.maxSubstantiveShare))}</span>
+      <span>Uses model-produced is_substantive labels and aggregate denominators</span>
+    `;
+  }
   if (context.mode === "law_count") {
     return `
       <span class="geo-gradient"><i></i>Low to high law-count intensity</span>
@@ -693,6 +712,9 @@ function geographyLegendLabel(item, mode) {
   if (mode === "function") {
     return item.dominant_function || "Unknown";
   }
+  if (mode === "substantive_share") {
+    return "Model substantive share";
+  }
   return item.tier_label || item.tier || "No tier";
 }
 
@@ -716,9 +738,29 @@ function geographyColorLabel(mode) {
     tier: "neutral tier",
     topic: "dominant topic",
     function: "dominant function",
+    substantive_share: "model-substantive share",
     law_count: "law-count intensity",
   };
   return labels[mode] || labels.tier;
+}
+
+function modelSubstantiveShare(datum) {
+  const lawCount = Number(datum?.law_count || 0);
+  if (!lawCount) {
+    return null;
+  }
+  return Number(datum?.substantive_count || 0) / lawCount;
+}
+
+function substantiveShareColor(value, context) {
+  if (!Number.isFinite(value)) {
+    return "#d8dee8";
+  }
+  const low = Number.isFinite(context.minSubstantiveShare) ? context.minSubstantiveShare : 0;
+  const high = Number.isFinite(context.maxSubstantiveShare) ? context.maxSubstantiveShare : 1;
+  const range = Math.max(0.000001, high - low);
+  const ratio = (value - low) / range;
+  return interpolateColor("#f2e9c9", "#275f79", Math.max(0, Math.min(1, ratio)));
 }
 
 function lawCountColor(value, maxValue) {
@@ -1252,6 +1294,13 @@ function formatPercent(part, total) {
   return `${((Number(part || 0) / Number(total)) * 100).toFixed(1)}%`;
 }
 
+function formatPercentRatio(value) {
+  if (!Number.isFinite(value)) {
+    return "n/a";
+  }
+  return `${(Number(value) * 100).toFixed(1)}%`;
+}
+
 function shortCommit(value) {
   return value ? String(value).slice(0, 12) : "unknown";
 }
@@ -1288,6 +1337,7 @@ function renderSelectedUnit() {
     .join("");
   const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
   const showEvidence = state.disclosureLevel === "evidence";
+  const substantiveShare = modelSubstantiveShare(unit);
   const samples = showEvidence
     ? (unit.samples || [])
         .map(
@@ -1308,6 +1358,7 @@ function renderSelectedUnit() {
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
       <dt>Substantive</dt><dd>${escapeHtml(String(unit.substantive_count))}</dd>
+      <dt>Model substantive share</dt><dd>${escapeHtml(formatPercentRatio(substantiveShare))}</dd>
       <dt>Dominant topic</dt><dd>${escapeHtml(text(unit.dominant_topic))}</dd>
       <dt>Dominant function</dt><dd>${escapeHtml(text(unit.dominant_function))}</dd>
       <dt>OCR risk</dt><dd>${escapeHtml(text(unit.ocr_risk_level))}</dd>
@@ -1321,7 +1372,7 @@ function renderSelectedUnit() {
     }
     ${
       showEvidence
-        ? `<h4>Evidence trail</h4><ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>`
+        ? `<h4>Evidence trail</h4><p class="muted-note">Model substantive share denominator: ${escapeHtml(formatCount(unit.substantive_count || 0))}/${escapeHtml(formatCount(unit.law_count || 0))} released LOCUS rows in this aggregate unit. This is a model output, not a verified legal classification.</p><ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>`
         : `<p class="muted-note">Switch to Evidence trail to reveal source locators and public samples when allowed.</p>`
     }
   `;
@@ -2353,14 +2404,15 @@ function selectedUnitAnswer(unit = currentSelectedMapUnit()) {
     };
   }
   const geometry = geometryMatchForUnit(unit.unit_id);
+  const substantiveShare = modelSubstantiveShare(unit);
   return {
     title: `Selected unit: ${displayUnitName(unit)}`,
-    answer: `${displayUnitName(unit)} is a ${text(unit.kind)} aggregate unit in ${text(unit.state)} with ${formatCount(unit.law_count)} LOCUS law records, dominant topic ${text(unit.dominant_topic)}, dominant function ${text(unit.dominant_function)}, and neutral tier ${text(unit.tier_label)}. These are aggregate model-output summaries, not legal findings.`,
+    answer: `${displayUnitName(unit)} is a ${text(unit.kind)} aggregate unit in ${text(unit.state)} with ${formatCount(unit.law_count)} LOCUS law records, ${formatPercentRatio(substantiveShare)} model-substantive share, dominant topic ${text(unit.dominant_topic)}, dominant function ${text(unit.dominant_function)}, and neutral tier ${text(unit.tier_label)}. These are aggregate model-output summaries, not legal findings.`,
     sections: selectedUnitSectionsHtml(unit, geometry),
     matches: `
       <h4>Supporting aggregate facts</h4>
       <dl class="briefing-facts">
-        <dt>Substantive rows</dt><dd>${escapeHtml(formatCount(unit.substantive_count))} <span>map_layers.json</span></dd>
+        <dt>Substantive rows</dt><dd>${escapeHtml(formatCount(unit.substantive_count))}/${escapeHtml(formatCount(unit.law_count))} <span>map_layers.json</span></dd>
         <dt>Official geography</dt><dd>${escapeHtml(geometry.summary)} <span>${escapeHtml(geometry.source)}</span></dd>
         <dt>Evidence boundary</dt><dd>No ordinance text or raw LOCUS rows are published <span>publication policy</span></dd>
       </dl>
@@ -2378,6 +2430,7 @@ function selectedUnitSectionsHtml(unit, geometry) {
         { field: "state", value: unit.state || "Unknown" },
         { field: "unit type", value: unit.kind || "unknown" },
         { field: "law records", value: formatCount(unit.law_count) },
+        { field: "model-substantive share", value: formatPercentRatio(modelSubstantiveShare(unit)) },
       ],
     },
   ];

@@ -118,11 +118,12 @@ Latest update:
 - Added a Charts-tab county/town aggregate coverage atlas by state, source-unit type, neutral tier, law count, and top topic.
 - Added an official Census TIGERweb county choropleth layer for all 177 aggregate county units, with machine-match pending-review labeling and no raw LOCUS text.
 - Added an official Census TIGERweb municipal/town point layer for 815 matched aggregate municipal units, with 8 unmatched units left explicit rather than guessed.
-- Added official geography color modes for neutral tier, dominant topic, dominant function, and law-count intensity.
+- Added official geography color modes for neutral tier, dominant topic, dominant function, model-substantive share, and law-count intensity.
 - Added `inquiry_briefings.json` and a `publish-inquiry-briefings` CLI/workflow path so GitHub Pages can answer questions from progressive aggregate-only static briefings, optionally enriched by Grok offline.
 - Added selected-unit inquiry drilldowns so a county/town map selection can open an aggregate-only Q&A answer with geometry-match provenance and disclosure-level details.
 - Added selected-unit ontology neighborhood visuals linking the selected aggregate unit to dominant topic, dominant function, neutral tier, score summaries, and geometry-match provenance.
 - Added selected-unit peer comparison visuals for similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity.
+- Added model-substantive-share coloring and selected-unit denominators for county/town geography, using released LOCUS model labels only.
 - Verified the `GROK_API_KEY` GitHub Actions secret exists for offline aggregate-only inquiry enrichment; the browser-delivered Pages app still contains no API key.
 
 Evaluator implementation state:

@@ -16,6 +16,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - map filters for state, topic, function, tier, and minimum law count;
 - filtered-view aggregate insight cards and inquiry answers;
 - filtered-vs-full aggregate comparison panels;
+- official geography color modes for neutral tier, dominant topic, dominant function, model-substantive share, and law-count intensity;
 - state/topic small-multiple charts in the Charts tab;
 - county/town aggregate coverage atlas by state, source-unit type, and neutral tier;
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;

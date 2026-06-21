@@ -24,6 +24,7 @@ flowchart LR
 - Browser JavaScript handles queue review, explorer filters, metrics, local persistence, and exports.
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
+- Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, or law-count intensity; all are aggregate review aids.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
