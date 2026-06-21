@@ -379,6 +379,7 @@ function render() {
   renderTabs();
   renderToolbar();
   renderMap();
+  renderWalkthrough();
   renderOntology();
   renderInquiry();
   renderSnapshotGallery();
@@ -937,6 +938,166 @@ function renderAnalysisStatus(status, units) {
       `,
     )
     .join("");
+}
+
+function renderWalkthrough() {
+  const statusEl = $("#walkthrough-status");
+  const flowEl = $("#walkthrough-flow");
+  const disclosureEl = $("#walkthrough-disclosure");
+  const gatesEl = $("#walkthrough-gates");
+  if (!statusEl || !flowEl || !disclosureEl || !gatesEl) {
+    return;
+  }
+
+  const status = state.analysis.status;
+  const mapLayers = state.analysis.mapLayers;
+  const units = mapLayers ? filterMapUnits(mapLayers.units || []) : [];
+  const selectedUnit = currentSelectedMapUnit() || units[0] || null;
+  const snapshots = loadSnapshots();
+  const inquiryBriefings = state.analysis.inquiryBriefings;
+  const briefingGrok = inquiryBriefings?.grok || {};
+  const ontology = state.analysis.ontology;
+
+  if (!status || !mapLayers) {
+    statusEl.innerHTML = `
+      <article class="walkthrough-status-card">
+        <span>Loading</span>
+        <strong>Aggregate analysis artifacts</strong>
+        <p>The walkthrough will activate after the static map, inquiry, ontology, and status artifacts load.</p>
+      </article>
+    `;
+    flowEl.innerHTML = "";
+    disclosureEl.innerHTML = "";
+    gatesEl.innerHTML = "";
+    return;
+  }
+
+  const statusCards = [
+    ["Units", formatCount(status.unit_count || units.length), "Published county/town aggregate units"],
+    ["Law records", formatCount(status.law_count), "Aggregate count; no row text is published"],
+    ["Filtered units", formatCount(units.length), activeFilterLabels().join(" · ") || "No map filters active"],
+    ["Inquiry", inquiryBriefings ? (briefingGrok.used ? `Grok ${briefingGrok.model}` : "deterministic") : "not loaded", "Offline artifact only; no browser API calls"],
+    ["Snapshots", formatCount(snapshots.length), "Browser-local aggregate saved views"],
+  ];
+  statusEl.innerHTML = statusCards
+    .map(
+      ([label, value, detail]) => `
+        <article class="walkthrough-status-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(String(value))}</strong>
+          <p>${escapeHtml(detail)}</p>
+        </article>
+      `,
+    )
+    .join("");
+
+  const selectedLabel = selectedUnit ? `${displayUnitName(selectedUnit)} · ${text(selectedUnit.state)}` : "No selected unit";
+  const flowSteps = [
+    {
+      number: "01",
+      title: "Start with the map",
+      body: `${formatCount(units.length)} filtered aggregate units are available. Color modes can switch among neutral tier, topic, function, model-substantive share, audit attention, and law-count intensity.`,
+      target: "map",
+      button: "Open Law Map",
+      meta: selectedLabel,
+    },
+    {
+      number: "02",
+      title: "Ask a bounded question",
+      body: "Inquiry answers use the current filter context plus static aggregate briefings. Grok enrichment is produced offline through GitHub Actions and published only after artifact validation.",
+      target: "inquiry",
+      button: "Open Inquiry",
+      meta: inquiryBriefings ? formatDateTime(inquiryBriefings.generated_at) : "Briefings not loaded",
+    },
+    {
+      number: "03",
+      title: "Inspect ontology links",
+      body: "Topic, function, model-output, tier, and geography nodes explain how the selected unit is connected without publishing ordinance text.",
+      target: "ontology",
+      button: "Open Ontology",
+      meta: ontology ? `${formatCount((ontology.nodes || []).length)} nodes` : "Ontology not loaded",
+    },
+    {
+      number: "04",
+      title: "Plan review coverage",
+      body: "Queue planning ranks aggregate units for future local review packaging while exporting unit-level planning metadata only.",
+      target: "queueplan",
+      button: "Open Queue Plan",
+      meta: `${queuePlanStrategyLabel(state.queuePlan.strategy)} · ${formatCount(state.queuePlan.size)} units`,
+    },
+    {
+      number: "05",
+      title: "Save and compare views",
+      body: "Snapshots preserve filters, visible aggregate counts, selected-unit metadata, audit signals, and briefing provenance in this browser.",
+      target: "snapshots",
+      button: "Open Snapshots",
+      meta: `${formatCount(snapshots.length)} saved`,
+    },
+  ];
+  flowEl.innerHTML = flowSteps.map(walkthroughStepHtml).join("");
+
+  const disclosureRows = [
+    ["overview", "Overview", "Aggregate counts, neutral tier colors, and safe publication boundary."],
+    ["unit", "Unit detail", "Selected county/town metrics, model-score means, peer context, and ontology neighborhood."],
+    ["evidence", "Evidence trail", "Artifact provenance, match status, denominators, and publication gates when allowed."],
+  ];
+  disclosureEl.innerHTML = `
+    <article class="walkthrough-disclosure-card wide">
+      <div>
+        <p class="eyebrow">Progressive disclosure</p>
+        <h3>Current level: ${escapeHtml(titleCase(state.disclosureLevel))}</h3>
+        <p>The same disclosure state controls the map, score, audit, queue, and status evidence depth.</p>
+      </div>
+      <div class="walkthrough-disclosure-steps">
+        ${disclosureRows.map(walkthroughDisclosureStepHtml).join("")}
+      </div>
+    </article>
+  `;
+
+  const gates = status.publication_gates || [];
+  gatesEl.innerHTML = `
+    <article class="walkthrough-gate-card wide">
+      <div>
+        <p class="eyebrow">Publication boundary</p>
+        <h3>Public artifacts stay aggregate-only.</h3>
+        <p>Real LOCUS rows, ordinance text, source locators, SQLite databases, exports, and secrets are excluded from GitHub Pages.</p>
+      </div>
+      <div class="gate-list compact-gates">
+        ${gates
+          .map(
+            (gate) => `
+              <span>
+                <strong>${escapeHtml(gate.label)}</strong>
+                <em>${escapeHtml(gate.status)}</em>
+              </span>
+            `,
+          )
+          .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function walkthroughStepHtml(step) {
+  return `
+    <article class="walkthrough-step-card">
+      <span class="walkthrough-step-number">${escapeHtml(step.number)}</span>
+      <h3>${escapeHtml(step.title)}</h3>
+      <p>${escapeHtml(step.body)}</p>
+      <em>${escapeHtml(step.meta)}</em>
+      <button type="button" data-walkthrough-tab="${escapeHtml(step.target)}">${escapeHtml(step.button)}</button>
+    </article>
+  `;
+}
+
+function walkthroughDisclosureStepHtml([level, label, body]) {
+  const active = state.disclosureLevel === level ? " active" : "";
+  return `
+    <button class="walkthrough-disclosure-step${active}" type="button" data-walkthrough-disclosure="${escapeHtml(level)}">
+      <strong>${escapeHtml(label)}</strong>
+      <span>${escapeHtml(body)}</span>
+    </button>
+  `;
 }
 
 function renderAnalysisStatusPanel() {
@@ -4590,6 +4751,19 @@ function bindEvents() {
   $("#explorer-form").addEventListener("submit", applyExplorerFilters);
   $("#map-filter-form").addEventListener("submit", applyMapFilters);
   $("#reset-map-filters").addEventListener("click", resetMapFilters);
+  $("#walkthrough-panel").addEventListener("click", (event) => {
+    const tabButton = event.target.closest("[data-walkthrough-tab]");
+    if (tabButton) {
+      state.activeTab = tabButton.dataset.walkthroughTab;
+      render();
+      return;
+    }
+    const disclosureButton = event.target.closest("[data-walkthrough-disclosure]");
+    if (disclosureButton) {
+      state.disclosureLevel = disclosureButton.dataset.walkthroughDisclosure;
+      render();
+    }
+  });
   $all(".disclosure-button").forEach((button) => {
     button.addEventListener("click", () => {
       state.disclosureLevel = button.dataset.disclosure;

@@ -173,6 +173,10 @@ main {
 .queue-plan-card,
 .queue-plan-visual-card,
 .queue-plan-list-card,
+.walkthrough-status-card,
+.walkthrough-step-card,
+.walkthrough-disclosure-card,
+.walkthrough-gate-card,
 .audit-card,
 .audit-visual-card,
 .audit-state-card,
@@ -320,6 +324,122 @@ textarea {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
+}
+
+.walkthrough-status,
+.walkthrough-flow,
+.walkthrough-gates {
+  display: grid;
+  gap: 14px;
+}
+
+.walkthrough-status {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.walkthrough-flow {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.walkthrough-disclosure {
+  margin: 18px 0;
+}
+
+.walkthrough-status-card,
+.walkthrough-step-card,
+.walkthrough-disclosure-card,
+.walkthrough-gate-card {
+  padding: 16px;
+}
+
+.walkthrough-status-card span,
+.walkthrough-step-card em {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.walkthrough-status-card strong {
+  display: block;
+  margin: 4px 0;
+  font-size: 1.35rem;
+  line-height: 1.05;
+}
+
+.walkthrough-step-card {
+  display: grid;
+  align-content: space-between;
+  gap: 12px;
+  min-height: 270px;
+}
+
+.walkthrough-step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e8eef5;
+  color: var(--blue);
+  font-weight: 900;
+}
+
+.walkthrough-step-card h3 {
+  margin: 0;
+}
+
+.walkthrough-step-card p {
+  margin: 0;
+}
+
+.walkthrough-step-card button {
+  justify-self: start;
+}
+
+.walkthrough-disclosure-card,
+.walkthrough-gate-card {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.walkthrough-disclosure-card.wide,
+.walkthrough-gate-card.wide {
+  grid-column: 1 / -1;
+}
+
+.walkthrough-disclosure-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.walkthrough-disclosure-step {
+  display: grid;
+  gap: 6px;
+  min-height: 132px;
+  align-content: start;
+  text-align: left;
+}
+
+.walkthrough-disclosure-step.active {
+  border-color: var(--blue);
+  background: #edf5ff;
+}
+
+.walkthrough-disclosure-step span {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.compact-gates {
+  margin: 0;
 }
 
 .audit-summary-grid {
@@ -2234,6 +2354,11 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .walkthrough-status,
+  .walkthrough-flow,
+  .walkthrough-disclosure-card,
+  .walkthrough-gate-card,
+  .walkthrough-disclosure-steps,
   .score-summary-grid,
   .score-visual-grid,
   .queue-plan-form,
@@ -2286,6 +2411,11 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .walkthrough-status,
+  .walkthrough-flow,
+  .walkthrough-disclosure-card,
+  .walkthrough-gate-card,
+  .walkthrough-disclosure-steps,
   .score-summary-grid,
   .score-visual-grid,
   .queue-plan-form,

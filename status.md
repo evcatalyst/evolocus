@@ -92,6 +92,7 @@ Current coverage stats:
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots
+- Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, and snapshots
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
@@ -148,6 +149,7 @@ Latest update:
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.
 - Added a Snapshots tab that saves aggregate current-view exports locally and compares them visually without LOCUS text or review history.
+- Added a Walkthrough tab that turns the existing aggregate map, inquiry, ontology, queue plan, and snapshot surfaces into a guided progressive demo flow.
 
 Evaluator implementation state:
 

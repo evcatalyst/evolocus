@@ -105,6 +105,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "No real LOCUS rows published" in html
     assert "Pages-first UI" in html
     assert "Law Map" in html
+    assert "Walkthrough" in html
+    assert "walkthrough-panel" in html
+    assert "walkthrough-status" in html
+    assert "walkthrough-flow" in html
+    assert "walkthrough-disclosure" in html
+    assert "walkthrough-gates" in html
+    assert "public real-aggregate demo path" in html
     assert "Inquiry" in html
     assert "Snapshots" in html
     assert "Score Lens" in html
@@ -258,6 +265,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "lawCountColor" in js
     assert "official_census_county_geometry_machine_matched_pending_review" not in js
     assert "renderAnalysisStatusPanel" in js
+    assert "renderWalkthrough" in js
+    assert "walkthroughStepHtml" in js
+    assert "walkthroughDisclosureStepHtml" in js
+    assert "data-walkthrough-tab" in js
+    assert "data-walkthrough-disclosure" in js
+    assert "walkthrough-flow" in css
+    assert "walkthrough-step-card" in css
+    assert "walkthrough-disclosure-step" in css
     assert "auditGateSummary" in js
     assert "auditOcrBarsHtml" in js
     assert "audit-risk-bars" in css

@@ -57,7 +57,8 @@
         "Add public artifact guard for Grok inquiry briefing refresh",
         "Persist Grok-enriched aggregate inquiry briefings in Pages data",
         "Add aggregate current-view snapshot export",
-        "Add browser-local aggregate snapshot gallery"
+        "Add browser-local aggregate snapshot gallery",
+        "Add guided public aggregate walkthrough across map, inquiry, ontology, queue planning, and snapshots"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

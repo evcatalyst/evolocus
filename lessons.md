@@ -47,3 +47,4 @@
 - A manually refreshed Pages artifact can be lost on the next normal deploy unless the generated JSON is validated, committed, and covered by tests.
 - Browser exports for public sharing should export aggregate filter state and visible summaries, not record-level evaluation queues or local review history.
 - Saved visual comparison state can live in browser localStorage when it stores only aggregate snapshot payloads and never imported queue text or review events.
+- A public walkthrough is useful when it orchestrates already-validated aggregate artifacts instead of creating a new path for raw rows, source locators, or model secrets.

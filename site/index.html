@@ -14,6 +14,7 @@
         <a class="brand" href="./">EvoLOCUS</a>
         <div class="nav-links" role="list">
           <button class="tab-link active" type="button" data-tab="map">Law Map</button>
+          <button class="tab-link" type="button" data-tab="walkthrough">Walkthrough</button>
           <button class="tab-link" type="button" data-tab="inquiry">Inquiry</button>
           <button class="tab-link" type="button" data-tab="snapshots">Snapshots</button>
           <button class="tab-link" type="button" data-tab="ontology">Ontology</button>
@@ -38,7 +39,7 @@
         <div class="status-strip" aria-label="Workbench status summary">
           <span>Pages-first UI</span>
           <span>Aggregate-only LOCUS visuals</span>
-          <span>Map + ontology + charts</span>
+          <span>Map + inquiry + ontology + snapshots</span>
           <span>No server database</span>
           <span>No real LOCUS rows published</span>
         </div>
@@ -215,6 +216,22 @@
             <tbody></tbody>
           </table>
         </div>
+      </section>
+
+      <section id="walkthrough-panel" class="panel" aria-labelledby="walkthrough-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Progressive walkthrough</p>
+          <h2 id="walkthrough-heading">A public real-aggregate demo path.</h2>
+          <p>
+            This guided surface moves from nationwide aggregate visuals to filtered inquiry, ontology context,
+            review planning, and browser-local snapshots. It uses only published aggregate artifacts and never
+            reveals LOCUS text, source locators, or row-level records.
+          </p>
+        </div>
+        <div id="walkthrough-status" class="walkthrough-status" aria-live="polite"></div>
+        <div id="walkthrough-flow" class="walkthrough-flow"></div>
+        <div id="walkthrough-disclosure" class="walkthrough-disclosure"></div>
+        <div id="walkthrough-gates" class="walkthrough-gates"></div>
       </section>
 
       <section id="inquiry-panel" class="panel" aria-labelledby="inquiry-heading">

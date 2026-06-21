@@ -32,6 +32,7 @@ The LOCUS-v1 Hugging Face dataset card identifies the dataset as Parquet and CC-
 The Pages app supports:
 
 - state-clustered county/town law map units colored by neutral tier;
+- guided Walkthrough tab for the public map -> inquiry -> ontology -> queue plan -> snapshots demo flow;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
 - geography color modes for neutral tier, dominant topic, dominant function, model-substantive share, and law-count intensity;
@@ -97,6 +98,7 @@ Support tooling:
 - Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.
 - Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.
 - Browser snapshot gallery storage in localStorage for aggregate current-view snapshots only; it does not store LOCUS text or review-event history.
+- Browser walkthrough cards for the real aggregate visual path; these route across existing public tabs and do not introduce a separate data publication channel.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
 

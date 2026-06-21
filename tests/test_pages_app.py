@@ -9,6 +9,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Review Queue" in html
     assert "Dataset Explorer" in html
     assert "Charts" in html
+    assert "Walkthrough" in html
+    assert "walkthrough-panel" in html
     assert "Score Lens" in html
     assert "Audit Lens" in html
     assert "Queue Plan" in html
@@ -20,6 +22,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js
     assert "renderMap" in js
+    assert "renderWalkthrough" in js
+    assert "walkthroughStepHtml" in js
+    assert "data-walkthrough-tab" in js
     assert "renderOntology" in js
     assert "renderInquiry" in js
     assert "matchInquiryBriefing" in js

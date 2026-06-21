@@ -9,6 +9,7 @@ flowchart LR
   A["Synthetic demo or bounded queue JSON"] --> B["GitHub Pages browser app"]
   C["Static analysis artifacts"] --> B
   B --> D["Map, ontology, inquiry, review UI"]
+  D --> W["Guided aggregate walkthrough"]
   D --> Q["Aggregate Queue Plan export"]
   D --> X["Aggregate current-view snapshot export"]
   X --> Y["Browser-local snapshot gallery"]
@@ -27,6 +28,7 @@ flowchart LR
 - GitHub Pages serves the workbench from `site/`.
 - Browser JavaScript handles queue review, explorer filters, metrics, local persistence, and exports.
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
+- The Walkthrough tab orchestrates the public map, inquiry, ontology, queue planning, and snapshots into a guided real-aggregate demo flow without adding a separate data publication channel.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, topic, function, audit, score, and selected-unit questions without live model calls.
 - The manual analysis-refresh workflow can use `GROK_API_KEY` to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
