@@ -10,6 +10,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 
 - synthetic demo queue;
 - law map with state-clustered county/town-style units colored by neutral tier;
+- official Census TIGERweb county choropleth for matched aggregate county units;
 - map filters for state, topic, function, tier, and minimum law count;
 - filtered-view aggregate insight cards and inquiry answers;
 - filtered-vs-full aggregate comparison panels;
@@ -78,7 +79,15 @@ PYTHONPATH=src python -m evolocus.cli publish-analysis \
   --output data/exports/analysis-preview
 ```
 
-Only copy reviewed, license-compliant, non-text aggregate artifacts into `site/data/analysis/`. The current public artifacts are real LOCUS aggregates for a capped top-1,000 jurisdiction-unit layer with approximate state-clustered positions; they omit raw rows, ordinance text, local SQLite state, and local exports.
+Only copy reviewed, license-compliant, non-text aggregate artifacts into `site/data/analysis/`. The current public artifacts are real LOCUS aggregates for a capped top-1,000 jurisdiction-unit layer with approximate state-clustered positions plus an official Census TIGERweb county choropleth for matched aggregate county units. County matches are machine-generated and pending review; they omit raw rows, ordinance text, local SQLite state, and local exports.
+
+Refresh county geometry after `map_layers.json` changes:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-county-geometry \
+  --map-layers site/data/analysis/map_layers.json \
+  --output site/data/analysis/county_geometry.json
+```
 
 ## Support CLI
 

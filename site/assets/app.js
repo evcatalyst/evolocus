@@ -6,6 +6,7 @@ const STORAGE_RECORDS = "evolocus.pages.records.v1";
 const ANALYSIS_PATHS = {
   status: "data/analysis/status.json",
   mapLayers: "data/analysis/map_layers.json",
+  countyGeometry: "data/analysis/county_geometry.json",
   ontology: "data/analysis/ontology.json",
   chatIndex: "data/analysis/chat_index.json",
   models: "data/analysis/models.json",
@@ -211,6 +212,7 @@ let state = {
   analysis: {
     status: null,
     mapLayers: null,
+    countyGeometry: null,
     ontology: null,
     chatIndex: null,
     models: null,
@@ -423,6 +425,7 @@ function renderMap() {
   renderMapFilters(allUnits);
   renderMapInsights(units, allUnits);
   renderMapComparisons(units, allUnits);
+  renderCountyChoropleth(units);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -464,6 +467,142 @@ function renderMap() {
   renderDisclosureButtons();
 }
 
+function renderCountyChoropleth(units) {
+  const artifact = state.analysis.countyGeometry;
+  const summary = $("#county-layer-summary");
+  const svg = $("#county-choropleth");
+  const detail = $("#county-layer-detail");
+  if (!summary || !svg || !detail) {
+    return;
+  }
+  if (!artifact) {
+    summary.innerHTML = "<span>County geometry loading</span>";
+    svg.innerHTML = "";
+    detail.innerHTML = "<p>Official county geometry artifact has not loaded yet.</p>";
+    return;
+  }
+  const visibleCountyIds = new Set(units.filter((unit) => unit.kind === "county").map((unit) => unit.unit_id));
+  const features = (artifact.feature_collection?.features || []).filter((feature) =>
+    visibleCountyIds.has(feature.properties?.unit_id),
+  );
+  const allFeatures = artifact.feature_collection?.features || [];
+  summary.innerHTML = `
+    <span>${escapeHtml(formatCount(features.length))} visible counties</span>
+    <span>${escapeHtml(formatCount(artifact.matched_count || allFeatures.length))}/${escapeHtml(formatCount(artifact.county_unit_count || allFeatures.length))} matched</span>
+    <span>${escapeHtml(artifact.geometry_status || "geometry status unknown")}</span>
+  `;
+  svg.setAttribute("viewBox", "0 0 960 560");
+  if (!features.length) {
+    svg.innerHTML = `<text x="32" y="54">No matched county polygons under the current filters.</text>`;
+    detail.innerHTML = "<p>No county geometry matches the active filters. Clear filters or select county units.</p>";
+    return;
+  }
+  const bounds = geoBounds(features);
+  svg.innerHTML = features.map((feature) => countyFeatureSvg(feature, bounds)).join("");
+  const selectedFeature =
+    features.find((feature) => feature.properties?.unit_id === state.selectedUnitId) || features[0];
+  renderCountyGeometryDetail(selectedFeature, artifact);
+}
+
+function countyFeatureSvg(feature, bounds) {
+  const properties = feature.properties || {};
+  const d = geometryPath(feature.geometry, bounds);
+  const selected = properties.unit_id === state.selectedUnitId ? " selected" : "";
+  return `
+    <path
+      class="county-feature${selected}"
+      data-unit-id="${escapeHtml(properties.unit_id)}"
+      d="${d}"
+      fill="${escapeHtml(properties.tier_color || "#d8dee8")}"
+      tabindex="0"
+    >
+      <title>${escapeHtml(properties.census_name || properties.unit_name)} · ${escapeHtml(properties.tier_label || "No tier")} · ${escapeHtml(formatCount(properties.law_count))} laws</title>
+    </path>
+  `;
+}
+
+function renderCountyGeometryDetail(feature, artifact) {
+  const properties = feature.properties || {};
+  const showEvidence = state.disclosureLevel === "evidence";
+  $("#county-layer-detail").innerHTML = `
+    <dl class="metadata-grid compact-metadata">
+      <dt>County</dt><dd>${escapeHtml(properties.census_name || "Unknown")}</dd>
+      <dt>State</dt><dd>${escapeHtml(properties.state || "Unknown")}</dd>
+      <dt>GEOID</dt><dd>${escapeHtml(properties.geoid || "Unknown")}</dd>
+      <dt>Tier</dt><dd>${escapeHtml(properties.tier_label || "No tier")}</dd>
+      <dt>Laws</dt><dd>${escapeHtml(formatCount(properties.law_count))}</dd>
+      <dt>Dominant topic</dt><dd>${escapeHtml(properties.dominant_topic || "Unknown")}</dd>
+      <dt>Match status</dt><dd>${escapeHtml(properties.match_status || "Unknown")}</dd>
+    </dl>
+    ${
+      showEvidence
+        ? `<p class="muted-note">Geometry source: ${escapeHtml(artifact.source?.name || "U.S. Census Bureau TIGERweb")} layer ${escapeHtml(String(artifact.source?.layer_id || "82"))}. Generalized for static display; ${escapeHtml(formatCount(artifact.unmatched_count || 0))} aggregate county units are unmatched.</p>`
+        : `<p class="muted-note">Switch to Evidence trail to reveal geometry source and match-status details.</p>`
+    }
+  `;
+}
+
+function geometryPath(geometry, bounds) {
+  if (!geometry) {
+    return "";
+  }
+  if (geometry.type === "Polygon") {
+    return polygonPath(geometry.coordinates, bounds);
+  }
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates.map((polygon) => polygonPath(polygon, bounds)).join(" ");
+  }
+  return "";
+}
+
+function polygonPath(polygon, bounds) {
+  return polygon
+    .map((ring) =>
+      ring
+        .map(([lon, lat], index) => {
+          const [x, y] = projectLonLat(lon, lat, bounds);
+          return `${index === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`;
+        })
+        .join(" ") + " Z",
+    )
+    .join(" ");
+}
+
+function geoBounds(features) {
+  const bounds = { minLon: Infinity, maxLon: -Infinity, minLat: Infinity, maxLat: -Infinity };
+  for (const feature of features) {
+    visitCoordinates(feature.geometry, ([lon, lat]) => {
+      bounds.minLon = Math.min(bounds.minLon, Number(lon));
+      bounds.maxLon = Math.max(bounds.maxLon, Number(lon));
+      bounds.minLat = Math.min(bounds.minLat, Number(lat));
+      bounds.maxLat = Math.max(bounds.maxLat, Number(lat));
+    });
+  }
+  if (!Number.isFinite(bounds.minLon)) {
+    return { minLon: -125, maxLon: -66, minLat: 24, maxLat: 50 };
+  }
+  return bounds;
+}
+
+function visitCoordinates(geometry, callback) {
+  if (!geometry) {
+    return;
+  }
+  const polygons = geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates || [];
+  polygons.forEach((polygon) => polygon.forEach((ring) => ring.forEach(callback)));
+}
+
+function projectLonLat(lon, lat, bounds) {
+  const width = 960;
+  const height = 560;
+  const padding = 18;
+  const lonSpan = Math.max(0.000001, bounds.maxLon - bounds.minLon);
+  const latSpan = Math.max(0.000001, bounds.maxLat - bounds.minLat);
+  const x = padding + ((Number(lon) - bounds.minLon) / lonSpan) * (width - padding * 2);
+  const y = padding + ((bounds.maxLat - Number(lat)) / latSpan) * (height - padding * 2);
+  return [x, y];
+}
+
 function renderAnalysisStatus(status, units) {
   const grid = $("#analysis-status-grid");
   if (!status) {
@@ -494,6 +633,7 @@ function renderAnalysisStatus(status, units) {
 function renderAnalysisStatusPanel() {
   const status = state.analysis.status;
   const mapLayers = state.analysis.mapLayers;
+  const countyGeometry = state.analysis.countyGeometry;
   const cardsGrid = $("#status-card-grid");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
@@ -542,6 +682,7 @@ function renderAnalysisStatusPanel() {
     ["Schema", status.schema_version || "unknown"],
     ["Artifact commit", shortCommit(status.code_commit)],
     ["Geometry status", mapLayers?.geometry_status || "not loaded"],
+    ["County geometry", countyGeometry ? `${formatCount(countyGeometry.matched_count)} matched / ${formatCount(countyGeometry.county_unit_count)} county units` : "not loaded"],
     ["Grok boundary", `${status.grok_secret_name || "Configured offline secret"} is for offline artifact generation only; no API key is embedded in Pages.`],
   ];
   detailGrid.innerHTML = details
@@ -587,6 +728,10 @@ function renderAnalysisStatusPanel() {
     <article class="status-evidence-card">
       <h3>Boundary</h3>
       <p>No raw LOCUS rows, ordinance text, SQLite databases, exports, credentials, or machine-specific paths are published through this artifact layer.</p>
+    </article>
+    <article class="status-evidence-card">
+      <h3>County Geometry</h3>
+      <p>${escapeHtml(countyGeometry?.notice || "County geometry artifact is not loaded.")}</p>
     </article>
     <article class="status-evidence-card">
       <h3>Citation</h3>
@@ -1849,15 +1994,16 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, ontology, chatIndex, models, charts] = await Promise.all([
+    const [status, mapLayers, countyGeometry, ontology, chatIndex, models, charts] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
+      fetchJson(ANALYSIS_PATHS.countyGeometry),
       fetchJson(ANALYSIS_PATHS.ontology),
       fetchJson(ANALYSIS_PATHS.chatIndex),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
     ]);
-    state.analysis = { status, mapLayers, ontology, chatIndex, models, charts, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, ontology, chatIndex, models, charts, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }

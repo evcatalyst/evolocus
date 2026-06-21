@@ -9,6 +9,7 @@ import sys
 from typing import NoReturn
 
 from .analysis_publish import DEFAULT_OUTPUT_DIR, publish_analysis_artifacts
+from .county_geometry import publish_county_geometry_artifact
 from .evaluation_db import init_db, create_queue
 from .evaluation_exports import export_evaluation
 from .evaluation_sampling import manifest_dict_and_fingerprint, queue_id_for, sample_queue_items
@@ -88,6 +89,26 @@ def main(argv: list[str] | None = None) -> int:
         help="Include record text samples. Blocked for non-demo corpus sources.",
     )
     publish_parser.set_defaults(func=_publish_analysis)
+
+    county_geometry_parser = subparsers.add_parser(
+        "publish-county-geometry",
+        help="Publish official Census county geometry matched to aggregate Pages units.",
+    )
+    county_geometry_parser.add_argument(
+        "--map-layers",
+        type=Path,
+        default=DEFAULT_OUTPUT_DIR / "map_layers.json",
+        help="Existing aggregate map_layers.json input.",
+    )
+    county_geometry_parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT_DIR / "county_geometry.json",
+        help="Output county geometry JSON artifact.",
+    )
+    county_geometry_parser.add_argument("--max-allowable-offset", type=float, default=0.02)
+    county_geometry_parser.add_argument("--geometry-precision", type=int, default=4)
+    county_geometry_parser.set_defaults(func=_publish_county_geometry)
 
     args = parser.parse_args(argv)
     return int(args.func(args) or 0)
@@ -177,6 +198,17 @@ def _publish_analysis(args: argparse.Namespace) -> int:
         args.output,
         max_units=args.max_units,
         include_record_samples=args.include_record_samples or None,
+    )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _publish_county_geometry(args: argparse.Namespace) -> int:
+    result = publish_county_geometry_artifact(
+        args.map_layers,
+        args.output,
+        max_allowable_offset=args.max_allowable_offset,
+        geometry_precision=args.geometry_precision,
     )
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0
