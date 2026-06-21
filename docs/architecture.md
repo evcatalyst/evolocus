@@ -52,6 +52,7 @@ flowchart LR
 - Imported package map overlays join browser-local record `unit_id` values to public aggregate map units, highlighting matched county/town units without copying imported records into static artifacts.
 - Imported-package-only filtering uses the same browser-local match set to focus aggregate map, inquiry, snapshot, score, and audit views on the current local review package.
 - Imported package coverage charts are computed in the browser from the bounded local queue and review events; they summarize state/topic/function/type/OCR mix and workflow status without writing imported records to public artifacts.
+- The local review-package materializer has a verified real-data smoke path: it generated ignored packages for 24 LOCUS records across 12 public aggregate units, while Pages publishes only aggregate verification counts.
 - Demo mode is synthetic and conspicuously labeled.
 - Real LOCUS aggregate artifacts are published through Pages after local safety checks.
 - Real LOCUS rows and ordinance text are not published through Pages.

@@ -13,6 +13,7 @@ from typing import Any
 import polars as pl
 
 from .locus_contract import CITATION, DATASET_ID, DATASET_LICENSE, PAPER_URL
+from .locus_normalize import add_derived_fields
 from .locus_source import LocusCorpus, current_commit
 
 
@@ -124,19 +125,16 @@ def _sample_records(
             for index, unit in enumerate(units)
         ]
     )
-    unit_id_expr = (
-        pl.col("state_normalized")
-        + pl.lit(":")
-        + pl.col("jurisdiction_type_normalized").fill_null("unknown")
-        + pl.lit(":")
-        + pl.col("jurisdiction_name").fill_null("Unknown")
-    )
     selected_columns = [*PACKAGE_COLUMNS, "unit_id", "_unit_plan_rank"]
     if include_content:
         selected_columns.extend(TEXT_COLUMNS)
+    raw_with_unit = (
+        corpus.lazy()
+        .with_columns(_native_unit_id_expr().alias("unit_id"))
+        .filter(pl.col("unit_id").is_in([unit["unit_id"] for unit in units]))
+    )
     lf = (
-        corpus.derived_lazy()
-        .with_columns(unit_id_expr.alias("unit_id"))
+        add_derived_fields(raw_with_unit, dataset_revision=corpus.config.dataset_revision)
         .join(unit_rank.lazy(), on="unit_id", how="inner")
         .select([column for column in selected_columns if column in [*PACKAGE_COLUMNS, "unit_id", "_unit_plan_rank", *TEXT_COLUMNS]])
         .with_columns(pl.col("record_id").hash(seed=seed).alias("_sample_key"))
@@ -148,6 +146,39 @@ def _sample_records(
         .drop(["_sample_key", "_unit_sample_rank"])
     )
     return [_json_safe(row) for row in lf.collect().to_dicts()]
+
+
+def _native_unit_id_expr() -> pl.Expr:
+    """Build the aggregate unit key with native Polars expressions before costly derivation."""
+
+    raw_type = pl.col("source_jurisdiction_type").cast(pl.Utf8).fill_null("").str.strip_chars().str.to_lowercase()
+    city = pl.col("city").cast(pl.Utf8).fill_null("").str.strip_chars()
+    county = pl.col("county").cast(pl.Utf8).fill_null("").str.strip_chars()
+    has_city = city.str.len_chars() > 0
+    has_county = county.str.len_chars() > 0
+    kind = (
+        pl.when(raw_type.str.contains("county|counties"))
+        .then(pl.lit("county"))
+        .when(raw_type.str.contains("city|cities|municipal|town|village|borough"))
+        .then(pl.lit("city"))
+        .when(has_city)
+        .then(pl.lit("city"))
+        .when(has_county)
+        .then(pl.lit("county"))
+        .otherwise(pl.lit("unknown"))
+    )
+    name = (
+        pl.when((kind == "county") & has_county)
+        .then(county)
+        .when((kind == "city") & has_city)
+        .then(city)
+        .when(has_county)
+        .then(county)
+        .when(has_city)
+        .then(city)
+        .otherwise(pl.lit("Unknown"))
+    )
+    return pl.col("state").cast(pl.Utf8).fill_null("").str.strip_chars().str.to_uppercase() + pl.lit(":") + kind + pl.lit(":") + name
 
 
 def _package_payload(

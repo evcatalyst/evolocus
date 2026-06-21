@@ -65,6 +65,8 @@ The browser can import a bounded queue JSON file with a top-level `records` arra
 
 After import, the Law Map highlights imported package units in the state-clustered aggregate map, official county polygons, municipal points, selected-unit detail, and map table. A binary imported-package-units filter narrows the aggregate map and downstream inquiry/snapshot context to locally loaded package units. The Results tab summarizes the browser-local package with record/unit counts, state/topic/function/type/OCR distributions, safety markers, and review progress. These visuals read localStorage and the imported package only; they are not copied into public static artifacts.
 
+The local package handoff has been smoke-tested against real LOCUS Parquet: 24 records across 12 public aggregate units were materialized into ignored `data/exports/` packages, including one metadata-only package and one local text-bearing review package. Pages publishes only aggregate verification counts from that smoke test.
+
 Imported records should include:
 
 - `record_id`

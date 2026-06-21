@@ -36,6 +36,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "applyPackageMapFilter" in js
     assert "packageOnly" in js
     assert "package-hit" in js
+    assert "Local package smoke" in js
+    assert "Local Package Verification" in js
     assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js

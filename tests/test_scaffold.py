@@ -159,6 +159,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "status-detail-grid" in html
     assert "status-gate-grid" in html
     assert "data/analysis/status.json" in js
+    assert "local_package_verification" in read_text("site/data/analysis/status.json")
+    assert "Local package smoke" in js
+    assert "Local Package Verification" in js
     assert "data/analysis/charts.json" in js
     assert "data/analysis/audit_status.json" in js
     assert "data/analysis/unit_audit_quality.json" in js

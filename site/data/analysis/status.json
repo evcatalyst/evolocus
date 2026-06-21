@@ -10,6 +10,21 @@
   "grok_secret_name": "GROK_API_KEY",
   "law_count": 1517672,
   "license": "CC-BY-NC-4.0",
+  "local_package_verification": {
+    "content_package_local_only": true,
+    "content_package_record_count": 24,
+    "github_pages_publication_allowed": false,
+    "legal_findings": false,
+    "locator_values_published": false,
+    "matched_public_unit_count": 12,
+    "metadata_package_omits_text": true,
+    "metadata_package_record_count": 24,
+    "note": "Local ignored packages were materialized from real LOCUS Parquet; only aggregate verification counts are published.",
+    "ordinance_text_published": false,
+    "request_unit_count": 12,
+    "status": "complete",
+    "verified_at": "2026-06-21T20:21:22.821041+00:00"
+  },
   "next_analysis_goal": "Generate bounded real aggregate map artifacts from local LOCUS Parquet after license/provenance review.",
   "paper": "https://arxiv.org/abs/2606.19334",
   "progressive_disclosure": [

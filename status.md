@@ -93,6 +93,7 @@ Current coverage stats:
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download
+- Real review package smoke: ignored local metadata and content packages materialized from real LOCUS Parquet for 24 records across 12 public aggregate units
 - Import status surface: GitHub Pages shows browser-local package provenance, text-inclusion state, and safety flags after upload
 - Package map overlay surface: GitHub Pages highlights imported browser-local package units on the aggregate map, official county polygons, municipal points, selected-unit panel, and map table
 - Imported package filter surface: GitHub Pages can narrow map-driven aggregate visuals to units represented in the browser-local review package
@@ -158,6 +159,8 @@ Latest update:
 - Added Results-tab package coverage visuals so imported browser-local queues show composition, safety markers, and review progress without publishing package records.
 - Added a package-to-map overlay so imported browser-local queues highlight their aggregate county/town units without copying package records into public artifacts.
 - Added a one-click imported-package-units map filter so reviewers can focus the public aggregate visual stack on the local review package.
+- Optimized `materialize-review-package` to filter by native Polars unit keys before expensive derived fields, then verified a real 24-record local package across 12 public aggregate units.
+- Added safe local-package verification counts to the Pages Analysis Status tab; no package text, headers, record IDs, or locator values are published.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.

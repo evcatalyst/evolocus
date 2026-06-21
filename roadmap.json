@@ -64,7 +64,8 @@
         "Add browser-local import-status visuals for materialized package uploads",
         "Add Results-tab package coverage visuals for imported browser-local queues",
         "Add package-to-map overlay for imported browser-local review queues",
-        "Add one-click imported-package-units map filter"
+        "Add one-click imported-package-units map filter",
+        "Verify bounded real LOCUS review-package materialization and map-unit matching"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

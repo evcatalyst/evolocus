@@ -11,6 +11,7 @@ EvoLOCUS is an open-source, local-first platform for reviewing and enriching the
 - Real LOCUS aggregate visual publish: complete for top 1,000 state-clustered jurisdiction units
 - Real LOCUS full audit: complete for 2,211,516 rows with aggregate-only status published
 - Real LOCUS per-unit audit quality: complete for the published top-1,000 map-unit scope
+- Real LOCUS local package smoke: complete for 24 records across 12 public aggregate units, stored only in ignored `data/exports/`
 - Real LOCUS evaluation: not started
 - Data state: no real LOCUS rows or ordinance text committed or published
 - Completion method: phase checklist, not weighted overall percentage
@@ -108,6 +109,7 @@ Support tooling:
 - Browser package-to-map overlay for imported local queues; it joins local `unit_id` values to public aggregate units and highlights matches without writing records to public artifacts.
 - Browser imported-package-only map filter for focusing aggregate map, inquiry, snapshot, score, and audit views on local package coverage.
 - Browser package-coverage charts for imported local queues; these summarize only browser-local records and are never written to `site/data/analysis/`.
+- Local package materializer verified against real LOCUS Parquet for a bounded 24-record smoke package; public Pages shows aggregate verification counts only.
 - Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.
 - Browser snapshot gallery storage in localStorage for aggregate current-view snapshots only; it does not store LOCUS text or review-event history.
 - Browser walkthrough cards for the real aggregate visual path; these route across existing public tabs and do not introduce a separate data publication channel.

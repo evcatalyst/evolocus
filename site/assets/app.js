@@ -1297,6 +1297,7 @@ function renderAnalysisStatusPanel() {
   const auditStatus = state.analysis.auditStatus;
   const inquiryBriefings = state.analysis.inquiryBriefings;
   const briefingGrok = inquiryBriefings?.grok || {};
+  const packageVerification = status?.local_package_verification || null;
   const cardsGrid = $("#status-card-grid");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
@@ -1322,6 +1323,11 @@ function renderAnalysisStatusPanel() {
     ["Raw rows published", status.real_locus_rows_published ? "yes" : "no", "GitHub Pages must not expose LOCUS text rows"],
     ["Synthetic layer", status.synthetic ? "yes" : "no", status.synthetic ? "Demo artifact" : "Real aggregate artifact"],
     ["Public samples", formatCount(sampleCount), "No ordinance text is included in this public layer"],
+    [
+      "Local package smoke",
+      packageVerification?.status === "complete" ? `${formatCount(packageVerification.metadata_package_record_count)} records` : "not run",
+      packageVerification?.status === "complete" ? `${formatCount(packageVerification.matched_public_unit_count)} matched public units; local-only` : "No bounded real package verification recorded",
+    ],
     ...(auditStatus
       ? [
           ["Audit rows", formatCount(auditStatus.row_count), "Full local LOCUS audit summarized as aggregate status"],
@@ -1364,6 +1370,7 @@ function renderAnalysisStatusPanel() {
     ["Inquiry generated", inquiryBriefings ? formatDateTime(inquiryBriefings.generated_at) : "not loaded"],
     ["Grok enrichment", inquiryBriefings ? (briefingGrok.used ? `offline ${briefingGrok.model}` : `not used${briefingGrok.error ? ` · ${briefingGrok.error}` : ""}`) : "not loaded"],
     ["Grok boundary", `${status.grok_secret_name || "Configured offline secret"} is for offline artifact generation only; no API key is embedded in Pages.`],
+    ["Local package smoke", packageVerification ? `${packageVerification.status} · ${formatCount(packageVerification.matched_public_unit_count)} matched units · ${formatCount(packageVerification.content_package_record_count)} local review records` : "not recorded"],
   ];
   detailGrid.innerHTML = details
     .slice(0, showUnit ? details.length : 4)
@@ -1438,6 +1445,11 @@ function renderAnalysisStatusPanel() {
     <article class="status-evidence-card">
       <h3>Boundary</h3>
       <p>No raw LOCUS rows, ordinance text, SQLite databases, exports, credentials, or machine-specific paths are published through this artifact layer.</p>
+    </article>
+    <article class="status-evidence-card">
+      <h3>Local Package Verification</h3>
+      <p>${escapeHtml(packageVerification ? `${formatCount(packageVerification.metadata_package_record_count)} metadata-only records and ${formatCount(packageVerification.content_package_record_count)} local review records were materialized from real LOCUS Parquet across ${formatCount(packageVerification.matched_public_unit_count)} public aggregate units.` : "No local package verification is recorded.")}</p>
+      <p>${escapeHtml(packageVerification ? packageVerification.note || "Only aggregate verification counts are published." : "Run the local ignored materializer to verify browser-import packages.")}</p>
     </article>
     <article class="status-evidence-card">
       <h3>Inquiry Briefing Refresh</h3>

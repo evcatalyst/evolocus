@@ -54,3 +54,5 @@
 - Imported package visuals should summarize local queue provenance and review progress without treating browser-local LOCUS text as a public artifact or civic finding.
 - Package-to-map overlays should join imported browser-local records to aggregate unit IDs and render only local workflow coverage, not publish the underlying record text or source locators.
 - Imported-package-only filters should reuse browser-local unit matches and must not create a new public data artifact or imply the local package is representative.
+- Review-package materialization must filter to requested aggregate unit IDs before deriving OCR/content metadata; otherwise small local packages can accidentally trigger slow full-corpus work.
+- Public status may report aggregate local-package smoke counts, but must omit package paths, record IDs, text, headers, and locator values.
