@@ -35,3 +35,4 @@
 - Peer comparisons must disclose their matching method and stay framed as aggregate review context, not as best/worst or legal-burden rankings.
 - A configured `GROK_API_KEY` repository secret should be verified by name only and consumed by GitHub Actions/local offline jobs, never by browser-delivered assets.
 - Model-substantive-share visuals must show denominators and describe substantivity as a released model label, not as a verified legal classification.
+- Full audit outputs can stay in ignored processed storage while Pages receives only aggregate status, gates, rates, and digest metadata.

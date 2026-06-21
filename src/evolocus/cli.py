@@ -9,6 +9,7 @@ import sys
 from typing import NoReturn
 
 from .analysis_publish import DEFAULT_OUTPUT_DIR, publish_analysis_artifacts
+from .audit_status import DEFAULT_AUDIT_PATH, DEFAULT_AUDIT_STATUS_PATH, DEFAULT_MANIFEST_PATH, publish_audit_status
 from .county_geometry import publish_county_geometry_artifact
 from .evaluation_db import init_db, create_queue
 from .evaluation_exports import export_evaluation
@@ -56,6 +57,15 @@ def main(argv: list[str] | None = None) -> int:
     audit_parser.add_argument("--dataset-revision", default="local", help="Dataset revision label for local mode.")
     audit_parser.add_argument("--sample-limit", type=int, default=200)
     audit_parser.set_defaults(func=_audit_locus)
+
+    audit_status_parser = subparsers.add_parser(
+        "publish-audit-status",
+        help="Publish aggregate-only audit status for GitHub Pages from ignored local audit outputs.",
+    )
+    audit_status_parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT_PATH)
+    audit_status_parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST_PATH)
+    audit_status_parser.add_argument("--output", type=Path, default=DEFAULT_AUDIT_STATUS_PATH)
+    audit_status_parser.set_defaults(func=_publish_audit_status)
 
     init_eval_parser = subparsers.add_parser("init-evaluation", help="Initialize the local SQLite evaluation store.")
     init_eval_parser.add_argument("--db", required=True, type=Path)
@@ -244,6 +254,12 @@ def _publish_analysis(args: argparse.Namespace) -> int:
         max_units=args.max_units,
         include_record_samples=args.include_record_samples or None,
     )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _publish_audit_status(args: argparse.Namespace) -> int:
+    result = publish_audit_status(args.audit, args.manifest, args.output)
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0
 

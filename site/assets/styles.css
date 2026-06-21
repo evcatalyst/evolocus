@@ -442,6 +442,45 @@ textarea {
   font-style: normal;
 }
 
+.audit-risk-bars {
+  display: flex;
+  min-height: 38px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  margin-top: 12px;
+}
+
+.audit-risk-bars span {
+  display: inline-grid;
+  place-content: center;
+  min-width: 48px;
+  padding: 6px;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-align: center;
+}
+
+.audit-risk-bars em {
+  font-style: normal;
+  font-weight: 650;
+}
+
+.audit-risk-low {
+  background: var(--green);
+}
+
+.audit-risk-medium {
+  background: var(--gold);
+  color: var(--ink) !important;
+}
+
+.audit-risk-high {
+  background: var(--red);
+}
+
 .map-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;

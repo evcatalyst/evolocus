@@ -8,6 +8,7 @@ const ANALYSIS_PATHS = {
   mapLayers: "data/analysis/map_layers.json",
   countyGeometry: "data/analysis/county_geometry.json",
   municipalPoints: "data/analysis/municipal_points.json",
+  auditStatus: "data/analysis/audit_status.json",
   ontology: "data/analysis/ontology.json",
   chatIndex: "data/analysis/chat_index.json",
   inquiryBriefings: "data/analysis/inquiry_briefings.json",
@@ -881,6 +882,7 @@ function renderAnalysisStatusPanel() {
   const mapLayers = state.analysis.mapLayers;
   const countyGeometry = state.analysis.countyGeometry;
   const municipalPoints = state.analysis.municipalPoints;
+  const auditStatus = state.analysis.auditStatus;
   const cardsGrid = $("#status-card-grid");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
@@ -906,6 +908,12 @@ function renderAnalysisStatusPanel() {
     ["Raw rows published", status.real_locus_rows_published ? "yes" : "no", "GitHub Pages must not expose LOCUS text rows"],
     ["Synthetic layer", status.synthetic ? "yes" : "no", status.synthetic ? "Demo artifact" : "Real aggregate artifact"],
     ["Public samples", formatCount(sampleCount), "No ordinance text is included in this public layer"],
+    ...(auditStatus
+      ? [
+          ["Audit rows", formatCount(auditStatus.row_count), "Full local LOCUS audit summarized as aggregate status"],
+          ["Audit gates", auditGateSummary(auditStatus), "Review-needed gates are data-quality priorities"],
+        ]
+      : [["Audit status", "not loaded", "Full audit summary artifact is unavailable"]]),
   ];
   cardsGrid.innerHTML = statusCards
     .map(
@@ -931,6 +939,9 @@ function renderAnalysisStatusPanel() {
     ["Geometry status", mapLayers?.geometry_status || "not loaded"],
     ["County geometry", countyGeometry ? `${formatCount(countyGeometry.matched_count)} matched / ${formatCount(countyGeometry.county_unit_count)} county units` : "not loaded"],
     ["Municipal points", municipalPoints ? `${formatCount(municipalPoints.matched_count)} matched / ${formatCount(municipalPoints.municipal_unit_count)} municipal units` : "not loaded"],
+    ["Full LOCUS audit", auditStatus ? `${formatCount(auditStatus.row_count)} rows · schema ${auditStatus.schema?.is_compatible ? "compatible" : "review needed"}` : "not loaded"],
+    ["OCR heuristic review", auditStatus ? auditOcrSummary(auditStatus) : "not loaded"],
+    ["Duplicate content hashes", auditStatus ? formatCount(auditStatus.quality_counts?.duplicate_content_hash_count) : "not loaded"],
     ["Grok boundary", `${status.grok_secret_name || "Configured offline secret"} is for offline artifact generation only; no API key is embedded in Pages.`],
   ];
   detailGrid.innerHTML = details
@@ -973,6 +984,36 @@ function renderAnalysisStatusPanel() {
           .join("") || "<p>No publication gates recorded.</p>"}
       </div>
     </article>
+    ${
+      auditStatus
+        ? `<article class="status-evidence-card wide">
+            <h3>Full LOCUS audit summary</h3>
+            <p>${escapeHtml(formatCount(auditStatus.row_count))} rows were audited locally against ${escapeHtml(formatCount(auditStatus.expected_row_count))} expected rows. This public artifact contains aggregate counts and rates only.</p>
+            <div class="gate-list">
+              ${(auditStatus.quality_gates || [])
+                .map(
+                  (gate) => `
+                    <span>
+                      <strong>${escapeHtml(gate.label)}</strong>
+                      <em>${escapeHtml(gate.status)}${gate.value === undefined ? "" : ` · ${formatCount(gate.value)}`}</em>
+                    </span>
+                  `,
+                )
+                .join("")}
+            </div>
+          </article>
+          <article class="status-evidence-card">
+            <h3>OCR Risk Heuristics</h3>
+            ${auditOcrBarsHtml(auditStatus)}
+            <p>OCR flags are review-priority heuristics, not proof that the ordinance text is wrong.</p>
+          </article>
+          <article class="status-evidence-card">
+            <h3>Audit Provenance</h3>
+            <p>Manifest scan: ${escapeHtml(auditStatus.manifest?.full_scan_completed ? "complete" : "not complete")} · source files: ${escapeHtml(formatCount(auditStatus.source_artifacts?.source_file_count || 0))} · audit digest ${escapeHtml(shortCommit(auditStatus.source_artifacts?.audit_sha256))}</p>
+            <p>${escapeHtml((auditStatus.limitations || []).join(" "))}</p>
+          </article>`
+        : `<article class="status-evidence-card wide"><h3>Full LOCUS audit summary</h3><p>Audit status artifact is not loaded.</p></article>`
+    }
     <article class="status-evidence-card">
       <h3>Boundary</h3>
       <p>No raw LOCUS rows, ordinance text, SQLite databases, exports, credentials, or machine-specific paths are published through this artifact layer.</p>
@@ -992,6 +1033,42 @@ function renderAnalysisStatusPanel() {
     </article>
   `;
   renderDisclosureButtons();
+}
+
+function auditGateSummary(auditStatus) {
+  const gates = auditStatus?.quality_gates || [];
+  const reviewNeeded = gates.filter((gate) => gate.status !== "complete").length;
+  return reviewNeeded ? `${formatCount(reviewNeeded)} review needed` : "all complete";
+}
+
+function auditOcrSummary(auditStatus) {
+  const counts = auditStatus?.quality_counts?.ocr_risk_counts || {};
+  const mediumHigh = Number(counts.medium || 0) + Number(counts.high || 0);
+  return `${formatCount(mediumHigh)} medium/high rows`;
+}
+
+function auditOcrBarsHtml(auditStatus) {
+  const counts = auditStatus?.quality_counts?.ocr_risk_counts || {};
+  const total = Number(auditStatus?.row_count || 0);
+  const rows = ["low", "medium", "high"].map((level) => ({
+    level,
+    value: Number(counts[level] || 0),
+  }));
+  return `
+    <div class="audit-risk-bars">
+      ${rows.map((row) => auditRiskSegment(row, total)).join("")}
+    </div>
+  `;
+}
+
+function auditRiskSegment(row, total) {
+  const width = total ? Math.max(row.value ? 2 : 0, (row.value / total) * 100) : 0;
+  return `
+    <span class="audit-risk-${escapeHtml(row.level)}" style="width:${width.toFixed(3)}%" title="${escapeHtml(row.level)}: ${escapeHtml(formatCount(row.value))}">
+      <strong>${escapeHtml(row.level)}</strong>
+      <em>${escapeHtml(formatCount(row.value))}</em>
+    </span>
+  `;
 }
 
 function filterMapUnits(units) {
@@ -2815,18 +2892,19 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, inquiryBriefings, models, charts] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, ontology, chatIndex, inquiryBriefings, models, charts] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
       fetchJson(ANALYSIS_PATHS.municipalPoints),
+      fetchJson(ANALYSIS_PATHS.auditStatus),
       fetchJson(ANALYSIS_PATHS.ontology),
       fetchJson(ANALYSIS_PATHS.chatIndex),
       fetchJson(ANALYSIS_PATHS.inquiryBriefings),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, ontology, chatIndex, inquiryBriefings, models, charts, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, ontology, chatIndex, inquiryBriefings, models, charts, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }

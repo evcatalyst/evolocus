@@ -9,6 +9,7 @@ EvoLOCUS is an open-source, local-first platform for reviewing and enriching the
 - Evaluator MVP: complete for synthetic browser demo validation
 - Real LOCUS local shard download: complete in ignored `data/raw/`
 - Real LOCUS aggregate visual publish: complete for top 1,000 state-clustered jurisdiction units
+- Real LOCUS full audit: complete for 2,211,516 rows with aggregate-only status published
 - Real LOCUS evaluation: not started
 - Data state: no real LOCUS rows or ordinance text committed or published
 - Completion method: phase checklist, not weighted overall percentage
@@ -39,6 +40,7 @@ The Pages app supports:
 - state/topic small-multiple charts in the Charts tab from the same aggregate map layer;
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
+- full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;

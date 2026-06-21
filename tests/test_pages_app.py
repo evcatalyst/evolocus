@@ -25,4 +25,6 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "scoreDeltaSummary" in js
     assert "modelSubstantiveShare" in js
     assert "substantiveShareColor" in js
+    assert "auditGateSummary" in js
+    assert "auditOcrBarsHtml" in js
     assert "fetchAnalysisArtifacts" in js

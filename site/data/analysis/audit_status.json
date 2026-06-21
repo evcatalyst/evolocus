@@ -1,0 +1,228 @@
+{
+  "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
+  "city_county_availability_by_jurisdiction_type": [
+    {
+      "city_present": 1800886,
+      "county_present": 0,
+      "rows": 1800886,
+      "source_jurisdiction_type": "cities"
+    },
+    {
+      "city_present": 0,
+      "county_present": 410630,
+      "rows": 410630,
+      "source_jurisdiction_type": "counties"
+    }
+  ],
+  "dataset_id": "LocalLaws/LOCUS-v1",
+  "dataset_revision": "main",
+  "expected_row_count": 2211516,
+  "generated_at": "2026-06-21T17:53:39.398544+00:00",
+  "labels": {
+    "observed_function_values": [
+      "Context",
+      "Enforcement",
+      "Process",
+      "Rules"
+    ],
+    "observed_jurisdiction_type_values": [
+      "cities",
+      "counties"
+    ],
+    "observed_topic_values": [
+      null,
+      "Buildings",
+      "Business",
+      "Nuisance",
+      "Other",
+      "Zoning"
+    ],
+    "unexpected_function_values": [],
+    "unexpected_state_formats": [],
+    "unexpected_topic_values": []
+  },
+  "license": "CC-BY-NC-4.0",
+  "limitations": [
+    "Audit metrics are data-quality signals, not legal findings.",
+    "OCR risk heuristics are approximate flags for review, not proof that text is wrong.",
+    "Duplicate content hashes can reflect boilerplate, repeated code text, or OCR duplication and require review before interpretation.",
+    "Score direction remains unverified; score statistics are neutral numeric summaries."
+  ],
+  "manifest": {
+    "code_commit": "14c1c16e2606c0e25f0918d5c705c4aee55c5582",
+    "created_at": "2026-06-21T17:47:40.735919+00:00",
+    "expected_row_count": 2211516,
+    "full_scan_completed": true,
+    "normalization_version": "evolocus-normalize-v1",
+    "observed_row_count": 2211516
+  },
+  "null_rates": {
+    "city_field": 0.185678,
+    "county_field": 0.814322,
+    "enforcement_discretion_score_field": 0.0,
+    "model_function_field": 0.0,
+    "model_substantivity_field": 0.0,
+    "model_topic_field": 0.21928,
+    "opacity_score_field": 0.0,
+    "ordinance_text_field": 0.0,
+    "paternalism_score_field": 0.0,
+    "problem_salience_score_field": 0.0,
+    "section_heading_field": 0.0,
+    "source_jurisdiction_type_field": 0.0,
+    "state_field": 0.0
+  },
+  "paper": "https://arxiv.org/abs/2606.19334",
+  "publication_policy": {
+    "artifact_kind": "aggregate_only_audit_status",
+    "headers_included": false,
+    "legal_findings": false,
+    "ordinance_text_included": false,
+    "raw_rows_included": false,
+    "record_locator_values_included": false,
+    "sample_findings_included": false
+  },
+  "quality_counts": {
+    "duplicate_content_hash_count": 15155,
+    "duplicate_record_locator_count": 0,
+    "invalid_jurisdiction_identity_rows": 0,
+    "nonfinite_score_rows": 0,
+    "ocr_risk_counts": {
+      "high": 1032,
+      "low": 2133325,
+      "medium": 77159
+    },
+    "ocr_risk_rates": {
+      "high": 0.000467,
+      "low": 0.964644,
+      "medium": 0.03489
+    }
+  },
+  "quality_gates": [
+    {
+      "id": "full_scan",
+      "label": "Full LOCUS row audit completed",
+      "status": "complete"
+    },
+    {
+      "id": "schema",
+      "label": "Released schema compatible",
+      "status": "complete"
+    },
+    {
+      "id": "function_labels",
+      "label": "No unexpected function labels observed",
+      "status": "complete"
+    },
+    {
+      "id": "topic_labels",
+      "label": "No unexpected topic labels observed",
+      "status": "complete"
+    },
+    {
+      "id": "state_formats",
+      "label": "No unexpected state formats observed",
+      "status": "complete"
+    },
+    {
+      "id": "record_locators",
+      "label": "No duplicate record locators observed",
+      "status": "complete"
+    },
+    {
+      "id": "score_values",
+      "label": "No non-finite score rows observed",
+      "status": "complete"
+    },
+    {
+      "id": "jurisdiction_identity",
+      "label": "All rows derive a jurisdiction identity",
+      "status": "complete"
+    },
+    {
+      "detail": "Medium/high OCR-risk rows are review-priority signals, not verified OCR defects.",
+      "id": "ocr_risk",
+      "label": "OCR risk heuristics available",
+      "status": "review_needed",
+      "value": 78191
+    },
+    {
+      "detail": "Duplicate content hashes remain aggregate review targets and are not public raw text.",
+      "id": "duplicate_content",
+      "label": "Duplicate content hashes reviewed",
+      "status": "review_needed",
+      "value": 15155
+    }
+  ],
+  "real_locus_rows_published": false,
+  "row_count": 2211516,
+  "row_count_matches_expected": true,
+  "schema": {
+    "column_count": 13,
+    "extra_columns": [],
+    "is_compatible": true,
+    "missing_columns": []
+  },
+  "schema_version": "evolocus-audit-status-v1",
+  "score_stats": {
+    "enforcement_discretion": {
+      "count": 2211516,
+      "max": 3.353515625,
+      "mean": -0.0919516066062014,
+      "min": -2.498046875,
+      "q25": -0.86962890625,
+      "q50": -0.2200927734375,
+      "q75": 0.5849609375,
+      "std": 0.9513378907343508
+    },
+    "opacity": {
+      "count": 2211516,
+      "max": 2.873046875,
+      "mean": 0.01883318895181961,
+      "min": -2.966796875,
+      "q25": -0.68359375,
+      "q50": -0.01390838623046875,
+      "q75": 0.7021484375,
+      "std": 0.9307003709289654
+    },
+    "paternalism": {
+      "count": 2211516,
+      "max": 5.53125,
+      "mean": -0.05995971277273702,
+      "min": -2.94140625,
+      "q25": -0.7255859375,
+      "q50": -0.146484375,
+      "q75": 0.47021484375,
+      "std": 0.8560352078478611
+    },
+    "problem_salience": {
+      "count": 2211516,
+      "max": 3.21875,
+      "mean": -0.13279703828749634,
+      "min": -2.275390625,
+      "q25": -0.90283203125,
+      "q50": -0.31640625,
+      "q75": 0.529296875,
+      "std": 0.9553362592488195
+    }
+  },
+  "source_artifacts": {
+    "audit_sha256": "fd842dd05d863433de4c4f619138d0b314cadf6541fd874c2b1e995a0c945235",
+    "manifest_sha256": "3e1e8048ad78f77ddf765cbecc9be0414b0f364acdb03e32326832b53294678c",
+    "source_file_count": 8,
+    "source_file_total_bytes": 1765899013
+  },
+  "topic_nullability_by_substantivity": [
+    {
+      "is_substantive": false,
+      "rows": 484942,
+      "topic_null": 484942,
+      "topic_present": 0
+    },
+    {
+      "is_substantive": true,
+      "rows": 1726574,
+      "topic_null": 0,
+      "topic_present": 1726574
+    }
+  ]
+}

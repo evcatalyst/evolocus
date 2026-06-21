@@ -125,12 +125,13 @@ Latest update:
 - Added selected-unit peer comparison visuals for similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity.
 - Added model-substantive-share coloring and selected-unit denominators for county/town geography, using released LOCUS model labels only.
 - Verified the `GROK_API_KEY` GitHub Actions secret exists for offline aggregate-only inquiry enrichment; the browser-delivered Pages app still contains no API key.
+- Ran full local LOCUS audit and manifest over 2,211,516 rows; published only aggregate audit status, gates, OCR-risk counts, and duplicate-content counts to Pages.
 
 Evaluator implementation state:
 
 - Evaluator code: complete
 - Synthetic end-to-end validation: complete
-- Real LOCUS full ingest/audit manifest: not run
+- Real LOCUS full ingest/audit manifest: complete for 2,211,516 rows
 - Real LOCUS aggregate visual publish: complete for top 1,000 state-clustered jurisdiction units
 - Real LOCUS evaluation: not started
 - Default exports omit ordinance text
