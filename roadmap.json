@@ -35,7 +35,8 @@
         "Publish aggregate-only LOCUS map, ontology, inquiry, model, chart, and status artifacts for top 1,000 jurisdiction units",
         "Add Pages-side aggregate map filters for state, topic, function, tier, and minimum law count",
         "Add filtered-view aggregate insight cards and inquiry answers",
-        "Add filtered-vs-full aggregate comparison panels"
+        "Add filtered-vs-full aggregate comparison panels",
+        "Add Charts-tab state/topic small multiples from the aggregate map layer"
       ],
       "remaining_items": [
         "Run full real LOCUS local-Parquet audit and manifest generation",

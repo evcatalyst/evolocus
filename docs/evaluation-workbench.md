@@ -13,6 +13,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - map filters for state, topic, function, tier, and minimum law count;
 - filtered-view aggregate insight cards and inquiry answers;
 - filtered-vs-full aggregate comparison panels;
+- state/topic small-multiple charts in the Charts tab;
 - ontology and model-output registry views;
 - static inquiry over published analysis artifacts;
 - aggregate chart panels and publication gates;

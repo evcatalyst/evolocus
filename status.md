@@ -105,6 +105,7 @@ Latest update:
 - Added Pages-side aggregate map filters for state, topic, function, tier, and minimum law count.
 - Added filtered-view aggregate insight cards and inquiry answers over the current map selection.
 - Added filtered-vs-full aggregate comparison panels for topic, tier, function, jurisdiction kind, and neutral score means.
+- Added Charts-tab state/topic small multiples from the same real aggregate map layer.
 
 Evaluator implementation state:
 

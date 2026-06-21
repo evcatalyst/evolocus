@@ -845,6 +845,119 @@ th {
   font-size: 0.9rem;
 }
 
+.state-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.state-topic-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.state-topic-card.wide {
+  grid-column: 1 / -1;
+}
+
+.state-topic-heading {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.state-topic-card h3,
+.state-topic-card p {
+  margin-top: 0;
+}
+
+.state-topic-card p,
+.state-topic-heading span,
+.state-topic-meta span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.state-topic-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.state-topic-meta span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 8px;
+}
+
+.topic-strip,
+.tier-strip {
+  display: grid;
+  gap: 8px;
+}
+
+.topic-strip-row {
+  display: grid;
+  grid-template-columns: minmax(86px, 0.75fr) minmax(120px, 1.6fr) minmax(46px, auto);
+  gap: 8px;
+  align-items: center;
+}
+
+.topic-strip-row span,
+.topic-strip-row strong {
+  font-size: 0.82rem;
+}
+
+.topic-strip-row div {
+  display: grid;
+  gap: 3px;
+}
+
+.topic-strip-row i,
+.topic-strip-row b {
+  display: block;
+  min-height: 8px;
+  border-radius: 999px;
+}
+
+.topic-strip-row i {
+  background: #326f70;
+}
+
+.topic-strip-row b {
+  background: rgba(50, 111, 112, 0.2);
+}
+
+.tier-mini-strip {
+  display: flex;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.tier-mini-strip span {
+  display: block;
+  min-width: 32px;
+  padding: 5px 6px;
+  background: rgba(224, 192, 112, 0.28);
+  color: var(--ink);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.tier-mini-strip span:first-child {
+  background: rgba(184, 216, 199, 0.75);
+}
+
+.tier-mini-strip span:last-child {
+  background: rgba(196, 107, 83, 0.35);
+}
+
 .ontology-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -892,6 +1005,7 @@ th {
   .map-comparison-grid,
   .analysis-status-grid,
   .chart-grid,
+  .state-topic-grid,
   .ontology-layout,
   .results-grid,
   .protocol-grid {
@@ -919,6 +1033,7 @@ th {
   .map-comparison-grid,
   .analysis-status-grid,
   .chart-grid,
+  .state-topic-grid,
   .ontology-layout,
   .inquiry-form,
   .metric-grid,

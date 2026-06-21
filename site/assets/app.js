@@ -1000,6 +1000,7 @@ function renderExplorer() {
 
 function renderResults() {
   renderAnalysisCharts();
+  renderStateTopicCharts();
   const latest = Array.from(latestEvents().values()).filter((event) => event.reviewer_id === state.reviewer);
   const reviewed = latest.filter((event) => ["save", "save_next"].includes(event.event_type));
   const flagged = latest.filter((event) => event.event_type === "flag").length;
@@ -1104,6 +1105,106 @@ function topUnitsCard(rows) {
           .join("")}
       </ol>
     </article>
+  `;
+}
+
+function renderStateTopicCharts() {
+  const mapLayers = state.analysis.mapLayers;
+  const grid = $("#state-topic-grid");
+  if (!mapLayers) {
+    grid.innerHTML = `<article class="state-topic-card"><h3>State/topic charts loading</h3><p>Aggregate map artifacts have not loaded yet.</p></article>`;
+    return;
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const allUnits = mapLayers.units || [];
+  const summaries = stateSummaries(units).slice(0, 12);
+  const allSummary = summarizeUnits(allUnits);
+  grid.innerHTML = `
+    <article class="state-topic-card wide">
+      <h3>Filtered layer vs full aggregate layer</h3>
+      <div class="state-topic-meta">
+        <span>${escapeHtml(formatCount(units.length))} visible units</span>
+        <span>${escapeHtml(formatCount(summarizeUnits(units).lawCount))} visible law records</span>
+        <span>${escapeHtml(formatPercent(summarizeUnits(units).lawCount, allSummary.lawCount))} of published aggregate layer</span>
+      </div>
+      <div class="topic-strip">${topicStrip(summarizeUnits(units).topicCounts, allSummary.topicCounts)}</div>
+    </article>
+    ${
+      summaries.length
+        ? summaries.map(stateTopicCard).join("")
+        : '<article class="state-topic-card"><h3>No matching states</h3><p>Adjust map filters to restore aggregate chart data.</p></article>'
+    }
+  `;
+}
+
+function stateSummaries(units) {
+  const grouped = new Map();
+  for (const unit of units) {
+    const stateCode = unit.state || "NA";
+    if (!grouped.has(stateCode)) {
+      grouped.set(stateCode, { state: stateCode, units: 0, lawCount: 0, substantiveCount: 0, topicCounts: {}, tierCounts: {} });
+    }
+    const summary = grouped.get(stateCode);
+    summary.units += 1;
+    summary.lawCount += Number(unit.law_count || 0);
+    summary.substantiveCount += Number(unit.substantive_count || 0);
+    addCounts(summary.topicCounts, unit.topic_counts || {});
+    summary.tierCounts[unit.tier_label || unit.tier || "Unspecified"] = (summary.tierCounts[unit.tier_label || unit.tier || "Unspecified"] || 0) + 1;
+  }
+  return [...grouped.values()].sort((a, b) => b.lawCount - a.lawCount || a.state.localeCompare(b.state));
+}
+
+function stateTopicCard(summary) {
+  const topTopic = topEntry(summary.topicCounts);
+  return `
+    <article class="state-topic-card">
+      <div class="state-topic-heading">
+        <h3>${escapeHtml(summary.state)}</h3>
+        <span>${escapeHtml(formatCount(summary.lawCount))} laws · ${escapeHtml(formatCount(summary.units))} units</span>
+      </div>
+      <p>Top topic: ${escapeHtml(topTopic.label)} (${escapeHtml(formatCount(topTopic.value))})</p>
+      <div class="topic-strip">${topicStrip(summary.topicCounts)}</div>
+      <div class="tier-strip">${tierStrip(summary.tierCounts)}</div>
+    </article>
+  `;
+}
+
+function topicStrip(topicCounts, baselineCounts = null) {
+  const rows = Object.entries(topicCounts)
+    .filter(([label, value]) => label !== "Not_applicable" && Number(value || 0) > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  const total = rows.reduce((sum, [, value]) => sum + Number(value || 0), 0);
+  if (!rows.length) {
+    return '<p class="muted-note">No topic aggregate rows.</p>';
+  }
+  return rows
+    .map(([label, value]) => {
+      const share = total ? Number(value || 0) / total : 0;
+      const baselineShare = baselineCounts ? Number(baselineCounts[label] || 0) / Math.max(1, Object.values(baselineCounts).reduce((sum, item) => sum + Number(item || 0), 0)) : null;
+      return `
+        <div class="topic-strip-row">
+          <span>${escapeHtml(label)}</span>
+          <div>
+            <i style="width:${Math.max(2, share * 100)}%"></i>
+            ${baselineShare === null ? "" : `<b style="width:${Math.max(2, baselineShare * 100)}%"></b>`}
+          </div>
+          <strong>${escapeHtml(formatPercent(share, 1))}</strong>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function tierStrip(tierCounts) {
+  const rows = Object.entries(tierCounts).sort((a, b) => a[0].localeCompare(b[0]));
+  const total = rows.reduce((sum, [, value]) => sum + Number(value || 0), 0);
+  return `
+    <div class="tier-mini-strip">
+      ${rows
+        .map(([label, value]) => `<span style="width:${Math.max(4, (Number(value || 0) / Math.max(1, total)) * 100)}%">${escapeHtml(label.replace("Tier ", "T"))}</span>`)
+        .join("")}
+    </div>
   `;
 }
 

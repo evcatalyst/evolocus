@@ -101,6 +101,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Min laws" in html
     assert "Progressive disclosure" in html
     assert "analysis-chart-grid" in html
+    assert "state-topic-grid" in html
     assert "data/analysis/status.json" in js
     assert "data/analysis/charts.json" in js
     assert "filterMapUnits" in js
@@ -109,6 +110,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "filteredViewAnswer" in js
     assert "renderMapComparisons" in js
     assert "compareCounts" in js
+    assert "renderStateTopicCharts" in js
+    assert "stateSummaries" in js
     assert "api.x.ai" not in js
     assert "https://fonts." not in html + css + js
     assert "googletagmanager" not in html + css + js
