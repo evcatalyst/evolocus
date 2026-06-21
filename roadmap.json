@@ -84,6 +84,7 @@
         "Add tier mini-chart drilldown filters back to the map",
         "Add neutral score-band drilldowns from tier mini charts",
         "Add official geography layer toggles for counties, towns, and ontology links",
+        "Add progressive ontology-link legend for official geography layer",
         "Add aggregate-only map inquiry history export"
       ],
       "remaining_items": [

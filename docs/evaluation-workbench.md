@@ -14,6 +14,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
 - official geography layer toggles for county polygons, town points, and progressive selected-unit ontology links;
+- official geography layer legend for county/town visibility and selected-unit aggregate peer-link reasons;
 - geography color modes for neutral tier, dominant topic, dominant function, audit attention, and law-count intensity;
 - map filters for state, topic, function, tier, minimum law count, and aggregate audit review signals;
 - filtered-view aggregate insight cards and inquiry answers;

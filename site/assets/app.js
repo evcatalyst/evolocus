@@ -1154,12 +1154,19 @@ function mapInquiryHistoryExportItem(item) {
     answer_summary: item.answer_summary || "",
     disclosure_level: item.disclosure_level || "overview",
     geography_color_mode: item.geography_color_mode || "tier",
+    geography_layers: {
+      counties: item.geography_layers?.counties !== false,
+      municipalities: item.geography_layers?.municipalities !== false,
+      ontology: Boolean(item.geography_layers?.ontology),
+    },
     filters: {
       state: item.filters?.state || "",
       topic: item.filters?.topic || "",
       function: item.filters?.function || "",
       kind: item.filters?.kind || "",
       tier: item.filters?.tier || "",
+      scoreField: item.filters?.scoreField || "",
+      scoreBand: item.filters?.scoreBand || "",
       auditFocus: item.filters?.auditFocus || "",
       minLaws: Number(item.filters?.minLaws || 0),
       minAuditScore: Number(item.filters?.minAuditScore || 0),
@@ -1311,14 +1318,16 @@ function renderCountyChoropleth(units, packageStats = importedPackageMapStats())
   const summary = $("#county-layer-summary");
   const svg = $("#county-choropleth");
   const detail = $("#county-layer-detail");
+  const layerLegend = $("#geo-layer-legend");
   const legend = $("#geo-color-legend");
-  if (!summary || !svg || !detail || !legend) {
+  if (!summary || !svg || !detail || !layerLegend || !legend) {
     return;
   }
   if (!artifact) {
     summary.innerHTML = "<span>Official geography loading</span>";
     svg.innerHTML = "";
     detail.innerHTML = "<p>Official geography artifacts have not loaded yet.</p>";
+    layerLegend.innerHTML = "";
     legend.innerHTML = "";
     return;
   }
@@ -1331,11 +1340,13 @@ function renderCountyChoropleth(units, packageStats = importedPackageMapStats())
   const visibleMunicipalPoints = (municipalArtifact?.points || []).filter((point) => visibleMunicipalIds.has(point.unit_id));
   const features = layers.counties ? visibleFeatures : [];
   const municipalPoints = layers.municipalities ? visibleMunicipalPoints : [];
-  const ontologyLinkCount = layers.ontology && state.disclosureLevel !== "overview" ? geographyOntologyLinkRows(features, municipalPoints).length : 0;
+  const previewBounds = geoBounds(features, municipalPoints);
+  const previewPositionIndex = geographyPositionIndex(features, municipalPoints, previewBounds);
+  const ontologyRows = layers.ontology ? geographyOntologyLinkRows(features, municipalPoints, previewPositionIndex) : [];
   summary.innerHTML = `
     <span>${escapeHtml(formatCount(features.length))}/${escapeHtml(formatCount(visibleFeatures.length))} counties shown</span>
     <span>${escapeHtml(formatCount(municipalPoints.length))}/${escapeHtml(formatCount(visibleMunicipalPoints.length))} town points shown</span>
-    <span>${escapeHtml(layers.ontology ? `${formatCount(ontologyLinkCount)} ontology links` : "ontology links off")}</span>
+    <span>${escapeHtml(layers.ontology ? `${formatCount(ontologyRows.length)} ontology links` : "ontology links off")}</span>
     <span>${escapeHtml(formatCount(artifact.matched_count || allFeatures.length))}/${escapeHtml(formatCount(artifact.county_unit_count || allFeatures.length))} matched</span>
     <span>${escapeHtml(formatCount(municipalArtifact?.matched_count || 0))}/${escapeHtml(formatCount(municipalArtifact?.municipal_unit_count || 0))} municipal matched</span>
     <span>color: ${escapeHtml(geographyColorLabel(state.geographyColorMode))}</span>
@@ -1345,12 +1356,14 @@ function renderCountyChoropleth(units, packageStats = importedPackageMapStats())
   if (!features.length && !municipalPoints.length) {
     svg.innerHTML = `<text x="32" y="54">No active county polygons or town points under the current layer controls.</text>`;
     detail.innerHTML = "<p>No official geography layer is visible under the current filters and layer controls. Turn on Counties or Town points, or clear map filters.</p>";
+    layerLegend.innerHTML = geographyLayerLegendHtml(layers, { features, municipalPoints, visibleFeatures, visibleMunicipalPoints, ontologyRows });
     legend.innerHTML = "";
     return;
   }
-  const bounds = geoBounds(features, municipalPoints);
+  const bounds = previewBounds;
   const colorContext = geographyColorContext(features, municipalPoints);
-  const ontologyLinks = layers.ontology ? geographyOntologyLinksSvg(features, municipalPoints, bounds) : "";
+  const ontologyLinks = layers.ontology ? geographyOntologyLinksSvg(features, municipalPoints, bounds, ontologyRows) : "";
+  layerLegend.innerHTML = geographyLayerLegendHtml(layers, { features, municipalPoints, visibleFeatures, visibleMunicipalPoints, ontologyRows });
   legend.innerHTML = geographyColorLegend(colorContext);
   svg.innerHTML = `${features.map((feature) => countyFeatureSvg(feature, bounds, colorContext, packageStats)).join("")}${ontologyLinks}${municipalPoints.map((point) => municipalPointSvg(point, bounds, colorContext, packageStats)).join("")}`;
   const selectedPoint = municipalPoints.find((point) => point.unit_id === state.selectedUnitId);
@@ -1363,22 +1376,107 @@ function renderCountyChoropleth(units, packageStats = importedPackageMapStats())
     renderMunicipalPointDetail(municipalPoints[0], municipalArtifact, packageStats);
   }
   if (layers.ontology) {
-    detail.insertAdjacentHTML("beforeend", geographyOntologyLinkDetail(features, municipalPoints));
+    detail.insertAdjacentHTML("beforeend", geographyOntologyLinkDetail(features, municipalPoints, ontologyRows));
   }
 }
 
-function geographyOntologyLinksSvg(features, municipalPoints, bounds) {
+function geographyLayerLegendHtml(layers, context) {
+  const selectedUnit = currentSelectedMapUnit();
+  const rows = context.ontologyRows || [];
+  const linkState = !layers.ontology
+    ? "Ontology links are off"
+    : state.disclosureLevel === "overview"
+      ? "Switch to Unit detail to draw links"
+      : rows.length
+        ? `${formatCount(rows.length)} selected-unit peer links`
+        : "No visible peer links";
+  const layerRows = [
+    {
+      label: "County polygons",
+      value: `${formatCount(context.features.length)}/${formatCount(context.visibleFeatures.length)}`,
+      active: layers.counties,
+      detail: "matched county units",
+    },
+    {
+      label: "Town points",
+      value: `${formatCount(context.municipalPoints.length)}/${formatCount(context.visibleMunicipalPoints.length)}`,
+      active: layers.municipalities,
+      detail: "matched municipal units",
+    },
+    {
+      label: "Ontology links",
+      value: linkState,
+      active: layers.ontology,
+      detail: "aggregate peer metadata",
+    },
+  ];
+  return `
+    <section class="geo-layer-legend-panel" aria-label="Official geography layer legend">
+      <div class="geo-layer-legend-heading">
+        <div>
+          <span>Layer legend</span>
+          <strong>${escapeHtml(selectedUnit ? displayUnitName(selectedUnit) : "No selected unit")}</strong>
+        </div>
+        <em>${escapeHtml(titleCase(state.disclosureLevel))}</em>
+      </div>
+      <div class="geo-layer-legend-pills">
+        ${layerRows.map(geoLayerLegendPillHtml).join("")}
+      </div>
+      ${
+        layers.ontology
+          ? geographyLayerLinkRowsHtml(rows)
+          : '<p class="muted-note">Turn on Ontology links to connect the selected aggregate unit to visible peers by topic, function, tier, kind, state, and law-count similarity.</p>'
+      }
+      <p class="geo-layer-boundary">Layer controls use public aggregate artifacts only. Ontology links are exploratory review aids, not source-backed legal relationships, rankings, or findings.</p>
+    </section>
+  `;
+}
+
+function geoLayerLegendPillHtml(row) {
+  return `
+    <span class="${row.active ? "active" : "inactive"}">
+      <strong>${escapeHtml(row.value)}</strong>
+      <em>${escapeHtml(row.label)}</em>
+      <b>${escapeHtml(row.detail)}</b>
+    </span>
+  `;
+}
+
+function geographyLayerLinkRowsHtml(rows) {
+  if (state.disclosureLevel === "overview") {
+    return '<p class="muted-note">Ontology links are staged at Overview depth. Switch to Unit detail or Evidence trail to draw selected-unit peer links.</p>';
+  }
+  if (!rows.length) {
+    return '<p class="muted-note">No visible peer links match the selected unit under the active filters and layer controls.</p>';
+  }
+  return `
+    <div class="geo-layer-link-list" aria-label="Visible aggregate ontology links">
+      ${rows.map(geoLayerLinkRowHtml).join("")}
+    </div>
+  `;
+}
+
+function geoLayerLinkRowHtml(row) {
+  return `
+    <button type="button" data-unit-id="${escapeHtml(row.peer.unit.unit_id)}">
+      <strong>${escapeHtml(displayUnitName(row.peer.unit))}</strong>
+      <span>${row.reasons.length ? row.reasons.map((reason) => `<em>${escapeHtml(reason)}</em>`).join("") : "<em>aggregate peer</em>"}</span>
+      <b>peer ${escapeHtml(row.peer.score.toFixed(1))}</b>
+    </button>
+  `;
+}
+
+function geographyOntologyLinksSvg(features, municipalPoints, bounds, rows = null) {
   if (state.disclosureLevel === "overview") {
     return "";
   }
-  const positionIndex = geographyPositionIndex(features, municipalPoints, bounds);
-  const rows = geographyOntologyLinkRows(features, municipalPoints, positionIndex);
-  if (!rows.length) {
+  const linkRows = rows || geographyOntologyLinkRows(features, municipalPoints, geographyPositionIndex(features, municipalPoints, bounds));
+  if (!linkRows.length) {
     return "";
   }
   return `
     <g class="geography-ontology-links" aria-label="Selected-unit aggregate ontology links">
-      ${rows.map(geographyOntologyLinkSvg).join("")}
+      ${linkRows.map(geographyOntologyLinkSvg).join("")}
     </g>
   `;
 }
@@ -1425,7 +1523,7 @@ function geographyOntologyLinkSvg(row) {
   `;
 }
 
-function geographyOntologyLinkDetail(features, municipalPoints) {
+function geographyOntologyLinkDetail(features, municipalPoints, rows = null) {
   if (state.disclosureLevel === "overview") {
     return `
       <section class="geography-ontology-detail">
@@ -1434,14 +1532,14 @@ function geographyOntologyLinkDetail(features, municipalPoints) {
       </section>
     `;
   }
-  const rows = geographyOntologyLinkRows(features, municipalPoints);
+  const linkRows = rows || geographyOntologyLinkRows(features, municipalPoints);
   const selectedUnit = currentSelectedMapUnit();
   return `
     <section class="geography-ontology-detail">
-      <strong>${escapeHtml(formatCount(rows.length))} aggregate ontology links${selectedUnit ? ` from ${escapeHtml(displayUnitName(selectedUnit))}` : ""}</strong>
+      <strong>${escapeHtml(formatCount(linkRows.length))} aggregate ontology links${selectedUnit ? ` from ${escapeHtml(displayUnitName(selectedUnit))}` : ""}</strong>
       ${
-        rows.length
-          ? `<p>${rows.map((row) => `${displayUnitName(row.peer.unit)} (${row.reasons.slice(0, 2).join(", ") || "aggregate peer"})`).map(escapeHtml).join(" · ")}</p>`
+        linkRows.length
+          ? `<p>${linkRows.map((row) => `${displayUnitName(row.peer.unit)} (${row.reasons.slice(0, 2).join(", ") || "aggregate peer"})`).map(escapeHtml).join(" · ")}</p>`
           : "<p>No visible peer links for the selected unit under the active filters and layer controls.</p>"
       }
       <p class="muted-note">Links use aggregate peer metadata from map_layers.json only. They are not legal findings, rankings, or source-backed legal conclusions.</p>

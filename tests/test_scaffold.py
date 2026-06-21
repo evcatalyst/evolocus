@@ -147,6 +147,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert 'data-geo-layer="counties"' in html
     assert 'data-geo-layer="municipalities"' in html
     assert 'data-geo-layer="ontology"' in html
+    assert "geo-layer-legend" in html
     assert "package-map-summary" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
@@ -294,6 +295,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "activeGeographyLayerLabels" in js
     assert "geographyOntologyLinksSvg" in js
     assert "geographyOntologyLinkRows" in js
+    assert "geographyLayerLegendHtml" in js
+    assert "geoLayerLegendPillHtml" in js
+    assert "geographyLayerLinkRowsHtml" in js
+    assert "geoLayerLinkRowHtml" in js
     assert "geographyPositionIndex" in js
     assert "geometryCentroid" in js
     assert "geography_layers" in js
@@ -453,6 +458,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "auditOcrBarsHtml" in js
     assert "audit-risk-bars" in css
     assert "geo-layer-control" in css
+    assert "geo-layer-legend-panel" in css
+    assert "geo-layer-link-list" in css
+    assert "geo-layer-boundary" in css
     assert "geography-ontology-link" in css
     assert "geography-ontology-detail" in css
     assert "publication_gates" in js

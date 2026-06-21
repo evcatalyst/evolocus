@@ -39,6 +39,7 @@ flowchart LR
 - The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - Official geography layer controls can independently toggle matched county polygons, matched town/municipal points, and selected-unit ontology peer links; the link layer uses aggregate map metadata only and appears through progressive disclosure.
+- The official-geography layer legend explains shown/available county and town layers, selected-unit peer-link reasons, disclosure depth, and the no-legal-relationship boundary.
 - The map card includes a law-location tier guide that explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and publication boundaries.
 - Tier chips in the map guide click through to an ontology tier-focus card that summarizes visible units, topic/function links, neutral score means, and filter context.
 - The tier-focus ontology card includes mini charts for topic mix, function mix, unit type mix, and neutral score means under the current filters.
