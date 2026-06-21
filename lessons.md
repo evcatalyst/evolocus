@@ -56,3 +56,4 @@
 - Imported-package-only filters should reuse browser-local unit matches and must not create a new public data artifact or imply the local package is representative.
 - Review-package materialization must filter to requested aggregate unit IDs before deriving OCR/content metadata; otherwise small local packages can accidentally trigger slow full-corpus work.
 - Public status may report aggregate local-package smoke counts, but must omit package paths, record IDs, text, headers, and locator values.
+- A browser-generated package demo should be explicitly synthetic, anchored only to already-published aggregate units, and reuse the same localStorage package boundary as real imports.

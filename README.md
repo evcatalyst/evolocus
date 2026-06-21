@@ -12,6 +12,7 @@ EvoLOCUS is an open-source, local-first platform for reviewing and enriching the
 - Real LOCUS full audit: complete for 2,211,516 rows with aggregate-only status published
 - Real LOCUS per-unit audit quality: complete for the published top-1,000 map-unit scope
 - Real LOCUS local package smoke: complete for 24 records across 12 public aggregate units, stored only in ignored `data/exports/`
+- Browser synthetic package demo: complete for one-click package-to-map overlay on published aggregate units
 - Real LOCUS evaluation: not started
 - Data state: no real LOCUS rows or ordinance text committed or published
 - Completion method: phase checklist, not weighted overall percentage
@@ -33,7 +34,7 @@ The LOCUS-v1 Hugging Face dataset card identifies the dataset as Parquet and CC-
 The Pages app supports:
 
 - state-clustered county/town law map units colored by neutral tier;
-- guided Walkthrough tab for the public map -> inquiry -> ontology -> queue plan -> snapshots demo flow;
+- guided Walkthrough tab for the public map -> inquiry -> ontology -> queue plan -> package overlay -> snapshots demo flow;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
 - geography color modes for neutral tier, dominant topic, dominant function, model-substantive share, and law-count intensity;
@@ -51,6 +52,7 @@ The Pages app supports:
 - Queue Plan review-package request export for local ignored materialization from authorized Parquet;
 - Queue Plan package-request preview with record budget, unit mix, and safety gates before download;
 - browser-local import-status panel after bounded package upload, including provenance, text-inclusion state, unit counts, and safety flags;
+- one-click synthetic browser package demo anchored to published aggregate units, with placeholder records clearly marked as non-LOCUS text;
 - browser-local package-to-map overlay that highlights imported review-package units on the aggregate law map and official geography layer;
 - one-click imported-package-units map filter for narrowing real aggregate visuals to locally reviewed units;
 - Results-tab package coverage visuals after bounded package upload, including state/topic/function/type/OCR mix and review progress;
@@ -106,6 +108,7 @@ Support tooling:
 - Browser review-package request export for handing selected aggregate units to local tooling; the request stays aggregate-only.
 - Browser package-request preview for inspecting unit mix, record budget, and publication safety gates before download.
 - Browser import-status panel for local package provenance and review readiness after upload; this state remains in localStorage.
+- Browser synthetic package demo for exercising package import, package-to-map overlay, package-only filtering, Results-tab package charts, and review workflow without loading LOCUS row text.
 - Browser package-to-map overlay for imported local queues; it joins local `unit_id` values to public aggregate units and highlights matches without writing records to public artifacts.
 - Browser imported-package-only map filter for focusing aggregate map, inquiry, snapshot, score, and audit views on local package coverage.
 - Browser package-coverage charts for imported local queues; these summarize only browser-local records and are never written to `site/data/analysis/`.

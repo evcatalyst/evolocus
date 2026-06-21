@@ -25,6 +25,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Question matrix" in html
     assert "package-map-summary" in html
     assert "Imported package units" in html
+    assert "Load Demo Package" in html
     assert "localStorage" in js
     assert "renderImportStatus" in js
     assert "importStatusFromPayload" in js
@@ -38,6 +39,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "package-hit" in js
     assert "Local package smoke" in js
     assert "Local Package Verification" in js
+    assert "loadSyntheticPackageDemo" in js
+    assert "synthetic_demo_data" in js
+    assert "SYNTHETIC DEMONSTRATION PACKAGE" in js
+    assert "Synthetic package units are highlighted on the map" in js
+    assert "data-walkthrough-action" in js
     assert "BROWSER-LOCAL IMPORTED LOCUS TEXT" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js

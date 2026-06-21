@@ -43,12 +43,14 @@ flowchart LR
 - The Score Lens tab renders released LOCUS model-score means from `map_layers.json` as neutral distributions, state matrices, and unit profiles.
 - The Queue Plan tab combines current map filters, `map_layers.json`, and `unit_audit_quality.json` to rank aggregate county/town units for future local review packaging. Its preview shows record budget, state/type/topic mix, and safety gates before exporting unit IDs, aggregate counts, review signals, strategy metadata, and optional local materialization instructions only.
 - The Queue Plan review-package request can be consumed by `materialize-review-package` to create a bounded browser-import package from ignored local Parquet. The request itself remains aggregate-only.
+- The browser can generate a synthetic package demo from the currently published aggregate units, exercising package overlays, package-only filters, package coverage charts, and review workflow without loading LOCUS row text.
 - The map and inquiry tabs can export the current filtered view as aggregate JSON with filters, counts, selected-unit metadata, audit signals, and briefing provenance only.
 - The Snapshots tab saves those aggregate current-view payloads in browser localStorage for comparison and reloads only filter state and selected aggregate unit IDs.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
 - Imported package status is stored in browser localStorage and displayed as provenance for the current review queue.
+- Synthetic browser package status is stored in the same localStorage layer but is explicitly marked as synthetic demonstration data, not LOCUS ordinance text.
 - Imported package map overlays join browser-local record `unit_id` values to public aggregate map units, highlighting matched county/town units without copying imported records into static artifacts.
 - Imported-package-only filtering uses the same browser-local match set to focus aggregate map, inquiry, snapshot, score, and audit views on the current local review package.
 - Imported package coverage charts are computed in the browser from the bounded local queue and review events; they summarize state/topic/function/type/OCR mix and workflow status without writing imported records to public artifacts.

@@ -437,7 +437,7 @@ function renderImportStatus() {
         <div>
           <p class="eyebrow">Queue source</p>
           <h3>Synthetic demo queue active.</h3>
-          <p>No local review package is loaded. Public maps and charts still read aggregate LOCUS artifacts; the review queue uses synthetic records until you import a bounded local package.</p>
+          <p>No local review package is loaded. Public maps and charts still read aggregate LOCUS artifacts; the review queue uses synthetic records until you import a bounded local package or load the synthetic package demo.</p>
         </div>
         <div class="import-status-facts">
           <span><strong>${escapeHtml(formatCount(records.length))}</strong><em>synthetic records</em></span>
@@ -454,25 +454,32 @@ function renderImportStatus() {
 
 function importStatusHtml(meta) {
   const policy = meta.package_policy || {};
-  const textLabel = meta.ordinance_text_included ? "Text included locally" : "Metadata only";
+  const syntheticPackage = Boolean(meta.synthetic_demo_data);
+  const textLabel = syntheticPackage ? "Synthetic text only" : meta.ordinance_text_included ? "Text included locally" : "Metadata only";
+  const textDetail = syntheticPackage
+    ? "demo text; no LOCUS ordinance text"
+    : meta.ordinance_text_included
+      ? "review text stays in this browser"
+      : "no ordinance text loaded";
   const publicationLabel = meta.github_pages_publication_allowed ? "Publication blocked" : "Local only";
   const unitRows = topCountEntries(meta.unit_counts || {}, 5);
   return `
     <article class="import-status-card imported">
       <div>
-        <p class="eyebrow">Browser-local package</p>
+        <p class="eyebrow">${escapeHtml(syntheticPackage ? "Synthetic browser package" : "Browser-local package")}</p>
         <h3>${escapeHtml(meta.file_name || "Imported bounded package")}</h3>
         <p>${escapeHtml(meta.dataset_id || "LocalLaws/LOCUS-v1")} · revision ${escapeHtml(meta.dataset_revision || "unknown")} · imported ${escapeHtml(formatDateTime(meta.imported_at))}</p>
       </div>
       <div class="import-status-facts">
         <span><strong>${escapeHtml(formatCount(meta.record_count || 0))}</strong><em>records loaded</em></span>
         <span><strong>${escapeHtml(formatCount(meta.unit_count || 0))}</strong><em>aggregate units</em></span>
-        <span><strong>${escapeHtml(textLabel)}</strong><em>${escapeHtml(meta.ordinance_text_included ? "review text stays in this browser" : "no ordinance text loaded")}</em></span>
+        <span><strong>${escapeHtml(textLabel)}</strong><em>${escapeHtml(textDetail)}</em></span>
         <span><strong>${escapeHtml(publicationLabel)}</strong><em>${escapeHtml(meta.github_pages_publication_allowed ? "do not publish package" : "not a Pages artifact")}</em></span>
       </div>
       <div class="import-safety-grid">
         ${importSafetyBadge("Publication", policy.github_pages_publication_allowed ? "blocked" : "clear", policy.github_pages_publication_allowed ? "Package says publication allowed; treat as unsafe." : "Package is marked local-only.")}
-        ${importSafetyBadge("Ordinance text", meta.ordinance_text_included ? "explicit" : "clear", meta.ordinance_text_included ? "Text loaded by explicit local package import." : "No text field was loaded.")}
+        ${importSafetyBadge("Ordinance text", meta.ordinance_text_included ? "explicit" : "clear", syntheticPackage ? "Synthetic placeholders only; no LOCUS ordinance text." : meta.ordinance_text_included ? "Text loaded by explicit local package import." : "No text field was loaded.")}
+        ${syntheticPackage ? importSafetyBadge("Demo source", "clear", "Generated in this browser from published aggregate units.") : ""}
         ${importSafetyBadge("Source locators", meta.source_locators_included ? "explicit" : "clear", meta.source_locators_included ? "Present for local provenance joins only." : "No source locator values loaded.")}
         ${importSafetyBadge("Review history", meta.review_events_included ? "blocked" : "clear", meta.review_events_included ? "Unexpected review history present." : "No review events imported.")}
       </div>
@@ -503,6 +510,9 @@ function recordSourceBadge(_record) {
     return "SYNTHETIC DEMONSTRATION DATA";
   }
   const meta = loadImportStatus();
+  if (meta?.synthetic_demo_data) {
+    return "SYNTHETIC DEMONSTRATION PACKAGE";
+  }
   if (meta?.ordinance_text_included) {
     return "BROWSER-LOCAL IMPORTED LOCUS TEXT";
   }
@@ -658,14 +668,18 @@ function renderPackageMapSummary(packageStats, visibleUnits) {
   const cards = [
     ["Matched records", `${formatCount(packageStats.matchedRecords)}/${formatCount(packageStats.recordCount)}`, `${formatCount(packageStats.unmatchedRecords)} could not be joined to a public map unit`],
     ["Highlighted units", formatCount(packageStats.units.size), `${formatCount(visibleHits.length)} visible under current filters`],
-    ["Reviewed locally", formatCount(reviewed), `${formatPercent(reviewed, packageStats.recordCount)} of imported package records`],
-    ["Text boundary", packageStats.textIncluded ? "browser-local text loaded" : "metadata only", "Package records remain in localStorage, not public artifacts"],
+    ["Reviewed locally", formatCount(reviewed), `${formatPercent(reviewed, packageStats.recordCount)} of browser-local package records`],
+    [
+      "Text boundary",
+      packageStats.syntheticDemo ? "synthetic placeholders" : packageStats.textIncluded ? "browser-local LOCUS text loaded" : "metadata only",
+      packageStats.syntheticDemo ? "No LOCUS row text is loaded" : "Package records remain in localStorage, not public artifacts",
+    ],
   ];
   panel.innerHTML = `
     <article class="package-map-card imported">
       <div>
         <p class="eyebrow">Local package overlay</p>
-        <h3>Imported package units are highlighted on the map.</h3>
+        <h3>${escapeHtml(packageStats.syntheticDemo ? "Synthetic package units are highlighted on the map." : "Imported package units are highlighted on the map.")}</h3>
         <p>${escapeHtml(packageStats.fileName)} · ${escapeHtml(packageStats.datasetRevision)} · ${escapeHtml(formatDateTime(packageStats.importedAt))}</p>
       </div>
       <div class="package-map-card-grid">
@@ -1216,6 +1230,14 @@ function renderWalkthrough() {
     },
     {
       number: "05",
+      title: "Load a package overlay",
+      body: "A synthetic package can be generated in this browser from the current aggregate units so reviewers can test package highlighting without loading LOCUS text.",
+      action: "demo-package",
+      button: "Load Demo Package",
+      meta: isSyntheticQueue() ? "No package loaded" : `${formatCount(records.length)} browser-local records`,
+    },
+    {
+      number: "06",
       title: "Save and compare views",
       body: "Snapshots preserve filters, visible aggregate counts, selected-unit metadata, audit signals, and briefing provenance in this browser.",
       target: "snapshots",
@@ -1274,7 +1296,7 @@ function walkthroughStepHtml(step) {
       <h3>${escapeHtml(step.title)}</h3>
       <p>${escapeHtml(step.body)}</p>
       <em>${escapeHtml(step.meta)}</em>
-      <button type="button" data-walkthrough-tab="${escapeHtml(step.target)}">${escapeHtml(step.button)}</button>
+      <button type="button" ${step.action ? `data-walkthrough-action="${escapeHtml(step.action)}"` : `data-walkthrough-tab="${escapeHtml(step.target)}"`}>${escapeHtml(step.button)}</button>
     </article>
   `;
 }
@@ -1556,6 +1578,7 @@ function importedPackageMapStats(allUnits = state.analysis.mapLayers?.units || [
     matchedRecords,
     unmatchedRecords,
     units,
+    syntheticDemo: Boolean(meta?.synthetic_demo_data),
     textIncluded: Boolean(meta?.ordinance_text_included),
   };
 }
@@ -1619,39 +1642,43 @@ function packageAliasKey(value) {
 function filterMapUnits(units) {
   const packageUnitIds = state.mapFilters.packageOnly ? importedPackageMapStats(units).units : null;
   return units.filter((unit) => {
-    const auditQuality = unitAuditQualityFor(unit.unit_id);
     if (packageUnitIds && !packageUnitIds.has(unit.unit_id)) {
       return false;
     }
-    if (state.mapFilters.state && unit.state !== state.mapFilters.state) {
-      return false;
-    }
-    if (state.mapFilters.tier && unit.tier !== state.mapFilters.tier) {
-      return false;
-    }
-    if (state.mapFilters.topic && !Number(unit.topic_counts?.[state.mapFilters.topic] || 0)) {
-      return false;
-    }
-    if (state.mapFilters.function && !Number(unit.function_counts?.[state.mapFilters.function] || 0)) {
-      return false;
-    }
-    if (Number(unit.law_count || 0) < state.mapFilters.minLaws) {
-      return false;
-    }
-    if (Number(auditQuality?.audit_attention_score || 0) < state.mapFilters.minAuditScore) {
-      return false;
-    }
-    if (state.mapFilters.auditFocus === "ocr" && !Number(auditQuality?.ocr_review_rows || 0)) {
-      return false;
-    }
-    if (state.mapFilters.auditFocus === "duplicate" && !Number(auditQuality?.duplicate_text_hash_rows || 0)) {
-      return false;
-    }
-    if (state.mapFilters.auditFocus === "attention" && Number(auditQuality?.audit_attention_score || 0) < 5) {
-      return false;
-    }
-    return true;
+    return unitMatchesMapFilters(unit);
   });
+}
+
+function unitMatchesMapFilters(unit) {
+  const auditQuality = unitAuditQualityFor(unit.unit_id);
+  if (state.mapFilters.state && unit.state !== state.mapFilters.state) {
+    return false;
+  }
+  if (state.mapFilters.tier && unit.tier !== state.mapFilters.tier) {
+    return false;
+  }
+  if (state.mapFilters.topic && !Number(unit.topic_counts?.[state.mapFilters.topic] || 0)) {
+    return false;
+  }
+  if (state.mapFilters.function && !Number(unit.function_counts?.[state.mapFilters.function] || 0)) {
+    return false;
+  }
+  if (Number(unit.law_count || 0) < state.mapFilters.minLaws) {
+    return false;
+  }
+  if (Number(auditQuality?.audit_attention_score || 0) < state.mapFilters.minAuditScore) {
+    return false;
+  }
+  if (state.mapFilters.auditFocus === "ocr" && !Number(auditQuality?.ocr_review_rows || 0)) {
+    return false;
+  }
+  if (state.mapFilters.auditFocus === "duplicate" && !Number(auditQuality?.duplicate_text_hash_rows || 0)) {
+    return false;
+  }
+  if (state.mapFilters.auditFocus === "attention" && Number(auditQuality?.audit_attention_score || 0) < 5) {
+    return false;
+  }
+  return true;
 }
 
 function renderMapFilters(units) {
@@ -2714,11 +2741,12 @@ function packageCoverageSummary() {
   const kindCounts = countBy(records, (record) => normalizedCountLabel(record.jurisdiction_type_normalized || record.source_jurisdiction_type, "Unknown type"));
   const ocrCounts = countBy(records, (record) => normalizedCountLabel(record.ocr_risk_level, "not_evaluated"));
   const sourceFiles = new Set(records.map((record) => record.source_file).filter((value) => value !== null && value !== undefined && String(value).trim() !== ""));
+  const syntheticPackage = Boolean(meta?.synthetic_demo_data);
   return {
     imported,
-    modeLabel: imported ? "Browser-local imported package" : "Synthetic demo queue",
+    modeLabel: imported ? (syntheticPackage ? "Browser-local synthetic package" : "Browser-local imported package") : "Synthetic demo queue",
     sourceDetail: imported
-      ? `${meta?.file_name || "Imported package"} · imported ${formatDateTime(meta?.imported_at)}`
+      ? `${meta?.file_name || (syntheticPackage ? "Synthetic package" : "Imported package")} · imported ${formatDateTime(meta?.imported_at)}`
       : "No real LOCUS text is loaded into the review queue.",
     datasetId: meta?.dataset_id || (imported ? "LocalLaws/LOCUS-v1" : "Synthetic demonstration records"),
     datasetRevision: meta?.dataset_revision || records[0]?.dataset_revision || "demo-revision",
@@ -2732,6 +2760,7 @@ function packageCoverageSummary() {
     ocrCounts,
     sourceFileCount: sourceFiles.size,
     metrics,
+    syntheticPackage,
     textIncluded: imported ? Boolean(meta?.ordinance_text_included) : false,
     sourceLocatorsIncluded: imported ? Boolean(meta?.source_locators_included) : false,
     reviewEventsIncluded: imported ? Boolean(meta?.review_events_included) : false,
@@ -2745,7 +2774,7 @@ function packageCoverageCardsHtml(summary) {
   const cards = [
     [
       "Queue source",
-      summary.imported ? "Imported" : "Synthetic",
+      summary.imported ? (summary.syntheticPackage ? "Demo package" : "Imported") : "Synthetic",
       summary.sourceDetail,
       summary.imported ? "imported" : "demo",
     ],
@@ -2763,10 +2792,12 @@ function packageCoverageCardsHtml(summary) {
     ],
     [
       "Text boundary",
-      summary.textIncluded ? "Local text loaded" : "No local text",
-      summary.imported
-        ? "Imported text stays in this browser and is not a Pages artifact."
-        : "Synthetic demonstration content only.",
+      summary.syntheticPackage ? "Synthetic placeholders" : summary.textIncluded ? "Local LOCUS text loaded" : "No local LOCUS text",
+      summary.syntheticPackage
+        ? "Generated demo text only; no LOCUS ordinance text or source locators are loaded."
+        : summary.imported
+          ? "Imported text stays in this browser and is not a Pages artifact."
+          : "Synthetic demonstration content only.",
       summary.textIncluded ? "explicit" : "clear",
     ],
     [
@@ -2803,7 +2834,7 @@ function packageCoverageVisualsHtml(summary) {
     { label: "flagged", value: summary.metrics.flagged },
   ];
   const safetyRows = [
-    { label: summary.textIncluded ? "local ordinance text loaded" : "no local ordinance text", value: summary.recordCount },
+    { label: summary.syntheticPackage ? "synthetic placeholder text" : summary.textIncluded ? "local ordinance text loaded" : "no local ordinance text", value: summary.recordCount },
     { label: summary.sourceLocatorsIncluded ? "source locator values loaded" : "no source locator values", value: summary.recordCount },
     { label: summary.reviewEventsIncluded ? "review events imported" : "no review events imported", value: summary.recordCount },
     { label: summary.publicationAllowed ? "publication flag needs review" : "local-only package", value: summary.recordCount },
@@ -5261,10 +5292,128 @@ function importQueue(event) {
   reader.readAsText(file);
 }
 
+function loadSyntheticPackageDemo() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers || !Array.isArray(mapLayers.units) || !mapLayers.units.length) {
+    alert("Aggregate map artifacts are still loading. Try again after the Law Map appears.");
+    return;
+  }
+  const units = demoPackageUnits(mapLayers.units);
+  if (!units.length) {
+    alert("No aggregate units are available for a synthetic package demo under the current filters.");
+    return;
+  }
+  const payload = syntheticDemoPackagePayload(units);
+  const imported = payload.records;
+  const importStatus = importStatusFromPayload(payload, imported, { name: "synthetic-demo-package.json" });
+  records = imported.map(normalizeImportedRecord);
+  localStorage.setItem(STORAGE_RECORDS, JSON.stringify(records));
+  saveImportStatus(importStatus);
+  state.currentIndex = 0;
+  state.explorerRows = records;
+  state.revealed = {};
+  state.mapFilters.packageOnly = true;
+  state.selectedUnitId = units[0]?.unit_id || null;
+  state.disclosureLevel = "unit";
+  state.activeTab = "map";
+  alert("Loaded a synthetic browser-local package over published aggregate units. No LOCUS row text, source locators, or secrets were loaded.");
+  render();
+}
+
+function demoPackageUnits(allUnits) {
+  const filtered = allUnits.filter(unitMatchesMapFilters);
+  const candidates = filtered.length ? filtered : allUnits;
+  return [...candidates]
+    .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0))
+    .slice(0, 12);
+}
+
+function syntheticDemoPackagePayload(units) {
+  const records = units.flatMap((unit, unitIndex) => [
+    syntheticDemoPackageRecord(unit, unitIndex, 0),
+    syntheticDemoPackageRecord(unit, unitIndex, 1),
+  ]);
+  return {
+    schema_version: "evolocus-browser-review-package-v1",
+    browser_import_compatible: true,
+    synthetic_demo_data: true,
+    dataset_id: "Synthetic demonstration package over published LOCUS aggregate units",
+    dataset_revision: "pages-synthetic-package-demo",
+    generated_at: new Date().toISOString(),
+    license: "Synthetic placeholder records; public aggregate unit context derives from LOCUS-v1 CC-BY-NC-4.0.",
+    citation: "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
+    records,
+    unit_counts: Object.fromEntries(units.map((unit) => [unit.unit_id, 2])),
+    package_policy: {
+      local_only: true,
+      github_pages_publication_allowed: false,
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      synthetic_demo_data: true,
+      source_locators_included: false,
+      review_events_included: false,
+      legal_findings: false,
+    },
+    limitations: [
+      "Synthetic package records are generated in the browser for demonstration only.",
+      "Published aggregate units are real LOCUS-derived counts, but package records are not LOCUS rows.",
+      "No ordinance text, source locators, row-level records, review history, or secrets are loaded.",
+    ],
+  };
+}
+
+function syntheticDemoPackageRecord(unit, unitIndex, recordIndex) {
+  const unitName = displayUnitName(unit);
+  const topic = unit.dominant_topic && unit.dominant_topic !== "Not_applicable" ? unit.dominant_topic : null;
+  const functionLabel = unit.dominant_function || FUNCTIONS[(unitIndex + recordIndex) % FUNCTIONS.length];
+  const stateCode = unit.state || "";
+  const kind = normalizePackageKind(unit.kind || "");
+  const header = `Synthetic package placeholder ${recordIndex + 1}`;
+  const content = [
+    "SYNTHETIC DEMONSTRATION PACKAGE.",
+    `This placeholder review item is anchored to the published aggregate unit ${unitName}, ${stateCode}.`,
+    `The public artifact reports ${formatCount(unit.law_count || 0)} aggregate LOCUS rows for that unit.`,
+    "This is not ordinance text, not a source locator, not a legal finding, and not a record-level LOCUS sample.",
+  ].join(" ");
+  return {
+    record_id: `synthetic-package/${unit.unit_id}#${recordIndex}`,
+    dataset_revision: "pages-synthetic-package-demo",
+    source_file: "browser-generated-synthetic-package",
+    source_row_number: unitIndex * 2 + recordIndex,
+    unit_id: unit.unit_id,
+    header,
+    content,
+    is_substantive: Boolean(topic),
+    function: functionLabel,
+    topic,
+    source_jurisdiction_type: `synthetic_${kind || "unknown"}`,
+    state: stateCode,
+    city: kind === "city" ? unitName : null,
+    county: kind === "county" ? unitName : null,
+    jurisdiction_name: unitName,
+    jurisdiction_type_normalized: kind || "unknown",
+    enforcement_discretion: neutralScoreValue(unit, "enforcement_discretion"),
+    opacity: neutralScoreValue(unit, "opacity"),
+    paternalism: neutralScoreValue(unit, "paternalism"),
+    problem_salience: neutralScoreValue(unit, "problem_salience"),
+    content_length_chars: content.length,
+    content_length_words: content.split(/\s+/).filter(Boolean).length,
+    ocr_risk_level: "synthetic_demo",
+    ocr_risk_reasons: ["synthetic placeholder", "no LOCUS ordinance text"],
+  };
+}
+
+function neutralScoreValue(unit, field) {
+  const value = unit.model_score_means?.[field];
+  return Number.isFinite(Number(value)) ? Number(value) : null;
+}
+
 function importStatusFromPayload(payload, imported, file) {
   const packagePolicy = payload?.package_policy || {};
   const unitCounts = payload?.unit_counts || unitCountsFromRecords(imported);
-  const contentIncluded = Boolean(packagePolicy.ordinance_text_included) || imported.some((record) => hasNonemptyField(record, "content") || hasNonemptyField(record, "header"));
+  const syntheticDemo = Boolean(payload?.synthetic_demo_data || packagePolicy.synthetic_demo_data);
+  const localTextPresent = imported.some((record) => hasNonemptyField(record, "content") || hasNonemptyField(record, "header"));
+  const contentIncluded = !syntheticDemo && (Boolean(packagePolicy.ordinance_text_included) || localTextPresent);
   const sourceLocatorsIncluded = Boolean(packagePolicy.source_locators_included) || imported.some((record) => hasNonemptyField(record, "source_locator"));
   return {
     schema_version: "evolocus-browser-import-status-v1",
@@ -5280,6 +5429,8 @@ function importStatusFromPayload(payload, imported, file) {
     record_count: imported.length,
     unit_count: Object.keys(unitCounts).length,
     unit_counts: Object.fromEntries(topCountEntries(unitCounts, 12).map((row) => [row.label, row.value])),
+    synthetic_demo_data: syntheticDemo,
+    local_text_present: localTextPresent,
     ordinance_text_included: contentIncluded,
     source_locators_included: sourceLocatorsIncluded,
     review_events_included: Array.isArray(payload?.events) || Array.isArray(payload?.review_events),
@@ -5289,6 +5440,7 @@ function importStatusFromPayload(payload, imported, file) {
       github_pages_publication_allowed: Boolean(packagePolicy.github_pages_publication_allowed),
       raw_rows_included: Boolean(packagePolicy.raw_rows_included),
       ordinance_text_included: contentIncluded,
+      synthetic_demo_data: syntheticDemo,
       source_locators_included: sourceLocatorsIncluded,
       review_events_included: Array.isArray(payload?.events) || Array.isArray(payload?.review_events),
       legal_findings: Boolean(packagePolicy.legal_findings),
@@ -5310,6 +5462,8 @@ function fallbackImportStatus() {
     record_count: records.length,
     unit_count: Object.keys(unitCounts).length,
     unit_counts: unitCounts,
+    synthetic_demo_data: false,
+    local_text_present: records.some((record) => hasNonemptyField(record, "content") || hasNonemptyField(record, "header")),
     ordinance_text_included: records.some((record) => hasNonemptyField(record, "content") || hasNonemptyField(record, "header")),
     source_locators_included: records.some((record) => hasNonemptyField(record, "source_locator")),
     review_events_included: false,
@@ -5513,6 +5667,7 @@ function bindEvents() {
     render();
   });
   $("#seed-demo").addEventListener("click", resetDemoQueue);
+  $("#load-demo-package").addEventListener("click", loadSyntheticPackageDemo);
   $("#queue-import").addEventListener("change", importQueue);
   $("#export-events").addEventListener("click", exportEvents);
   $("#export-latest").addEventListener("click", exportLatestCsv);
@@ -5538,6 +5693,13 @@ function bindEvents() {
   $("#map-filter-form").addEventListener("submit", applyMapFilters);
   $("#reset-map-filters").addEventListener("click", resetMapFilters);
   $("#walkthrough-panel").addEventListener("click", (event) => {
+    const actionButton = event.target.closest("[data-walkthrough-action]");
+    if (actionButton) {
+      if (actionButton.dataset.walkthroughAction === "demo-package") {
+        loadSyntheticPackageDemo();
+      }
+      return;
+    }
     const tabButton = event.target.closest("[data-walkthrough-tab]");
     if (tabButton) {
       state.activeTab = tabButton.dataset.walkthroughTab;

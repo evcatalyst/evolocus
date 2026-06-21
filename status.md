@@ -94,13 +94,14 @@ Current coverage stats:
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download
 - Real review package smoke: ignored local metadata and content packages materialized from real LOCUS Parquet for 24 records across 12 public aggregate units
+- Synthetic package demo surface: GitHub Pages can generate a browser-local placeholder package from current aggregate units for package-to-map overlay testing without LOCUS text
 - Import status surface: GitHub Pages shows browser-local package provenance, text-inclusion state, and safety flags after upload
 - Package map overlay surface: GitHub Pages highlights imported browser-local package units on the aggregate map, official county polygons, municipal points, selected-unit panel, and map table
 - Imported package filter surface: GitHub Pages can narrow map-driven aggregate visuals to units represented in the browser-local review package
 - Package coverage surface: GitHub Pages Results tab summarizes imported browser-local queues by state, topic, function, jurisdiction type, OCR-risk mix, safety markers, and review progress
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots
-- Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, and snapshots
+- Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
@@ -161,6 +162,7 @@ Latest update:
 - Added a one-click imported-package-units map filter so reviewers can focus the public aggregate visual stack on the local review package.
 - Optimized `materialize-review-package` to filter by native Polars unit keys before expensive derived fields, then verified a real 24-record local package across 12 public aggregate units.
 - Added safe local-package verification counts to the Pages Analysis Status tab; no package text, headers, record IDs, or locator values are published.
+- Added a one-click synthetic package demo in the toolbar and Walkthrough so the public site can demonstrate imported-unit map overlays, package-only filters, package coverage charts, and review flow without loading LOCUS row text.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.

@@ -154,6 +154,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Audit focus" in html
     assert "Min audit attention" in html
     assert "Imported package units" in html
+    assert "Load Demo Package" in html
     assert "package_only" in html
     assert "status-card-grid" in html
     assert "status-detail-grid" in html
@@ -162,6 +163,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "local_package_verification" in read_text("site/data/analysis/status.json")
     assert "Local package smoke" in js
     assert "Local Package Verification" in js
+    assert "loadSyntheticPackageDemo" in js
+    assert "synthetic_demo_data" in js
+    assert "SYNTHETIC DEMONSTRATION PACKAGE" in js
+    assert "Synthetic package units are highlighted on the map" in js
     assert "data/analysis/charts.json" in js
     assert "data/analysis/audit_status.json" in js
     assert "data/analysis/unit_audit_quality.json" in js
@@ -314,6 +319,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "walkthroughStepHtml" in js
     assert "walkthroughDisclosureStepHtml" in js
     assert "data-walkthrough-tab" in js
+    assert "data-walkthrough-action" in js
     assert "data-walkthrough-disclosure" in js
     assert "walkthrough-flow" in css
     assert "walkthrough-step-card" in css

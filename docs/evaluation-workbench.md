@@ -9,7 +9,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 ## Pages Features
 
 - synthetic demo queue;
-- Walkthrough tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, and snapshots;
+- Walkthrough tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots;
 - law map with state-clustered county/town-style units colored by neutral tier;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
@@ -27,6 +27,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - Queue Plan tab for aggregate county/town review batch planning from current filters, audit signals, law counts, and neutral score spread;
 - Queue Plan review-package request export for local ignored materialization from authorized Parquet;
 - Queue Plan package-request preview for record budget, state/type/topic mix, and safety gates before download;
+- one-click synthetic browser package demo anchored to published aggregate units, for testing the package overlay without LOCUS row text;
 - browser-local import-status panel after bounded package upload, showing package provenance, text-inclusion state, unit counts, and safety flags;
 - browser-local package-to-map overlay that highlights imported package units on both the aggregate map and official geography layer;
 - imported-package-units map filter for focusing the aggregate map on browser-local review-package coverage;
@@ -64,6 +65,8 @@ Clearing browser storage removes local unsaved work. Export review events regula
 The browser can import a bounded queue JSON file with a top-level `records` array or a plain array of record objects. Imports are capped at 500 records to avoid turning the browser into a full corpus store.
 
 After import, the Law Map highlights imported package units in the state-clustered aggregate map, official county polygons, municipal points, selected-unit detail, and map table. A binary imported-package-units filter narrows the aggregate map and downstream inquiry/snapshot context to locally loaded package units. The Results tab summarizes the browser-local package with record/unit counts, state/topic/function/type/OCR distributions, safety markers, and review progress. These visuals read localStorage and the imported package only; they are not copied into public static artifacts.
+
+The toolbar and Walkthrough can also load a synthetic browser package generated from the current published aggregate units. That demo creates placeholder review records in localStorage, highlights their aggregate units, enables package-only filtering, and populates Results-tab package charts. It is labeled synthetic and does not load LOCUS ordinance text, source locators, raw rows, review history, or secrets.
 
 The local package handoff has been smoke-tested against real LOCUS Parquet: 24 records across 12 public aggregate units were materialized into ignored `data/exports/` packages, including one metadata-only package and one local text-bearing review package. Pages publishes only aggregate verification counts from that smoke test.
 
