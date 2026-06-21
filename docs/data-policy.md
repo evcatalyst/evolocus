@@ -23,6 +23,7 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - Public map, chart, inquiry, and ontology artifacts may be synthetic or reviewed aggregate-only outputs.
 - Aggregate-only public artifacts may include jurisdiction-unit names, counts, neutral tiers, topic/function aggregates, and model-score summaries, but must omit ordinance text, raw LOCUS rows, local SQLite state, local exports, credentials, and private machine paths.
 - Static progressive inquiry briefings must be derived from aggregate artifacts and must not introduce unsupported legal conclusions, rankings, or raw record excerpts.
+- Browser score-band filters are neutral relative model-output views and must not be presented as legal direction, burden, ranking, or finding.
 - Grok API keys belong only in GitHub Actions secrets or local environment variables, never in browser JavaScript.
 - Public static analysis artifacts must pass `validate-public-artifacts` before deployment; the guard rejects raw text fields, source locators, local data paths, database/export references, API bearer strings, and secret-shaped tokens.
 - Browser review-package requests are aggregate-only handoff files. Local materialized packages must write outside `site/`, stay ignored, and require explicit `--include-content` before including ordinance text.

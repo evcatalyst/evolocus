@@ -235,6 +235,8 @@ let state = {
     function: "",
     kind: "",
     tier: "",
+    scoreField: "",
+    scoreBand: "",
     auditFocus: "",
     minLaws: 0,
     minAuditScore: 0,
@@ -2245,15 +2247,16 @@ function packageAliasKey(value) {
 
 function filterMapUnits(units) {
   const packageUnitIds = state.mapFilters.packageOnly ? importedPackageMapStats(units).units : null;
+  const scoreBandMap = state.mapFilters.scoreField ? scoreBandLookupFor(units, state.mapFilters.scoreField) : new Map();
   return units.filter((unit) => {
     if (packageUnitIds && !packageUnitIds.has(unit.unit_id)) {
       return false;
     }
-    return unitMatchesMapFilters(unit);
+    return unitMatchesMapFilters(unit, scoreBandMap);
   });
 }
 
-function unitMatchesMapFilters(unit) {
+function unitMatchesMapFilters(unit, scoreBandMap = new Map()) {
   const auditQuality = unitAuditQualityFor(unit.unit_id);
   if (state.mapFilters.state && unit.state !== state.mapFilters.state) {
     return false;
@@ -2269,6 +2272,15 @@ function unitMatchesMapFilters(unit) {
   }
   if (state.mapFilters.kind && normalizePackageKind(unit.kind) !== state.mapFilters.kind) {
     return false;
+  }
+  if (state.mapFilters.scoreField) {
+    const value = Number(unit.model_score_means?.[state.mapFilters.scoreField]);
+    if (!Number.isFinite(value)) {
+      return false;
+    }
+    if (state.mapFilters.scoreBand && scoreBandMap.get(unit.unit_id) !== state.mapFilters.scoreBand) {
+      return false;
+    }
   }
   if (Number(unit.law_count || 0) < state.mapFilters.minLaws) {
     return false;
@@ -2298,6 +2310,8 @@ function renderMapFilters(units) {
     const definitions = state.analysis.mapLayers?.tier_definitions || {};
     return definitions[tier]?.label || tier;
   });
+  fillSelect(form.elements.score_field, SCORE_FIELDS, state.mapFilters.scoreField, "All score fields", scoreFieldLabel);
+  form.elements.score_band.value = state.mapFilters.scoreBand;
   form.elements.audit_focus.value = state.mapFilters.auditFocus;
   form.elements.min_laws.value = String(state.mapFilters.minLaws);
   form.elements.min_audit_score.value = String(state.mapFilters.minAuditScore);
@@ -2308,6 +2322,37 @@ function fillSelect(select, values, selected, emptyLabel, labeler = (value) => v
   select.innerHTML = `<option value="">${escapeHtml(emptyLabel)}</option>`;
   values.forEach((value) => select.append(new Option(labeler(value), value)));
   select.value = selected;
+}
+
+function scoreFieldLabel(field) {
+  return titleCase(field);
+}
+
+function scoreBandLabel(band) {
+  return {
+    low: "Low relative band",
+    middle: "Middle relative band",
+    high: "High relative band",
+  }[band] || band;
+}
+
+function scoreBandLookupFor(units, field) {
+  const rows = (units || [])
+    .map((unit, index) => ({ unit, index, value: Number(unit.model_score_means?.[field]) }))
+    .filter((row) => Number.isFinite(row.value))
+    .sort((a, b) => a.value - b.value || a.index - b.index);
+  const bands = new Map();
+  const count = rows.length;
+  rows.forEach((row, index) => {
+    const ratio = (index + 1) / Math.max(1, count);
+    const band = ratio <= 1 / 3 ? "low" : ratio <= 2 / 3 ? "middle" : "high";
+    bands.set(row.unit.unit_id, band);
+  });
+  return bands;
+}
+
+function scoreBandForUnit(unit, field, units = state.analysis.mapLayers?.units || []) {
+  return scoreBandLookupFor(units, field).get(unit.unit_id) || "";
 }
 
 function sortedKeys(units, key) {
@@ -2546,6 +2591,8 @@ function activeFilterLabels() {
   if (state.mapFilters.function) labels.push(`Function ${state.mapFilters.function}`);
   if (state.mapFilters.kind) labels.push(`Unit type ${titleCase(state.mapFilters.kind)}`);
   if (state.mapFilters.tier) labels.push(`Tier ${state.mapFilters.tier}`);
+  if (state.mapFilters.scoreField) labels.push(`Score ${scoreFieldLabel(state.mapFilters.scoreField)}`);
+  if (state.mapFilters.scoreBand) labels.push(`Score band ${scoreBandLabel(state.mapFilters.scoreBand)}`);
   if (state.mapFilters.minLaws) labels.push(`Min ${formatCount(state.mapFilters.minLaws)} laws`);
   if (state.mapFilters.auditFocus) labels.push(`Audit ${auditFocusLabel(state.mapFilters.auditFocus)}`);
   if (state.mapFilters.minAuditScore) labels.push(`Min audit ${formatNumber(state.mapFilters.minAuditScore)}`);
@@ -3153,6 +3200,24 @@ function applyTierMiniFilter(filterType, value) {
   render();
 }
 
+function applyTierScoreFilter(field, band = "high") {
+  if (!SCORE_FIELDS.includes(field)) {
+    return;
+  }
+  const scoreBand = ["low", "middle", "high"].includes(band) ? band : "high";
+  const tierKey = state.ontologyFocusTier;
+  state.mapFilters = {
+    ...state.mapFilters,
+    tier: tierKey || state.mapFilters.tier,
+    scoreField: field,
+    scoreBand,
+  };
+  state.selectedUnitId = null;
+  state.disclosureLevel = "unit";
+  state.activeTab = "map";
+  render();
+}
+
 function ontologyTierScoreChartHtml(scoreMeans) {
   const rows = SCORE_FIELDS
     .map((field) => ({ field, value: Number(scoreMeans?.[field]) }))
@@ -3177,12 +3242,13 @@ function ontologyTierScoreChartHtml(scoreMeans) {
 
 function ontologyTierScoreRowHtml(row, maxValue) {
   const width = Math.max(4, (Math.abs(Number(row.value || 0)) / Math.max(1, Number(maxValue || 1))) * 100);
+  const label = scoreFieldLabel(row.field);
   return `
-    <span class="ontology-tier-mini-bar score">
-      <strong>${escapeHtml(titleCase(row.field))}</strong>
+    <button type="button" class="ontology-tier-mini-bar score" data-tier-score-filter="${escapeHtml(row.field)}" data-tier-score-band="high" aria-label="Filter map to high relative ${escapeHtml(label)} band within this tier">
+      <strong>${escapeHtml(label)}</strong>
       <i><u style="width:${width.toFixed(2)}%"></u></i>
       <em>${escapeHtml(formatScore(row.value))}</em>
-    </span>
+    </button>
   `;
 }
 
@@ -3796,6 +3862,8 @@ function applyQuestionPackPrompt(promptId) {
     function: filters.function || state.mapFilters.function,
     kind: filters.kind || state.mapFilters.kind,
     tier: filters.tier || state.mapFilters.tier,
+    scoreField: filters.scoreField || filters.score_field || state.mapFilters.scoreField,
+    scoreBand: filters.scoreBand || filters.score_band || state.mapFilters.scoreBand,
     auditFocus: filters.auditFocus || state.mapFilters.auditFocus,
     packageOnly: typeof filters.packageOnly === "boolean" ? filters.packageOnly : state.mapFilters.packageOnly,
   };
@@ -6050,12 +6118,15 @@ function applyExplorerFilters(event) {
 function applyMapFilters(event) {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
+  const scoreField = String(form.get("score_field") || "");
   state.mapFilters = {
     state: String(form.get("state") || ""),
     topic: String(form.get("topic") || ""),
     function: String(form.get("function") || ""),
     kind: String(form.get("kind") || ""),
     tier: String(form.get("tier") || ""),
+    scoreField,
+    scoreBand: scoreField ? String(form.get("score_band") || "") : "",
     auditFocus: String(form.get("audit_focus") || ""),
     minLaws: Math.max(0, Number(form.get("min_laws") || 0)),
     minAuditScore: Math.max(0, Number(form.get("min_audit_score") || 0)),
@@ -6072,7 +6143,7 @@ function resetMapFilters() {
 }
 
 function defaultMapFilters() {
-  return { state: "", topic: "", function: "", kind: "", tier: "", auditFocus: "", minLaws: 0, minAuditScore: 0, packageOnly: false };
+  return { state: "", topic: "", function: "", kind: "", tier: "", scoreField: "", scoreBand: "", auditFocus: "", minLaws: 0, minAuditScore: 0, packageOnly: false };
 }
 
 function applyPackageMapFilter(action) {
@@ -7274,6 +7345,11 @@ function bindEvents() {
     const tierMiniFilterButton = event.target.closest("[data-tier-mini-filter]");
     if (tierMiniFilterButton) {
       applyTierMiniFilter(tierMiniFilterButton.dataset.tierMiniFilter, tierMiniFilterButton.dataset.tierMiniValue);
+      return;
+    }
+    const tierScoreFilterButton = event.target.closest("[data-tier-score-filter]");
+    if (tierScoreFilterButton) {
+      applyTierScoreFilter(tierScoreFilterButton.dataset.tierScoreFilter, tierScoreFilterButton.dataset.tierScoreBand);
       return;
     }
     const unitButton = event.target.closest("[data-package-ontology-unit]");

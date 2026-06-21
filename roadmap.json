@@ -82,6 +82,7 @@
         "Add tier-focus mini charts inside the ontology card",
         "Add browser-local map inquiry history snapshots",
         "Add tier mini-chart drilldown filters back to the map",
+        "Add neutral score-band drilldowns from tier mini charts",
         "Add aggregate-only map inquiry history export"
       ],
       "remaining_items": [

@@ -46,6 +46,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - tier-to-ontology clickthrough from neutral tier chips into a focused ontology context card for visible units, topic/function links, and score summaries;
 - tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology card;
 - tier-focus mini-chart drilldowns that return to the map with topic, function, or unit-type filters applied;
+- tier-focus score mini-chart drilldowns that return to the map with neutral relative score-band filters applied;
 - map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;
 - browser-local map inquiry history JSON export with sanitized aggregate entries and policy metadata;

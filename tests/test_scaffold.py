@@ -136,6 +136,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-comparison-grid" in html
     assert "Unit type" in html
     assert 'name="kind"' in html
+    assert "Score field" in html
+    assert 'name="score_field"' in html
+    assert "Score band" in html
+    assert 'name="score_band"' in html
+    assert "Low relative band" in html
+    assert "Middle relative band" in html
+    assert "High relative band" in html
     assert "package-map-summary" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
@@ -266,10 +273,18 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontologyTierBarChartHtml" in js
     assert "ontologyTierScoreChartHtml" in js
     assert "applyTierMiniFilter" in js
+    assert "applyTierScoreFilter" in js
     assert "data-tier-mini-filter" in js
     assert "data-tier-mini-value" in js
+    assert "data-tier-score-filter" in js
+    assert "data-tier-score-band" in js
     assert "mapFilters.kind" in js
+    assert "mapFilters.scoreField" in js
+    assert "mapFilters.scoreBand" in js
     assert "form.elements.kind" in js
+    assert "form.elements.score_field" in js
+    assert "scoreBandForUnit" in js
+    assert "scoreBandLabel" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "inquiryPromptCards" in js

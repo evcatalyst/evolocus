@@ -30,6 +30,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontology-tier-focus" in html
     assert "Unit type" in html
     assert 'name="kind"' in html
+    assert "Score field" in html
+    assert 'name="score_field"' in html
+    assert "Score band" in html
+    assert 'name="score_band"' in html
+    assert "High relative band" in html
     assert "Imported package units" in html
     assert "Load Demo Package" in html
     assert "localStorage" in js
@@ -100,10 +105,18 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontologyTierBarChartHtml" in js
     assert "ontologyTierScoreChartHtml" in js
     assert "applyTierMiniFilter" in js
+    assert "applyTierScoreFilter" in js
     assert "data-tier-mini-filter" in js
     assert "data-tier-mini-value" in js
+    assert "data-tier-score-filter" in js
+    assert "data-tier-score-band" in js
     assert "mapFilters.kind" in js
+    assert "mapFilters.scoreField" in js
+    assert "mapFilters.scoreBand" in js
     assert "form.elements.kind" in js
+    assert "form.elements.score_field" in js
+    assert "scoreBandForUnit" in js
+    assert "scoreBandLabel" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "renderWalkthrough" in js
@@ -175,4 +188,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "loadSnapshotView" in js
     assert "auditGateSummary" in js
     assert "auditOcrBarsHtml" in js
+    assert "api.x.ai" not in js
+    assert "GROK_API_KEY" not in js
+    assert "Grok_api_key" not in js
     assert "fetchAnalysisArtifacts" in js

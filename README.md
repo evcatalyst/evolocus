@@ -64,6 +64,7 @@ The Pages app supports:
 - tier-to-ontology clickthrough from the map guide into a focused neutral-tier context card;
 - tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means;
 - tier-focus mini-chart drilldowns that apply map filters for topic, function, and unit type;
+- neutral score-band drilldowns from tier mini charts into relative model-score map filters;
 - map-side chat-style inquiry panel for current filters, selected unit, audit signals, score profile, and browser-local package overlay;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, and comparison rows;
 - browser-local map inquiry history JSON export with aggregate-only policy metadata;

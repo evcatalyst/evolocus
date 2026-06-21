@@ -42,6 +42,7 @@ flowchart LR
 - Tier chips in the map guide click through to an ontology tier-focus card that summarizes visible units, topic/function links, neutral score means, and filter context.
 - The tier-focus ontology card includes mini charts for topic mix, function mix, unit type mix, and neutral score means under the current filters.
 - Topic, function, and unit-type mini-chart bars can drill back into the map by applying aggregate filters; this changes only browser state and does not publish rows.
+- Neutral score mini-chart rows can drill back into relative score-band map filters; score direction remains unverified and no burden, ranking, or legal meaning is inferred.
 - The map card also includes a chat-style inquiry panel that reuses static aggregate answer functions for current filters, selected unit, audit signals, model-score profile, and browser-local package overlay.
 - Map-side inquiry history snapshots are stored only in browser localStorage and include aggregate prompt context, filters, selected unit metadata, package counts, and comparison rows without text, source locators, review events, or browser LLM calls.
 - Map-side inquiry history can be exported as JSON with sanitized aggregate entries and explicit no-text/no-locator/no-review-event policy metadata.

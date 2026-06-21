@@ -95,6 +95,7 @@ Current coverage stats:
 - Tier-to-ontology clickthrough: GitHub Pages tier chips open a focused ontology card with visible units, topic/function links, neutral score means, and current filter context
 - Tier-focus mini charts: GitHub Pages ontology focus cards show aggregate topic mix, function mix, unit type mix, and neutral score means for the active tier
 - Tier mini-chart drilldowns: GitHub Pages topic, function, and unit-type bars apply browser map filters and return to the county/town map
+- Score-band drilldowns: GitHub Pages neutral score mini-chart rows apply relative model-score band filters and return to the county/town map without directional legal interpretation
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows
 - Map inquiry history export: GitHub Pages exports sanitized aggregate answer history JSON with no text, locators, review events, local paths, or secrets
@@ -194,6 +195,7 @@ Latest update:
 - Added tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology focus card.
 - Added browser-local map inquiry history snapshots for aggregate answers, filters, selected unit context, package counts, and comparison rows.
 - Added tier mini-chart drilldown filters that return from ontology context to the map with topic, function, or unit type applied.
+- Added neutral score-band drilldowns from ontology score mini charts back into the map filters.
 - Added aggregate-only map inquiry history export with sanitized entries and explicit no-text/no-locator/no-review-event policy metadata.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
