@@ -423,7 +423,8 @@ function renderMap() {
     state.selectedUnitId = units[0].unit_id;
   }
 
-  $("#law-map").innerHTML = units.map(unitSvg).join("");
+  $("#law-map").setAttribute("viewBox", mapLayers.view_box || "0 0 100 100");
+  $("#law-map").innerHTML = `${(mapLayers.state_centers || []).map(stateCenterSvg).join("")}${units.map(unitSvg).join("")}`;
   $("#map-unit-table tbody").innerHTML = units
     .map(
       (unit) => `
@@ -473,6 +474,15 @@ function renderAnalysisStatus(status, units) {
       `<article class="metric-card"><span class="metric-value small">${units.length}</span><span class="metric-label">Rendered units</span></article>`,
     );
   }
+}
+
+function stateCenterSvg(center) {
+  return `
+    <g class="state-anchor" aria-hidden="true">
+      <circle cx="${Number(center.x || 0)}" cy="${Number(center.y || 0)}" r="4.2"></circle>
+      <text x="${Number(center.x || 0)}" y="${Number(center.y || 0) + 0.45}">${escapeHtml(center.state)}</text>
+    </g>
+  `;
 }
 
 function unitSvg(unit) {

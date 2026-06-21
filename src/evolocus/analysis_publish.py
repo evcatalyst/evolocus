@@ -6,6 +6,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,61 @@ from .locus_source import LocusCorpus, current_commit
 ANALYSIS_SCHEMA_VERSION = "evolocus-static-analysis-v1"
 MODEL_REGISTRY_VERSION = "evolocus-model-registry-v1"
 DEFAULT_OUTPUT_DIR = Path("site/data/analysis")
+MAP_VIEW_BOX = "0 0 100 86"
+
+STATE_TILE_COORDS = {
+    "AK": (0, 6),
+    "AL": (8, 4),
+    "AR": (6, 3),
+    "AZ": (2, 3),
+    "CA": (1, 2),
+    "CO": (4, 2),
+    "CT": (13, 2),
+    "DC": (11, 3),
+    "DE": (11, 3),
+    "FL": (9, 5),
+    "GA": (9, 4),
+    "HI": (1, 7),
+    "IA": (6, 1),
+    "ID": (2, 1),
+    "IL": (7, 1),
+    "IN": (8, 1),
+    "KS": (5, 2),
+    "KY": (8, 2),
+    "LA": (6, 4),
+    "MA": (13, 1),
+    "MD": (10, 3),
+    "ME": (14, 0),
+    "MI": (7, 0),
+    "MN": (5, 0),
+    "MO": (6, 2),
+    "MS": (7, 4),
+    "MT": (3, 0),
+    "NC": (10, 3),
+    "ND": (4, 0),
+    "NE": (5, 1),
+    "NH": (13, 0),
+    "NJ": (11, 2),
+    "NM": (4, 3),
+    "NV": (2, 2),
+    "NY": (11, 0),
+    "OH": (9, 1),
+    "OK": (5, 3),
+    "OR": (1, 1),
+    "PA": (10, 1),
+    "RI": (14, 2),
+    "SC": (10, 4),
+    "SD": (4, 1),
+    "TN": (8, 3),
+    "TX": (5, 4),
+    "UT": (3, 2),
+    "VA": (10, 2),
+    "VT": (12, 0),
+    "WA": (1, 0),
+    "WI": (6, 0),
+    "WV": (9, 2),
+    "WY": (3, 1),
+}
 
 TIER_DEFINITIONS = {
     "no_data": {
@@ -119,8 +175,15 @@ def publish_analysis_artifacts(
     rows = _collect_aggregate_rows(corpus, max_units=max_units)
     samples = _collect_samples(corpus, rows, include_samples=include_samples)
     tier_thresholds = _tier_thresholds(rows)
+    state_ordinals = _state_ordinals(rows)
     units = [
-        _unit_from_row(index, row, samples.get(row["unit_id"], []), tier_thresholds=tier_thresholds)
+        _unit_from_row(
+            index,
+            row,
+            samples.get(row["unit_id"], []),
+            tier_thresholds=tier_thresholds,
+            state_position=state_ordinals[row["unit_id"]],
+        )
         for index, row in enumerate(rows)
     ]
     ontology = _ontology_artifact(units)
@@ -287,11 +350,12 @@ def _unit_from_row(
     samples: list[dict[str, Any]],
     *,
     tier_thresholds: tuple[float, float] | None,
+    state_position: tuple[int, int],
 ) -> dict[str, Any]:
     means = {field: _clean_float(row.get(f"{field}_mean")) for field in SCORE_FIELDS}
     tier_score = _tier_score(means)
     tier = _tier_for_score(tier_score, row.get("law_count") or 0, thresholds=tier_thresholds)
-    layout = _layout_for_index(index, row.get("jurisdiction_type_normalized"))
+    layout = _layout_for_unit(index, row, state_position=state_position)
     return {
         "unit_id": row["unit_id"],
         "name": row.get("jurisdiction_name") or "Unknown jurisdiction",
@@ -316,23 +380,65 @@ def _unit_from_row(
     }
 
 
-def _layout_for_index(index: int, kind: str | None) -> dict[str, Any]:
-    column = index % 8
-    row = index // 8
+def _state_ordinals(rows: list[dict[str, Any]]) -> dict[str, tuple[int, int]]:
+    counts: Counter[str] = Counter(str(row.get("state_normalized") or "unknown") for row in rows)
+    seen: Counter[str] = Counter()
+    positions: dict[str, tuple[int, int]] = {}
+    for row in rows:
+        state = str(row.get("state_normalized") or "unknown")
+        positions[row["unit_id"]] = (seen[state], counts[state])
+        seen[state] += 1
+    return positions
+
+
+def _layout_for_unit(index: int, row: dict[str, Any], *, state_position: tuple[int, int]) -> dict[str, Any]:
+    kind = row.get("jurisdiction_type_normalized")
+    center = _state_center(row.get("state_normalized"), index)
+    ordinal, total = state_position
+    if total <= 1:
+        radius = 0.0
+    else:
+        radius = min(4.8, 0.55 + 4.4 * math.sqrt((ordinal + 1) / total))
+    angle = ordinal * 2.399963229728653
+    x = _clamp(center["x"] + math.cos(angle) * radius, 2.0, 98.0)
+    y = _clamp(center["y"] + math.sin(angle) * radius, 3.0, 82.0)
+    law_count = max(0, int(row.get("law_count") or 0))
+    scale = min(1.0, math.log10(law_count + 1) / 4.0)
     if kind == "city":
         return {
             "type": "point",
-            "x": 8 + column * 11 + 5,
-            "y": 12 + row * 15 + 6,
-            "r": 3.8,
+            "x": round(x, 3),
+            "y": round(y, 3),
+            "r": round(1.0 + scale * 1.4, 3),
         }
+    width = 1.5 + scale * 1.9
+    height = width * 0.82
     return {
         "type": "tile",
-        "x": 6 + column * 11,
-        "y": 10 + row * 15,
-        "w": 9,
-        "h": 11,
+        "x": round(_clamp(x - width / 2, 1.0, 98.0), 3),
+        "y": round(_clamp(y - height / 2, 2.0, 83.0), 3),
+        "w": round(width, 3),
+        "h": round(height, 3),
     }
+
+
+def _state_center(state: Any, index: int | None = None) -> dict[str, float]:
+    state_code = str(state or "").upper()
+    if state_code in STATE_TILE_COORDS:
+        column, row = STATE_TILE_COORDS[state_code]
+    else:
+        fallback = 0 if index is None else index
+        column, row = fallback % 12, 7
+    return {"x": round(4.5 + column * 6.4, 3), "y": round(7.0 + row * 9.4, 3)}
+
+
+def _state_centers(units: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    states = sorted({unit.get("state") for unit in units if unit.get("state") in STATE_TILE_COORDS})
+    return [{"state": state, **_state_center(state)} for state in states]
+
+
+def _clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
 
 
 def _tier_score(means: dict[str, float | None]) -> float | None:
@@ -393,10 +499,15 @@ def _map_layers_artifact(corpus: LocusCorpus, units: list[dict[str, Any]], *, sy
         "dataset_revision": corpus.config.dataset_revision,
         "data_mode": corpus.config.mode,
         "synthetic": synthetic,
-        "geometry_status": "abstract_layout_until_reviewed_geometries_available",
+        "geometry_status": "state_clustered_approximate_layout_until_reviewed_county_town_geometries_available",
+        "view_box": MAP_VIEW_BOX,
+        "state_centers": _state_centers(units),
         "tier_definitions": TIER_DEFINITIONS,
         "units": units,
-        "notice": "Tiers are neutral analysis bands, not legal rankings or findings.",
+        "notice": (
+            "Positions are approximate state clusters until reviewed county/town geometries are added. "
+            "Tiers are neutral analysis bands, not legal rankings or findings."
+        ),
     }
 
 

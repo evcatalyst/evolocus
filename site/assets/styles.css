@@ -420,9 +420,27 @@ textarea {
   background-size: 40px 40px;
 }
 
+.state-anchor {
+  pointer-events: none;
+}
+
+.state-anchor circle {
+  fill: rgba(255, 255, 255, 0.52);
+  stroke: rgba(76, 92, 112, 0.22);
+  stroke-width: 0.25;
+}
+
+.state-anchor text {
+  fill: rgba(31, 42, 60, 0.48);
+  font-size: 1.65px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
 .map-unit {
   stroke: rgba(23, 32, 51, 0.55);
-  stroke-width: 0.35;
+  stroke-width: 0.18;
   cursor: pointer;
 }
 

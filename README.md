@@ -8,7 +8,7 @@ EvoLOCUS is an open-source, local-first platform for reviewing and enriching the
 - Primary user surface: GitHub Pages browser workbench from `site/`
 - Evaluator MVP: complete for synthetic browser demo validation
 - Real LOCUS local shard download: complete in ignored `data/raw/`
-- Real LOCUS aggregate visual publish: complete for top 1,000 jurisdiction units
+- Real LOCUS aggregate visual publish: complete for top 1,000 state-clustered jurisdiction units
 - Real LOCUS evaluation: not started
 - Data state: no real LOCUS rows or ordinance text committed or published
 - Completion method: phase checklist, not weighted overall percentage
@@ -29,7 +29,7 @@ The LOCUS-v1 Hugging Face dataset card identifies the dataset as Parquet and CC-
 
 The Pages app supports:
 
-- county/town-style law map units colored by neutral tier;
+- state-clustered county/town law map units colored by neutral tier;
 - analysis status from published static JSON artifacts;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - static inquiry over current analysis artifacts;
@@ -116,7 +116,7 @@ PYTHONPATH=src python -m evolocus.cli publish-analysis \
   --output data/exports/analysis-preview
 ```
 
-The current public `site/data/analysis/` artifacts are aggregate-only LOCUS outputs generated from local Parquet with Polars. They include no ordinance text, no raw LOCUS rows, no local evaluation database, and no exported review history. Regenerate into `data/exports/analysis-preview` first, inspect the JSON for text/secrets, then copy only the reviewed aggregate artifacts into `site/data/analysis/`.
+The current public `site/data/analysis/` artifacts are aggregate-only LOCUS outputs generated from local Parquet with Polars. The map uses approximate state-clustered positions until reviewed county/town geometries are added. The artifacts include no ordinance text, no raw LOCUS rows, no local evaluation database, and no exported review history. Regenerate into `data/exports/analysis-preview` first, inspect the JSON for text/secrets, then copy only the reviewed aggregate artifacts into `site/data/analysis/`.
 
 Audit demo or local Parquet:
 

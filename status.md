@@ -65,17 +65,17 @@ Current coverage stats:
 - Databases created: 0
 - Embeddings created: 0
 - Real civic findings published: 0
-- Static site data: aggregate-only LOCUS map, ontology, model, inquiry, chart, and status artifacts
+- Static site data: aggregate-only LOCUS state-clustered map, ontology, model, inquiry, chart, and status artifacts
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
 - Queue records created from real LOCUS data: 0
 - Evaluator code: complete
 - Synthetic end-to-end validation: complete
 - Primary UI: GitHub Pages browser workbench
-- Static analysis artifacts: real aggregate preview generated with Polars and published without raw rows or ordinance text
+- Static analysis artifacts: real aggregate state-clustered preview generated with Polars and published without raw rows or ordinance text
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
-- Real LOCUS aggregate scan: run for top 1,000 jurisdiction units; artifact law count 1,517,672 within the published unit cap
+- Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
 - Real LOCUS evaluation: not started
 
 Verified LOCUS source:
@@ -87,7 +87,7 @@ Verified LOCUS source:
 
 Beautiful next visualization idea:
 
-A full-screen national coverage atlas that upgrades the current abstract aggregate tile map into reviewed county and town geometries, still using neutral tiers and progressive disclosure with no ordinance text published.
+A full-screen national coverage atlas that upgrades the current approximate state-clustered aggregate map into reviewed county and town geometries, still using neutral tiers and progressive disclosure with no ordinance text published.
 
 Latest update:
 
@@ -101,13 +101,14 @@ Latest update:
 - Promoted GitHub Pages from a static status page to the primary browser-based evaluator surface with localStorage review history and explicit exports.
 - Added static analysis artifacts for law map tiers, ontology, model-output registry, status, charts, publication gates, progressive disclosure, and browser inquiry.
 - Generated aggregate LOCUS visual artifacts from local Parquet in ignored storage, safety-checked them for raw text fields, and copied only aggregate JSON into the Pages data layer.
+- Replaced the offscreen abstract unit list with a bounded state-clustered map artifact containing 50 state anchors and all published unit coordinates inside the SVG view box.
 
 Evaluator implementation state:
 
 - Evaluator code: complete
 - Synthetic end-to-end validation: complete
 - Real LOCUS full ingest/audit manifest: not run
-- Real LOCUS aggregate visual publish: complete for top 1,000 jurisdiction units
+- Real LOCUS aggregate visual publish: complete for top 1,000 state-clustered jurisdiction units
 - Real LOCUS evaluation: not started
 - Default exports omit ordinance text
 - Primary evaluator surface: GitHub Pages browser app

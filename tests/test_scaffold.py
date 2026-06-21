@@ -114,10 +114,19 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
     assert map_layers["synthetic"] is False
-    assert map_layers["geometry_status"] == "abstract_layout_until_reviewed_geometries_available"
+    assert (
+        map_layers["geometry_status"]
+        == "state_clustered_approximate_layout_until_reviewed_county_town_geometries_available"
+    )
+    assert map_layers["view_box"] == "0 0 100 86"
+    assert len(map_layers["state_centers"]) >= 40
     assert len(map_layers["units"]) <= 1000
     assert all(not unit.get("samples") for unit in map_layers["units"])
     assert len({unit["tier"] for unit in map_layers["units"]}) >= 2
+    for unit in map_layers["units"]:
+        layout = unit["layout"]
+        assert 0 <= layout["x"] <= 100
+        assert 0 <= layout["y"] <= 86
     assert models["import_policy"]["status"] == "released_dataset_outputs_imported"
     assert models["grok"]["forbidden_use"] == "embedding the key in GitHub Pages JavaScript"
     assert charts["synthetic"] is False

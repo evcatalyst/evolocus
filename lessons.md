@@ -23,3 +23,4 @@
 - `GROK_API_KEY` can be a GitHub secret for offline artifact generation, but it must never be embedded in Pages assets.
 - Real LOCUS aggregate visuals can be published to GitHub Pages only after a local safety scan confirms the artifacts contain no raw `header`, `content`, record text, SQLite state, exports, secrets, or machine paths.
 - For aggregate publication, derive jurisdiction units and neutral tiers with Polars, publish bounded unit summaries, and keep source Parquet under ignored `data/raw/`.
+- Until reviewed FIPS/geometry crosswalks exist, state-clustered map coordinates are an explicit approximation and must be labeled as such in the artifact metadata.

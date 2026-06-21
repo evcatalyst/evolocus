@@ -9,7 +9,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 ## Pages Features
 
 - synthetic demo queue;
-- law map with county/town-style units colored by neutral tier;
+- law map with state-clustered county/town-style units colored by neutral tier;
 - ontology and model-output registry views;
 - static inquiry over published analysis artifacts;
 - aggregate chart panels and publication gates;
@@ -72,7 +72,7 @@ PYTHONPATH=src python -m evolocus.cli publish-analysis \
   --output data/exports/analysis-preview
 ```
 
-Only copy reviewed, license-compliant, non-text aggregate artifacts into `site/data/analysis/`. The current public artifacts are real LOCUS aggregates for a capped top-1,000 jurisdiction-unit layer; they omit raw rows, ordinance text, local SQLite state, and local exports.
+Only copy reviewed, license-compliant, non-text aggregate artifacts into `site/data/analysis/`. The current public artifacts are real LOCUS aggregates for a capped top-1,000 jurisdiction-unit layer with approximate state-clustered positions; they omit raw rows, ordinance text, local SQLite state, and local exports.
 
 ## Support CLI
 

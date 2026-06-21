@@ -56,14 +56,14 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 `src/evolocus/analysis_publish.py` generates:
 
 - `status.json`: analysis state, dataset revision, public-data flags, Grok policy.
-- `map_layers.json`: county/town-style units, neutral tier colors, law counts, model-score summaries.
+- `map_layers.json`: state-clustered county/town-style units, neutral tier colors, law counts, model-score summaries.
 - `ontology.json`: topics, functions, score dimensions, tiers, and jurisdiction-unit edges.
 - `models.json`: imported LOCUS released model outputs and model-import policy.
 - `chat_index.json`: deterministic inquiry entries for the browser chat panel.
 
 Map tiers are review-priority bands over available model-score summaries and law counts. They are not rankings of legal burden, legality, freedom, or civic performance.
 
-The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It is intentionally abstract geometry until reviewed county/town geometry crosswalks are added.
+The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 
 ## Grok Integration Boundary
 

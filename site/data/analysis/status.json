@@ -1,11 +1,11 @@
 {
   "analysis_state": "local_aggregate_ready",
   "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
-  "code_commit": "d284907a114474fed94e5eaf64de355b5f24a9df",
+  "code_commit": "ac58c77065b83bba71c43bbe3c24a9c0771c3d64",
   "data_mode": "local",
   "dataset_id": "LocalLaws/LOCUS-v1",
   "dataset_revision": "main",
-  "generated_at": "2026-06-21T15:29:13.505795+00:00",
+  "generated_at": "2026-06-21T15:37:25.327380+00:00",
   "grok_browser_policy": "Grok API keys must never be embedded in GitHub Pages JavaScript.",
   "grok_secret_name": "GROK_API_KEY",
   "law_count": 1517672,
