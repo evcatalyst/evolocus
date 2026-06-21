@@ -1,29 +1,31 @@
 # EvoLOCUS Architecture
 
-EvoLOCUS is a local-first evaluation and analytics platform for LOCUS-v1.
+EvoLOCUS is now Pages-first for user interaction. GitHub Pages is the primary and only supported user-facing surface for this milestone.
 
 Current evaluator architecture:
 
 ```mermaid
 flowchart LR
-  A["LOCUS Parquet"] --> B["Polars lazy corpus service"]
-  B --> C["Validation and derived metadata"]
-  C --> D["Reproducible queue sampler"]
-  D --> E["Bounded queue snapshot in SQLite"]
-  E --> F["Streamlit human review"]
-  F --> G["Append-only review events"]
-  G --> H["Evaluation metrics and exports"]
+  A["Synthetic demo or bounded queue JSON"] --> B["GitHub Pages browser app"]
+  B --> C["Blinded human review form"]
+  C --> D["Append-only localStorage review events"]
+  D --> E["Browser metrics and disagreement summaries"]
+  D --> F["User-triggered CSV/JSON exports"]
+  G["LOCUS Parquet support tooling"] --> H["Polars lazy validation and sampling"]
+  H --> I["Bounded queue/export packages"]
+  I --> A
 ```
 
 ## Current Milestone
 
-- Polars is the primary corpus engine.
-- Parquet is read lazily from demo or local modes.
-- SQLite stores mutable evaluation state, not a copy of the full corpus.
-- Streamlit runs the local human-evaluation workbench.
-- GitHub Pages remains static documentation only.
+- GitHub Pages serves the workbench from `site/`.
+- Browser JavaScript handles queue review, explorer filters, metrics, local persistence, and exports.
+- Browser storage is local to the reviewer and is not a shared database.
+- Demo mode is synthetic and conspicuously labeled.
+- Real LOCUS rows are not published through Pages.
+- Polars remains the support engine for local Parquet validation and queue preparation.
 
-## Corpus Layer
+## Corpus Support Layer
 
 `src/evolocus/locus_source.py` supports:
 
@@ -33,29 +35,21 @@ flowchart LR
 
 Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_locator`, normalized jurisdiction metadata, content lengths, content hash, and OCR-risk flags are added separately.
 
-## Evaluation Layer
+## Browser Evaluation Layer
 
-`src/evolocus/evaluation_db.py` owns SQLite migrations and append-only review events. Queue items snapshot bounded selected text and model metadata so a queue is reproducible and resumable without copying the full 2.2M-row corpus into SQLite.
+`site/assets/app.js` owns the public workbench behavior:
 
-## UI Layer
+- append-only review events in localStorage;
+- blinded model output by default;
+- explicit reveal logging;
+- review save, save-next, skip, and flag actions;
+- bounded queue import through the browser File API;
+- content-free latest-review CSV export;
+- review-event JSON export.
 
-Run locally:
+## Optional Support Components
 
-```bash
-EVOLOCUS_MODE=demo streamlit run dashboards/app.py
-```
-
-Pages:
-
-- Review Queue
-- Dataset Explorer
-- Evaluation Results
-- Protocol and Provenance
-
-Every frontend surface includes research-only, OCR, model-label, current-law, and CC-BY-NC-4.0 notices.
-
-## Optional Future Components
-
+- SQLite: local support workflows and reproducible queue snapshots.
 - DuckDB: optional ad hoc analytical SQL after evaluator MVP.
 - LanceDB: optional semantic retrieval after human evaluation exists.
 - Postgres: optional multi-user review store later.

@@ -18,7 +18,8 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - SQLite review stores must stay in `data/evaluation/`, which is ignored by git.
 - Evaluation exports must stay in `data/exports/`, which is ignored by git.
 - Default exports omit full ordinance content and include source locators for authorized local joins.
-- Streamlit runs locally and must not be published through GitHub Pages.
+- GitHub Pages is the primary user surface and must not publish real LOCUS rows, generated local databases, or real evaluation exports.
+- Browser review events stay in localStorage until the reviewer explicitly exports them.
 
 ## Future Real Data Rules
 

@@ -10,7 +10,7 @@
       "status": "complete",
       "completed_items": [
         "Reviewable project scaffold",
-        "Static GitHub Pages companion site",
+        "Static GitHub Pages site",
         "Scaffold validation tests",
         "Standalone git repository",
         "GitHub Pages workflow definition"
@@ -27,8 +27,9 @@
         "Draft production Local Law Analytics Platform architecture and starter code",
         "Implement Polars-first evaluator vertical slice",
         "Complete mandatory synthetic validation",
-        "Run bounded Streamlit demo smoke test",
-        "Refresh GitHub Pages companion site for evaluator MVP status"
+        "Run bounded browser demo smoke test",
+        "Refresh GitHub Pages evaluator status",
+        "Promote GitHub Pages to primary browser evaluator surface"
       ],
       "remaining_items": [
         "Run real LOCUS local-Parquet audit when user supplies or downloads source shards",
@@ -37,13 +38,13 @@
     },
     {
       "id": 2,
-      "name": "Streamlit dashboards",
+      "name": "GitHub Pages dashboard extensions",
       "status": "planned",
       "completed_items": [],
       "remaining_items": [
-        "Collection Dashboard",
-        "Informatics Manager",
-        "GeoViz landing page"
+        "Collection Dashboard in browser app",
+        "Informatics Manager in browser app",
+        "GeoViz landing page in browser app"
       ]
     },
     {

@@ -18,7 +18,8 @@ EvoLOCUS is a local-first civic law data platform. Treat provenance, licensing, 
 - Prefer validation failures over silent filtering.
 - Add tests before changing provenance, publication, or ingestion behavior.
 - Respect robots.txt, terms of service, rate limits, and public-source boundaries before any scrape.
-- Keep GitHub Pages static and dependency-light; the interactive Streamlit app is a separate runtime.
+- Keep GitHub Pages static and dependency-light; it is the primary and only supported user-facing surface.
+- Python tools may prepare local data or exports, but they are support tooling rather than the user UI.
 - For the evaluator MVP, Polars is the primary corpus engine and SQLite stores mutable review state.
 - Do not add DuckDB, embeddings, RAG, Census enrichment, or public real-data maps to the required evaluator path.
 - Human evaluation must be blinded by default.

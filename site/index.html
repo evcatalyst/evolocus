@@ -3,160 +3,287 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>EvoLOCUS</title>
-    <meta name="description" content="EvoLOCUS static companion site for a local-first LOCUS evaluation workbench.">
+    <title>EvoLOCUS Workbench</title>
+    <meta name="description" content="EvoLOCUS browser-based local law evaluation workbench for GitHub Pages.">
     <link rel="stylesheet" href="assets/styles.css">
+    <script src="assets/app.js" defer></script>
   </head>
   <body>
-    <header class="site-header">
+    <header class="app-header">
       <nav class="nav" aria-label="Primary">
         <a class="brand" href="./">EvoLOCUS</a>
-        <div class="nav-links">
-          <a href="#status">Status</a>
-          <a href="#run">Run locally</a>
-          <a href="#architecture">Architecture</a>
-          <a href="#preview">Synthetic Preview</a>
-          <a href="#citation">Citation</a>
+        <div class="nav-links" role="list">
+          <button class="tab-link active" type="button" data-tab="review">Review Queue</button>
+          <button class="tab-link" type="button" data-tab="explorer">Dataset Explorer</button>
+          <button class="tab-link" type="button" data-tab="results">Evaluation Results</button>
+          <button class="tab-link" type="button" data-tab="protocol">Protocol</button>
         </div>
       </nav>
       <section class="hero">
-        <p class="eyebrow">Local-first LOCUS evaluation workbench</p>
-        <h1>Review local-law model outputs before analysis becomes a finding.</h1>
+        <p class="eyebrow">GitHub Pages workbench</p>
+        <h1>Blinded LOCUS evaluation in the browser.</h1>
         <p class="lede">
-          Phase 1 now includes a Polars-first, Streamlit-based human evaluation MVP with blinded review,
-          reproducible sampling queues, SQLite review history, bounded exports, and synthetic demo mode.
+          This public site is the primary EvoLOCUS user surface. It runs entirely in your browser using
+          synthetic demonstration data by default, local browser storage for review history, and explicit exports.
         </p>
-        <div class="status-strip" aria-label="Evaluator status summary">
-          <span>Evaluator MVP complete</span>
-          <span>Synthetic validation passed</span>
+        <div class="status-strip" aria-label="Workbench status summary">
+          <span>Pages-first UI</span>
+          <span>Synthetic only by default</span>
+          <span>No server database</span>
           <span>No real LOCUS rows published</span>
         </div>
       </section>
     </header>
 
     <main>
-      <section class="notice" aria-label="Static site notice">
-        <strong>GitHub Pages is static.</strong>
-        The interactive Streamlit evaluator does not run on this page. Use the local command below to open the workbench.
-        This public site contains no real LOCUS records, evaluation database, exports, credentials, or civic findings.
+      <section class="notice" aria-label="Legal and data notice">
+        <strong>Research use only. Not legal advice.</strong>
+        This site stores reviews only in your browser unless you export them. Displayed demo records are synthetic.
+        Real LOCUS text may contain OCR errors, model labels and scores are not legal facts, the corpus is not complete
+        or continuously current, and users should consult official legal sources. LOCUS-v1 is licensed CC-BY-NC-4.0.
       </section>
 
-      <section id="status" class="section">
+      <section class="toolbar" aria-label="Workbench controls">
+        <label>
+          Reviewer ID
+          <input id="reviewer-input" type="text" autocomplete="off" value="local-reviewer">
+        </label>
+        <label>
+          Dataset mode
+          <select id="mode-select">
+            <option value="demo">Synthetic demo</option>
+            <option value="imported">Imported bounded queue</option>
+          </select>
+        </label>
+        <label class="checkbox-label">
+          <input id="blind-toggle" type="checkbox" checked>
+          Blind review
+        </label>
+        <button id="seed-demo" type="button">Reset Demo Queue</button>
+        <label class="file-button">
+          Import Queue JSON
+          <input id="queue-import" type="file" accept="application/json,.json">
+        </label>
+        <button id="export-latest" type="button">Export Latest CSV</button>
+        <button id="export-events" type="button">Export Events JSON</button>
+      </section>
+
+      <section id="review-panel" class="panel active" aria-labelledby="review-heading">
         <div class="section-heading">
-          <p class="eyebrow">Current implementation state</p>
-          <h2>Evaluator is built; real-data evaluation has not started.</h2>
+          <p class="eyebrow">Review Queue</p>
+          <h2 id="review-heading">Inspect, label, save, skip, flag, and resume.</h2>
         </div>
-        <div class="metric-grid">
-          <article class="metric-card">
-            <span class="metric-value">27</span>
-            <span class="metric-label">Synthetic and scaffold tests passing</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-value">0</span>
-            <span class="metric-label">Real LOCUS records downloaded or published</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-value">4</span>
-            <span class="metric-label">Local Streamlit evaluator pages</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-value">1</span>
-            <span class="metric-label">Append-only SQLite review store</span>
-          </article>
-        </div>
-      </section>
 
-      <section id="run" class="section split">
-        <div>
-          <p class="eyebrow">Run locally</p>
-          <h2>Start the demo evaluator with no network and no real corpus.</h2>
-          <p>
-            Demo mode uses unmistakably synthetic records and supports the full review workflow:
-            queue selection, blinded labels, save, skip, flag, corrections, metrics, and exports.
-          </p>
+        <div class="metric-grid compact">
+          <article class="metric-card">
+            <span id="metric-total" class="metric-value">0</span>
+            <span class="metric-label">Queue items</span>
+          </article>
+          <article class="metric-card">
+            <span id="metric-reviewed" class="metric-value">0</span>
+            <span class="metric-label">Reviewed</span>
+          </article>
+          <article class="metric-card">
+            <span id="metric-flagged" class="metric-value">0</span>
+            <span class="metric-label">Flagged</span>
+          </article>
+          <article class="metric-card">
+            <span id="metric-remaining" class="metric-value">0</span>
+            <span class="metric-label">Remaining</span>
+          </article>
         </div>
-        <div class="command-panel" aria-label="Local run commands">
-          <p class="command-label">Demo mode</p>
-          <pre><code>python -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
-EVOLOCUS_MODE=demo streamlit run dashboards/app.py</code></pre>
-          <p class="command-label">Local LOCUS Parquet mode</p>
-          <pre><code>EVOLOCUS_MODE=local \
-EVOLOCUS_DATA_GLOB='data/raw/locus-v1/&lt;revision&gt;/**/*.parquet' \
-streamlit run dashboards/app.py</code></pre>
-        </div>
-      </section>
 
-      <section id="architecture" class="section split">
-        <div>
-          <p class="eyebrow">Architecture</p>
-          <h2>Polars reads the corpus; SQLite preserves human review state.</h2>
-          <p>
-            The evaluator keeps raw LOCUS fields intact, adds derived metadata separately, samples bounded queues,
-            and writes reviewer actions as append-only events. DuckDB, embeddings, Census enrichment, RAG, and maps
-            remain optional future work after the evaluation layer is proven.
-          </p>
-        </div>
-        <ol class="flow-list">
-          <li><span>1</span> LOCUS Parquet or synthetic demo records.</li>
-          <li><span>2</span> Polars lazy corpus service with bounded retrieval.</li>
-          <li><span>3</span> Reproducible queue sampler with pinned seed and revision.</li>
-          <li><span>4</span> Streamlit blinded human review workflow.</li>
-          <li><span>5</span> Append-only SQLite review events and content-free exports.</li>
-        </ol>
-      </section>
+        <div class="review-layout">
+          <article class="record-panel" aria-live="polite">
+            <div class="record-nav">
+              <button id="previous-record" type="button">Previous</button>
+              <span id="record-position">Item 0 of 0</span>
+              <button id="next-record" type="button">Next</button>
+            </div>
+            <div id="record-badges" class="badge-row"></div>
+            <dl id="record-metadata" class="metadata-grid"></dl>
+            <h3 id="record-header">No record loaded</h3>
+            <pre id="record-content" class="ordinance-text"></pre>
+            <div id="ocr-flags" class="flag-list"></div>
+          </article>
 
-      <section id="preview" class="section preview-section">
-        <div class="section-heading">
-          <p class="eyebrow">Synthetic preview</p>
-          <h2>Public previews are placeholders until reviewed data exists.</h2>
-          <p>
-            The panel below is synthetic design scaffolding. It is not a map of real LOCUS coverage, scores, laws,
-            jurisdictions, legal conclusions, or civic findings.
-          </p>
-        </div>
-        <div class="atlas" role="img" aria-label="Synthetic geospatial dashboard preview with no real data">
-          <div class="synthetic-badge">Synthetic only</div>
-          <div class="map-grid">
-            <span class="tile tile-a"></span>
-            <span class="tile tile-b"></span>
-            <span class="tile tile-c"></span>
-            <span class="tile tile-d"></span>
-            <span class="tile tile-e"></span>
-            <span class="tile tile-f"></span>
-            <span class="tile tile-g"></span>
-            <span class="tile tile-h"></span>
-            <span class="tile tile-i"></span>
-            <span class="city-point p1"></span>
-            <span class="city-point p2"></span>
-            <span class="city-point p3"></span>
-            <span class="city-point p4"></span>
-          </div>
-          <aside class="legend">
-            <h3>Layer concept</h3>
-            <p>Future reviewed layers may include county summaries, city coverage points, score filters, and evidence trails.</p>
-            <ul>
-              <li><span class="swatch high"></span> Synthetic example score</li>
-              <li><span class="swatch medium"></span> Synthetic example score</li>
-              <li><span class="swatch low"></span> Synthetic example score</li>
-            </ul>
+          <aside class="review-card" aria-label="Human review form">
+            <div id="prediction-box" class="prediction-box"></div>
+            <button id="reveal-prediction" type="button">Reveal Model Output</button>
+
+            <form id="review-form">
+              <label>
+                Overall disposition
+                <select name="disposition" required>
+                  <option value="accept_as_presented">accept_as_presented</option>
+                  <option value="correction_needed">correction_needed</option>
+                  <option value="exclude_from_evaluation">exclude_from_evaluation</option>
+                  <option value="needs_adjudication">needs_adjudication</option>
+                  <option value="skip">skip</option>
+                </select>
+              </label>
+              <label>
+                Substantivity
+                <select name="human_substantivity" required>
+                  <option value="substantive">substantive</option>
+                  <option value="not_substantive">not_substantive</option>
+                  <option value="uncertain">uncertain</option>
+                  <option value="not_scorable">not_scorable</option>
+                </select>
+              </label>
+              <label>
+                Function
+                <select name="human_function" required>
+                  <option>Context</option>
+                  <option>Rules</option>
+                  <option>Process</option>
+                  <option>Enforcement</option>
+                  <option>Other_or_unexpected</option>
+                  <option>Uncertain</option>
+                  <option>Not_scorable</option>
+                </select>
+              </label>
+              <label>
+                Topic
+                <select name="human_topic" required>
+                  <option>Buildings</option>
+                  <option>Business</option>
+                  <option>Nuisance</option>
+                  <option>Zoning</option>
+                  <option>Other</option>
+                  <option>Not_applicable</option>
+                  <option>Uncertain</option>
+                  <option>Not_scorable</option>
+                </select>
+              </label>
+              <label>
+                OCR quality
+                <select name="ocr_quality" required>
+                  <option>good</option>
+                  <option>minor_errors</option>
+                  <option>major_errors</option>
+                  <option>unreadable</option>
+                  <option>not_scorable</option>
+                </select>
+              </label>
+              <label>
+                Jurisdiction metadata
+                <select name="jurisdiction_quality" required>
+                  <option>appears_correct</option>
+                  <option>appears_incorrect</option>
+                  <option>insufficient_information</option>
+                  <option>not_reviewed</option>
+                </select>
+              </label>
+              <fieldset>
+                <legend>Model score evaluation</legend>
+                <label>enforcement_discretion <select name="score_enforcement_discretion"></select></label>
+                <label>opacity <select name="score_opacity"></select></label>
+                <label>paternalism <select name="score_paternalism"></select></label>
+                <label>problem_salience <select name="score_problem_salience"></select></label>
+              </fieldset>
+              <label>
+                Reviewer confidence
+                <input name="confidence" type="range" min="0" max="100" value="70">
+              </label>
+              <label>
+                Notes
+                <textarea name="notes" rows="4" placeholder="Optional rationale, uncertainty, or correction notes"></textarea>
+              </label>
+              <div id="form-warning" class="form-warning" role="alert"></div>
+              <div class="button-row">
+                <button type="submit" data-action="save_next">Save and Next</button>
+                <button type="submit" data-action="save">Save</button>
+                <button type="submit" data-action="skip">Skip</button>
+                <button type="submit" data-action="flag">Flag</button>
+              </div>
+            </form>
+            <section>
+              <h3>Event history</h3>
+              <ol id="event-history" class="event-list"></ol>
+            </section>
           </aside>
         </div>
       </section>
 
-      <section id="citation" class="section citation">
-        <p class="eyebrow">Source citation</p>
-        <h2>LOCUS-v1 reference</h2>
-        <p>
-          Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport.
-          "Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States."
-          arXiv:2606.19334, 2026.
-        </p>
-        <p>
-          Dataset: <a href="https://huggingface.co/datasets/LocalLaws/LOCUS-v1">LocalLaws/LOCUS-v1</a>.
-          License: CC-BY-NC-4.0. This static site records project status only and does not redistribute dataset rows.
-        </p>
+      <section id="explorer-panel" class="panel" aria-labelledby="explorer-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Dataset Explorer</p>
+          <h2 id="explorer-heading">Bounded browser-side filtering.</h2>
+          <p>Explorer results are paginated and limited to the currently loaded demo or imported bounded queue.</p>
+        </div>
+        <form id="explorer-form" class="filter-grid">
+          <label>State <input name="state" type="text" maxlength="2" placeholder="TN"></label>
+          <label>Topic <select name="topic"><option value="">Any</option></select></label>
+          <label>Function <select name="function"><option value="">Any</option></select></label>
+          <label>Text contains <input name="text" type="search" placeholder="permit"></label>
+          <label>Page size <input name="page_size" type="number" min="3" max="25" value="8"></label>
+          <button type="submit">Apply Filters</button>
+        </form>
+        <div id="explorer-summary" class="summary-line"></div>
+        <div class="table-wrap">
+          <table id="explorer-table">
+            <thead>
+              <tr>
+                <th>Record</th>
+                <th>State</th>
+                <th>Jurisdiction</th>
+                <th>Function</th>
+                <th>Topic</th>
+                <th>OCR risk</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="results-panel" class="panel" aria-labelledby="results-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Evaluation Results</p>
+          <h2 id="results-heading">Metrics update from actual saved reviews.</h2>
+          <p>Uncertain and not-scorable labels are counted but excluded from agreement denominators.</p>
+        </div>
+        <div id="results-grid" class="results-grid"></div>
+        <div id="confusion-output" class="table-wrap"></div>
+      </section>
+
+      <section id="protocol-panel" class="panel" aria-labelledby="protocol-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Protocol and Provenance</p>
+          <h2 id="protocol-heading">Browser-first evaluation protocol.</h2>
+        </div>
+        <div class="protocol-grid">
+          <article>
+            <h3>Unit of evaluation</h3>
+            <p>A LOCUS chunk or synthetic demo chunk, identified by a stable source locator and record ID.</p>
+          </article>
+          <article>
+            <h3>Blinding</h3>
+            <p>Model labels and scores are hidden by default until save or explicit reveal. Reveals are logged.</p>
+          </article>
+          <article>
+            <h3>Storage</h3>
+            <p>Review events are append-only in browser localStorage. Export files are generated only on request.</p>
+          </article>
+          <article>
+            <h3>Real data</h3>
+            <p>The site does not publish real LOCUS rows. Imported queues should be bounded and license compliant.</p>
+          </article>
+          <article>
+            <h3>Score direction</h3>
+            <p>Scores are shown as neutral model scores. Directional legal interpretations remain unverified.</p>
+          </article>
+          <article>
+            <h3>Citation</h3>
+            <p>
+              Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport.
+              "Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States."
+              arXiv:2606.19334, 2026. Dataset: LocalLaws/LOCUS-v1. License: CC-BY-NC-4.0.
+            </p>
+          </article>
+        </div>
       </section>
     </main>
   </body>

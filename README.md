@@ -1,19 +1,18 @@
 # EvoLOCUS
 
-EvoLOCUS is an open-source, local-first, extensible platform for turning the LOCUS Local Ordinance Corpus and future public-source scrapes into an enriched, geospatial-enabled national dataset of United States local laws.
-
-Phase 0 is a scaffold only. It does not download LOCUS-v1, run scrapers, create databases, generate embeddings, or publish real ordinance data.
+EvoLOCUS is an open-source, local-first platform for reviewing and enriching the LOCUS Local Ordinance Corpus and future public-source local law data.
 
 ## Current Status
 
-- Phase: 0 complete
-- Evaluator MVP: complete for synthetic demo validation
+- Phase: 1 in progress
+- Primary user surface: GitHub Pages browser workbench from `site/`
+- Evaluator MVP: complete for synthetic browser demo validation
 - Real LOCUS ingest: not run
 - Real LOCUS evaluation: not started
-- Data state: no real data committed
-- Public site: static GitHub Pages companion site from `site/`
-- Interactive dashboards: local Streamlit human-evaluation runtime
+- Data state: no real LOCUS rows committed or published
 - Completion method: phase checklist, not weighted overall percentage
+
+The public site is the only supported user-facing surface for this milestone. It runs as a static browser app on GitHub Pages, stores review state in browser localStorage, and exports files only when the user explicitly clicks export.
 
 ## LOCUS Source and Citation
 
@@ -23,80 +22,71 @@ Citation:
 
 > Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. "Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States." arXiv:2606.19334, 2026.
 
-The LOCUS-v1 Hugging Face dataset card identifies the dataset as Parquet, CC-BY-NC-4.0, English, and linked to arXiv:2606.19334. EvoLOCUS records this citation for reproducibility, but Phase 0 intentionally does not download or redistribute LOCUS records.
+The LOCUS-v1 Hugging Face dataset card identifies the dataset as Parquet and CC-BY-NC-4.0. EvoLOCUS records the citation for reproducibility but does not redistribute LOCUS records through GitHub Pages.
 
-## Evaluator Mission
+## Browser Workbench
 
-EvoLOCUS now includes a local-first human-evaluation workbench for LOCUS-v1. A reviewer can run a Streamlit app, browse synthetic demo or local Parquet records, create deterministic evaluation queues, perform blinded reviews, persist append-only review events in SQLite, view agreement metrics, and export auditable results without exporting ordinance text by default.
+The Pages app supports:
 
-The evaluator is not a public legal search engine and not legal advice. LOCUS text may contain OCR errors, labels and scores are model-produced, the corpus is not complete or continuously current law, and users must consult official current legal sources. LOCUS-v1 is licensed CC-BY-NC-4.0.
+- synthetic demo queue;
+- blinded review by default;
+- explicit model-output reveal with reveal events logged;
+- substantivity, function, topic, OCR, jurisdiction, and score review fields;
+- save, save-next, skip, and flag actions;
+- append-only browser-local review events;
+- bounded JSON queue import for local review packages;
+- paginated explorer filters;
+- review metrics and agreement denominators;
+- content-free latest-review CSV export;
+- review-event JSON export.
+
+Open the deployed app:
+
+https://evcatalyst.github.io/evolocus/
+
+The site is research use only and not legal advice. LOCUS text may contain OCR errors, labels and scores are model-produced, the corpus is not complete or continuously current law, and users must consult official current legal sources.
 
 ## Architecture
 
-Primary evaluator stack:
+Primary UI stack:
+
+- GitHub Pages static HTML/CSS/JavaScript.
+- Browser localStorage for mutable review events.
+- Browser File API for bounded queue import.
+- Browser-generated CSV/JSON exports.
+
+Support tooling:
 
 - Polars lazy frames over Parquet for corpus reads and bounded transforms.
-- SQLite through Python `sqlite3` for mutable evaluation state.
-- Streamlit for local human review.
-- GitHub Pages for static documentation only.
+- SQLite through Python `sqlite3` for local support workflows.
+- CLI commands for audit, queue seeding, and export package creation.
 
-Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the evaluator MVP.
+Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
 
-## Phase Roadmap
-
-1. Phase 0: scaffold, documentation, validation, static Pages companion site.
-2. Phase 1: LOCUS-v1 ingestion contracts, master jurisdiction table, evaluator workbench, and local queue/evaluation store.
-3. Phase 2: Streamlit dashboards for Collection, Informatics, and GeoViz.
-4. Phase 3: scraper framework, priority engine, Optimize Flow simulation.
-5. Phase 4+: continuous enrichment, classifiers, exports, deployment helpers.
-
-## Production Blueprint
-
-The phased Local Law Analytics Platform architecture and starter code lives in `docs/local-law-analytics-platform.md`. It has been superseded for the current milestone by the Polars-first evaluator path: Polars + Parquet + SQLite + Streamlit are primary; DuckDB, LanceDB, FastAPI, Postgres, RAG, and Census enrichment are deferred.
-
-## Local Setup
+## Local Development
 
 ```bash
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 pytest
+node --check site/assets/app.js
 ```
 
-Optional Docker services are stubbed in `docker-compose.yml` for future PostgreSQL/PostGIS work. Phase 0 does not require Docker.
+Serve the Pages app locally with any static server, for example:
 
-## Phase 1 Evaluator Tools
+```bash
+python -m http.server 8000 --directory site
+```
 
-The first Phase 1 module adds a guarded LOCUS-v1 ingestion contract, master jurisdiction table builder, Polars-first corpus service, evaluation queues, SQLite review store, Streamlit evaluator, and content-free exports.
+## Support CLI
 
-Status command:
+The CLI is for preparing and validating local artifacts. It is not the primary UI.
+
+Status:
 
 ```bash
 PYTHONPATH=src python -m evolocus.cli status
-```
-
-Demo-mode evaluator:
-
-```bash
-EVOLOCUS_MODE=demo \
-EVOLOCUS_EVAL_DB=data/evaluation/evolocus_eval.sqlite3 \
-streamlit run dashboards/app.py
-```
-
-Local-Parquet evaluator:
-
-```bash
-EVOLOCUS_MODE=local \
-EVOLOCUS_DATA_GLOB='data/raw/locus-v1/<revision>/**/*.parquet' \
-EVOLOCUS_DATASET_REVISION='<revision>' \
-EVOLOCUS_EVAL_DB=data/evaluation/evolocus_eval.sqlite3 \
-streamlit run dashboards/app.py
-```
-
-Blocked-by-default Hugging Face entrypoint:
-
-```bash
-PYTHONPATH=src python -m evolocus.cli ingest-locus
 ```
 
 Audit demo or local Parquet:
@@ -106,7 +96,7 @@ PYTHONPATH=src python -m evolocus.cli audit-locus \
   --output data/processed/locus-v1/demo/audit
 ```
 
-Initialize and seed an evaluation queue:
+Initialize and seed a local evaluation queue:
 
 ```bash
 PYTHONPATH=src python -m evolocus.cli init-evaluation \
@@ -132,6 +122,12 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
   --without-content
 ```
 
+Blocked-by-default Hugging Face entrypoint:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli ingest-locus
+```
+
 Ignored storage locations:
 
 - `data/raw/`: local LOCUS Parquet
@@ -139,14 +135,12 @@ Ignored storage locations:
 - `data/evaluation/`: SQLite review state
 - `data/exports/`: local evaluation exports
 
-## GitHub Pages
-
-The static companion site lives in `site/` and is deployed by `.github/workflows/pages.yml`. GitHub Pages is not the Streamlit evaluator and must not host real LOCUS rows or local evaluation databases.
-
 ## Data Policy
 
 - Real LOCUS data belongs in ignored local paths such as `data/raw/` and `data/processed/`.
+- GitHub Pages must not publish real LOCUS rows, local databases, or exports.
 - Static site examples must be synthetic and clearly labeled.
+- Browser exports are user-triggered downloads.
 - Future public exports require explicit source, license, and provenance checks.
 
 ## Hugging Face Download One-Liner

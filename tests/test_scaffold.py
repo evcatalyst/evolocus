@@ -15,6 +15,7 @@ REQUIRED_PATHS = [
     "docs/data-policy.md",
     "notebooks/README.md",
     "scrapers/README.md",
+    "site/assets/app.js",
     "site/assets/styles.css",
     "site/index.html",
     "src/evolocus/__init__.py",
@@ -58,8 +59,8 @@ def test_requirements_include_requested_stack() -> None:
     requirements = set(read_text("requirements.txt").splitlines())
     assert any(req.startswith("polars") for req in requirements)
     assert any(req.startswith("pyarrow") for req in requirements)
-    assert any(req.startswith("streamlit") for req in requirements)
     assert any(req.startswith("huggingface_hub") for req in requirements)
+    assert all(not req.startswith("streamlit") for req in requirements)
     assert all(not req.startswith("duckdb") for req in requirements)
 
 
@@ -78,12 +79,15 @@ def test_pages_workflow_uses_pinned_major_versions_and_site_path() -> None:
 def test_static_site_is_relative_and_synthetic_only() -> None:
     html = read_text("site/index.html")
     css = read_text("site/assets/styles.css")
+    js = read_text("site/assets/app.js")
     assert 'href="assets/styles.css"' in html
-    assert "Synthetic only" in html
+    assert 'src="assets/app.js"' in html
+    assert "Synthetic only by default" in html
+    assert "SYNTHETIC DEMONSTRATION DATA" in js
     assert "No real LOCUS rows published" in html
-    assert "GitHub Pages is static" in html
-    assert "https://fonts." not in html + css
-    assert "googletagmanager" not in html + css
+    assert "Pages-first UI" in html
+    assert "https://fonts." not in html + css + js
+    assert "googletagmanager" not in html + css + js
     assert "analytics" not in html.lower()
 
 

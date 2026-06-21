@@ -3,7 +3,7 @@
 ## 2026-06-20
 
 - Phase 0 should publish only static documentation and synthetic previews through GitHub Pages.
-- Streamlit remains the correct runtime for interactive Collection, Informatics, and GeoViz dashboards; GitHub Pages cannot run a Python Streamlit server.
+- GitHub Pages is now the primary and only supported user-facing surface; any Python UI is support or legacy tooling.
 - LOCUS-v1 citation and dataset URL were verified before scaffolding.
 - No LOCUS records, scraper outputs, databases, or embeddings were created in Phase 0.
 - Phase 1 ingest should be blocked by default: the CLI now refuses Hugging Face download unless an explicit `--allow-download` flag is supplied.
@@ -18,4 +18,4 @@
 - Evaluation queues must pin dataset revisions, manifest fingerprints, sampling parameters, and random seeds.
 - Full corpus materialization is prohibited in request paths.
 - Real data, SQLite evaluation databases, and exports remain ignored.
-- The public GitHub Pages companion must be kept in sync with evaluator status so users do not mistake a static Phase 0 page for a failed Streamlit deployment.
+- A static GitHub Pages app can support useful browser-local evaluation workflows when review state stays local and exports are explicit.

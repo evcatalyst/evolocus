@@ -2,7 +2,7 @@
 
 Phase: 1 in progress
 
-Completion: Phase 0 complete. Phase 1 now includes a Polars-first evaluation workbench MVP validated in synthetic demo mode. No overall percentage is reported because `roadmap.json` does not define a weighted completion model.
+Completion: Phase 0 complete. Phase 1 now includes a GitHub Pages-first browser evaluation workbench MVP validated in synthetic demo mode. No overall percentage is reported because `roadmap.json` does not define a weighted completion model.
 
 Files saved:
 
@@ -18,6 +18,7 @@ Files saved:
 - `notebooks/README.md`
 - `scrapers/README.md`
 - `site/assets/styles.css`
+- `site/assets/app.js`
 - `site/index.html`
 - `src/evolocus/__init__.py`
 - `src/evolocus/cli.py`
@@ -63,6 +64,7 @@ Current coverage stats:
 - Queue records created from real LOCUS data: 0
 - Evaluator code: complete
 - Synthetic end-to-end validation: complete
+- Primary UI: GitHub Pages browser workbench
 - Real LOCUS ingest: not run
 - Real LOCUS evaluation: not started
 
@@ -85,8 +87,8 @@ Latest update:
 - Added tests using synthetic LOCUS-like records only.
 - Did not download LOCUS-v1, run scrapers, create databases, or create embeddings.
 - Recorded the canonical arXiv source page supplied by the user: https://arxiv.org/abs/2606.19334.
-- Added production Local Law Analytics Platform plan; it is now aligned to the Polars + Parquet + SQLite + Streamlit evaluator path, with DuckDB/LanceDB/RAG/FastAPI deferred.
-- Refreshed the GitHub Pages companion site so it reports the Phase 1 evaluator MVP state and clearly explains that Streamlit runs locally rather than on Pages.
+- Added production Local Law Analytics Platform plan; it is now aligned to the GitHub Pages + browser localStorage + Polars support-tooling evaluator path, with DuckDB/LanceDB/RAG/FastAPI deferred.
+- Promoted GitHub Pages from a static status page to the primary browser-based evaluator surface with localStorage review history and explicit exports.
 
 Evaluator implementation state:
 
@@ -95,4 +97,4 @@ Evaluator implementation state:
 - Real LOCUS ingest: not run
 - Real LOCUS evaluation: not started
 - Default exports omit ordinance text
-- Streamlit evaluator runs locally, not on GitHub Pages
+- Primary evaluator surface: GitHub Pages browser app

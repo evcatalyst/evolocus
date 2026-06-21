@@ -4,10 +4,11 @@ This document supersedes the earlier DuckDB-first analytics blueprint for the cu
 
 Primary stack for the evaluator MVP:
 
+- GitHub Pages static HTML/CSS/JavaScript for the primary and only supported user-facing workbench.
+- Browser localStorage for reviewer-local append-only events.
+- Browser File API for bounded queue import and user-triggered exports.
 - Polars lazy frames over local Parquet.
-- SQLite through Python `sqlite3` for mutable evaluation state.
-- Streamlit for local human review.
-- GitHub Pages for static documentation only.
+- SQLite through Python `sqlite3` for support tooling and local queue package preparation.
 
 Optional later:
 
@@ -45,35 +46,24 @@ problem_salience
 
 ```mermaid
 flowchart LR
-  A["LOCUS Parquet or synthetic demo rows"] --> B["Polars lazy corpus service"]
+  A["LOCUS Parquet support tooling"] --> B["Polars lazy corpus service"]
   B --> C["Raw schema validation"]
   B --> D["Derived metadata without overwriting raw fields"]
   D --> E["Audit JSON + bounded findings sample"]
   D --> F["Deterministic queue sampler"]
-  F --> G["SQLite queue snapshots"]
-  G --> H["Streamlit blinded review"]
-  H --> I["Append-only review events"]
-  I --> J["Metrics + content-free exports"]
+  F --> G["Bounded queue package"]
+  H["Synthetic demo records"] --> I["GitHub Pages browser workbench"]
+  G --> I
+  I --> J["Append-only browser review events"]
+  J --> K["Browser metrics + content-free exports"]
 ```
 
 ## Execution Commands
 
-Demo evaluator:
+Primary workbench:
 
-```bash
-EVOLOCUS_MODE=demo \
-EVOLOCUS_EVAL_DB=data/evaluation/evolocus_eval.sqlite3 \
-streamlit run dashboards/app.py
-```
-
-Local Parquet evaluator:
-
-```bash
-EVOLOCUS_MODE=local \
-EVOLOCUS_DATA_GLOB='data/raw/locus-v1/<revision>/**/*.parquet' \
-EVOLOCUS_DATASET_REVISION='<revision>' \
-EVOLOCUS_EVAL_DB=data/evaluation/evolocus_eval.sqlite3 \
-streamlit run dashboards/app.py
+```text
+https://evcatalyst.github.io/evolocus/
 ```
 
 Audit:
@@ -127,7 +117,8 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
 - Score direction is unverified and displayed only as neutral relative model scores.
 - No regulatory-burden score is computed during this milestone.
 - SQLite stores bounded queue snapshots and review history, not the full corpus.
-- GitHub Pages does not host the evaluator or real LOCUS rows.
+- GitHub Pages hosts the evaluator workbench but never publishes real LOCUS rows by default.
+- Browser imports must be bounded review queues, not full LOCUS shards.
 
 ## Deferred Analytics
 
@@ -145,4 +136,3 @@ The following are future work only:
 - model fine-tuning.
 
 Each deferred module should include its own human-evaluation or provenance checks before publication.
-

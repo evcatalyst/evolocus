@@ -1,41 +1,56 @@
 # Evaluation Workbench
 
-Run the local demo evaluator:
+The primary workbench runs on GitHub Pages:
 
-```bash
-EVOLOCUS_MODE=demo \
-EVOLOCUS_EVAL_DB=data/evaluation/evolocus_eval.sqlite3 \
-streamlit run dashboards/app.py
-```
+https://evcatalyst.github.io/evolocus/
 
-Run against local Parquet:
+It is a static browser app. It does not require Streamlit, a Python server, a hosted database, trackers, external fonts, or CDN dependencies.
 
-```bash
-EVOLOCUS_MODE=local \
-EVOLOCUS_DATA_GLOB='data/raw/locus-v1/<revision>/**/*.parquet' \
-EVOLOCUS_DATASET_REVISION='<revision>' \
-EVOLOCUS_EVAL_DB=data/evaluation/evolocus_eval.sqlite3 \
-streamlit run dashboards/app.py
-```
+## Pages Features
 
-Environment variables:
+- synthetic demo queue;
+- blinded review by default;
+- model-output reveal logging;
+- save, save-next, skip, and flag actions;
+- review event history;
+- bounded imported queue JSON;
+- explorer filters and pagination;
+- evaluation metrics from saved reviews;
+- latest-review CSV export without ordinance content;
+- review-event JSON export.
 
-- `EVOLOCUS_MODE=demo|local`
-- `EVOLOCUS_DATA_GLOB=<parquet path or glob>`
-- `EVOLOCUS_EVAL_DB=data/evaluation/evolocus_eval.sqlite3`
-- `EVOLOCUS_REVIEWER=<local reviewer id>`
-- `EVOLOCUS_QUEUE=<queue name>`
-- `EVOLOCUS_BLIND_REVIEW=1`
-- `EVOLOCUS_DATASET_REVISION=<revision label>`
+## Browser Storage
 
-Pages:
+Review events are stored in browser localStorage under EvoLOCUS-specific keys. They remain on the reviewer machine unless the reviewer exports them.
 
-- Review Queue: blinded review, save, skip, flag, history, progress.
-- Dataset Explorer: bounded filters, pagination, projected fields only.
-- Evaluation Results: coverage and agreement metrics from saved reviews.
-- Protocol and Provenance: dataset citation, queue metadata, protocol, limitations.
+Clearing browser storage removes local unsaved work. Export review events regularly during real evaluation.
 
-Default exports omit ordinance text:
+## Queue Import
+
+The browser can import a bounded queue JSON file with a top-level `records` array or a plain array of record objects. Imports are capped at 500 records to avoid turning the browser into a full corpus store.
+
+Imported records should include:
+
+- `record_id`
+- `source_locator`
+- `dataset_revision`
+- `header`
+- `content`
+- `state`
+- `city`
+- `county`
+- `source_jurisdiction_type`
+- `function`
+- `topic`
+- model score fields
+
+The site does not parse full LOCUS Parquet shards in the browser.
+
+## Support CLI
+
+Python CLI commands may prepare audits, local SQLite queues, or export packages, but they are support tooling, not the user interface.
+
+Default CLI exports omit ordinance text:
 
 ```bash
 PYTHONPATH=src python -m evolocus.cli export-evaluation \
@@ -45,4 +60,4 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
   --without-content
 ```
 
-Do not write exports into `site/`. GitHub Pages is static documentation and preview only.
+Do not write generated exports into `site/`.
