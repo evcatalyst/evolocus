@@ -87,6 +87,7 @@ Current coverage stats:
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, topic, function, audit, score, and selected-unit answers
+- Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
@@ -136,6 +137,7 @@ Latest update:
 - Added an Audit Lens tab that visualizes per-unit aggregate audit signals with progressive disclosure and drill-through back to the map.
 - Added a Score Lens tab that visualizes released model-score means from aggregate map units with progressive disclosure and drill-through back to the map.
 - Added an Inquiry question matrix that turns current filters into deterministic aggregate answers for map, topic, function, audit, score, and selected-unit prompts.
+- Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 
 Evaluator implementation state:
 

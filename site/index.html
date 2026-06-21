@@ -19,6 +19,7 @@
           <button class="tab-link" type="button" data-tab="results">Charts</button>
           <button class="tab-link" type="button" data-tab="score">Score Lens</button>
           <button class="tab-link" type="button" data-tab="audit">Audit Lens</button>
+          <button class="tab-link" type="button" data-tab="queueplan">Queue Plan</button>
           <button class="tab-link" type="button" data-tab="status">Analysis Status</button>
           <button class="tab-link" type="button" data-tab="review">Review Queue</button>
           <button class="tab-link" type="button" data-tab="explorer">Dataset Explorer</button>
@@ -495,6 +496,52 @@
         <div id="score-visual-grid" class="score-visual-grid"></div>
         <div id="score-state-grid" class="score-state-grid"></div>
         <div id="score-unit-list" class="score-unit-list"></div>
+      </section>
+
+      <section id="queueplan-panel" class="panel" aria-labelledby="queueplan-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Queue Plan</p>
+          <h2 id="queueplan-heading">Plan aggregate review batches before loading any LOCUS text.</h2>
+          <p>
+            This planner ranks published county/town aggregate units for future human review. It uses current map
+            filters, unit audit quality, law counts, and neutral score spread. It exports planning metadata only.
+          </p>
+        </div>
+        <form id="queue-plan-form" class="queue-plan-form" aria-label="Queue planning controls">
+          <label>
+            Strategy
+            <select name="strategy">
+              <option value="audit_priority">Audit priority</option>
+              <option value="balanced_state">Balanced states</option>
+              <option value="score_contrast">Score contrast</option>
+              <option value="law_volume">Law volume</option>
+            </select>
+          </label>
+          <label>
+            Units
+            <input name="size" type="number" min="5" max="100" step="5" value="25">
+          </label>
+          <label>
+            Seed label
+            <input name="seed_label" type="text" value="pages-aggregate-plan">
+          </label>
+          <button type="submit">Build Plan</button>
+          <button id="export-queue-plan" type="button">Export Plan JSON</button>
+        </form>
+        <section class="disclosure-control compact-disclosure" aria-label="Queue plan disclosure level">
+          <div>
+            <p class="eyebrow">Progressive analysis</p>
+            <h3>Queue detail level</h3>
+          </div>
+          <div class="segmented" role="group" aria-label="Queue disclosure level">
+            <button class="disclosure-button active" type="button" data-disclosure="overview">Overview</button>
+            <button class="disclosure-button" type="button" data-disclosure="unit">Unit detail</button>
+            <button class="disclosure-button" type="button" data-disclosure="evidence">Evidence trail</button>
+          </div>
+        </section>
+        <div id="queue-plan-summary" class="queue-plan-summary"></div>
+        <div id="queue-plan-visuals" class="queue-plan-visuals"></div>
+        <div id="queue-plan-list" class="queue-plan-list"></div>
       </section>
 
       <section id="status-panel" class="panel" aria-labelledby="status-heading">

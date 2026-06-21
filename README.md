@@ -45,6 +45,7 @@ The Pages app supports:
 - per-unit audit review signals for the published map layer, including OCR-risk and duplicate-text-hash rates;
 - audit-driven map filters and an audit-attention geography color mode, framed as review priority rather than ranking;
 - Audit Lens tab with attention distribution, OCR reason mix, state atlas, and review-priority queue preview;
+- Queue Plan tab for aggregate county/town review batch planning, with content-free unit-level JSON export;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -90,6 +91,7 @@ Support tooling:
 - `publish-analysis` for generating Pages-ready status, map, ontology, model, and deterministic inquiry JSON.
 - `publish-inquiry-briefings` for generating static progressive inquiry briefings, optionally enriched by Grok in offline jobs only.
 - `publish-unit-audit-quality` for generating aggregate per-unit audit-quality JSON from local Parquet and the reviewed public map-unit scope.
+- Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
 
@@ -223,7 +225,7 @@ Use the repository secret name `GROK_API_KEY` for future offline analysis jobs. 
 gh secret set GROK_API_KEY --repo evcatalyst/evolocus
 ```
 
-The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
+The `GROK_API_KEY` repository secret is configured for GitHub Actions offline jobs. The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
 
 ## Hugging Face Download One-Liner
 

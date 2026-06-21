@@ -9,6 +9,7 @@ flowchart LR
   A["Synthetic demo or bounded queue JSON"] --> B["GitHub Pages browser app"]
   C["Static analysis artifacts"] --> B
   B --> D["Map, ontology, inquiry, review UI"]
+  D --> Q["Aggregate Queue Plan export"]
   D --> E["Append-only localStorage review events"]
   E --> F["Browser metrics and disagreement summaries"]
   E --> G["User-triggered CSV/JSON exports"]
@@ -30,6 +31,7 @@ flowchart LR
 - The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
 - The Audit Lens tab renders `unit_audit_quality.json` as aggregate-only charts, state rows, OCR reason mix, and map drill-through links.
 - The Score Lens tab renders released LOCUS model-score means from `map_layers.json` as neutral distributions, state matrices, and unit profiles.
+- The Queue Plan tab combines current map filters, `map_layers.json`, and `unit_audit_quality.json` to rank aggregate county/town units for future local review packaging. Its export contains unit IDs, aggregate counts, review signals, and strategy metadata only.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
@@ -81,6 +83,8 @@ The Audit Lens uses the same progressive disclosure control as the map and statu
 The Score Lens uses the same filters and disclosure levels. It displays score values as neutral relative model outputs only; directional legal interpretations remain out of scope until authoritative model-card verification is added.
 
 The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts. It can fill and answer the inquiry form, but it does not call Grok or any browser-exposed LLM API.
+
+The Queue Plan export is a planning artifact, not a real record-level LOCUS evaluation queue. It excludes ordinance text, headers, source locators, raw row data, SQLite state, and browser review events.
 
 The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 

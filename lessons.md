@@ -40,3 +40,5 @@
 - Audit visuals should share map filters and progressive disclosure so users can move from national aggregate context to unit drill-through without exposing raw text.
 - Score visuals should remain neutral and relative until score direction is verified from authoritative LOCUS model documentation.
 - Browser inquiry should make the active filter state visible in prompt cards so answers feel connected to the map without requiring live LLM calls.
+- Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.
+- Record-level review queues should still be materialized with local ignored tooling before any ordinance text is reviewed or exported.

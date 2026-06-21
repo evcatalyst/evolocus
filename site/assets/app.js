@@ -232,6 +232,11 @@ let state = {
     minLaws: 0,
     minAuditScore: 0,
   },
+  queuePlan: {
+    strategy: "audit_priority",
+    size: 25,
+    seedLabel: "pages-aggregate-plan",
+  },
   inquiryAnswer: null,
   analysis: {
     status: null,
@@ -365,6 +370,7 @@ function render() {
   renderResults();
   renderScoreLens();
   renderAuditLens();
+  renderQueuePlan();
   renderAnalysisStatusPanel();
 }
 
@@ -2750,6 +2756,306 @@ function auditPriorityRowHtml(row) {
   `;
 }
 
+function renderQueuePlan() {
+  const form = $("#queue-plan-form");
+  const summary = $("#queue-plan-summary");
+  const visuals = $("#queue-plan-visuals");
+  const list = $("#queue-plan-list");
+  if (!form || !summary || !visuals || !list) {
+    return;
+  }
+  form.elements.strategy.value = state.queuePlan.strategy;
+  form.elements.size.value = String(state.queuePlan.size);
+  form.elements.seed_label.value = state.queuePlan.seedLabel;
+  const plan = buildQueuePlan();
+  summary.innerHTML = queuePlanSummaryHtml(plan);
+  visuals.innerHTML = queuePlanVisualsHtml(plan);
+  list.innerHTML = queuePlanListHtml(plan);
+  renderDisclosureButtons();
+}
+
+function buildQueuePlan() {
+  const mapLayers = state.analysis.mapLayers;
+  const visibleUnits = mapLayers ? filterMapUnits(mapLayers.units || []) : [];
+  const enriched = visibleUnits.map((unit) => {
+    const audit = unitAuditQualityFor(unit.unit_id);
+    const score = queuePlanScore(unit, audit, state.queuePlan.strategy);
+    return { unit, audit, score };
+  });
+  const selected = selectQueuePlanUnits(enriched, state.queuePlan.strategy, state.queuePlan.size);
+  const summary = summarizeQueuePlan(selected, visibleUnits);
+  return {
+    strategy: state.queuePlan.strategy,
+    size: state.queuePlan.size,
+    seedLabel: state.queuePlan.seedLabel,
+    generatedAt: new Date().toISOString(),
+    visibleUnits,
+    selected,
+    summary,
+  };
+}
+
+function queuePlanScore(unit, audit, strategy) {
+  const auditAttention = Number(audit?.audit_attention_score || 0);
+  const lawSignal = Math.log10(Number(unit.law_count || 0) + 1) * 8;
+  const scoreContrast = scoreSpread(unit) * 20;
+  const substantiveSignal = modelSubstantiveShare(unit) ? Number(modelSubstantiveShare(unit)) * 12 : 0;
+  if (strategy === "score_contrast") {
+    return scoreContrast + auditAttention * 0.35 + lawSignal * 0.2;
+  }
+  if (strategy === "law_volume") {
+    return lawSignal + auditAttention * 0.25 + substantiveSignal * 0.1;
+  }
+  if (strategy === "balanced_state") {
+    return auditAttention * 0.55 + scoreContrast * 0.25 + lawSignal * 0.2;
+  }
+  return auditAttention * 0.7 + scoreContrast * 0.2 + lawSignal * 0.1;
+}
+
+function selectQueuePlanUnits(rows, strategy, size) {
+  const sorted = rows
+    .slice()
+    .sort((a, b) => b.score - a.score || Number(b.unit.law_count || 0) - Number(a.unit.law_count || 0) || displayUnitName(a.unit).localeCompare(displayUnitName(b.unit)));
+  if (strategy !== "balanced_state") {
+    return sorted.slice(0, size);
+  }
+  const byState = new Map();
+  for (const row of sorted) {
+    const stateCode = row.unit.state || "NA";
+    if (!byState.has(stateCode)) {
+      byState.set(stateCode, []);
+    }
+    byState.get(stateCode).push(row);
+  }
+  const selected = [];
+  while (selected.length < size && byState.size) {
+    for (const stateCode of [...byState.keys()].sort()) {
+      const bucket = byState.get(stateCode);
+      const next = bucket.shift();
+      if (next) {
+        selected.push(next);
+        if (selected.length >= size) {
+          break;
+        }
+      }
+      if (!bucket.length) {
+        byState.delete(stateCode);
+      }
+    }
+  }
+  return selected;
+}
+
+function summarizeQueuePlan(selected, visibleUnits) {
+  const lawCount = selected.reduce((sum, item) => sum + Number(item.unit.law_count || 0), 0);
+  const ocrRows = selected.reduce((sum, item) => sum + Number(item.audit?.ocr_review_rows || 0), 0);
+  const duplicateRows = selected.reduce((sum, item) => sum + Number(item.audit?.duplicate_text_hash_rows || 0), 0);
+  const states = new Set(selected.map((item) => item.unit.state || "NA"));
+  const kinds = {};
+  for (const item of selected) {
+    const kind = item.unit.kind || "unknown";
+    kinds[kind] = (kinds[kind] || 0) + 1;
+  }
+  return {
+    selectedUnits: selected.length,
+    visibleUnits: visibleUnits.length,
+    lawCount,
+    ocrRows,
+    duplicateRows,
+    states: states.size,
+    kinds,
+  };
+}
+
+function queuePlanSummaryHtml(plan) {
+  const cards = [
+    ["Planned units", formatCount(plan.summary.selectedUnits), `${formatPercent(plan.summary.selectedUnits, plan.summary.visibleUnits)} of visible aggregate units`],
+    ["Planned law rows", formatCount(plan.summary.lawCount), "Aggregate row count, not copied records"],
+    ["States covered", formatCount(plan.summary.states), `${queuePlanStrategyLabel(plan.strategy)} strategy`],
+    ["Audit review rows", formatCount(plan.summary.ocrRows), `${formatCount(plan.summary.duplicateRows)} duplicate text-hash rows`],
+    ["Export boundary", "Unit IDs only", "No ordinance text or source locators"],
+  ];
+  return cards
+    .map(
+      ([label, value, detail]) => `
+        <article class="queue-plan-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <em>${escapeHtml(detail)}</em>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function queuePlanVisualsHtml(plan) {
+  return [
+    queuePlanKindMixHtml(plan),
+    queuePlanStateBarsHtml(plan),
+    queuePlanSignalBarsHtml(plan),
+  ].join("");
+}
+
+function queuePlanKindMixHtml(plan) {
+  const rows = Object.entries(plan.summary.kinds)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+  return `
+    <article class="queue-plan-visual-card">
+      <h3>Unit type mix</h3>
+      <p>Selected aggregate units by normalized source type.</p>
+      <div class="bar-list">${auditBarRows(rows, titleCase)}</div>
+    </article>
+  `;
+}
+
+function queuePlanStateBarsHtml(plan) {
+  const counts = {};
+  for (const item of plan.selected) {
+    const stateCode = item.unit.state || "NA";
+    counts[stateCode] = (counts[stateCode] || 0) + 1;
+  }
+  const rows = Object.entries(counts)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label))
+    .slice(0, state.disclosureLevel === "overview" ? 8 : 16);
+  return `
+    <article class="queue-plan-visual-card">
+      <h3>State coverage</h3>
+      <p>Top states in this planned aggregate batch.</p>
+      <div class="bar-list">${auditBarRows(rows, (label) => label)}</div>
+    </article>
+  `;
+}
+
+function queuePlanSignalBarsHtml(plan) {
+  const rows = [
+    { label: "OCR review rows", value: plan.summary.ocrRows },
+    { label: "Duplicate text-hash rows", value: plan.summary.duplicateRows },
+    { label: "Selected units", value: plan.summary.selectedUnits },
+    { label: "States covered", value: plan.summary.states },
+  ];
+  return `
+    <article class="queue-plan-visual-card">
+      <h3>Review signals</h3>
+      <p>Aggregate signals for the planned unit batch.</p>
+      <div class="bar-list">${auditBarRows(rows, (label) => label)}</div>
+    </article>
+  `;
+}
+
+function queuePlanListHtml(plan) {
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const visibleRows = showUnit ? plan.selected : plan.selected.slice(0, 10);
+  return `
+    <article class="queue-plan-list-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>Planned aggregate unit batch</h3>
+          <p>Ranked units are candidates for a future bounded review package. This page does not create or publish LOCUS text records.</p>
+        </div>
+        <span>${escapeHtml(queuePlanStrategyLabel(plan.strategy))} · ${escapeHtml(formatCount(plan.selected.length))} units</span>
+      </div>
+      <div class="queue-plan-rows">
+        ${
+          visibleRows.length
+            ? visibleRows.map((item, index) => queuePlanRowHtml(item, index)).join("")
+            : '<p class="muted-note">No units match the current filters.</p>'
+        }
+      </div>
+      ${
+        !showUnit && plan.selected.length > visibleRows.length
+          ? `<p class="muted-note">Switch to Unit detail to show all ${escapeHtml(formatCount(plan.selected.length))} planned units.</p>`
+          : ""
+      }
+      ${
+        showEvidence
+          ? `<p class="muted-note">Export includes strategy, seed label, generated timestamp, unit IDs, aggregate row counts, audit signals, score spread, and source artifact names only. It excludes ordinance text, headers, source locators, SQLite state, and raw LOCUS rows.</p>`
+          : `<p class="muted-note">Switch to Evidence trail to show the export boundary.</p>`
+      }
+    </article>
+  `;
+}
+
+function queuePlanRowHtml(item, index) {
+  const unit = item.unit;
+  const audit = item.audit || {};
+  return `
+    <div class="queue-plan-row">
+      <strong>${escapeHtml(String(index + 1).padStart(2, "0"))}</strong>
+      <button type="button" data-open-queue-unit="${escapeHtml(unit.unit_id)}">${escapeHtml(displayUnitName(unit))}</button>
+      <span>${escapeHtml(unit.state || "NA")} · ${escapeHtml(titleCase(unit.kind || "unknown"))} · ${escapeHtml(formatCount(unit.law_count))} rows</span>
+      <em>score ${escapeHtml(item.score.toFixed(2))} · audit ${escapeHtml(formatNumber(audit.audit_attention_score || 0))}/100 · spread ${escapeHtml(scoreSpread(unit).toFixed(3))}</em>
+    </div>
+  `;
+}
+
+function queuePlanStrategyLabel(strategy) {
+  return {
+    audit_priority: "Audit priority",
+    balanced_state: "Balanced states",
+    score_contrast: "Score contrast",
+    law_volume: "Law volume",
+  }[strategy] || strategy;
+}
+
+function queuePlanPayload(plan = buildQueuePlan()) {
+  return {
+    schema_version: "evolocus-pages-queue-plan-v1",
+    generated_at: plan.generatedAt,
+    strategy: plan.strategy,
+    strategy_label: queuePlanStrategyLabel(plan.strategy),
+    seed_label: plan.seedLabel,
+    source_artifacts: ["map_layers.json", "unit_audit_quality.json"],
+    publication_policy: {
+      aggregate_unit_ids_only: true,
+      ordinance_text_included: false,
+      raw_rows_included: false,
+      source_locators_included: false,
+      legal_findings: false,
+    },
+    summary: plan.summary,
+    units: plan.selected.map((item, index) => ({
+      rank: index + 1,
+      unit_id: item.unit.unit_id,
+      name: item.unit.name,
+      state: item.unit.state,
+      kind: item.unit.kind,
+      law_count: Number(item.unit.law_count || 0),
+      dominant_topic: item.unit.dominant_topic || null,
+      dominant_function: item.unit.dominant_function || null,
+      neutral_tier: item.unit.tier_label || item.unit.tier || null,
+      queue_score: Number(item.score.toFixed(6)),
+      audit_attention_score: Number(item.audit?.audit_attention_score || 0),
+      ocr_review_rows: Number(item.audit?.ocr_review_rows || 0),
+      duplicate_text_hash_rows: Number(item.audit?.duplicate_text_hash_rows || 0),
+      score_spread: Number(scoreSpread(item.unit).toFixed(6)),
+    })),
+    limitations: [
+      "This is an aggregate planning artifact, not a review queue containing LOCUS text.",
+      "Use local ignored tooling to materialize bounded record-level queues from authorized local LOCUS Parquet.",
+      "Scores and audit signals are review aids, not legal findings.",
+    ],
+  };
+}
+
+function applyQueuePlan(event) {
+  event.preventDefault();
+  const form = new FormData(event.currentTarget);
+  state.queuePlan = {
+    strategy: String(form.get("strategy") || "audit_priority"),
+    size: Math.max(5, Math.min(100, Number(form.get("size") || 25))),
+    seedLabel: String(form.get("seed_label") || "pages-aggregate-plan").trim() || "pages-aggregate-plan",
+  };
+  renderQueuePlan();
+}
+
+function exportQueuePlan() {
+  const payload = queuePlanPayload();
+  download("evolocus-aggregate-queue-plan.json", JSON.stringify(payload, null, 2), "application/json");
+}
+
 function renderAnalysisCharts() {
   const charts = state.analysis.charts ? state.analysis.charts.charts || {} : null;
   const grid = $("#analysis-chart-grid");
@@ -4004,6 +4310,15 @@ function bindEvents() {
       return;
     }
     openScoreUnitOnMap(button.dataset.openScoreUnit);
+  });
+  $("#queue-plan-form").addEventListener("submit", applyQueuePlan);
+  $("#export-queue-plan").addEventListener("click", exportQueuePlan);
+  $("#queueplan-panel").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-open-queue-unit]");
+    if (!button) {
+      return;
+    }
+    openAuditUnitOnMap(button.dataset.openQueueUnit);
   });
   $("#explorer-table").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-open-record]");

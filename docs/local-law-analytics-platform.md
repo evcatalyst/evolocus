@@ -57,6 +57,7 @@ flowchart LR
   H["Synthetic demo records"] --> I["GitHub Pages browser workbench"]
   L["Static map + ontology artifacts"] --> I
   M["Static audit status + unit audit quality"] --> I
+  I --> Q["Aggregate Queue Plan JSON export"]
   G --> I
   I --> J["Append-only browser review events"]
   J --> K["Browser metrics + content-free exports"]
@@ -156,6 +157,7 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
 - Browser audit visuals must read aggregate unit quality only and keep drill-through bounded to published map units.
 - Browser score visuals must treat released model-score means as neutral relative outputs until score direction is verified from authoritative model documentation.
 - Browser inquiry prompts must answer from current filter state and static aggregate artifacts unless an offline workflow publishes new briefing JSON.
+- Browser Queue Plan exports must remain aggregate unit planning artifacts and must not include ordinance text, headers, source locators, raw rows, or SQLite state.
 - Browser imports must be bounded review queues, not full LOCUS shards.
 - Model outputs are imported as released LOCUS columns; downloading derivative model weights is deferred until model cards are verified.
 

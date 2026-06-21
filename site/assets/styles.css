@@ -170,6 +170,9 @@ main {
 .score-visual-card,
 .score-state-card,
 .score-unit-card,
+.queue-plan-card,
+.queue-plan-visual-card,
+.queue-plan-list-card,
 .audit-card,
 .audit-visual-card,
 .audit-state-card,
@@ -331,6 +334,86 @@ textarea {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
+}
+
+.queue-plan-form {
+  display: grid;
+  grid-template-columns: 1.25fr 0.6fr 1.4fr auto auto;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.queue-plan-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.queue-plan-visuals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.queue-plan-list {
+  margin-top: 18px;
+}
+
+.queue-plan-card,
+.queue-plan-visual-card,
+.queue-plan-list-card {
+  padding: 16px;
+}
+
+.queue-plan-card span,
+.queue-plan-card em {
+  display: block;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.86rem;
+}
+
+.queue-plan-card strong {
+  display: block;
+  margin: 8px 0 6px;
+  color: #315f48;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.queue-plan-visual-card h3,
+.queue-plan-list-card h3 {
+  margin-top: 0;
+}
+
+.queue-plan-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.queue-plan-row {
+  display: grid;
+  grid-template-columns: minmax(42px, auto) minmax(180px, 1fr) minmax(190px, 1fr) minmax(190px, 1fr);
+  gap: 10px;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.queue-plan-row button {
+  justify-self: start;
+  text-align: left;
+}
+
+.queue-plan-row span,
+.queue-plan-row em {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-style: normal;
 }
 
 .score-visual-grid {
@@ -2027,6 +2110,10 @@ th {
   .analysis-status-grid,
   .score-summary-grid,
   .score-visual-grid,
+  .queue-plan-form,
+  .queue-plan-summary,
+  .queue-plan-visuals,
+  .queue-plan-row,
   .audit-summary-grid,
   .audit-visual-grid,
   .status-card-grid,
@@ -2070,6 +2157,10 @@ th {
   .analysis-status-grid,
   .score-summary-grid,
   .score-visual-grid,
+  .queue-plan-form,
+  .queue-plan-summary,
+  .queue-plan-visuals,
+  .queue-plan-row,
   .audit-summary-grid,
   .audit-visual-grid,
   .status-card-grid,

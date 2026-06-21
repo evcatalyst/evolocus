@@ -52,7 +52,8 @@
         "Add per-unit audit quality artifact and audit-driven map filters",
         "Add Audit Lens tab for aggregate OCR and duplicate-text review signals",
         "Add Score Lens tab for neutral released model-score visuals",
-        "Add Inquiry question matrix for filter-aware aggregate answers"
+        "Add Inquiry question matrix for filter-aware aggregate answers",
+        "Add Queue Plan tab for aggregate review batch planning"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"
