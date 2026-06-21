@@ -52,6 +52,7 @@ flowchart LR
 - The selected map unit includes a progressive visual trail that switches between overview, unit detail, and evidence trail while preserving aggregate-only publication boundaries.
 - The selected ontology neighborhood includes a mini animated path from map unit to released topic/function/tier, then score and geometry nodes as disclosure depth increases.
 - The selected map unit also includes ontology drilldown cards for topic, function, tier, score, geometry, and package links; cards route to ontology, detail, evidence, or package-filter states without exposing row text.
+- The Ontology tab includes map-driven query presets that derive from current filters, selected unit, visible top topic/function/tier, audit signals, and score context, then route to deterministic Inquiry answers.
 - The Analysis Status tab reads `audit_status.json`, a full-row-count audit summary that excludes raw rows, ordinance text, sampled findings, and record locators.
 - The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
 - The Audit Lens tab renders `unit_audit_quality.json` as aggregate-only charts, state rows, OCR reason mix, and map drill-through links.

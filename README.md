@@ -59,6 +59,7 @@ The Pages app supports:
 - one-click imported-package-units map filter for narrowing real aggregate visuals to locally reviewed units;
 - Results-tab package coverage visuals after bounded package upload, including state/topic/function/type/OCR mix and review progress;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
+- map-driven ontology query presets that route current aggregate map context into bounded Inquiry answers;
 - package-to-ontology bridge that connects browser-local package counts to topic, function, tier, and matched map-unit nodes without exposing row text;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit mini ontology path animation over aggregate topic/function/tier/score/geometry steps;

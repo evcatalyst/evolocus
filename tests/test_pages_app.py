@@ -28,6 +28,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
     assert "ontology-tier-focus" in html
+    assert "ontology-query-presets" in html
     assert "Unit type" in html
     assert 'name="kind"' in html
     assert "Score field" in html
@@ -105,6 +106,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "tierColorForLabel" in js
     assert "tierKeyForLabel" in js
     assert "openTierOntology" in js
+    assert "ontologyQueryPresetsHtml" in js
+    assert "ontologyQueryPresetCards" in js
+    assert "ontologyQueryPresetCardHtml" in js
+    assert "applyOntologyQueryPreset" in js
+    assert "data-ontology-query-preset" in js
     assert "ontologyTierFocusHtml" in js
     assert "ontologyTierMiniChartsHtml" in js
     assert "ontologyTierBarChartHtml" in js
@@ -161,6 +167,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitOntologyPathHtml" in js
     assert "selected-disclosure-trail" in css
     assert "selected-ontology-drilldown" in css
+    assert "ontology-query-presets" in css
+    assert "ontology-query-grid" in css
+    assert "ontology-query-card" in css
     assert "map-reading-guide-card" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css

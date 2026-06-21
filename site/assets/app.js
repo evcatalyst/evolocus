@@ -3244,6 +3244,7 @@ function activeGeographyLayerLabels() {
 function renderOntology() {
   const ontology = state.analysis.ontology;
   const models = state.analysis.models;
+  const queryPresets = $("#ontology-query-presets");
   const tierFocus = $("#ontology-tier-focus");
   const selectedNeighborhood = $("#selected-ontology-neighborhood");
   const packageBridge = $("#package-ontology-bridge");
@@ -3253,6 +3254,9 @@ function renderOntology() {
     `;
     if (selectedNeighborhood) {
       selectedNeighborhood.innerHTML = "<p>Selected-unit ontology neighborhood loading.</p>";
+    }
+    if (queryPresets) {
+      queryPresets.innerHTML = "<p>Map-driven ontology query presets loading.</p>";
     }
     if (tierFocus) {
       tierFocus.innerHTML = "<p>Tier ontology focus loading.</p>";
@@ -3290,6 +3294,9 @@ function renderOntology() {
   if (tierFocus) {
     tierFocus.innerHTML = ontologyTierFocusHtml();
   }
+  if (queryPresets) {
+    queryPresets.innerHTML = ontologyQueryPresetsHtml();
+  }
   if (selectedNeighborhood) {
     const selectedUnit = currentSelectedMapUnit();
     selectedNeighborhood.innerHTML = selectedUnit
@@ -3311,6 +3318,164 @@ function renderOntology() {
         )
         .join("")
     : "<span>Model registry loading</span>";
+}
+
+function ontologyQueryPresetsHtml() {
+  const presets = ontologyQueryPresetCards();
+  return `
+    <section class="ontology-query-presets" aria-label="Map-driven ontology query presets">
+      <div class="ontology-query-heading">
+        <div>
+          <p class="eyebrow">Map-driven queries</p>
+          <h3>Ask from the current aggregate map state.</h3>
+          <p>Preset questions use current filters, selected unit, and visible ontology context. They route to the Inquiry tab and never expose ordinance text or source locator values.</p>
+        </div>
+        <span>${escapeHtml(formatCount(presets.length))} presets</span>
+      </div>
+      <div class="ontology-query-grid">
+        ${presets.length ? presets.map(ontologyQueryPresetCardHtml).join("") : '<p class="muted-note">Map artifacts are not loaded yet.</p>'}
+      </div>
+      <p class="ontology-query-boundary">Queries are deterministic browser actions over public aggregate artifacts. Results are review context, not legal findings or rankings.</p>
+    </section>
+  `;
+}
+
+function ontologyQueryPresetCards() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return [];
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const summary = summarizeUnits(units);
+  const selectedUnit = currentSelectedMapUnit();
+  const topTier = topEntry(summary.tierCounts);
+  const tierKey = topTier.value ? tierKeyForLabel(topTier.label, mapLayers.tier_definitions || {}) : "";
+  const scoreField = state.mapFilters.scoreField || topScoreField(summary.scoreMeans);
+  const auditSummary = inquiryAuditSummary(units);
+  const filters = activeFilterLabels().join(" · ") || "No active filters";
+  const cards = [
+    {
+      key: "current-map",
+      group: "Map",
+      title: "Current ontology slice",
+      question: "What does the current filtered map view show?",
+      detail: `${formatCount(units.length)} units · ${formatCount(summary.lawCount)} rows · ${filters}`,
+      disclosure: state.disclosureLevel,
+    },
+    {
+      key: "topic",
+      group: "Topic",
+      title: summary.topTopic.value ? `${summary.topTopic.label} laws` : "Topic not available",
+      question: `What does the current filtered map view show for ${summary.topTopic.label} laws?`,
+      detail: `${formatCount(summary.topTopic.value)} aggregate rows`,
+      filters: summary.topTopic.value ? { topic: summary.topTopic.label } : {},
+      disclosure: "unit",
+      disabled: !summary.topTopic.value,
+    },
+    {
+      key: "function",
+      group: "Function",
+      title: summary.topFunction.value ? `${summary.topFunction.label} function` : "Function not available",
+      question: `What does the current filtered map view show for ${summary.topFunction.label} functions?`,
+      detail: `${formatCount(summary.topFunction.value)} aggregate rows`,
+      filters: summary.topFunction.value ? { function: summary.topFunction.label } : {},
+      disclosure: "unit",
+      disabled: !summary.topFunction.value,
+    },
+    {
+      key: "tier",
+      group: "Tier",
+      title: topTier.value ? topTier.label : "Tier not available",
+      question: `What does the current filtered map view show for ${topTier.label} units?`,
+      detail: `${formatCount(topTier.value)} visible units`,
+      filters: tierKey ? { tier: tierKey } : {},
+      tierFocus: tierKey,
+      disclosure: "unit",
+      disabled: !topTier.value,
+    },
+    {
+      key: "audit",
+      group: "Audit",
+      title: "Review signal focus",
+      question: "What audit review signals are visible in the current filtered map view?",
+      detail: `${formatCount(auditSummary.reviewRows)} OCR-review rows · ${formatCount(auditSummary.duplicateRows)} duplicate hash rows`,
+      disclosure: "evidence",
+    },
+    {
+      key: "score",
+      group: "Score",
+      title: scoreField ? scoreFieldLabel(scoreField) : "Neutral score profile",
+      question: "What model score patterns are visible in the current filtered map view?",
+      detail: scoreField ? `${scoreBandLabel(state.mapFilters.scoreBand || "high")} available as map filter` : scoreSnapshot(summary.scoreMeans),
+      filters: scoreField ? { scoreField, scoreBand: state.mapFilters.scoreBand || "high" } : {},
+      disclosure: "unit",
+      disabled: !scoreField,
+    },
+  ];
+  if (selectedUnit) {
+    cards.unshift({
+      key: "selected",
+      group: "Selected",
+      title: displayUnitName(selectedUnit),
+      question: `What does the selected unit ${displayUnitName(selectedUnit)} show?`,
+      detail: `${selectedUnit.state} · ${selectedUnit.tier_label} · ${formatCount(selectedUnit.law_count)} rows`,
+      unitId: selectedUnit.unit_id,
+      disclosure: "unit",
+      geographyLayers: { ontology: true },
+    });
+  }
+  return cards;
+}
+
+function ontologyQueryPresetCardHtml(card) {
+  return `
+    <article class="ontology-query-card${card.disabled ? " disabled" : ""}">
+      <span>${escapeHtml(card.group)}</span>
+      <strong>${escapeHtml(card.title)}</strong>
+      <p>${escapeHtml(card.detail)}</p>
+      <button type="button" data-ontology-query-preset="${escapeHtml(card.key)}"${card.disabled ? " disabled" : ""}>Ask preset</button>
+    </article>
+  `;
+}
+
+function topScoreField(scoreMeans) {
+  const rows = Object.entries(scoreMeans || {})
+    .map(([field, value]) => ({ field, value: Number(value) }))
+    .filter((row) => Number.isFinite(row.value))
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value) || a.field.localeCompare(b.field));
+  return rows[0]?.field || "";
+}
+
+function applyOntologyQueryPreset(key) {
+  const preset = ontologyQueryPresetCards().find((card) => card.key === key);
+  if (!preset || preset.disabled) {
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    ...(preset.filters || {}),
+  };
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    ...(preset.geographyLayers || {}),
+  };
+  if (preset.unitId) {
+    state.selectedUnitId = preset.unitId;
+  }
+  if (preset.tierFocus) {
+    state.ontologyFocusTier = preset.tierFocus;
+  }
+  if (["overview", "unit", "evidence"].includes(preset.disclosure)) {
+    state.disclosureLevel = preset.disclosure;
+  }
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = preset.question;
+  }
+  state.inquiryAnswer = answerQuestion(preset.question);
+  state.activeTab = "inquiry";
+  render();
 }
 
 function ontologyTierFocusHtml() {
@@ -7599,6 +7764,11 @@ function bindEvents() {
         state.activeTab = "map";
         render();
       }
+      return;
+    }
+    const queryPresetButton = event.target.closest("[data-ontology-query-preset]");
+    if (queryPresetButton) {
+      applyOntologyQueryPreset(queryPresetButton.dataset.ontologyQueryPreset);
       return;
     }
     const tierUnitButton = event.target.closest("[data-tier-ontology-unit]");

@@ -53,6 +53,7 @@
 - Score drilldowns should use relative-band language until score direction is verified and should not imply legal burden or ranking.
 - Geography layer toggles make the real aggregate map easier to inspect, but ontology links must stay visibly aggregate and progressive rather than legal relationship claims.
 - Ontology-link legends should show why peer links appear, but the reasons are aggregate similarity cues, not evidence of legal authority or legal relationship.
+- Ontology query presets are useful when they reuse deterministic Inquiry answers and safe map filters instead of creating new browser-side model claims.
 - Browser inquiry should make the active filter state visible in prompt cards so answers feel connected to the map without requiring live LLM calls.
 - Static question packs should store prompt filters, disclosure recommendations, and aggregate supporting facts only; optional Grok notes are generated offline and never turn into browser model calls.
 - Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.

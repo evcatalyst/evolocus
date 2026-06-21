@@ -26,6 +26,7 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - Browser score-band filters are neutral relative model-output views and must not be presented as legal direction, burden, ranking, or finding.
 - Browser ontology-link overlays are aggregate peer visuals from public map metadata only and must not be described as source-backed legal relationships.
 - Browser ontology-link legends may summarize peer reasons such as same topic, same function, same tier, same source-unit type, same state, or similar count, but must label those as aggregate similarity reasons only.
+- Browser ontology query presets may apply aggregate map filters and fill Inquiry questions, but must not generate new factual claims beyond the static aggregate artifacts.
 - Grok API keys belong only in GitHub Actions secrets or local environment variables, never in browser JavaScript.
 - Public static analysis artifacts must pass `validate-public-artifacts` before deployment; the guard rejects raw text fields, source locators, local data paths, database/export references, API bearer strings, and secret-shaped tokens.
 - Browser review-package requests are aggregate-only handoff files. Local materialized packages must write outside `site/`, stay ignored, and require explicit `--include-content` before including ordinance text.
