@@ -78,7 +78,8 @@
         "Add package-aware inquiry answers for browser-local overlays",
         "Add package-to-ontology bridge for browser-local overlays",
         "Add package-aware snapshot comparisons for browser-local overlays",
-        "Accept Grok_api_key Actions secret alias for offline inquiry refresh"
+        "Accept Grok_api_key Actions secret alias for offline inquiry refresh",
+        "Add tier-focus mini charts inside the ontology card"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

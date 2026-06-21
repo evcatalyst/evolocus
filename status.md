@@ -93,6 +93,7 @@ Current coverage stats:
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
 - Tier-to-ontology clickthrough: GitHub Pages tier chips open a focused ontology card with visible units, topic/function links, neutral score means, and current filter context
+- Tier-focus mini charts: GitHub Pages ontology focus cards show aggregate topic mix, function mix, unit type mix, and neutral score means for the active tier
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
 - Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
@@ -187,6 +188,7 @@ Latest update:
 - Added Actions support for the existing `Grok_api_key` secret alias while keeping generated artifacts normalized to `GROK_API_KEY` and browser JavaScript key-free.
 - Added a selected-unit progressive visual trail in the map panel so real aggregate county/town visuals can step through overview, model-output detail, and evidence boundaries without leaving the map.
 - Added selected-unit ontology drilldown cards in the map panel for topic, function, neutral tier, model outputs, geometry provenance, and browser-local package context.
+- Added tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology focus card.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.

@@ -40,6 +40,7 @@ flowchart LR
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - The map card includes a law-location tier guide that explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and publication boundaries.
 - Tier chips in the map guide click through to an ontology tier-focus card that summarizes visible units, topic/function links, neutral score means, and filter context.
+- The tier-focus ontology card includes mini charts for topic mix, function mix, unit type mix, and neutral score means under the current filters.
 - The map card also includes a chat-style inquiry panel that reuses static aggregate answer functions for current filters, selected unit, audit signals, model-score profile, and browser-local package overlay.
 - The map inquiry panel renders a prompt-aware county/town comparison strip and lets users drill comparison rows back into the selected map unit.
 - The selected map unit includes a progressive visual trail that switches between overview, unit detail, and evidence trail while preserving aggregate-only publication boundaries.

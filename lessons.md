@@ -35,6 +35,7 @@
 - Mini ontology path animations should animate aggregate relationships only and include reduced-motion fallbacks so motion supports comprehension without becoming required evidence.
 - Map legends should explain active filters and county/town scope in the same panel as the visual, because tier colors are neutral review bands rather than legal rankings.
 - Tier chips should click through to ontology context rather than stand alone as a legend, so color bands become explainable aggregate relationships.
+- Tier-focus cards are stronger when aggregate mini charts make topic/function/type/score relationships visible without row-level evidence.
 - Map-side inquiry should reuse deterministic aggregate answer functions so users can ask questions without exposing live model endpoints, raw rows, or ordinance text.
 - Inquiry answers become more useful when paired with prompt-aware comparison strips that can drill back to aggregate map units without publishing records.
 - A selected-unit progressive trail keeps the demo understandable from the map itself: aggregate color first, neutral model-output summaries second, provenance boundaries third.

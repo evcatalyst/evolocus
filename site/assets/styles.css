@@ -2550,6 +2550,78 @@ textarea {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.ontology-tier-mini-charts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ontology-tier-mini-chart {
+  display: grid;
+  gap: 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.ontology-tier-mini-chart > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ontology-tier-mini-chart span,
+.ontology-tier-mini-chart em {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.ontology-tier-mini-chart > div:first-child span {
+  color: var(--ink);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ontology-tier-mini-bars {
+  display: grid;
+  gap: 7px;
+}
+
+.ontology-tier-mini-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, 0.8fr) auto;
+  gap: 7px;
+  align-items: center;
+}
+
+.ontology-tier-mini-bar strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.ontology-tier-mini-bar i {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf3f1;
+}
+
+.ontology-tier-mini-bar u {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+
+.ontology-tier-mini-bar.score u {
+  background: #8d6aa8;
+}
+
 .ontology-tier-focus-metrics span,
 .ontology-tier-focus-links article,
 .ontology-tier-focus-units button {
@@ -3642,6 +3714,7 @@ th {
   .ontology-tier-focus-heading,
   .ontology-tier-focus-metrics,
   .ontology-tier-focus-links,
+  .ontology-tier-mini-charts,
   .ontology-tier-focus-units > div,
   .package-ontology-lane,
   .package-ontology-units > div,
@@ -3733,6 +3806,7 @@ th {
   .ontology-tier-focus-heading,
   .ontology-tier-focus-metrics,
   .ontology-tier-focus-links,
+  .ontology-tier-mini-charts,
   .ontology-tier-focus-units > div,
   .package-ontology-heading,
   .package-ontology-lane,

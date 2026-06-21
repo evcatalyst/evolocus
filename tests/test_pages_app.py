@@ -75,6 +75,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "tierKeyForLabel" in js
     assert "openTierOntology" in js
     assert "ontologyTierFocusHtml" in js
+    assert "ontologyTierMiniChartsHtml" in js
+    assert "ontologyTierBarChartHtml" in js
+    assert "ontologyTierScoreChartHtml" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "renderWalkthrough" in js
@@ -109,6 +112,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-inline-comparison-row" in css
     assert "ontology-tier-focus" in css
     assert "ontology-tier-focus-metrics" in css
+    assert "ontology-tier-mini-charts" in css
+    assert "ontology-tier-mini-bar" in css
     assert "ontology-path-strip" in css
     assert "ontologyPathSweep" in css
     assert "ontologyNodeSvg" in js

@@ -2782,6 +2782,7 @@ function ontologyTierFocusHtml() {
           <strong>${escapeHtml(filters)}</strong>
         </article>
       </div>
+      ${ontologyTierMiniChartsHtml(summary)}
       <div class="ontology-tier-focus-units">
         <h4>Visible county/town units in this tier</h4>
         <div>
@@ -2794,6 +2795,81 @@ function ontologyTierFocusHtml() {
       </div>
       <p class="muted-note">This card reads map_layers.json aggregates and current browser filters only. It does not publish ordinance text, source locators, review events, or legal conclusions.</p>
     </section>
+  `;
+}
+
+function ontologyTierMiniChartsHtml(summary) {
+  const rowLimit = state.disclosureLevel === "overview" ? 4 : 6;
+  return `
+    <div class="ontology-tier-mini-charts" aria-label="Tier-focus aggregate mini charts">
+      ${ontologyTierBarChartHtml("Topic mix", topCountEntries(summary.topicCounts, rowLimit), "aggregate law rows")}
+      ${ontologyTierBarChartHtml("Function mix", topCountEntries(summary.functionCounts, rowLimit), "aggregate law rows")}
+      ${ontologyTierBarChartHtml("Unit type mix", topCountEntries(summary.kindCounts, rowLimit), "visible units", titleCase)}
+      ${ontologyTierScoreChartHtml(summary.scoreMeans)}
+    </div>
+  `;
+}
+
+function ontologyTierBarChartHtml(title, rows, detail, labeler = (value) => value) {
+  const maxValue = Math.max(1, ...rows.map((row) => Number(row.value || 0)));
+  return `
+    <article class="ontology-tier-mini-chart">
+      <div>
+        <span>${escapeHtml(title)}</span>
+        <em>${escapeHtml(detail)}</em>
+      </div>
+      <div class="ontology-tier-mini-bars">
+        ${
+          rows.length
+            ? rows.map((row) => ontologyTierBarRowHtml(row, maxValue, labeler)).join("")
+            : '<p class="muted-note">No aggregate counts for this tier under current filters.</p>'
+        }
+      </div>
+    </article>
+  `;
+}
+
+function ontologyTierBarRowHtml(row, maxValue, labeler) {
+  const width = Math.max(4, (Number(row.value || 0) / Math.max(1, Number(maxValue || 1))) * 100);
+  return `
+    <span class="ontology-tier-mini-bar">
+      <strong>${escapeHtml(labeler(row.label))}</strong>
+      <i><u style="width:${width.toFixed(2)}%"></u></i>
+      <em>${escapeHtml(formatCount(row.value))}</em>
+    </span>
+  `;
+}
+
+function ontologyTierScoreChartHtml(scoreMeans) {
+  const rows = SCORE_FIELDS
+    .map((field) => ({ field, value: Number(scoreMeans?.[field]) }))
+    .filter((row) => Number.isFinite(row.value));
+  const maxValue = Math.max(1, ...rows.map((row) => Math.abs(row.value)));
+  return `
+    <article class="ontology-tier-mini-chart score">
+      <div>
+        <span>Neutral score means</span>
+        <em>direction unverified</em>
+      </div>
+      <div class="ontology-tier-mini-bars">
+        ${
+          rows.length
+            ? rows.map((row) => ontologyTierScoreRowHtml(row, maxValue)).join("")
+            : '<p class="muted-note">No score means for this tier under current filters.</p>'
+        }
+      </div>
+    </article>
+  `;
+}
+
+function ontologyTierScoreRowHtml(row, maxValue) {
+  const width = Math.max(4, (Math.abs(Number(row.value || 0)) / Math.max(1, Number(maxValue || 1))) * 100);
+  return `
+    <span class="ontology-tier-mini-bar score">
+      <strong>${escapeHtml(titleCase(row.field))}</strong>
+      <i><u style="width:${width.toFixed(2)}%"></u></i>
+      <em>${escapeHtml(formatScore(row.value))}</em>
+    </span>
   `;
 }
 

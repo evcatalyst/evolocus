@@ -44,6 +44,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - map-side law-location tier guide with active filters, visible county/town counts, neutral tier mix, and publication boundary copy;
 - tier-to-ontology clickthrough from neutral tier chips into a focused ontology context card for visible units, topic/function links, and score summaries;
+- tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology card;
 - map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
 - inquiry-driven county/town comparison strip that changes by prompt and opens aggregate units back on the map;
 - selected-unit ontology drilldown cards for topic/function/tier/score/geometry/package links inside the map panel;

@@ -241,6 +241,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "tierKeyForLabel" in js
     assert "openTierOntology" in js
     assert "ontologyTierFocusHtml" in js
+    assert "ontologyTierMiniChartsHtml" in js
+    assert "ontologyTierBarChartHtml" in js
+    assert "ontologyTierScoreChartHtml" in js
     assert "data-tier-ontology" in js
     assert "data-tier-ontology-unit" in js
     assert "inquiryPromptCards" in js
@@ -283,6 +286,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-inline-comparison-row" in css
     assert "ontology-tier-focus" in css
     assert "ontology-tier-focus-metrics" in css
+    assert "ontology-tier-mini-charts" in css
+    assert "ontology-tier-mini-bar" in css
     assert "package-map-actions" in css
     assert "checkbox-filter" in css
     assert "package-hit-badge" in css
