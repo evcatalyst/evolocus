@@ -14,6 +14,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - filtered-view aggregate insight cards and inquiry answers;
 - filtered-vs-full aggregate comparison panels;
 - state/topic small-multiple charts in the Charts tab;
+- analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
 - ontology and model-output registry views;
 - static inquiry over published analysis artifacts;
 - aggregate chart panels and publication gates;

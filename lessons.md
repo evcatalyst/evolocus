@@ -24,3 +24,4 @@
 - Real LOCUS aggregate visuals can be published to GitHub Pages only after a local safety scan confirms the artifacts contain no raw `header`, `content`, record text, SQLite state, exports, secrets, or machine paths.
 - For aggregate publication, derive jurisdiction units and neutral tiers with Polars, publish bounded unit summaries, and keep source Parquet under ignored `data/raw/`.
 - Until reviewed FIPS/geometry crosswalks exist, state-clustered map coordinates are an explicit approximation and must be labeled as such in the artifact metadata.
+- The public Pages surface needs an always-visible analysis status path so users can distinguish aggregate readiness, pending geometry review, license/provenance gates, and offline-only secret usage.

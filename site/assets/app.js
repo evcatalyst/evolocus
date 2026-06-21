@@ -333,6 +333,7 @@ function render() {
   renderReview();
   renderExplorer();
   renderResults();
+  renderAnalysisStatusPanel();
 }
 
 function renderTabs() {
@@ -488,6 +489,112 @@ function renderAnalysisStatus(status, units) {
       `,
     )
     .join("");
+}
+
+function renderAnalysisStatusPanel() {
+  const status = state.analysis.status;
+  const mapLayers = state.analysis.mapLayers;
+  const cardsGrid = $("#status-card-grid");
+  const detailGrid = $("#status-detail-grid");
+  const gateGrid = $("#status-gate-grid");
+  if (!cardsGrid || !detailGrid || !gateGrid) {
+    return;
+  }
+  if (!status) {
+    cardsGrid.innerHTML = `
+      <article class="status-card"><span class="metric-value small">...</span><span class="metric-label">Loading analysis artifact status</span></article>
+    `;
+    detailGrid.innerHTML = "";
+    gateGrid.innerHTML = "";
+    return;
+  }
+
+  const units = mapLayers ? mapLayers.units || [] : [];
+  const sampleCount = units.reduce((total, unit) => total + (unit.samples || []).length, 0);
+  const generatedAt = formatDateTime(status.generated_at || mapLayers?.generated_at);
+  const statusCards = [
+    ["Analysis state", status.analysis_state || "unknown", "Current Pages artifact readiness"],
+    ["Published units", formatCount(status.unit_count || units.length), "Bounded county/town-style aggregate layer"],
+    ["Law records", formatCount(status.law_count), "Aggregate row count inside the published cap"],
+    ["Raw rows published", status.real_locus_rows_published ? "yes" : "no", "GitHub Pages must not expose LOCUS text rows"],
+    ["Synthetic layer", status.synthetic ? "yes" : "no", status.synthetic ? "Demo artifact" : "Real aggregate artifact"],
+    ["Public samples", formatCount(sampleCount), "No ordinance text is included in this public layer"],
+  ];
+  cardsGrid.innerHTML = statusCards
+    .map(
+      ([label, value, detail]) => `
+        <article class="status-card">
+          <span class="metric-value small">${escapeHtml(String(value))}</span>
+          <span class="metric-label">${escapeHtml(label)}</span>
+          <p>${escapeHtml(detail)}</p>
+        </article>
+      `,
+    )
+    .join("");
+
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const details = [
+    ["Dataset", status.dataset_id || "unknown"],
+    ["Dataset revision", status.dataset_revision || mapLayers?.dataset_revision || "unknown"],
+    ["Generated", generatedAt],
+    ["License", status.license || "unknown"],
+    ["Schema", status.schema_version || "unknown"],
+    ["Artifact commit", shortCommit(status.code_commit)],
+    ["Geometry status", mapLayers?.geometry_status || "not loaded"],
+    ["Grok boundary", `${status.grok_secret_name || "Configured offline secret"} is for offline artifact generation only; no API key is embedded in Pages.`],
+  ];
+  detailGrid.innerHTML = details
+    .slice(0, showUnit ? details.length : 4)
+    .map(
+      ([label, value]) => `
+        <article class="status-detail-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(String(value))}</strong>
+        </article>
+      `,
+    )
+    .join("");
+
+  if (!showEvidence) {
+    gateGrid.innerHTML = `
+      <article class="status-evidence-note">
+        <h3>Evidence trail hidden</h3>
+        <p>Switch to Evidence trail to inspect publication gates, citation, and artifact boundary notes.</p>
+      </article>
+    `;
+    renderDisclosureButtons();
+    return;
+  }
+
+  const gates = status.publication_gates || [];
+  gateGrid.innerHTML = `
+    <article class="status-evidence-card wide">
+      <h3>Publication gates</h3>
+      <div class="gate-list">
+        ${gates
+          .map(
+            (gate) => `
+              <span>
+                <strong>${escapeHtml(gate.label)}</strong>
+                <em>${escapeHtml(gate.status)}</em>
+              </span>
+            `,
+          )
+          .join("") || "<p>No publication gates recorded.</p>"}
+      </div>
+    </article>
+    <article class="status-evidence-card">
+      <h3>Boundary</h3>
+      <p>No raw LOCUS rows, ordinance text, SQLite databases, exports, credentials, or machine-specific paths are published through this artifact layer.</p>
+    </article>
+    <article class="status-evidence-card">
+      <h3>Citation</h3>
+      <p>${escapeHtml(status.citation || "Peskoff, Barrow, Vu, and Davenport. Freeing the Law with LOCUS. arXiv:2606.19334, 2026.")}</p>
+      <p>${escapeHtml(status.paper || "https://arxiv.org/abs/2606.19334")} · ${escapeHtml(status.license || "CC-BY-NC-4.0")}</p>
+    </article>
+  `;
+  renderDisclosureButtons();
 }
 
 function filterMapUnits(units) {
@@ -772,11 +879,26 @@ function formatCount(value) {
   return NUMBER_FORMATTER.format(Number(value || 0));
 }
 
+function formatDateTime(value) {
+  if (!value) {
+    return "unknown";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+  return date.toLocaleString();
+}
+
 function formatPercent(part, total) {
   if (!total) {
     return "0%";
   }
   return `${((Number(part || 0) / Number(total)) * 100).toFixed(1)}%`;
+}
+
+function shortCommit(value) {
+  return value ? String(value).slice(0, 12) : "unknown";
 }
 
 function stateCenterSvg(center) {
@@ -1695,7 +1817,7 @@ function bindEvents() {
   $all(".disclosure-button").forEach((button) => {
     button.addEventListener("click", () => {
       state.disclosureLevel = button.dataset.disclosure;
-      renderMap();
+      render();
     });
   });
   $("#inquiry-form").addEventListener("submit", submitInquiry);

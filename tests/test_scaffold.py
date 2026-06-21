@@ -95,6 +95,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Pages-first UI" in html
     assert "Law Map" in html
     assert "Inquiry" in html
+    assert "Analysis Status" in html
     assert "map-filter-form" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
@@ -102,6 +103,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Progressive disclosure" in html
     assert "analysis-chart-grid" in html
     assert "state-topic-grid" in html
+    assert "status-card-grid" in html
+    assert "status-detail-grid" in html
+    assert "status-gate-grid" in html
     assert "data/analysis/status.json" in js
     assert "data/analysis/charts.json" in js
     assert "filterMapUnits" in js
@@ -111,6 +115,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderMapComparisons" in js
     assert "compareCounts" in js
     assert "renderStateTopicCharts" in js
+    assert "renderAnalysisStatusPanel" in js
+    assert "publication_gates" in js
     assert "stateSummaries" in js
     assert "api.x.ai" not in js
     assert "https://fonts." not in html + css + js

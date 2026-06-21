@@ -166,6 +166,10 @@ main {
 .toolbar,
 .panel,
 .metric-card,
+.status-card,
+.status-detail-card,
+.status-evidence-card,
+.status-evidence-note,
 .record-panel,
 .review-card,
 .command-panel,
@@ -349,6 +353,91 @@ textarea {
 
 .publication-gates em,
 .muted-note {
+  color: var(--muted);
+  font-style: normal;
+}
+
+.compact-disclosure {
+  align-items: flex-start;
+}
+
+.status-card-grid,
+.status-detail-grid,
+.status-gate-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.status-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.status-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.status-gate-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.status-card,
+.status-detail-card,
+.status-evidence-card,
+.status-evidence-note {
+  padding: 16px;
+}
+
+.status-card p,
+.status-evidence-card p,
+.status-evidence-note p {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+}
+
+.status-detail-card {
+  display: grid;
+  gap: 6px;
+}
+
+.status-detail-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.status-detail-card strong {
+  overflow-wrap: anywhere;
+  font-size: 0.96rem;
+}
+
+.status-evidence-card.wide {
+  grid-column: 1 / -1;
+}
+
+.status-evidence-card h3,
+.status-evidence-note h3 {
+  margin: 0;
+}
+
+.gate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.gate-list span {
+  display: inline-grid;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px 10px;
+}
+
+.gate-list em {
   color: var(--muted);
   font-style: normal;
 }
@@ -1004,6 +1093,9 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .status-card-grid,
+  .status-detail-grid,
+  .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
   .ontology-layout,
@@ -1032,6 +1124,9 @@ th {
   .map-insight-grid,
   .map-comparison-grid,
   .analysis-status-grid,
+  .status-card-grid,
+  .status-detail-grid,
+  .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
   .ontology-layout,
