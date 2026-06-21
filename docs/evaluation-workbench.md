@@ -43,6 +43,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - package-aware inquiry answer for browser-local package coverage, map matches, workflow progress, and publication boundaries;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - map-side law-location tier guide with active filters, visible county/town counts, neutral tier mix, and publication boundary copy;
+- map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
 - selected-unit ontology drilldown cards for topic/function/tier/score/geometry/package links inside the map panel;
 - selected-unit mini ontology path animation that adds score and geometry nodes as disclosure depth increases;
 - selected-unit progressive visual trail for overview, unit-detail, and evidence disclosure inside the map panel;

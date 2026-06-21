@@ -226,6 +226,7 @@ let state = {
   selectedUnitId: null,
   disclosureLevel: "overview",
   geographyColorMode: "tier",
+  mapInlineInquiry: "view",
   mapFilters: {
     state: "",
     topic: "",
@@ -587,6 +588,7 @@ function renderMap() {
     $("#map-geometry-status").textContent = "No map layer loaded";
     $("#tier-legend").innerHTML = "";
     $("#map-reading-guide").innerHTML = "";
+    $("#map-inline-inquiry").innerHTML = "";
     $("#law-map").innerHTML = "";
     $("#map-insight-grid").innerHTML = "";
     $("#map-comparison-grid").innerHTML = "";
@@ -619,6 +621,7 @@ function renderMap() {
   if (!state.selectedUnitId && units.length) {
     state.selectedUnitId = units[0].unit_id;
   }
+  renderMapInlineInquiry();
 
   const visibleStates = new Set(units.map((unit) => unit.state).filter(Boolean));
   const stateCenters = (mapLayers.state_centers || []).filter((center) => visibleStates.has(center.state));
@@ -709,6 +712,84 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
         Official county polygons and municipal points are machine-matched and pending review. Public artifacts contain aggregate counts only: no ordinance text, source locators, review events, or legal findings.
       </p>
     </section>
+  `;
+}
+
+function renderMapInlineInquiry() {
+  const panel = $("#map-inline-inquiry");
+  if (!panel) {
+    return;
+  }
+  const prompts = mapInlineInquiryPrompts();
+  const activePrompt = prompts.find((prompt) => prompt.key === state.mapInlineInquiry) || prompts[0];
+  state.mapInlineInquiry = activePrompt.key;
+  const answer = answerQuestion(activePrompt.question);
+  panel.innerHTML = `
+    <section class="map-inline-inquiry-card" aria-label="Map-side aggregate inquiry">
+      <div class="map-inline-inquiry-heading">
+        <div>
+          <p class="eyebrow">Ask this map</p>
+          <h3>Static answers from the current aggregate view.</h3>
+        </div>
+        <span>No browser LLM call</span>
+      </div>
+      <div class="map-inline-inquiry-prompts" role="group" aria-label="Map inquiry prompts">
+        ${prompts.map((prompt) => mapInlineInquiryPromptHtml(prompt, activePrompt.key)).join("")}
+      </div>
+      <div class="map-inline-chat">
+        <div class="map-inline-chat-question">
+          <span>Question</span>
+          <p>${escapeHtml(activePrompt.question)}</p>
+        </div>
+        <div class="map-inline-chat-answer">
+          ${inquiryAnswerHtml(answer)}
+        </div>
+      </div>
+      <p class="map-inline-inquiry-boundary">
+        Answers are recomputed from current filters, selected unit, package overlay, and progressive disclosure level. They omit ordinance text, source locator values, review events, and legal conclusions.
+      </p>
+    </section>
+  `;
+}
+
+function mapInlineInquiryPrompts() {
+  const selectedUnit = currentSelectedMapUnit();
+  return [
+    {
+      key: "view",
+      label: "Current view",
+      question: "What does the current filtered map view show?",
+    },
+    {
+      key: "selected",
+      label: "Selected unit",
+      question: selectedUnit
+        ? `What does the selected unit ${displayUnitName(selectedUnit)} show?`
+        : "What does the selected unit show?",
+    },
+    {
+      key: "audit",
+      label: "Audit signals",
+      question: "What audit signals are visible in the current filtered map view?",
+    },
+    {
+      key: "scores",
+      label: "Scores",
+      question: "What model score profile is visible in the current filtered map view?",
+    },
+    {
+      key: "package",
+      label: "Package overlay",
+      question: "What does the loaded package show on the map?",
+    },
+  ];
+}
+
+function mapInlineInquiryPromptHtml(prompt, activeKey) {
+  return `
+    <button type="button" data-map-inquiry="${escapeHtml(prompt.key)}" class="${prompt.key === activeKey ? "active" : ""}">
+      ${escapeHtml(prompt.label)}
+    </button>
   `;
 }
 
@@ -6455,6 +6536,13 @@ function bindEvents() {
     if (packageFilterButton) {
       event.preventDefault();
       applyPackageMapFilter(packageFilterButton.dataset.packageMapFilter);
+      return;
+    }
+    const mapInquiryButton = event.target.closest("[data-map-inquiry]");
+    if (mapInquiryButton) {
+      event.preventDefault();
+      state.mapInlineInquiry = mapInquiryButton.dataset.mapInquiry;
+      renderMap();
       return;
     }
     const askButton = event.target.closest("[data-ask-unit-id]");

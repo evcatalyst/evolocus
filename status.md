@@ -92,6 +92,7 @@ Current coverage stats:
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
+- Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
 - Selected-unit progressive trail: GitHub Pages map panel walks from aggregate overview to unit-detail model outputs to evidence/provenance boundaries with disclosure buttons
 - Selected-unit ontology drilldowns: GitHub Pages map panel shows topic/function/tier/score/geometry/package cards that route to ontology context, evidence depth, or package focus without raw text
@@ -165,6 +166,7 @@ Latest update:
 - Added `question_pack.json` and `publish-question-pack` so the Inquiry matrix can render filter-aware static prompts generated from aggregate artifacts, optionally noted by Grok offline.
 - Added a selected-unit mini ontology path animation that shows aggregate topic/function/tier links first, then score and geometry links as progressive disclosure deepens.
 - Added a map-side law-location tier guide that explains current filters, county/town scope, neutral tier mix, geography color mode, disclosure depth, and no-row-text publication boundaries.
+- Added a map-side chat-style inquiry panel that answers current-filter, selected-unit, audit-signal, model-score, and package-overlay prompts without live browser model calls.
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 - Added a review-package request export and `materialize-review-package` local CLI handoff so aggregate visual plans can become bounded browser-import packages without publishing LOCUS text.
 - Added a review-package request preview that displays record budget, state/type/topic mix, and request safety gates before download.

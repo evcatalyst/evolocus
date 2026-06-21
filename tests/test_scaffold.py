@@ -130,6 +130,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Analysis Status" in html
     assert "map-filter-form" in html
     assert "map-reading-guide" in html
+    assert "map-inline-inquiry" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
     assert "package-map-summary" in html
@@ -228,6 +229,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js
     assert "renderMapReadingGuide" in js
+    assert "renderMapInlineInquiry" in js
+    assert "mapInlineInquiryPrompts" in js
+    assert "data-map-inquiry" in js
     assert "tierColorForLabel" in js
     assert "inquiryPromptCards" in js
     assert "questionPackPromptCards" in js
@@ -263,6 +267,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-map-card" in css
     assert "map-reading-guide-card" in css
     assert "map-reading-guide-tiers" in css
+    assert "map-inline-inquiry-card" in css
+    assert "map-inline-chat-answer" in css
     assert "package-map-actions" in css
     assert "checkbox-filter" in css
     assert "package-hit-badge" in css
