@@ -1,0 +1,181 @@
+{
+  "charts": {
+    "function_counts": [
+      {
+        "id": "Rules",
+        "label": "Rules",
+        "value": 2
+      },
+      {
+        "id": "Context",
+        "label": "Context",
+        "value": 1
+      },
+      {
+        "id": "Enforcement",
+        "label": "Enforcement",
+        "value": 1
+      },
+      {
+        "id": "Process",
+        "label": "Process",
+        "value": 1
+      },
+      {
+        "id": "Structural",
+        "label": "Structural",
+        "value": 1
+      }
+    ],
+    "kind_counts": [
+      {
+        "id": "city",
+        "label": "city",
+        "value": 4
+      },
+      {
+        "id": "county",
+        "label": "county",
+        "value": 1
+      },
+      {
+        "id": "unknown",
+        "label": "unknown",
+        "value": 1
+      }
+    ],
+    "score_means": [
+      {
+        "label": "enforcement_discretion",
+        "value": 0.358
+      },
+      {
+        "label": "opacity",
+        "value": 0.4733
+      },
+      {
+        "label": "paternalism",
+        "value": 0.222
+      },
+      {
+        "label": "problem_salience",
+        "value": 0.4017
+      }
+    ],
+    "tier_counts": [
+      {
+        "id": "tier_2",
+        "label": "Tier 2",
+        "value": 3
+      },
+      {
+        "id": "tier_1",
+        "label": "Tier 1",
+        "value": 2
+      },
+      {
+        "id": "tier_3",
+        "label": "Tier 3",
+        "value": 1
+      }
+    ],
+    "top_units": [
+      {
+        "dominant_topic": "Nuisance",
+        "kind": "county",
+        "law_count": 1,
+        "name": "Demo County",
+        "state": "CA",
+        "tier": "tier_2",
+        "tier_label": "Tier 2",
+        "unit_id": "CA:county:Demo County"
+      },
+      {
+        "dominant_topic": "Other",
+        "kind": "city",
+        "law_count": 1,
+        "name": "Unknown jurisdiction",
+        "state": "FL",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "FL:city:Unknown"
+      },
+      {
+        "dominant_topic": "Buildings",
+        "kind": "unknown",
+        "law_count": 1,
+        "name": "Unknown jurisdiction",
+        "state": "N Y",
+        "tier": "tier_3",
+        "tier_label": "Tier 3",
+        "unit_id": "N Y:unknown:Unknown"
+      },
+      {
+        "dominant_topic": "Not_applicable",
+        "kind": "city",
+        "law_count": 1,
+        "name": "Sample Valley",
+        "state": "NY",
+        "tier": "tier_1",
+        "tier_label": "Tier 1",
+        "unit_id": "NY:city:Sample Valley"
+      },
+      {
+        "dominant_topic": "Zoning",
+        "kind": "city",
+        "law_count": 1,
+        "name": "Example Township",
+        "state": "PA",
+        "tier": "tier_2",
+        "tier_label": "Tier 2",
+        "unit_id": "PA:city:Example Township"
+      },
+      {
+        "dominant_topic": "Business",
+        "kind": "city",
+        "law_count": 1,
+        "name": "Demo City",
+        "state": "TX",
+        "tier": "tier_2",
+        "tier_label": "Tier 2",
+        "unit_id": "TX:city:Demo City"
+      }
+    ],
+    "topic_counts": [
+      {
+        "id": "Buildings",
+        "label": "Buildings",
+        "value": 1
+      },
+      {
+        "id": "Business",
+        "label": "Business",
+        "value": 1
+      },
+      {
+        "id": "Not_applicable",
+        "label": "Not_applicable",
+        "value": 1
+      },
+      {
+        "id": "Nuisance",
+        "label": "Nuisance",
+        "value": 1
+      },
+      {
+        "id": "Other",
+        "label": "Other",
+        "value": 1
+      },
+      {
+        "id": "Zoning",
+        "label": "Zoning",
+        "value": 1
+      }
+    ]
+  },
+  "generated_at": "2026-06-21T15:13:11.660207+00:00",
+  "notice": "Charts are aggregate visual aids for review prioritization, not legal rankings.",
+  "schema_version": "evolocus-static-analysis-v1",
+  "synthetic": true
+}

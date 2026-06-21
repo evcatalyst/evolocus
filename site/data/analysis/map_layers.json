@@ -1,7 +1,7 @@
 {
   "data_mode": "demo",
   "dataset_revision": "synthetic-demo",
-  "generated_at": "2026-06-21T11:09:12.441804+00:00",
+  "generated_at": "2026-06-21T15:13:11.660268+00:00",
   "geometry_status": "abstract_layout_until_reviewed_geometries_available",
   "notice": "Tiers are neutral analysis bands, not legal rankings or findings.",
   "schema_version": "evolocus-static-analysis-v1",

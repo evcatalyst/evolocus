@@ -23,6 +23,7 @@ REQUIRED_PATHS = [
     "site/data/analysis/ontology.json",
     "site/data/analysis/chat_index.json",
     "site/data/analysis/models.json",
+    "site/data/analysis/charts.json",
     "site/index.html",
     "src/evolocus/__init__.py",
     "src/evolocus/cli.py",
@@ -94,7 +95,10 @@ def test_static_site_is_relative_and_synthetic_only() -> None:
     assert "Pages-first UI" in html
     assert "Law Map" in html
     assert "Inquiry" in html
+    assert "Progressive disclosure" in html
+    assert "analysis-chart-grid" in html
     assert "data/analysis/status.json" in js
+    assert "data/analysis/charts.json" in js
     assert "api.x.ai" not in js
     assert "https://fonts." not in html + css + js
     assert "googletagmanager" not in html + css + js
@@ -105,6 +109,7 @@ def test_static_analysis_artifacts_are_synthetic_and_bounded() -> None:
     status = json.loads(read_text("site/data/analysis/status.json"))
     map_layers = json.loads(read_text("site/data/analysis/map_layers.json"))
     models = json.loads(read_text("site/data/analysis/models.json"))
+    charts = json.loads(read_text("site/data/analysis/charts.json"))
     assert status["synthetic"] is True
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
@@ -113,6 +118,9 @@ def test_static_analysis_artifacts_are_synthetic_and_bounded() -> None:
     assert len(map_layers["units"]) <= 250
     assert models["import_policy"]["status"] == "released_dataset_outputs_imported"
     assert models["grok"]["forbidden_use"] == "embedding the key in GitHub Pages JavaScript"
+    assert charts["synthetic"] is True
+    assert charts["charts"]["tier_counts"]
+    assert charts["charts"]["score_means"]
 
 
 def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() -> None:

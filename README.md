@@ -32,6 +32,8 @@ The Pages app supports:
 - analysis status from published static JSON artifacts;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - static inquiry over current analysis artifacts;
+- aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
+- progressive disclosure from overview to unit detail to evidence trail;
 - synthetic demo queue;
 - blinded review by default;
 - explicit model-output reveal with reveal events logged;

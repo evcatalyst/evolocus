@@ -12,6 +12,8 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - law map with county/town-style units colored by neutral tier;
 - ontology and model-output registry views;
 - static inquiry over published analysis artifacts;
+- aggregate chart panels and publication gates;
+- progressive disclosure from overview to unit detail to evidence trail;
 - blinded review by default;
 - model-output reveal logging;
 - save, save-next, skip, and flag actions;

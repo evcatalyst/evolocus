@@ -14,7 +14,10 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
     status = json.loads((output_dir / "status.json").read_text(encoding="utf-8"))
     map_layers = json.loads((output_dir / "map_layers.json").read_text(encoding="utf-8"))
     ontology = json.loads((output_dir / "ontology.json").read_text(encoding="utf-8"))
+    charts = json.loads((output_dir / "charts.json").read_text(encoding="utf-8"))
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
+    assert status["publication_gates"]
     assert map_layers["units"]
     assert ontology["nodes"]
+    assert charts["charts"]["tier_counts"]

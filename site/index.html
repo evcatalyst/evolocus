@@ -82,6 +82,17 @@
           </p>
         </div>
         <div class="analysis-status-grid" id="analysis-status-grid"></div>
+        <section class="disclosure-control" aria-label="Progressive disclosure level">
+          <div>
+            <p class="eyebrow">Progressive disclosure</p>
+            <h3>Choose how much detail to reveal.</h3>
+          </div>
+          <div class="segmented" role="group" aria-label="Disclosure level">
+            <button class="disclosure-button active" type="button" data-disclosure="overview">Overview</button>
+            <button class="disclosure-button" type="button" data-disclosure="unit">Unit detail</button>
+            <button class="disclosure-button" type="button" data-disclosure="evidence">Evidence trail</button>
+          </div>
+        </section>
         <div class="map-layout">
           <article class="map-card">
             <div class="map-toolbar">
@@ -94,6 +105,7 @@
           </article>
           <aside class="unit-detail" id="unit-detail" aria-live="polite"></aside>
         </div>
+        <section id="publication-gates" class="publication-gates" aria-label="Publication gates"></section>
         <div class="table-wrap map-table-wrap">
           <table id="map-unit-table">
             <thead>
@@ -326,10 +338,11 @@
 
       <section id="results-panel" class="panel" aria-labelledby="results-heading">
         <div class="section-heading">
-          <p class="eyebrow">Evaluation Results</p>
-          <h2 id="results-heading">Metrics update from actual saved reviews.</h2>
-          <p>Uncertain and not-scorable labels are counted but excluded from agreement denominators.</p>
+          <p class="eyebrow">Charts</p>
+          <h2 id="results-heading">Aggregate visual summaries and review metrics.</h2>
+          <p>Published charts are aggregate-only. Uncertain and not-scorable review labels are counted but excluded from agreement denominators.</p>
         </div>
+        <div id="analysis-chart-grid" class="chart-grid"></div>
         <div id="results-grid" class="results-grid"></div>
         <div id="confusion-output" class="table-wrap"></div>
       </section>

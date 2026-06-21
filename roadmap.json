@@ -30,7 +30,7 @@
         "Run bounded browser demo smoke test",
         "Refresh GitHub Pages evaluator status",
         "Promote GitHub Pages to primary browser evaluator surface",
-        "Publish synthetic map, ontology, model registry, and inquiry artifacts"
+        "Publish synthetic map, ontology, model registry, inquiry, chart, and progressive-disclosure artifacts"
       ],
       "remaining_items": [
         "Run real LOCUS local-Parquet audit when user supplies or downloads source shards",

@@ -120,6 +120,7 @@ def publish_analysis_artifacts(
     units = [_unit_from_row(index, row, samples.get(row["unit_id"], [])) for index, row in enumerate(rows)]
     ontology = _ontology_artifact(units)
     status = _status_artifact(corpus, units, synthetic=synthetic)
+    charts = _charts_artifact(units, synthetic=synthetic)
     chat_index = _chat_index_artifact(units, ontology, status)
     models = _models_artifact()
     map_layers = _map_layers_artifact(corpus, units, synthetic=synthetic)
@@ -130,6 +131,7 @@ def publish_analysis_artifacts(
         "ontology": output_dir / "ontology.json",
         "chat_index": output_dir / "chat_index.json",
         "models": output_dir / "models.json",
+        "charts": output_dir / "charts.json",
     }
     payloads = {
         "status": status,
@@ -137,6 +139,7 @@ def publish_analysis_artifacts(
         "ontology": ontology,
         "chat_index": chat_index,
         "models": models,
+        "charts": charts,
     }
     for key, payload in payloads.items():
         files[key].write_text(json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8")
@@ -405,8 +408,71 @@ def _status_artifact(corpus: LocusCorpus, units: list[dict[str, Any]], *, synthe
         "real_locus_rows_published": False,
         "grok_secret_name": "GROK_API_KEY",
         "grok_browser_policy": "Grok API keys must never be embedded in GitHub Pages JavaScript.",
+        "publication_gates": [
+            {"id": "source_schema_validated", "label": "Source schema validated", "status": "complete" if synthetic else "pending_review"},
+            {"id": "aggregate_only", "label": "No raw rows in public artifacts", "status": "complete"},
+            {"id": "geometry_reviewed", "label": "Geometry/county-town layout reviewed", "status": "demo_placeholder" if synthetic else "pending_review"},
+            {"id": "license_reviewed", "label": "License/provenance reviewed", "status": "demo_placeholder" if synthetic else "pending_review"},
+        ],
+        "progressive_disclosure": [
+            "overview: aggregate counts and neutral tier colors",
+            "unit: selected county/town model summaries and ontology links",
+            "evidence: source locators and samples only when artifact policy allows it",
+        ],
         "next_analysis_goal": "Generate bounded real aggregate map artifacts from local LOCUS Parquet after license/provenance review.",
     }
+
+
+def _charts_artifact(units: list[dict[str, Any]], *, synthetic: bool) -> dict[str, Any]:
+    tier_counts: Counter[str] = Counter(unit["tier"] for unit in units)
+    topic_counts: Counter[str] = Counter()
+    function_counts: Counter[str] = Counter()
+    kind_counts: Counter[str] = Counter(unit.get("kind") or "unknown" for unit in units)
+    score_totals: dict[str, list[float]] = {field: [] for field in SCORE_FIELDS}
+    for unit in units:
+        topic_counts.update(unit.get("topic_counts", {}))
+        function_counts.update(unit.get("function_counts", {}))
+        for field, value in (unit.get("model_score_means") or {}).items():
+            if value is not None:
+                score_totals.setdefault(field, []).append(float(value))
+    score_means = {
+        field: round(sum(values) / len(values), 4) if values else None
+        for field, values in score_totals.items()
+    }
+    return {
+        "schema_version": ANALYSIS_SCHEMA_VERSION,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "synthetic": synthetic,
+        "charts": {
+            "tier_counts": _counter_rows(tier_counts, label_map={key: value["label"] for key, value in TIER_DEFINITIONS.items()}),
+            "topic_counts": _counter_rows(topic_counts),
+            "function_counts": _counter_rows(function_counts),
+            "kind_counts": _counter_rows(kind_counts),
+            "score_means": [{"label": field, "value": value} for field, value in score_means.items()],
+            "top_units": [
+                {
+                    "unit_id": unit["unit_id"],
+                    "name": unit["name"],
+                    "state": unit["state"],
+                    "kind": unit["kind"],
+                    "law_count": unit["law_count"],
+                    "tier": unit["tier"],
+                    "tier_label": unit["tier_label"],
+                    "dominant_topic": unit["dominant_topic"],
+                }
+                for unit in sorted(units, key=lambda item: item["law_count"], reverse=True)[:20]
+            ],
+        },
+        "notice": "Charts are aggregate visual aids for review prioritization, not legal rankings.",
+    }
+
+
+def _counter_rows(counter: Counter[str], *, label_map: dict[str, str] | None = None) -> list[dict[str, Any]]:
+    labels = label_map or {}
+    return [
+        {"id": key, "label": labels.get(key, key), "value": int(value)}
+        for key, value in sorted(counter.items(), key=lambda item: (-item[1], item[0]))
+    ]
 
 
 def _chat_index_artifact(units: list[dict[str, Any]], ontology: dict[str, Any], status: dict[str, Any]) -> dict[str, Any]:

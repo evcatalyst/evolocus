@@ -8,7 +8,7 @@ def test_pages_app_contains_review_workflow() -> None:
     js = Path("site/assets/app.js").read_text(encoding="utf-8")
     assert "Review Queue" in html
     assert "Dataset Explorer" in html
-    assert "Evaluation Results" in html
+    assert "Charts" in html
     assert "localStorage" in js
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js

@@ -307,6 +307,52 @@ textarea {
   margin-bottom: 18px;
 }
 
+.disclosure-control,
+.publication-gates {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  margin-bottom: 18px;
+  padding: 14px;
+}
+
+.disclosure-control h3,
+.publication-gates h3 {
+  margin: 0;
+}
+
+.segmented,
+.publication-gates div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.disclosure-button.active {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #ffffff;
+}
+
+.publication-gates span {
+  display: inline-grid;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px 10px;
+}
+
+.publication-gates em,
+.muted-note {
+  color: var(--muted);
+  font-style: normal;
+}
+
 .map-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
@@ -600,11 +646,63 @@ th {
 }
 
 .results-grid,
+.chart-grid,
 .protocol-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
+}
+
+.chart-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px;
+}
+
+.chart-card h3 {
+  margin-top: 0;
+}
+
+.bar-list {
+  display: grid;
+  gap: 10px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.9fr) minmax(120px, 1.4fr) minmax(42px, auto);
+  gap: 10px;
+  align-items: center;
+}
+
+.bar-row span {
+  overflow-wrap: anywhere;
+}
+
+.bar-row div {
+  height: 12px;
+  border-radius: 999px;
+  background: #eef2f7;
+  overflow: hidden;
+}
+
+.bar-row i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+
+.top-unit-list {
+  padding-left: 1.2rem;
+}
+
+.top-unit-list span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .ontology-layout {
@@ -650,6 +748,7 @@ th {
   .review-layout,
   .map-layout,
   .analysis-status-grid,
+  .chart-grid,
   .ontology-layout,
   .results-grid,
   .protocol-grid {
@@ -673,6 +772,7 @@ th {
   .review-layout,
   .map-layout,
   .analysis-status-grid,
+  .chart-grid,
   .ontology-layout,
   .inquiry-form,
   .metric-grid,
@@ -684,5 +784,11 @@ th {
   .metadata-grid,
   .prediction-box dl {
     grid-template-columns: 1fr;
+  }
+
+  .disclosure-control,
+  .publication-gates {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

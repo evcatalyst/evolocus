@@ -9,6 +9,7 @@ const ANALYSIS_PATHS = {
   ontology: "data/analysis/ontology.json",
   chatIndex: "data/analysis/chat_index.json",
   models: "data/analysis/models.json",
+  charts: "data/analysis/charts.json",
 };
 
 const SCORE_OPTIONS = [
@@ -197,6 +198,7 @@ let state = {
   explorerRows: records,
   explorerPageSize: 8,
   selectedUnitId: null,
+  disclosureLevel: "overview",
   inquiryAnswer: null,
   analysis: {
     status: null,
@@ -204,6 +206,7 @@ let state = {
     ontology: null,
     chatIndex: null,
     models: null,
+    charts: null,
     error: null,
   },
 };
@@ -423,6 +426,8 @@ function renderMap() {
     )
     .join("");
   renderSelectedUnit();
+  renderPublicationGates();
+  renderDisclosureButtons();
 }
 
 function renderAnalysisStatus(status, units) {
@@ -478,16 +483,21 @@ function renderSelectedUnit() {
   const scores = Object.entries(unit.model_score_means || {})
     .map(([field, value]) => `<li>${escapeHtml(field)}: ${escapeHtml(value === null ? "n/a" : Number(value).toFixed(3))}</li>`)
     .join("");
-  const samples = (unit.samples || [])
-    .map(
-      (sample) => `
-        <li>
-          <strong>${escapeHtml(text(sample.header))}</strong>
-          <span>${escapeHtml(text(sample.topic))} / ${escapeHtml(text(sample.function))}</span>
-        </li>
-      `,
-    )
-    .join("");
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const samples = showEvidence
+    ? (unit.samples || [])
+        .map(
+          (sample) => `
+            <li>
+              <strong>${escapeHtml(text(sample.header))}</strong>
+              <span>${escapeHtml(text(sample.topic))} / ${escapeHtml(text(sample.function))}</span>
+              <code>${escapeHtml(text(sample.source_locator))}</code>
+            </li>
+          `,
+        )
+        .join("")
+    : "";
   $("#unit-detail").innerHTML = `
     <h3>${escapeHtml(unit.name)}</h3>
     <p>${escapeHtml(text(unit.state))} ${escapeHtml(text(unit.kind))} · ${escapeHtml(unit.tier_label)}</p>
@@ -498,11 +508,45 @@ function renderSelectedUnit() {
       <dt>Dominant function</dt><dd>${escapeHtml(text(unit.dominant_function))}</dd>
       <dt>OCR risk</dt><dd>${escapeHtml(text(unit.ocr_risk_level))}</dd>
     </dl>
-    <h4>Neutral model-score means</h4>
-    <ul>${scores}</ul>
-    <h4>Samples</h4>
-    <ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>
+    ${
+      showUnit
+        ? `<h4>Neutral model-score means</h4><ul>${scores}</ul>`
+        : `<p class="muted-note">Switch to Unit detail to reveal score summaries.</p>`
+    }
+    ${
+      showEvidence
+        ? `<h4>Evidence trail</h4><ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>`
+        : `<p class="muted-note">Switch to Evidence trail to reveal source locators and public samples when allowed.</p>`
+    }
   `;
+}
+
+function renderPublicationGates() {
+  const status = state.analysis.status;
+  const gates = status ? status.publication_gates || [] : [];
+  $("#publication-gates").innerHTML = gates.length
+    ? `
+      <h3>Publication gates</h3>
+      <div>
+        ${gates
+          .map(
+            (gate) => `
+              <span>
+                <strong>${escapeHtml(gate.label)}</strong>
+                <em>${escapeHtml(gate.status)}</em>
+              </span>
+            `,
+          )
+          .join("")}
+      </div>
+    `
+    : "";
+}
+
+function renderDisclosureButtons() {
+  $all(".disclosure-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.disclosure === state.disclosureLevel);
+  });
 }
 
 function renderOntology() {
@@ -629,6 +673,7 @@ function renderExplorer() {
 }
 
 function renderResults() {
+  renderAnalysisCharts();
   const latest = Array.from(latestEvents().values()).filter((event) => event.reviewer_id === state.reviewer);
   const reviewed = latest.filter((event) => ["save", "save_next"].includes(event.event_type));
   const flagged = latest.filter((event) => event.event_type === "flag").length;
@@ -653,6 +698,82 @@ function renderResults() {
     )
     .join("");
   $("#confusion-output").innerHTML = confusionTable(reviewed);
+}
+
+function renderAnalysisCharts() {
+  const charts = state.analysis.charts ? state.analysis.charts.charts || {} : null;
+  const grid = $("#analysis-chart-grid");
+  if (!charts) {
+    grid.innerHTML = `<article class="chart-card"><h3>Analysis charts loading</h3><p>Static chart artifacts have not loaded yet.</p></article>`;
+    return;
+  }
+  grid.innerHTML = [
+    chartCard("Tier distribution", charts.tier_counts || []),
+    chartCard("Topic distribution", charts.topic_counts || []),
+    chartCard("Function distribution", charts.function_counts || []),
+    chartCard("Jurisdiction kind", charts.kind_counts || []),
+    scoreCard("Neutral score means", charts.score_means || []),
+    topUnitsCard(charts.top_units || []),
+  ].join("");
+}
+
+function chartCard(title, rows) {
+  const max = Math.max(1, ...rows.map((row) => Number(row.value || 0)));
+  return `
+    <article class="chart-card">
+      <h3>${escapeHtml(title)}</h3>
+      <div class="bar-list">
+        ${rows
+          .map(
+            (row) => `
+              <div class="bar-row">
+                <span>${escapeHtml(row.label)}</span>
+                <div><i style="width:${Math.max(3, (Number(row.value || 0) / max) * 100)}%"></i></div>
+                <strong>${escapeHtml(String(row.value))}</strong>
+              </div>
+            `,
+          )
+          .join("") || "<p>No aggregate rows.</p>"}
+      </div>
+    </article>
+  `;
+}
+
+function scoreCard(title, rows) {
+  return `
+    <article class="chart-card">
+      <h3>${escapeHtml(title)}</h3>
+      <div class="bar-list">
+        ${rows
+          .map((row) => {
+            const value = row.value === null ? 0 : Number(row.value);
+            return `
+              <div class="bar-row">
+                <span>${escapeHtml(row.label)}</span>
+                <div><i style="width:${Math.max(3, value * 100)}%"></i></div>
+                <strong>${escapeHtml(row.value === null ? "n/a" : value.toFixed(3))}</strong>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+      <p>Scores are neutral model outputs; direction is not verified.</p>
+    </article>
+  `;
+}
+
+function topUnitsCard(rows) {
+  return `
+    <article class="chart-card">
+      <h3>Top units by artifact law count</h3>
+      <ol class="top-unit-list">
+        ${rows
+          .slice(0, 8)
+          .map((row) => `<li>${escapeHtml(row.name)} <span>${escapeHtml(row.state)} · ${escapeHtml(String(row.law_count))} laws · ${escapeHtml(row.tier_label)}</span></li>`)
+          .join("")}
+      </ol>
+    </article>
+  `;
 }
 
 function agreementMetrics(events) {
@@ -1008,14 +1129,15 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, ontology, chatIndex, models] = await Promise.all([
+    const [status, mapLayers, ontology, chatIndex, models, charts] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.ontology),
       fetchJson(ANALYSIS_PATHS.chatIndex),
       fetchJson(ANALYSIS_PATHS.models),
+      fetchJson(ANALYSIS_PATHS.charts),
     ]);
-    state.analysis = { status, mapLayers, ontology, chatIndex, models, error: null };
+    state.analysis = { status, mapLayers, ontology, chatIndex, models, charts, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }
@@ -1087,6 +1209,12 @@ function bindEvents() {
   });
   $("#review-form").addEventListener("submit", handleReviewSubmit);
   $("#explorer-form").addEventListener("submit", applyExplorerFilters);
+  $all(".disclosure-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.disclosureLevel = button.dataset.disclosure;
+      renderMap();
+    });
+  });
   $("#inquiry-form").addEventListener("submit", submitInquiry);
   $("#suggested-questions").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-question]");
