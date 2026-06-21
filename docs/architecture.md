@@ -38,6 +38,7 @@ flowchart LR
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
 - The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
+- The map card includes a law-location tier guide that explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and publication boundaries.
 - The selected map unit includes a progressive visual trail that switches between overview, unit detail, and evidence trail while preserving aggregate-only publication boundaries.
 - The selected ontology neighborhood includes a mini animated path from map unit to released topic/function/tier, then score and geometry nodes as disclosure depth increases.
 - The selected map unit also includes ontology drilldown cards for topic, function, tier, score, geometry, and package links; cards route to ontology, detail, evidence, or package-filter states without exposing row text.

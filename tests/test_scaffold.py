@@ -129,6 +129,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-ontology-bridge" in html
     assert "Analysis Status" in html
     assert "map-filter-form" in html
+    assert "map-reading-guide" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
     assert "package-map-summary" in html
@@ -226,6 +227,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitAnswer" in js
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js
+    assert "renderMapReadingGuide" in js
+    assert "tierColorForLabel" in js
     assert "inquiryPromptCards" in js
     assert "questionPackPromptCards" in js
     assert "applyQuestionPackPrompt" in js
@@ -258,6 +261,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selected-ontology-drilldown-card" in css
     assert "package-coverage-card" in css
     assert "package-map-card" in css
+    assert "map-reading-guide-card" in css
+    assert "map-reading-guide-tiers" in css
     assert "package-map-actions" in css
     assert "checkbox-filter" in css
     assert "package-hit-badge" in css

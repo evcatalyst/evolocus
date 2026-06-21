@@ -586,6 +586,7 @@ function renderMap() {
     $("#map-generated").textContent = state.analysis.error || "Analysis artifacts are loading.";
     $("#map-geometry-status").textContent = "No map layer loaded";
     $("#tier-legend").innerHTML = "";
+    $("#map-reading-guide").innerHTML = "";
     $("#law-map").innerHTML = "";
     $("#map-insight-grid").innerHTML = "";
     $("#map-comparison-grid").innerHTML = "";
@@ -600,6 +601,7 @@ function renderMap() {
   renderMapComparisons(units, allUnits);
   renderPackageMapSummary(packageStats, units);
   renderCountyChoropleth(units, packageStats);
+  renderMapReadingGuide(units, allUnits, mapLayers, packageStats);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -644,6 +646,70 @@ function renderMap() {
   renderPublicationGates();
   renderDisclosureButtons();
   renderGeoColorButtons();
+}
+
+function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
+  const summary = summarizeUnits(units);
+  const allSummary = summarizeUnits(allUnits);
+  const tierDefinitions = mapLayers.tier_definitions || {};
+  const filterLabels = activeFilterLabels();
+  const countyCount = units.filter((unit) => unit.kind === "county").length;
+  const municipalCount = units.filter((unit) => unit.kind === "city").length;
+  const packageVisible = packageStats.imported
+    ? [...packageStats.units.values()].filter((hit) => units.some((unit) => unit.unit_id === hit.unitId)).length
+    : 0;
+  const tierRows = Object.entries(summary.tierCounts)
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
+    .map(([label, value]) => {
+      const definition = Object.values(tierDefinitions).find((item) => item.label === label) || {};
+      const color = definition.color || tierColorForLabel(label, units, tierDefinitions);
+      return `
+        <span>
+          <i style="background:${escapeHtml(color)}"></i>
+          <strong>${escapeHtml(label)}</strong>
+          <em>${escapeHtml(formatCount(value))} units</em>
+        </span>
+      `;
+    })
+    .join("");
+  const disclosure = {
+    overview: "Overview: colors and counts only",
+    unit: "Unit detail: adds model-output summaries",
+    evidence: "Evidence trail: adds provenance and boundary details",
+  }[state.disclosureLevel] || "Overview: colors and counts only";
+  $("#map-reading-guide").innerHTML = `
+    <section class="map-reading-guide-card" aria-label="Map reading guide">
+      <div class="map-reading-guide-main">
+        <p class="eyebrow">Law-location tier guide</p>
+        <h3>${escapeHtml(formatCount(units.length))} visible county/town aggregate units</h3>
+        <p>
+          The top map is colored by neutral tier bands from aggregate LOCUS model outputs. Filters currently show
+          ${escapeHtml(formatCount(summary.lawCount))} law rows from ${escapeHtml(formatCount(allSummary.lawCount))} published aggregate rows.
+          Tier colors are review groupings, not legal rankings.
+        </p>
+      </div>
+      <div class="map-reading-guide-metrics">
+        <span><strong>${escapeHtml(formatCount(countyCount))}</strong><em>county units</em></span>
+        <span><strong>${escapeHtml(formatCount(municipalCount))}</strong><em>town/city units</em></span>
+        <span><strong>${escapeHtml(geographyColorLabel(state.geographyColorMode))}</strong><em>geography color mode</em></span>
+        <span><strong>${escapeHtml(disclosure)}</strong><em>disclosure level</em></span>
+        ${packageStats.imported ? `<span><strong>${escapeHtml(formatCount(packageVisible))}</strong><em>visible package units</em></span>` : ""}
+      </div>
+      <div class="map-reading-guide-tiers" aria-label="Visible neutral tier mix">
+        ${tierRows || "<span><strong>No visible tiers</strong><em>adjust filters</em></span>"}
+      </div>
+      <div class="map-reading-guide-filters" aria-label="Active map filters">
+        ${
+          filterLabels.length
+            ? filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")
+            : "<span>No active filters</span>"
+        }
+      </div>
+      <p class="map-reading-guide-boundary">
+        Official county polygons and municipal points are machine-matched and pending review. Public artifacts contain aggregate counts only: no ordinance text, source locators, review events, or legal findings.
+      </p>
+    </section>
+  `;
 }
 
 function renderPackageMapSummary(packageStats, visibleUnits) {
@@ -913,6 +979,15 @@ function geographyDatumColor(datum, context) {
     return substantiveShareColor(modelSubstantiveShare(datum), context);
   }
   return datum.tier_color || context.tierDefinitions?.[datum.tier]?.color || "#d8dee8";
+}
+
+function tierColorForLabel(label, units, tierDefinitions) {
+  const definition = Object.values(tierDefinitions || {}).find((item) => item.label === label);
+  if (definition?.color) {
+    return definition.color;
+  }
+  const unit = units.find((item) => (item.tier_label || item.tier || "Unspecified") === label);
+  return unit?.tier_color || "#d8dee8";
 }
 
 function geographyColorLegend(context) {

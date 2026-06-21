@@ -1579,6 +1579,84 @@ textarea {
   font-style: normal;
 }
 
+.map-reading-guide {
+  margin: 12px 0 14px;
+}
+
+.map-reading-guide-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbfa;
+  padding: 14px;
+}
+
+.map-reading-guide-main h3,
+.map-reading-guide-main p {
+  margin-top: 0;
+}
+
+.map-reading-guide-main p,
+.map-reading-guide-boundary {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.map-reading-guide-metrics,
+.map-reading-guide-tiers,
+.map-reading-guide-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.map-reading-guide-metrics span,
+.map-reading-guide-tiers span,
+.map-reading-guide-filters span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 7px 10px;
+}
+
+.map-reading-guide-metrics strong,
+.map-reading-guide-tiers strong {
+  color: var(--ink);
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
+.map-reading-guide-metrics em,
+.map-reading-guide-tiers em {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+}
+
+.map-reading-guide-tiers i {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(23, 32, 51, 0.18);
+  border-radius: 4px;
+}
+
+.map-reading-guide-filters span {
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.map-reading-guide-boundary {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
 #law-map {
   width: 100%;
   min-height: 520px;

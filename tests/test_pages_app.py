@@ -25,6 +25,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Save to Snapshots" in html
     assert "Question matrix" in html
     assert "package-map-summary" in html
+    assert "map-reading-guide" in html
     assert "Imported package units" in html
     assert "Load Demo Package" in html
     assert "localStorage" in js
@@ -60,6 +61,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js
     assert "renderMap" in js
+    assert "renderMapReadingGuide" in js
+    assert "tierColorForLabel" in js
     assert "renderWalkthrough" in js
     assert "walkthroughStepHtml" in js
     assert "data-walkthrough-tab" in js
@@ -85,6 +88,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitOntologyPathHtml" in js
     assert "selected-disclosure-trail" in css
     assert "selected-ontology-drilldown" in css
+    assert "map-reading-guide-card" in css
     assert "ontology-path-strip" in css
     assert "ontologyPathSweep" in css
     assert "ontologyNodeSvg" in js
