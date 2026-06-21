@@ -199,6 +199,13 @@ let state = {
   explorerPageSize: 8,
   selectedUnitId: null,
   disclosureLevel: "overview",
+  mapFilters: {
+    state: "",
+    topic: "",
+    function: "",
+    tier: "",
+    minLaws: 0,
+  },
   inquiryAnswer: null,
   analysis: {
     status: null,
@@ -395,7 +402,8 @@ function renderReview() {
 function renderMap() {
   const mapLayers = state.analysis.mapLayers;
   const status = state.analysis.status;
-  const units = mapLayers ? mapLayers.units || [] : [];
+  const allUnits = mapLayers ? mapLayers.units || [] : [];
+  const units = filterMapUnits(allUnits);
   renderAnalysisStatus(status, units);
 
   if (!mapLayers) {
@@ -408,6 +416,7 @@ function renderMap() {
     return;
   }
 
+  renderMapFilters(allUnits);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -419,12 +428,17 @@ function renderMap() {
     )
     .join("");
 
+  if (state.selectedUnitId && !units.some((unit) => unit.unit_id === state.selectedUnitId)) {
+    state.selectedUnitId = null;
+  }
   if (!state.selectedUnitId && units.length) {
     state.selectedUnitId = units[0].unit_id;
   }
 
+  const visibleStates = new Set(units.map((unit) => unit.state).filter(Boolean));
+  const stateCenters = (mapLayers.state_centers || []).filter((center) => visibleStates.has(center.state));
   $("#law-map").setAttribute("viewBox", mapLayers.view_box || "0 0 100 100");
-  $("#law-map").innerHTML = `${(mapLayers.state_centers || []).map(stateCenterSvg).join("")}${units.map(unitSvg).join("")}`;
+  $("#law-map").innerHTML = `${stateCenters.map(stateCenterSvg).join("")}${units.map(unitSvg).join("")}`;
   $("#map-unit-table tbody").innerHTML = units
     .map(
       (unit) => `
@@ -456,6 +470,7 @@ function renderAnalysisStatus(status, units) {
     ["State", status.analysis_state],
     ["Units", status.unit_count],
     ["Law records", status.law_count],
+    ["Filtered units", units.length],
     ["Real rows published", status.real_locus_rows_published ? "yes" : "no"],
   ];
   grid.innerHTML = cards
@@ -468,12 +483,49 @@ function renderAnalysisStatus(status, units) {
       `,
     )
     .join("");
-  if (units.length && Number(status.unit_count) !== units.length) {
-    grid.insertAdjacentHTML(
-      "beforeend",
-      `<article class="metric-card"><span class="metric-value small">${units.length}</span><span class="metric-label">Rendered units</span></article>`,
-    );
-  }
+}
+
+function filterMapUnits(units) {
+  return units.filter((unit) => {
+    if (state.mapFilters.state && unit.state !== state.mapFilters.state) {
+      return false;
+    }
+    if (state.mapFilters.tier && unit.tier !== state.mapFilters.tier) {
+      return false;
+    }
+    if (state.mapFilters.topic && !Number(unit.topic_counts?.[state.mapFilters.topic] || 0)) {
+      return false;
+    }
+    if (state.mapFilters.function && !Number(unit.function_counts?.[state.mapFilters.function] || 0)) {
+      return false;
+    }
+    if (Number(unit.law_count || 0) < state.mapFilters.minLaws) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function renderMapFilters(units) {
+  const form = $("#map-filter-form");
+  fillSelect(form.elements.state, [...new Set(units.map((unit) => unit.state).filter(Boolean))].sort(), state.mapFilters.state, "All states");
+  fillSelect(form.elements.topic, sortedKeys(units, "topic_counts"), state.mapFilters.topic, "All topics");
+  fillSelect(form.elements["function"], sortedKeys(units, "function_counts"), state.mapFilters.function, "All functions");
+  fillSelect(form.elements.tier, [...new Set(units.map((unit) => unit.tier).filter(Boolean))].sort(), state.mapFilters.tier, "All tiers", (tier) => {
+    const definitions = state.analysis.mapLayers?.tier_definitions || {};
+    return definitions[tier]?.label || tier;
+  });
+  form.elements.min_laws.value = String(state.mapFilters.minLaws);
+}
+
+function fillSelect(select, values, selected, emptyLabel, labeler = (value) => value) {
+  select.innerHTML = `<option value="">${escapeHtml(emptyLabel)}</option>`;
+  values.forEach((value) => select.append(new Option(labeler(value), value)));
+  select.value = selected;
+}
+
+function sortedKeys(units, key) {
+  return [...new Set(units.flatMap((unit) => Object.keys(unit[key] || {})).filter((value) => value !== "Not_applicable"))].sort();
 }
 
 function stateCenterSvg(center) {
@@ -497,10 +549,10 @@ function unitSvg(unit) {
 }
 
 function renderSelectedUnit() {
-  const units = state.analysis.mapLayers ? state.analysis.mapLayers.units || [] : [];
+  const units = state.analysis.mapLayers ? filterMapUnits(state.analysis.mapLayers.units || []) : [];
   const unit = units.find((item) => item.unit_id === state.selectedUnitId) || units[0];
   if (!unit) {
-    $("#unit-detail").innerHTML = "<p>No unit selected.</p>";
+    $("#unit-detail").innerHTML = "<p>No aggregate unit matches the current filters.</p>";
     return;
   }
   const scores = Object.entries(unit.model_score_means || {})
@@ -966,6 +1018,26 @@ function applyExplorerFilters(event) {
   renderExplorer();
 }
 
+function applyMapFilters(event) {
+  event.preventDefault();
+  const form = new FormData(event.currentTarget);
+  state.mapFilters = {
+    state: String(form.get("state") || ""),
+    topic: String(form.get("topic") || ""),
+    function: String(form.get("function") || ""),
+    tier: String(form.get("tier") || ""),
+    minLaws: Math.max(0, Number(form.get("min_laws") || 0)),
+  };
+  state.selectedUnitId = null;
+  renderMap();
+}
+
+function resetMapFilters() {
+  state.mapFilters = { state: "", topic: "", function: "", tier: "", minLaws: 0 };
+  state.selectedUnitId = null;
+  renderMap();
+}
+
 function answerQuestion(question) {
   const normalized = question.trim().toLowerCase();
   if (!normalized) {
@@ -1237,6 +1309,8 @@ function bindEvents() {
   });
   $("#review-form").addEventListener("submit", handleReviewSubmit);
   $("#explorer-form").addEventListener("submit", applyExplorerFilters);
+  $("#map-filter-form").addEventListener("submit", applyMapFilters);
+  $("#reset-map-filters").addEventListener("click", resetMapFilters);
   $all(".disclosure-button").forEach((button) => {
     button.addEventListener("click", () => {
       state.disclosureLevel = button.dataset.disclosure;

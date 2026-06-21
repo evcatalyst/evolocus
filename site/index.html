@@ -86,6 +86,40 @@
           </p>
         </div>
         <div class="analysis-status-grid" id="analysis-status-grid"></div>
+        <form id="map-filter-form" class="map-filter-grid" aria-label="Map filters">
+          <label>
+            State
+            <select name="state">
+              <option value="">All states</option>
+            </select>
+          </label>
+          <label>
+            Topic
+            <select name="topic">
+              <option value="">All topics</option>
+            </select>
+          </label>
+          <label>
+            Function
+            <select name="function">
+              <option value="">All functions</option>
+            </select>
+          </label>
+          <label>
+            Tier
+            <select name="tier">
+              <option value="">All tiers</option>
+            </select>
+          </label>
+          <label>
+            Min laws
+            <input name="min_laws" type="number" min="0" step="100" value="0">
+          </label>
+          <div class="button-row compact-actions">
+            <button type="submit">Apply</button>
+            <button id="reset-map-filters" type="button">Reset</button>
+          </div>
+        </form>
         <section class="disclosure-control" aria-label="Progressive disclosure level">
           <div>
             <p class="eyebrow">Progressive disclosure</p>
