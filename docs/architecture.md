@@ -11,6 +11,9 @@ flowchart LR
   B --> D["Map, ontology, inquiry, review UI"]
   D --> W["Guided aggregate walkthrough"]
   D --> Q["Aggregate Queue Plan export"]
+  Q --> R["Aggregate review-package request"]
+  R --> S["Local ignored package materializer"]
+  S --> A
   D --> X["Aggregate current-view snapshot export"]
   X --> Y["Browser-local snapshot gallery"]
   D --> E["Append-only localStorage review events"]
@@ -37,7 +40,8 @@ flowchart LR
 - The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
 - The Audit Lens tab renders `unit_audit_quality.json` as aggregate-only charts, state rows, OCR reason mix, and map drill-through links.
 - The Score Lens tab renders released LOCUS model-score means from `map_layers.json` as neutral distributions, state matrices, and unit profiles.
-- The Queue Plan tab combines current map filters, `map_layers.json`, and `unit_audit_quality.json` to rank aggregate county/town units for future local review packaging. Its export contains unit IDs, aggregate counts, review signals, and strategy metadata only.
+- The Queue Plan tab combines current map filters, `map_layers.json`, and `unit_audit_quality.json` to rank aggregate county/town units for future local review packaging. Its exports contain unit IDs, aggregate counts, review signals, strategy metadata, and optional local materialization instructions only.
+- The Queue Plan review-package request can be consumed by `materialize-review-package` to create a bounded browser-import package from ignored local Parquet. The request itself remains aggregate-only.
 - The map and inquiry tabs can export the current filtered view as aggregate JSON with filters, counts, selected-unit metadata, audit signals, and briefing provenance only.
 - The Snapshots tab saves those aggregate current-view payloads in browser localStorage for comparison and reloads only filter state and selected aggregate unit IDs.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
@@ -93,6 +97,8 @@ The Score Lens uses the same filters and disclosure levels. It displays score va
 The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts. It can fill and answer the inquiry form, but it does not call Grok or any browser-exposed LLM API.
 
 The Queue Plan export is a planning artifact, not a real record-level LOCUS evaluation queue. It excludes ordinance text, headers, source locators, raw row data, SQLite state, and browser review events.
+
+The review-package request export is also aggregate-only. `materialize-review-package` is the local support command that can turn the request into a bounded browser-import package from authorized local Parquet. It refuses to write under `site/`. Its default output omits `header` and `content`; `--include-content` is required to create a text-bearing local review package.
 
 The current-view snapshot export is a shareable analysis artifact, not an evidence record. It excludes ordinance text, headers, raw row data, record locators, browser review events, local databases, and secrets.
 

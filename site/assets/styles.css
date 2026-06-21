@@ -173,6 +173,7 @@ main {
 .queue-plan-card,
 .queue-plan-visual-card,
 .queue-plan-list-card,
+.package-request-card,
 .walkthrough-status-card,
 .walkthrough-step-card,
 .walkthrough-disclosure-card,
@@ -480,6 +481,27 @@ textarea {
 
 .queue-plan-list {
   margin-top: 18px;
+}
+
+.package-request-card {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.package-request-card code {
+  display: block;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #23364f;
+  padding: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .queue-plan-card,
@@ -2362,6 +2384,7 @@ th {
   .score-summary-grid,
   .score-visual-grid,
   .queue-plan-form,
+  .package-request-card,
   .queue-plan-summary,
   .queue-plan-visuals,
   .queue-plan-row,
@@ -2419,6 +2442,7 @@ th {
   .score-summary-grid,
   .score-visual-grid,
   .queue-plan-form,
+  .package-request-card,
   .queue-plan-summary,
   .queue-plan-visuals,
   .queue-plan-row,

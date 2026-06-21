@@ -58,7 +58,8 @@
         "Persist Grok-enriched aggregate inquiry briefings in Pages data",
         "Add aggregate current-view snapshot export",
         "Add browser-local aggregate snapshot gallery",
-        "Add guided public aggregate walkthrough across map, inquiry, ontology, queue planning, and snapshots"
+        "Add guided public aggregate walkthrough across map, inquiry, ontology, queue planning, and snapshots",
+        "Add aggregate review-package request export and local materializer handoff"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

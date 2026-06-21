@@ -14,6 +14,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Score Lens" in html
     assert "Audit Lens" in html
     assert "Queue Plan" in html
+    assert "Export Package Request" in html
+    assert "package-request-command" in html
     assert "Snapshots" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
@@ -54,6 +56,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderQueuePlan" in js
     assert "queuePlanPayload" in js
     assert "exportQueuePlan" in js
+    assert "reviewPackageRequestPayload" in js
+    assert "exportReviewPackageRequest" in js
+    assert "materialize-review-package" in js
     assert "data-open-queue-unit" in js
     assert "currentViewSnapshotPayload" in js
     assert "exportCurrentViewSnapshot" in js

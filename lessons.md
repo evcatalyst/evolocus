@@ -48,3 +48,4 @@
 - Browser exports for public sharing should export aggregate filter state and visible summaries, not record-level evaluation queues or local review history.
 - Saved visual comparison state can live in browser localStorage when it stores only aggregate snapshot payloads and never imported queue text or review events.
 - A public walkthrough is useful when it orchestrates already-validated aggregate artifacts instead of creating a new path for raw rows, source locators, or model secrets.
+- The public-to-local handoff should export aggregate unit requests from Pages and materialize text-bearing review packages only through ignored local tooling with an explicit content flag.

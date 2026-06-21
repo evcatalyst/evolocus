@@ -58,6 +58,8 @@ flowchart LR
   L["Static map + ontology artifacts"] --> I
   M["Static audit status + unit audit quality"] --> I
   I --> Q["Aggregate Queue Plan JSON export"]
+  Q --> R["Aggregate review-package request"]
+  R --> G
   I --> X["Aggregate current-view snapshot JSON export"]
   X --> Y["Browser-local snapshot gallery"]
   M --> V["Public artifact guard"]
@@ -161,6 +163,7 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
 - Browser score visuals must treat released model-score means as neutral relative outputs until score direction is verified from authoritative model documentation.
 - Browser inquiry prompts must answer from current filter state and static aggregate artifacts unless an offline workflow publishes new briefing JSON.
 - Browser Queue Plan exports must remain aggregate unit planning artifacts and must not include ordinance text, headers, source locators, raw rows, or SQLite state.
+- Browser review-package request exports must remain aggregate-only; `materialize-review-package` may create text-bearing browser imports only in ignored local paths and only with explicit `--include-content`.
 - Browser current-view snapshot exports must remain aggregate sharing artifacts and must not include ordinance text, headers, record locators, raw rows, localStorage review events, or SQLite state.
 - Browser snapshot gallery storage must stay aggregate-only and separate from local review-event history.
 - Offline Grok briefing refreshes must run through `validate-public-artifacts` before Pages deployment.

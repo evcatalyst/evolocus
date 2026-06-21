@@ -2963,6 +2963,10 @@ function renderQueuePlan() {
   summary.innerHTML = queuePlanSummaryHtml(plan);
   visuals.innerHTML = queuePlanVisualsHtml(plan);
   list.innerHTML = queuePlanListHtml(plan);
+  const packageCommand = $("#package-request-command");
+  if (packageCommand) {
+    packageCommand.textContent = reviewPackageLocalCommand(reviewPackageRequestPayload(plan));
+  }
   renderDisclosureButtons();
 }
 
@@ -3230,6 +3234,95 @@ function queuePlanPayload(plan = buildQueuePlan()) {
       "Scores and audit signals are review aids, not legal findings.",
     ],
   };
+}
+
+function reviewPackageRequestPayload(plan = buildQueuePlan()) {
+  const status = state.analysis.status || {};
+  const queuePlan = queuePlanPayload(plan);
+  const seedSlug = slugify(plan.seedLabel || "pages-aggregate-plan");
+  const suggestedRequestPath = `data/exports/requests/${seedSlug}-review-package-request.json`;
+  const suggestedOutputPath = `data/exports/review-packages/${seedSlug}-browser-import.json`;
+  const payload = {
+    schema_version: "evolocus-review-package-request-v1",
+    generated_at: plan.generatedAt,
+    dataset_id: status.dataset_id || "LocalLaws/LOCUS-v1",
+    dataset_revision: status.dataset_revision || state.analysis.mapLayers?.dataset_revision || "local",
+    analysis_status: {
+      analysis_state: status.analysis_state || "unknown",
+      dataset_id: status.dataset_id || "LocalLaws/LOCUS-v1",
+      dataset_revision: status.dataset_revision || state.analysis.mapLayers?.dataset_revision || "local",
+      unit_count: Number(status.unit_count || 0),
+      law_count: Number(status.law_count || 0),
+      real_locus_rows_published: Boolean(status.real_locus_rows_published),
+    },
+    source_queue_plan: {
+      schema_version: queuePlan.schema_version,
+      generated_at: queuePlan.generated_at,
+      strategy: queuePlan.strategy,
+      strategy_label: queuePlan.strategy_label,
+      seed_label: queuePlan.seed_label,
+      summary: queuePlan.summary,
+    },
+    materialization: {
+      seed_label: plan.seedLabel,
+      max_records: Math.min(250, Math.max(1, plan.selected.length * 3)),
+      max_records_per_unit: 3,
+      suggested_request_path: suggestedRequestPath,
+      suggested_output_path: suggestedOutputPath,
+      include_content_flag_required_for_browser_review: true,
+      default_output_omits_content: true,
+    },
+    publication_policy: {
+      aggregate_unit_ids_only: true,
+      ordinance_text_included: false,
+      raw_rows_included: false,
+      source_locators_included: false,
+      browser_llm_calls: false,
+      review_events_included: false,
+      legal_findings: false,
+    },
+    units: queuePlan.units,
+    local_command: "",
+    limitations: [
+      "This request is safe to share as aggregate planning metadata, but the materialized review package must remain local and ignored.",
+      "Local materialization reads authorized Parquet and may include LOCUS text only when --include-content is explicit.",
+      "The materialized package is for research review only and is not legal advice.",
+    ],
+  };
+  payload.local_command = reviewPackageLocalCommand(payload);
+  return payload;
+}
+
+function reviewPackageLocalCommand(requestPayload = reviewPackageRequestPayload()) {
+  const revision = requestPayload.dataset_revision || "local";
+  const materialization = requestPayload.materialization || {};
+  const requestPath = materialization.suggested_request_path || "data/exports/requests/evolocus-review-package-request.json";
+  const outputPath = materialization.suggested_output_path || "data/exports/review-packages/evolocus-browser-import.json";
+  const maxRecords = Number(materialization.max_records || 250);
+  const maxPerUnit = Number(materialization.max_records_per_unit || 3);
+  return [
+    "PYTHONPATH=src python -m evolocus.cli materialize-review-package",
+    `--request ${requestPath}`,
+    `--input 'data/raw/locus-v1/${revision}/**/*.parquet'`,
+    `--output ${outputPath}`,
+    `--dataset-revision '${revision}'`,
+    `--max-records ${maxRecords}`,
+    `--max-records-per-unit ${maxPerUnit}`,
+    "--include-content",
+  ].join(" ");
+}
+
+function exportReviewPackageRequest() {
+  const payload = reviewPackageRequestPayload();
+  download("evolocus-review-package-request.json", JSON.stringify(payload, null, 2), "application/json");
+}
+
+function slugify(value) {
+  return String(value || "evolocus")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64) || "evolocus";
 }
 
 function applyQueuePlan(event) {
@@ -4828,6 +4921,7 @@ function bindEvents() {
   });
   $("#queue-plan-form").addEventListener("submit", applyQueuePlan);
   $("#export-queue-plan").addEventListener("click", exportQueuePlan);
+  $("#export-review-package-request").addEventListener("click", exportReviewPackageRequest);
   $all(".export-current-view").forEach((button) => {
     button.addEventListener("click", exportCurrentViewSnapshot);
   });

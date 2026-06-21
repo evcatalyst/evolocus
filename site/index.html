@@ -578,7 +578,19 @@
           </label>
           <button type="submit">Build Plan</button>
           <button id="export-queue-plan" type="button">Export Plan JSON</button>
+          <button id="export-review-package-request" type="button">Export Package Request</button>
         </form>
+        <section class="package-request-card" aria-labelledby="package-request-heading">
+          <div>
+            <p class="eyebrow">Local materialization handoff</p>
+            <h3 id="package-request-heading">Turn aggregate units into a bounded local review package.</h3>
+            <p>
+              The request export contains unit IDs, sampling limits, strategy metadata, and a suggested local CLI
+              command only. It does not contain LOCUS text, source locators, raw rows, review history, or secrets.
+            </p>
+          </div>
+          <code id="package-request-command">Build a Queue Plan to generate the local command.</code>
+        </section>
         <section class="disclosure-control compact-disclosure" aria-label="Queue plan disclosure level">
           <div>
             <p class="eyebrow">Progressive analysis</p>

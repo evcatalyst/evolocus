@@ -37,6 +37,7 @@ REQUIRED_PATHS = [
     "src/evolocus/municipal_points.py",
     "src/evolocus/locus_ingest.py",
     "src/evolocus/public_artifact_guard.py",
+    "src/evolocus/review_package.py",
     "tests/test_scaffold.py",
     "tests/test_locus_ingest.py",
     ".gitignore",
@@ -117,6 +118,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Score Lens" in html
     assert "Audit Lens" in html
     assert "Queue Plan" in html
+    assert "Export Package Request" in html
+    assert "package-request-command" in html
     assert "Question matrix" in html
     assert "selected-ontology-neighborhood" in html
     assert "Analysis Status" in html
@@ -217,6 +220,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "queuePlanPayload" in js
     assert "applyQueuePlan" in js
     assert "exportQueuePlan" in js
+    assert "reviewPackageRequestPayload" in js
+    assert "exportReviewPackageRequest" in js
+    assert "materialize-review-package" in js
+    assert "evolocus-review-package-request.json" in js
     assert "data-open-queue-unit" in js
     assert "currentViewSnapshotPayload" in js
     assert "exportCurrentViewSnapshot" in js
@@ -233,6 +240,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "audit-summary-grid" in css
     assert "audit-priority-row" in css
     assert "queue-plan-form" in css
+    assert "package-request-card" in css
     assert "queue-plan-card" in css
     assert "queue-plan-row" in css
     assert "view-export-strip" in css
@@ -279,6 +287,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "publication_gates" in js
     assert "stateSummaries" in js
     assert "api.x.ai" not in js
+    assert "GROK_API_KEY" not in js
     assert "https://fonts." not in html + css + js
     assert "googletagmanager" not in html + css + js
     assert "analytics" not in html.lower()

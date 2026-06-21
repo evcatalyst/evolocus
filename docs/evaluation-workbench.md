@@ -25,6 +25,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - per-unit audit review signals for the published map units, including medium/high OCR risk and duplicate-text-hash rates;
 - Audit Lens tab with attention distribution, OCR heuristic reason mix, state audit atlas, and review-priority queue preview;
 - Queue Plan tab for aggregate county/town review batch planning from current filters, audit signals, law counts, and neutral score spread;
+- Queue Plan review-package request export for local ignored materialization from authorized Parquet;
 - ontology and model-output registry views;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -125,6 +126,8 @@ The Audit Lens reads the same aggregate artifact and current map filters. It nev
 The Score Lens reads aggregate `map_layers.json` score means and current map filters. It describes values as neutral relative model scores because score direction has not been authoritatively verified in this milestone.
 
 The Queue Plan tab exports aggregate unit planning metadata only. It is useful for deciding which county/town units to package next in local ignored tooling, but it is not itself a record-level review queue and contains no LOCUS ordinance text, headers, source locators, SQLite state, or raw rows.
+
+The review-package request export is the handoff from public aggregate visuals to local ignored tooling. It contains unit IDs, sampling limits, strategy metadata, and a suggested `materialize-review-package` command only. The local materializer defaults to metadata-only output and requires `--include-content` before writing a browser-import package with LOCUS text.
 
 The current-view snapshot export captures active filters, visible aggregate summaries, selected-unit metadata, audit signals, and Grok briefing provenance. It excludes ordinance text, headers, raw rows, record locators, browser review events, local databases, and secrets.
 

@@ -29,6 +29,7 @@ from .locus_ingest import (
 from .locus_source import CorpusConfig, LocusCorpus
 from .municipal_points import publish_municipal_points_artifact
 from .public_artifact_guard import validate_public_analysis_artifacts
+from .review_package import ReviewPackageError, materialize_review_package
 from .unit_audit_quality import DEFAULT_UNIT_AUDIT_QUALITY_PATH, publish_unit_audit_quality
 
 
@@ -101,6 +102,24 @@ def main(argv: list[str] | None = None) -> int:
     export_parser.add_argument("--with-content", action="store_true", help="Include ordinance text. Off by default.")
     export_parser.add_argument("--without-content", action="store_true", help="Explicitly omit ordinance text.")
     export_parser.set_defaults(func=_export_evaluation)
+
+    materialize_package_parser = subparsers.add_parser(
+        "materialize-review-package",
+        help="Materialize a bounded local browser-import package from a Pages aggregate request.",
+    )
+    materialize_package_parser.add_argument("--request", required=True, type=Path, help="Review package request JSON exported from Pages.")
+    materialize_package_parser.add_argument("--input", type=str, default=None, help="Local Parquet file/glob. Omit for synthetic demo mode.")
+    materialize_package_parser.add_argument("--output", required=True, type=Path, help="Ignored output JSON path for browser import.")
+    materialize_package_parser.add_argument("--dataset-revision", default="local")
+    materialize_package_parser.add_argument("--max-records", type=int, default=None)
+    materialize_package_parser.add_argument("--max-records-per-unit", type=int, default=None)
+    materialize_package_parser.add_argument("--seed", type=int, default=None)
+    materialize_package_parser.add_argument(
+        "--include-content",
+        action="store_true",
+        help="Include local ordinance header/content for browser review import. Off by default.",
+    )
+    materialize_package_parser.set_defaults(func=_materialize_review_package)
 
     publish_parser = subparsers.add_parser("publish-analysis", help="Publish bounded static analysis artifacts for GitHub Pages.")
     publish_parser.add_argument("--input", type=str, default=None, help="Local Parquet file/glob. Omit for synthetic demo artifacts.")
@@ -262,6 +281,24 @@ def _seed_evaluation(args: argparse.Namespace) -> int:
 def _export_evaluation(args: argparse.Namespace) -> int:
     paths = export_evaluation(args.db, queue_name=args.queue, output_dir=args.output, include_content=args.with_content)
     print(json.dumps(paths, indent=2, sort_keys=True))
+    return 0
+
+
+def _materialize_review_package(args: argparse.Namespace) -> int:
+    corpus = _corpus_from_args(args.input, args.dataset_revision)
+    try:
+        result = materialize_review_package(
+            corpus,
+            args.request,
+            args.output,
+            include_content=args.include_content,
+            max_records=args.max_records,
+            max_records_per_unit=args.max_records_per_unit,
+            seed=args.seed,
+        )
+    except ReviewPackageError as exc:
+        _die(str(exc), exit_code=2)
+    print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 
 

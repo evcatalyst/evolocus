@@ -47,6 +47,7 @@ The Pages app supports:
 - audit-driven map filters and an audit-attention geography color mode, framed as review priority rather than ranking;
 - Audit Lens tab with attention distribution, OCR reason mix, state atlas, and review-priority queue preview;
 - Queue Plan tab for aggregate county/town review batch planning, with content-free unit-level JSON export;
+- Queue Plan review-package request export for local ignored materialization from authorized Parquet;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -96,6 +97,7 @@ Support tooling:
 - `publish-unit-audit-quality` for generating aggregate per-unit audit-quality JSON from local Parquet and the reviewed public map-unit scope.
 - `validate-public-artifacts` for blocking Pages deployment when static analysis JSON contains raw text, source locators, local paths, databases, or secret-shaped values.
 - Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.
+- Browser review-package request export for handing selected aggregate units to local tooling; the request stays aggregate-only.
 - Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.
 - Browser snapshot gallery storage in localStorage for aggregate current-view snapshots only; it does not store LOCUS text or review-event history.
 - Browser walkthrough cards for the real aggregate visual path; these route across existing public tabs and do not introduce a separate data publication channel.
@@ -209,6 +211,21 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
   --output data/exports/baseline-v1 \
   --without-content
 ```
+
+Materialize a browser-import package from a Pages Queue Plan request:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli materialize-review-package \
+  --request data/exports/requests/evolocus-review-package-request.json \
+  --input 'data/raw/locus-v1/<revision>/**/*.parquet' \
+  --output data/exports/review-packages/browser-import.json \
+  --dataset-revision '<revision>' \
+  --max-records 250 \
+  --max-records-per-unit 3 \
+  --include-content
+```
+
+Without `--include-content`, the materializer writes metadata only. With `--include-content`, the output is a local review package that may contain LOCUS text and must remain ignored and unpublished.
 
 Blocked-by-default Hugging Face entrypoint:
 
