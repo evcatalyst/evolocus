@@ -29,6 +29,7 @@ Files saved:
 - `site/data/analysis/charts.json`
 - `site/data/analysis/county_geometry.json`
 - `site/data/analysis/municipal_points.json`
+- `site/data/analysis/unit_audit_quality.json`
 - `site/index.html`
 - `src/evolocus/__init__.py`
 - `src/evolocus/analysis_publish.py`
@@ -81,6 +82,8 @@ Current coverage stats:
 - Static analysis artifacts: real aggregate state-clustered preview generated with Polars and published without raw rows or ordinance text
 - County geometry artifact: official Census TIGERweb county polygons for 177 matched aggregate county units, machine-matched and pending review
 - Municipal point artifact: official Census TIGERweb place/subdivision points for 815 of 823 aggregate municipal units, machine-matched and pending review
+- Unit audit-quality artifact: aggregate OCR-risk and duplicate-text-hash review signals for 1,000 published map units covering 1,517,672 LOCUS rows
+- Unit audit-quality counts: 55,816 medium/high OCR-review rows, 29,194 duplicate text-hash rows, max audit attention 30.88/100
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
@@ -126,6 +129,7 @@ Latest update:
 - Added model-substantive-share coloring and selected-unit denominators for county/town geography, using released LOCUS model labels only.
 - Verified the `GROK_API_KEY` GitHub Actions secret exists for offline aggregate-only inquiry enrichment; the browser-delivered Pages app still contains no API key.
 - Ran full local LOCUS audit and manifest over 2,211,516 rows; published only aggregate audit status, gates, OCR-risk counts, and duplicate-content counts to Pages.
+- Added aggregate per-unit audit-quality publication for the current top-1,000 map-unit scope, with map filters and official-geography color mode for audit attention.
 
 Evaluator implementation state:
 

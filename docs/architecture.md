@@ -24,8 +24,9 @@ flowchart LR
 - Browser JavaScript handles queue review, explorer filters, metrics, local persistence, and exports.
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
-- Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, or law-count intensity; all are aggregate review aids.
+- Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - The Analysis Status tab reads `audit_status.json`, a full-row-count audit summary that excludes raw rows, ordinance text, sampled findings, and record locators.
+- The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
@@ -62,12 +63,15 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 
 - `status.json`: analysis state, dataset revision, public-data flags, Grok policy.
 - `map_layers.json`: state-clustered county/town-style units, neutral tier colors, law counts, model-score summaries.
+- `unit_audit_quality.json`: per-unit OCR-risk, duplicate-text-hash, and audit-attention aggregates for the published map-unit scope.
 - `ontology.json`: topics, functions, score dimensions, tiers, and jurisdiction-unit edges.
 - `models.json`: imported LOCUS released model outputs and model-import policy.
 - `chat_index.json`: deterministic inquiry entries for the browser chat panel.
 - `inquiry_briefings.json`: progressive static answer briefings derived from aggregate artifacts.
 
 Map tiers are review-priority bands over available model-score summaries and law counts. They are not rankings of legal burden, legality, freedom, or civic performance.
+
+Audit attention is a review-priority signal from aggregate OCR-risk and duplicate-text-hash rates. It is not a legal ranking, proof of text defects, or a civic finding.
 
 The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 

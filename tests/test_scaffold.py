@@ -26,6 +26,7 @@ REQUIRED_PATHS = [
     "site/data/analysis/models.json",
     "site/data/analysis/charts.json",
     "site/data/analysis/audit_status.json",
+    "site/data/analysis/unit_audit_quality.json",
     "site/data/analysis/county_geometry.json",
     "site/data/analysis/municipal_points.json",
     "site/index.html",
@@ -118,13 +119,17 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-geo-color=\"topic\"" in html
     assert "data-geo-color=\"function\"" in html
     assert "data-geo-color=\"substantive_share\"" in html
+    assert "data-geo-color=\"audit_attention\"" in html
     assert "data-geo-color=\"law_count\"" in html
+    assert "Audit focus" in html
+    assert "Min audit attention" in html
     assert "status-card-grid" in html
     assert "status-detail-grid" in html
     assert "status-gate-grid" in html
     assert "data/analysis/status.json" in js
     assert "data/analysis/charts.json" in js
     assert "data/analysis/audit_status.json" in js
+    assert "data/analysis/unit_audit_quality.json" in js
     assert "data/analysis/inquiry_briefings.json" in js
     assert "data/analysis/county_geometry.json" in js
     assert "data/analysis/municipal_points.json" in js
@@ -144,6 +149,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitPeers" in js
     assert "scoreDeltaSummary" in js
     assert "selected-peer-card" in css
+    assert "unitAuditQualityFor" in js
+    assert "auditAttentionColor" in js
+    assert "selectedUnitAuditQualityHtml" in js
+    assert "audit-gradient" in css
+    assert "selected-audit-card" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js
@@ -181,6 +191,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     models = json.loads(read_text("site/data/analysis/models.json"))
     charts = json.loads(read_text("site/data/analysis/charts.json"))
     audit_status = json.loads(read_text("site/data/analysis/audit_status.json"))
+    unit_audit_quality = json.loads(read_text("site/data/analysis/unit_audit_quality.json"))
     inquiry_briefings = json.loads(read_text("site/data/analysis/inquiry_briefings.json"))
     county_geometry = json.loads(read_text("site/data/analysis/county_geometry.json"))
     municipal_points = json.loads(read_text("site/data/analysis/municipal_points.json"))
@@ -217,6 +228,19 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert audit_status["quality_counts"]["duplicate_record_locator_count"] == 0
     assert audit_status["quality_counts"]["ocr_risk_counts"]["low"] > 0
     assert any(gate["id"] == "ocr_risk" for gate in audit_status["quality_gates"])
+    assert unit_audit_quality["schema_version"] == "evolocus-unit-audit-quality-v1"
+    assert unit_audit_quality["row_count"] == 1517672
+    assert unit_audit_quality["summary"]["unit_count"] == 1000
+    assert unit_audit_quality["summary"]["ocr_review_rows"] == 55816
+    assert unit_audit_quality["summary"]["duplicate_text_hash_rows"] == 29194
+    assert unit_audit_quality["summary"]["review_signal_units"] == 1000
+    assert unit_audit_quality["summary"]["max_audit_attention_score"] == 30.88
+    assert unit_audit_quality["real_locus_rows_published"] is False
+    assert unit_audit_quality["publication_policy"]["raw_rows_included"] is False
+    assert unit_audit_quality["publication_policy"]["ordinance_text_included"] is False
+    assert unit_audit_quality["publication_policy"]["sample_findings_included"] is False
+    assert unit_audit_quality["publication_policy"]["legal_findings"] is False
+    assert unit_audit_quality["quality_signal_definitions"]["audit_attention_score"].endswith("not a ranking or legal finding.")
     assert inquiry_briefings["schema_version"] == "evolocus-progressive-inquiry-v1"
     assert inquiry_briefings["synthetic"] is False
     assert inquiry_briefings["real_locus_rows_published"] is False
@@ -247,6 +271,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
             "map_layers": map_layers,
             "charts": charts,
             "audit_status": audit_status,
+            "unit_audit_quality": unit_audit_quality,
             "inquiry_briefings": inquiry_briefings,
             "county_geometry": county_geometry,
             "municipal_points": municipal_points,

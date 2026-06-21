@@ -9,6 +9,7 @@ const ANALYSIS_PATHS = {
   countyGeometry: "data/analysis/county_geometry.json",
   municipalPoints: "data/analysis/municipal_points.json",
   auditStatus: "data/analysis/audit_status.json",
+  unitAuditQuality: "data/analysis/unit_audit_quality.json",
   ontology: "data/analysis/ontology.json",
   chatIndex: "data/analysis/chat_index.json",
   inquiryBriefings: "data/analysis/inquiry_briefings.json",
@@ -226,7 +227,9 @@ let state = {
     topic: "",
     function: "",
     tier: "",
+    auditFocus: "",
     minLaws: 0,
+    minAuditScore: 0,
   },
   inquiryAnswer: null,
   analysis: {
@@ -234,6 +237,8 @@ let state = {
     mapLayers: null,
     countyGeometry: null,
     municipalPoints: null,
+    auditStatus: null,
+    unitAuditQuality: null,
     ontology: null,
     chatIndex: null,
     inquiryBriefings: null,
@@ -566,6 +571,7 @@ function renderCountyGeometryDetail(feature, artifact) {
   const properties = feature.properties || {};
   const showEvidence = state.disclosureLevel === "evidence";
   const substantiveShare = modelSubstantiveShare(properties);
+  const auditQuality = unitAuditQualityFor(properties.unit_id);
   $("#county-layer-detail").innerHTML = `
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(properties.unit_id)}">Ask about this county</button>
     <dl class="metadata-grid compact-metadata">
@@ -575,12 +581,13 @@ function renderCountyGeometryDetail(feature, artifact) {
       <dt>Tier</dt><dd>${escapeHtml(properties.tier_label || "No tier")}</dd>
       <dt>Laws</dt><dd>${escapeHtml(formatCount(properties.law_count))}</dd>
       <dt>Model substantive share</dt><dd>${escapeHtml(formatPercentRatio(substantiveShare))}</dd>
+      <dt>Audit attention</dt><dd>${escapeHtml(auditQuality ? `${formatNumber(auditQuality.audit_attention_score)} / 100` : "not available")}</dd>
       <dt>Dominant topic</dt><dd>${escapeHtml(properties.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(properties.match_status || "Unknown")}</dd>
     </dl>
     ${
       showEvidence
-        ? `<p class="muted-note">Geometry source: ${escapeHtml(artifact.source?.name || "U.S. Census Bureau TIGERweb")} layer ${escapeHtml(String(artifact.source?.layer_id || "82"))}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(properties.substantive_count || 0))}/${escapeHtml(formatCount(properties.law_count || 0))} rows. Generalized for static display; ${escapeHtml(formatCount(artifact.unmatched_count || 0))} aggregate county units are unmatched.</p>`
+        ? `<p class="muted-note">Geometry source: ${escapeHtml(artifact.source?.name || "U.S. Census Bureau TIGERweb")} layer ${escapeHtml(String(artifact.source?.layer_id || "82"))}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(properties.substantive_count || 0))}/${escapeHtml(formatCount(properties.law_count || 0))} rows. Audit attention is a local aggregate review signal, not a legal ranking. Generalized for static display; ${escapeHtml(formatCount(artifact.unmatched_count || 0))} aggregate county units are unmatched.</p>`
         : `<p class="muted-note">Switch to Evidence trail to reveal geometry source and match-status details.</p>`
     }
   `;
@@ -610,6 +617,7 @@ function municipalPointSvg(point, bounds, colorContext) {
 function renderMunicipalPointDetail(point, artifact) {
   const showEvidence = state.disclosureLevel === "evidence";
   const substantiveShare = modelSubstantiveShare(point);
+  const auditQuality = unitAuditQualityFor(point.unit_id);
   $("#county-layer-detail").innerHTML = `
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(point.unit_id)}">Ask about this municipality</button>
     <dl class="metadata-grid compact-metadata">
@@ -620,12 +628,13 @@ function renderMunicipalPointDetail(point, artifact) {
       <dt>Tier</dt><dd>${escapeHtml(point.tier_label || "No tier")}</dd>
       <dt>Laws</dt><dd>${escapeHtml(formatCount(point.law_count))}</dd>
       <dt>Model substantive share</dt><dd>${escapeHtml(formatPercentRatio(substantiveShare))}</dd>
+      <dt>Audit attention</dt><dd>${escapeHtml(auditQuality ? `${formatNumber(auditQuality.audit_attention_score)} / 100` : "not available")}</dd>
       <dt>Dominant topic</dt><dd>${escapeHtml(point.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(point.match_status || "Unknown")}</dd>
     </dl>
     ${
       showEvidence
-        ? `<p class="muted-note">Municipal point source: ${escapeHtml((artifact?.source?.layers || []).find((layer) => layer.id === point.census_layer)?.name || "U.S. Census Bureau TIGERweb")}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(point.substantive_count || 0))}/${escapeHtml(formatCount(point.law_count || 0))} rows. ${escapeHtml(formatCount(artifact?.unmatched_count || 0))} aggregate municipal units remain unmatched rather than guessed.</p>`
+        ? `<p class="muted-note">Municipal point source: ${escapeHtml((artifact?.source?.layers || []).find((layer) => layer.id === point.census_layer)?.name || "U.S. Census Bureau TIGERweb")}. Substantive share uses released LOCUS model labels: ${escapeHtml(formatCount(point.substantive_count || 0))}/${escapeHtml(formatCount(point.law_count || 0))} rows. Audit attention is a local aggregate review signal, not a legal ranking. ${escapeHtml(formatCount(artifact?.unmatched_count || 0))} aggregate municipal units remain unmatched rather than guessed.</p>`
         : `<p class="muted-note">Switch to Evidence trail to reveal municipal point source and match-status details.</p>`
     }
   `;
@@ -637,6 +646,10 @@ function geographyColorContext(features, municipalPoints) {
     ...municipalPoints,
   ];
   const maxLawCount = Math.max(1, ...data.map((item) => Number(item.law_count || 0)));
+  const auditScores = data
+    .map((item) => unitAuditQualityFor(item.unit_id)?.audit_attention_score)
+    .filter((value) => Number.isFinite(Number(value)))
+    .map(Number);
   const substantiveShares = data
     .map(modelSubstantiveShare)
     .filter((value) => Number.isFinite(value));
@@ -644,6 +657,7 @@ function geographyColorContext(features, municipalPoints) {
     mode: state.geographyColorMode,
     data,
     maxLawCount,
+    maxAuditAttention: Math.max(1, ...auditScores),
     minSubstantiveShare: Math.min(1, ...substantiveShares),
     maxSubstantiveShare: Math.max(0, ...substantiveShares),
     tierDefinitions: state.analysis.mapLayers?.tier_definitions || {},
@@ -660,6 +674,9 @@ function geographyDatumColor(datum, context) {
   if (context.mode === "law_count") {
     return lawCountColor(datum.law_count, context.maxLawCount);
   }
+  if (context.mode === "audit_attention") {
+    return auditAttentionColor(unitAuditQualityFor(datum.unit_id), context);
+  }
   if (context.mode === "substantive_share") {
     return substantiveShareColor(modelSubstantiveShare(datum), context);
   }
@@ -667,6 +684,13 @@ function geographyDatumColor(datum, context) {
 }
 
 function geographyColorLegend(context) {
+  if (context.mode === "audit_attention") {
+    return `
+      <span class="geo-gradient audit-gradient"><i></i>Lower to higher audit attention</span>
+      <span>Max visible: ${escapeHtml(formatNumber(context.maxAuditAttention))} / 100</span>
+      <span>Review-priority signal from OCR risk and duplicate text hashes</span>
+    `;
+  }
   if (context.mode === "substantive_share") {
     return `
       <span class="geo-gradient substantive-gradient"><i></i>Lower to higher model-substantive share</span>
@@ -716,6 +740,9 @@ function geographyLegendLabel(item, mode) {
   if (mode === "substantive_share") {
     return "Model substantive share";
   }
+  if (mode === "audit_attention") {
+    return "Audit attention";
+  }
   return item.tier_label || item.tier || "No tier";
 }
 
@@ -740,6 +767,7 @@ function geographyColorLabel(mode) {
     topic: "dominant topic",
     function: "dominant function",
     substantive_share: "model-substantive share",
+    audit_attention: "audit attention",
     law_count: "law-count intensity",
   };
   return labels[mode] || labels.tier;
@@ -762,6 +790,14 @@ function substantiveShareColor(value, context) {
   const range = Math.max(0.000001, high - low);
   const ratio = (value - low) / range;
   return interpolateColor("#f2e9c9", "#275f79", Math.max(0, Math.min(1, ratio)));
+}
+
+function auditAttentionColor(quality, context) {
+  if (!quality) {
+    return "#d8dee8";
+  }
+  const ratio = Number(quality.audit_attention_score || 0) / Math.max(1, Number(context.maxAuditAttention || 1));
+  return interpolateColor("#f2e9c9", "#7a3b31", Math.max(0, Math.min(1, ratio)));
 }
 
 function lawCountColor(value, maxValue) {
@@ -1071,8 +1107,17 @@ function auditRiskSegment(row, total) {
   `;
 }
 
+function unitAuditQualityFor(unitId) {
+  if (!unitId) {
+    return null;
+  }
+  const rows = state.analysis.unitAuditQuality?.units || [];
+  return rows.find((row) => row.unit_id === unitId) || null;
+}
+
 function filterMapUnits(units) {
   return units.filter((unit) => {
+    const auditQuality = unitAuditQualityFor(unit.unit_id);
     if (state.mapFilters.state && unit.state !== state.mapFilters.state) {
       return false;
     }
@@ -1088,6 +1133,18 @@ function filterMapUnits(units) {
     if (Number(unit.law_count || 0) < state.mapFilters.minLaws) {
       return false;
     }
+    if (Number(auditQuality?.audit_attention_score || 0) < state.mapFilters.minAuditScore) {
+      return false;
+    }
+    if (state.mapFilters.auditFocus === "ocr" && !Number(auditQuality?.ocr_review_rows || 0)) {
+      return false;
+    }
+    if (state.mapFilters.auditFocus === "duplicate" && !Number(auditQuality?.duplicate_text_hash_rows || 0)) {
+      return false;
+    }
+    if (state.mapFilters.auditFocus === "attention" && Number(auditQuality?.audit_attention_score || 0) < 5) {
+      return false;
+    }
     return true;
   });
 }
@@ -1101,7 +1158,9 @@ function renderMapFilters(units) {
     const definitions = state.analysis.mapLayers?.tier_definitions || {};
     return definitions[tier]?.label || tier;
   });
+  form.elements.audit_focus.value = state.mapFilters.auditFocus;
   form.elements.min_laws.value = String(state.mapFilters.minLaws);
+  form.elements.min_audit_score.value = String(state.mapFilters.minAuditScore);
 }
 
 function fillSelect(select, values, selected, emptyLabel, labeler = (value) => value) {
@@ -1346,11 +1405,26 @@ function activeFilterLabels() {
   if (state.mapFilters.function) labels.push(`Function ${state.mapFilters.function}`);
   if (state.mapFilters.tier) labels.push(`Tier ${state.mapFilters.tier}`);
   if (state.mapFilters.minLaws) labels.push(`Min ${formatCount(state.mapFilters.minLaws)} laws`);
+  if (state.mapFilters.auditFocus) labels.push(`Audit ${auditFocusLabel(state.mapFilters.auditFocus)}`);
+  if (state.mapFilters.minAuditScore) labels.push(`Min audit ${formatNumber(state.mapFilters.minAuditScore)}`);
   return labels;
+}
+
+function auditFocusLabel(value) {
+  return {
+    ocr: "medium/high OCR",
+    duplicate: "duplicate text hash",
+    attention: "attention 5+",
+  }[value] || value;
 }
 
 function formatCount(value) {
   return NUMBER_FORMATTER.format(Number(value || 0));
+}
+
+function formatNumber(value) {
+  const number = Number(value || 0);
+  return Number.isInteger(number) ? String(number) : number.toFixed(2);
 }
 
 function formatDateTime(value) {
@@ -1415,6 +1489,7 @@ function renderSelectedUnit() {
   const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
   const showEvidence = state.disclosureLevel === "evidence";
   const substantiveShare = modelSubstantiveShare(unit);
+  const auditQuality = unitAuditQualityFor(unit.unit_id);
   const samples = showEvidence
     ? (unit.samples || [])
         .map(
@@ -1436,12 +1511,14 @@ function renderSelectedUnit() {
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
       <dt>Substantive</dt><dd>${escapeHtml(String(unit.substantive_count))}</dd>
       <dt>Model substantive share</dt><dd>${escapeHtml(formatPercentRatio(substantiveShare))}</dd>
+      <dt>Audit attention</dt><dd>${escapeHtml(auditQuality ? `${formatNumber(auditQuality.audit_attention_score)} / 100` : "not available")}</dd>
       <dt>Dominant topic</dt><dd>${escapeHtml(text(unit.dominant_topic))}</dd>
       <dt>Dominant function</dt><dd>${escapeHtml(text(unit.dominant_function))}</dd>
       <dt>OCR risk</dt><dd>${escapeHtml(text(unit.ocr_risk_level))}</dd>
     </dl>
     ${selectedUnitOntologyNeighborhoodHtml(unit, { compact: true })}
     ${selectedUnitPeerComparisonHtml(unit)}
+    ${selectedUnitAuditQualityHtml(auditQuality)}
     ${
       showUnit
         ? `<h4>Neutral model-score means</h4><ul>${scores}</ul>`
@@ -1452,6 +1529,29 @@ function renderSelectedUnit() {
         ? `<h4>Evidence trail</h4><p class="muted-note">Model substantive share denominator: ${escapeHtml(formatCount(unit.substantive_count || 0))}/${escapeHtml(formatCount(unit.law_count || 0))} released LOCUS rows in this aggregate unit. This is a model output, not a verified legal classification.</p><ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>`
         : `<p class="muted-note">Switch to Evidence trail to reveal source locators and public samples when allowed.</p>`
     }
+  `;
+}
+
+function selectedUnitAuditQualityHtml(auditQuality) {
+  if (!auditQuality) {
+    return `<p class="muted-note">No unit-level audit quality artifact is available for this map unit.</p>`;
+  }
+  const showEvidence = state.disclosureLevel === "evidence";
+  return `
+    <section class="selected-audit-card">
+      <h4>Audit review signals</h4>
+      <dl class="metadata-grid compact-metadata">
+        <dt>Medium/high OCR rows</dt><dd>${escapeHtml(formatCount(auditQuality.ocr_review_rows))}</dd>
+        <dt>Duplicate text-hash rows</dt><dd>${escapeHtml(formatCount(auditQuality.duplicate_text_hash_rows))}</dd>
+        <dt>OCR review rate</dt><dd>${escapeHtml(formatPercentRatio(auditQuality.ocr_review_rate))}</dd>
+        <dt>Duplicate text-hash rate</dt><dd>${escapeHtml(formatPercentRatio(auditQuality.duplicate_text_hash_rate))}</dd>
+      </dl>
+      ${
+        showEvidence
+          ? `<p class="muted-note">Unit audit quality is generated by a local Polars aggregate scan over published map units. OCR and duplicate text-hash signals are review aids, not legal findings or proof of text defects.</p>`
+          : `<p class="muted-note">Switch to Evidence trail for the audit-quality generation boundary.</p>`
+      }
+    </section>
   `;
 }
 
@@ -2394,14 +2494,16 @@ function applyMapFilters(event) {
     topic: String(form.get("topic") || ""),
     function: String(form.get("function") || ""),
     tier: String(form.get("tier") || ""),
+    auditFocus: String(form.get("audit_focus") || ""),
     minLaws: Math.max(0, Number(form.get("min_laws") || 0)),
+    minAuditScore: Math.max(0, Number(form.get("min_audit_score") || 0)),
   };
   state.selectedUnitId = null;
   renderMap();
 }
 
 function resetMapFilters() {
-  state.mapFilters = { state: "", topic: "", function: "", tier: "", minLaws: 0 };
+  state.mapFilters = { state: "", topic: "", function: "", tier: "", auditFocus: "", minLaws: 0, minAuditScore: 0 };
   state.selectedUnitId = null;
   renderMap();
 }
@@ -2892,19 +2994,20 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, ontology, chatIndex, inquiryBriefings, models, charts] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, models, charts] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
       fetchJson(ANALYSIS_PATHS.municipalPoints),
       fetchJson(ANALYSIS_PATHS.auditStatus),
+      fetchJson(ANALYSIS_PATHS.unitAuditQuality),
       fetchJson(ANALYSIS_PATHS.ontology),
       fetchJson(ANALYSIS_PATHS.chatIndex),
       fetchJson(ANALYSIS_PATHS.inquiryBriefings),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, ontology, chatIndex, inquiryBriefings, models, charts, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, models, charts, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }

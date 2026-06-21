@@ -807,6 +807,10 @@ textarea {
   background: linear-gradient(90deg, #f2e9c9, #275f79);
 }
 
+.geo-color-legend .audit-gradient i {
+  background: linear-gradient(90deg, #f2e9c9, #7a3b31);
+}
+
 #county-choropleth {
   width: 100%;
   min-height: 420px;
@@ -961,7 +965,8 @@ textarea {
   margin-bottom: 18px;
 }
 
-.selected-peer-card {
+.selected-peer-card,
+.selected-audit-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -970,7 +975,9 @@ textarea {
 }
 
 .selected-peer-card h4,
-.selected-peer-card p {
+.selected-peer-card p,
+.selected-audit-card h4,
+.selected-audit-card p {
   margin-top: 0;
 }
 

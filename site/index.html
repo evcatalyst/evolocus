@@ -116,6 +116,19 @@
             Min laws
             <input name="min_laws" type="number" min="0" step="100" value="0">
           </label>
+          <label>
+            Audit focus
+            <select name="audit_focus">
+              <option value="">All audit signals</option>
+              <option value="ocr">Medium/high OCR risk</option>
+              <option value="duplicate">Duplicate text hash</option>
+              <option value="attention">Audit attention 5+</option>
+            </select>
+          </label>
+          <label>
+            Min audit attention
+            <input name="min_audit_score" type="number" min="0" max="100" step="1" value="0">
+          </label>
           <div class="button-row compact-actions">
             <button type="submit">Apply</button>
             <button id="reset-map-filters" type="button">Reset</button>
@@ -165,6 +178,7 @@
               <button class="geo-color-button" type="button" data-geo-color="topic">Topic</button>
               <button class="geo-color-button" type="button" data-geo-color="function">Function</button>
               <button class="geo-color-button" type="button" data-geo-color="substantive_share">Substantive share</button>
+              <button class="geo-color-button" type="button" data-geo-color="audit_attention">Audit attention</button>
               <button class="geo-color-button" type="button" data-geo-color="law_count">Law count</button>
             </div>
           </div>

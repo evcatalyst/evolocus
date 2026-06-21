@@ -28,6 +28,7 @@ from .locus_ingest import (
 )
 from .locus_source import CorpusConfig, LocusCorpus
 from .municipal_points import publish_municipal_points_artifact
+from .unit_audit_quality import DEFAULT_UNIT_AUDIT_QUALITY_PATH, publish_unit_audit_quality
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -66,6 +67,16 @@ def main(argv: list[str] | None = None) -> int:
     audit_status_parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST_PATH)
     audit_status_parser.add_argument("--output", type=Path, default=DEFAULT_AUDIT_STATUS_PATH)
     audit_status_parser.set_defaults(func=_publish_audit_status)
+
+    unit_audit_parser = subparsers.add_parser(
+        "publish-unit-audit-quality",
+        help="Publish aggregate per-unit audit quality signals for GitHub Pages maps.",
+    )
+    unit_audit_parser.add_argument("--input", type=str, default=None, help="Local Parquet file/glob. Omit for demo mode.")
+    unit_audit_parser.add_argument("--map-layers", type=Path, default=DEFAULT_OUTPUT_DIR / "map_layers.json")
+    unit_audit_parser.add_argument("--output", type=Path, default=DEFAULT_UNIT_AUDIT_QUALITY_PATH)
+    unit_audit_parser.add_argument("--dataset-revision", default="local")
+    unit_audit_parser.set_defaults(func=_publish_unit_audit_quality)
 
     init_eval_parser = subparsers.add_parser("init-evaluation", help="Initialize the local SQLite evaluation store.")
     init_eval_parser.add_argument("--db", required=True, type=Path)
@@ -260,6 +271,13 @@ def _publish_analysis(args: argparse.Namespace) -> int:
 
 def _publish_audit_status(args: argparse.Namespace) -> int:
     result = publish_audit_status(args.audit, args.manifest, args.output)
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _publish_unit_audit_quality(args: argparse.Namespace) -> int:
+    corpus = _corpus_from_args(args.input, args.dataset_revision)
+    result = publish_unit_audit_quality(corpus, args.map_layers, args.output)
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0
 

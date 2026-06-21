@@ -10,6 +10,7 @@ EvoLOCUS is an open-source, local-first platform for reviewing and enriching the
 - Real LOCUS local shard download: complete in ignored `data/raw/`
 - Real LOCUS aggregate visual publish: complete for top 1,000 state-clustered jurisdiction units
 - Real LOCUS full audit: complete for 2,211,516 rows with aggregate-only status published
+- Real LOCUS per-unit audit quality: complete for the published top-1,000 map-unit scope
 - Real LOCUS evaluation: not started
 - Data state: no real LOCUS rows or ordinance text committed or published
 - Completion method: phase checklist, not weighted overall percentage
@@ -41,6 +42,8 @@ The Pages app supports:
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
+- per-unit audit review signals for the published map layer, including OCR-risk and duplicate-text-hash rates;
+- audit-driven map filters and an audit-attention geography color mode, framed as review priority rather than ranking;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -83,6 +86,7 @@ Support tooling:
 - CLI commands for audit, queue seeding, and export package creation.
 - `publish-analysis` for generating Pages-ready status, map, ontology, model, and deterministic inquiry JSON.
 - `publish-inquiry-briefings` for generating static progressive inquiry briefings, optionally enriched by Grok in offline jobs only.
+- `publish-unit-audit-quality` for generating aggregate per-unit audit-quality JSON from local Parquet and the reviewed public map-unit scope.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
 
@@ -142,6 +146,16 @@ PYTHONPATH=src python -m evolocus.cli publish-county-geometry \
 PYTHONPATH=src python -m evolocus.cli publish-municipal-points \
   --map-layers site/data/analysis/map_layers.json \
   --output site/data/analysis/municipal_points.json
+```
+
+Refresh per-unit audit quality after `map_layers.json` changes:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-unit-audit-quality \
+  --input 'data/raw/locus-v1/<revision>/**/*.parquet' \
+  --map-layers site/data/analysis/map_layers.json \
+  --output site/data/analysis/unit_audit_quality.json \
+  --dataset-revision '<revision>'
 ```
 
 Audit demo or local Parquet:

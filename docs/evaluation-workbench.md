@@ -12,8 +12,8 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - law map with state-clustered county/town-style units colored by neutral tier;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
-- geography color modes for neutral tier, dominant topic, dominant function, and law-count intensity;
-- map filters for state, topic, function, tier, and minimum law count;
+- geography color modes for neutral tier, dominant topic, dominant function, audit attention, and law-count intensity;
+- map filters for state, topic, function, tier, minimum law count, and aggregate audit review signals;
 - filtered-view aggregate insight cards and inquiry answers;
 - filtered-vs-full aggregate comparison panels;
 - official geography color modes for neutral tier, dominant topic, dominant function, model-substantive share, and law-count intensity;
@@ -21,6 +21,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - county/town aggregate coverage atlas by state, source-unit type, and neutral tier;
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
 - full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
+- per-unit audit review signals for the published map units, including medium/high OCR risk and duplicate-text-hash rates;
 - ontology and model-output registry views;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
@@ -99,6 +100,18 @@ PYTHONPATH=src python -m evolocus.cli publish-municipal-points \
   --map-layers site/data/analysis/map_layers.json \
   --output site/data/analysis/municipal_points.json
 ```
+
+Refresh unit audit quality after `map_layers.json` changes:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-unit-audit-quality \
+  --input 'data/raw/locus-v1/<revision>/**/*.parquet' \
+  --map-layers site/data/analysis/map_layers.json \
+  --output site/data/analysis/unit_audit_quality.json \
+  --dataset-revision '<revision>'
+```
+
+The audit-attention color mode is a review-priority signal from aggregate OCR and duplicate-text-hash rates. It is not a legal ranking and is not proof of an OCR defect.
 
 Refresh static progressive inquiry briefings from the current aggregate artifacts:
 

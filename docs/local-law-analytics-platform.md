@@ -8,6 +8,7 @@ Primary stack for the evaluator MVP:
 - Browser localStorage for reviewer-local append-only events.
 - Browser File API for bounded queue import and user-triggered exports.
 - Static JSON artifacts for map layers, ontology, models, status, deterministic inquiry, progressive inquiry briefings, and charts.
+- Static JSON artifacts for aggregate audit status and per-unit audit-quality signals.
 - Polars lazy frames over local Parquet.
 - SQLite through Python `sqlite3` for support tooling and local queue package preparation.
 
@@ -55,6 +56,7 @@ flowchart LR
   F --> G["Bounded queue package"]
   H["Synthetic demo records"] --> I["GitHub Pages browser workbench"]
   L["Static map + ontology artifacts"] --> I
+  M["Static audit status + unit audit quality"] --> I
   G --> I
   I --> J["Append-only browser review events"]
   J --> K["Browser metrics + content-free exports"]
@@ -94,6 +96,16 @@ PYTHONPATH=src python -m evolocus.cli audit-locus \
   --input 'data/raw/locus-v1/<revision>/**/*.parquet' \
   --dataset-revision '<revision>' \
   --output data/processed/locus-v1/<revision>/audit
+```
+
+Publish aggregate per-unit audit quality for the current public map scope:
+
+```bash
+PYTHONPATH=src python -m evolocus.cli publish-unit-audit-quality \
+  --input 'data/raw/locus-v1/<revision>/**/*.parquet' \
+  --map-layers site/data/analysis/map_layers.json \
+  --output site/data/analysis/unit_audit_quality.json \
+  --dataset-revision '<revision>'
 ```
 
 Evaluation store:
@@ -140,6 +152,7 @@ PYTHONPATH=src python -m evolocus.cli export-evaluation \
 - SQLite stores bounded queue snapshots and review history, not the full corpus.
 - GitHub Pages hosts the evaluator workbench and may publish reviewed aggregate-only LOCUS artifacts.
 - GitHub Pages must never publish real LOCUS rows, ordinance text, local SQLite state, local exports, or secrets.
+- Unit-level audit quality is a review-priority signal from aggregate OCR-risk and duplicate-text-hash rates, not a legal ranking or proof of text defects.
 - Browser imports must be bounded review queues, not full LOCUS shards.
 - Model outputs are imported as released LOCUS columns; downloading derivative model weights is deferred until model cards are verified.
 
