@@ -122,6 +122,8 @@ Latest update:
 - Added `inquiry_briefings.json` and a `publish-inquiry-briefings` CLI/workflow path so GitHub Pages can answer questions from progressive aggregate-only static briefings, optionally enriched by Grok offline.
 - Added selected-unit inquiry drilldowns so a county/town map selection can open an aggregate-only Q&A answer with geometry-match provenance and disclosure-level details.
 - Added selected-unit ontology neighborhood visuals linking the selected aggregate unit to dominant topic, dominant function, neutral tier, score summaries, and geometry-match provenance.
+- Added selected-unit peer comparison visuals for similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity.
+- Verified the `GROK_API_KEY` GitHub Actions secret exists for offline aggregate-only inquiry enrichment; the browser-delivered Pages app still contains no API key.
 
 Evaluator implementation state:
 

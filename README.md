@@ -41,6 +41,7 @@ The Pages app supports:
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
+- selected-unit peer comparison visuals for similar published county/town aggregate units;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;

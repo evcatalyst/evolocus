@@ -25,6 +25,7 @@ flowchart LR
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
+- Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.
 - Browser storage is local to the reviewer and is not a shared database.
 - Demo mode is synthetic and conspicuously labeled.
 - Real LOCUS aggregate artifacts are published through Pages after local safety checks.

@@ -137,6 +137,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitOntologyNodes" in js
     assert "ontologyNodeSvg" in js
     assert "ontology-neighborhood-svg" in css
+    assert "selectedUnitPeerComparisonHtml" in js
+    assert "selectedUnitPeers" in js
+    assert "scoreDeltaSummary" in js
+    assert "selected-peer-card" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

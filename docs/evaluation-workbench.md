@@ -21,6 +21,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
 - ontology and model-output registry views;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
+- selected-unit peer comparison visuals for similar published county/town aggregate units;
 - static progressive inquiry briefings over published aggregate artifacts;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate chart panels and publication gates;
