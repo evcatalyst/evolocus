@@ -194,6 +194,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Replay answer" in js
     assert "Open map view" in js
     assert "Replay state" in js
+    assert "inquiryResultsTimelineHtml" in js
+    assert "inquiryResultsTimelineRowHtml" in js
+    assert "Replay timeline" in js
+    assert "Aggregate inquiry replay timeline" in js
     assert "aggregateInquiryLogPolicy" in js
     assert "renderInquiryResultsLog" in js
     assert "inquiryResultsLogExportPayload" in js
@@ -222,6 +226,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-pathway-actions" in css
     assert "inquiry-log-actions" in css
     assert "inquiry-log-entry.active" in css
+    assert "inquiry-log-timeline" in css
+    assert "inquiry-log-timeline-row" in css
+    assert "inquiry-log-sparkline" in css
     assert "map-inline-history-row" in css
     assert "map-inline-comparison-strip" in css
     assert "map-inline-comparison-row" in css

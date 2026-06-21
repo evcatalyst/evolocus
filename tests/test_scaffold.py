@@ -342,6 +342,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Replay answer" in js
     assert "Open map view" in js
     assert "Replay state" in js
+    assert "inquiryResultsTimelineHtml" in js
+    assert "inquiryResultsTimelineRowHtml" in js
+    assert "Replay timeline" in js
+    assert "Aggregate inquiry replay timeline" in js
     assert "aggregateInquiryLogPolicy" in js
     assert "renderInquiryResultsLog" in js
     assert "inquiryResultsLogExportPayload" in js
@@ -478,6 +482,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-log-entry" in css
     assert "inquiry-log-actions" in css
     assert "inquiry-log-entry.active" in css
+    assert "inquiry-log-timeline" in css
+    assert "inquiry-log-timeline-row" in css
+    assert "inquiry-log-sparkline" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

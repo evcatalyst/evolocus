@@ -92,7 +92,8 @@
         "Add browser-local aggregate inquiry results log",
         "Add Law Map last-refresh source detail",
         "Add replay controls for saved aggregate inquiry logs",
-        "Add Inquiry topic/tier pathway chart"
+        "Add Inquiry topic/tier pathway chart",
+        "Add replay timeline for saved aggregate inquiry logs"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

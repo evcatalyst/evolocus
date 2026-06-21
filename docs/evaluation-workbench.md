@@ -56,6 +56,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
 - browser-local aggregate inquiry results log for preset/manual questions with content-free JSON export and no browser model calls;
 - visual replay controls for aggregate inquiry log entries that restore safe filters, disclosure level, and selected aggregate unit context;
+- replay timeline sparklines for saved aggregate inquiry results, scaled by visible law rows and units while excluding row text and locators;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;
 - browser-local map inquiry history JSON export with sanitized aggregate entries and policy metadata;
 - inquiry-driven county/town comparison strip that changes by prompt and opens aggregate units back on the map;

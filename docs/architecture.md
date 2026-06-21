@@ -38,6 +38,7 @@ flowchart LR
 - Inquiry pathway cells group current aggregate map units by dominant topic and neutral tier, then apply safe filters or deterministic aggregate questions without exposing rows.
 - Inquiry results are logged in browser localStorage as aggregate answer summaries with filter context, artifact timestamps, and explicit no-text/no-locator/no-review-event policy flags.
 - Saved inquiry results can replay only safe browser state: map filters, disclosure depth, and selected aggregate unit IDs. Replay does not create row-level evidence or call a model.
+- Saved inquiry results also render as a browser-local replay timeline with row/unit sparklines derived from aggregate summaries only.
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
 - The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - The Pages Analysis Status tab links to that manual workflow as an Actions-only refresh control; the browser never receives a model secret and never performs a live model call.

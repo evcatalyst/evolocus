@@ -225,3 +225,4 @@ Evaluator implementation state:
 - Refresh-source surface: Law Map header distinguishes tracked Polars aggregate map artifacts, offline briefing source, analysis commit, deploy guard, and aggregate-only publication boundary.
 - Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.
 - Inquiry pathway surface: GitHub Pages groups current aggregate units into topic/tier visual cells with ask and map actions that reuse safe filters and deterministic aggregate answers only.
+- Inquiry replay timeline surface: saved aggregate inquiry entries render as browser-local row/unit sparklines with replay and map actions, excluding text, locators, review events, and browser model calls.

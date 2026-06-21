@@ -3847,6 +3847,108 @@ legend {
   gap: 10px;
 }
 
+.inquiry-log-timeline {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.inquiry-log-timeline-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inquiry-log-timeline-heading span,
+.inquiry-log-timeline-heading em {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.inquiry-log-timeline-heading span {
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-log-timeline-rows {
+  display: grid;
+  gap: 8px;
+}
+
+.inquiry-log-timeline-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1.1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.inquiry-log-timeline-row.active {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
+.inquiry-log-timeline-row button {
+  justify-items: start;
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink);
+  padding: 0;
+  text-align: left;
+}
+
+.inquiry-log-timeline-row button:hover,
+.inquiry-log-timeline-row button:focus-visible {
+  color: #326f70;
+}
+
+.inquiry-log-timeline-row button.secondary {
+  border-color: var(--line);
+  background: #ffffff;
+  padding: 8px 10px;
+}
+
+.inquiry-log-timeline-row span,
+.inquiry-log-timeline-row em {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.inquiry-log-timeline-row strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-log-sparkline {
+  display: grid;
+  gap: 6px;
+}
+
+.inquiry-log-sparkline span {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.inquiry-log-sparkline b {
+  display: block;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
 .inquiry-log-empty,
 .inquiry-log-entry {
   border: 1px solid var(--line);
@@ -4517,6 +4619,7 @@ th {
   .package-ontology-facts,
   .map-inline-history-row,
   .map-inline-comparison-row,
+  .inquiry-log-timeline-row,
   .inquiry-log-entry dl,
   .geo-layer-legend-pills,
   .geo-layer-link-list button,
@@ -4621,6 +4724,7 @@ th {
   .package-ontology-facts,
   .map-inline-history-row,
   .map-inline-comparison-row,
+  .inquiry-log-timeline-row,
   .inquiry-log-entry dl,
   .geo-layer-legend-pills,
   .geo-layer-link-list button,

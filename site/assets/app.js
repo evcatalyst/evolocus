@@ -4755,10 +4755,54 @@ function renderInquiryResultsLog() {
     `;
     return;
   }
-  target.innerHTML = state.inquiryResultsLog
-    .slice(0, 8)
-    .map(inquiryResultLogCardHtml)
-    .join("");
+  target.innerHTML = `
+    ${inquiryResultsTimelineHtml(state.inquiryResultsLog)}
+    ${state.inquiryResultsLog.slice(0, 8).map(inquiryResultLogCardHtml).join("")}
+  `;
+}
+
+function inquiryResultsTimelineHtml(entries) {
+  const rows = entries.slice(0, 10);
+  const maxRows = Math.max(1, ...rows.map((item) => Number(item.visible_summary?.law_count || 0)));
+  const maxUnits = Math.max(1, ...rows.map((item) => Number(item.visible_summary?.unit_count || 0)));
+  return `
+    <section class="inquiry-log-timeline" aria-label="Aggregate inquiry replay timeline">
+      <div class="inquiry-log-timeline-heading">
+        <div>
+          <span>Replay timeline</span>
+          <strong>${escapeHtml(formatCount(entries.length))} saved aggregate answers</strong>
+        </div>
+        <em>No ordinance text, locators, review events, or browser model calls</em>
+      </div>
+      <div class="inquiry-log-timeline-rows">
+        ${rows.map((item) => inquiryResultsTimelineRowHtml(item, maxRows, maxUnits)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function inquiryResultsTimelineRowHtml(item, maxRows, maxUnits) {
+  const summary = item.visible_summary || {};
+  const lawCount = Number(summary.law_count || 0);
+  const unitCount = Number(summary.unit_count || 0);
+  const lawWidth = Math.max(lawCount ? 4 : 0, (lawCount / maxRows) * 100).toFixed(2);
+  const unitWidth = Math.max(unitCount ? 4 : 0, (unitCount / maxUnits) * 100).toFixed(2);
+  const activeClass = item.id === state.activeInquiryReplayId ? " active" : "";
+  const filters = item.filter_labels?.length ? item.filter_labels.join(" · ") : "No active filters";
+  return `
+    <article class="inquiry-log-timeline-row${activeClass}">
+      <button type="button" data-replay-inquiry-log="${escapeHtml(item.id || "")}">
+        <span>${escapeHtml(formatDateTime(item.created_at))}</span>
+        <strong>${escapeHtml(item.answer_title || "Aggregate answer")}</strong>
+        <em>${escapeHtml(item.source || "inquiry")} · ${escapeHtml(filters)}</em>
+      </button>
+      <div class="inquiry-log-sparkline" aria-label="Aggregate row and unit scale">
+        <span><b style="width:${escapeHtml(lawWidth)}%"></b><em>${escapeHtml(formatCount(lawCount))} rows</em></span>
+        <span><b style="width:${escapeHtml(unitWidth)}%"></b><em>${escapeHtml(formatCount(unitCount))} units</em></span>
+      </div>
+      <button type="button" class="secondary" data-open-inquiry-log-map="${escapeHtml(item.id || "")}">Map</button>
+    </article>
+  `;
 }
 
 function inquiryResultLogCardHtml(item) {
