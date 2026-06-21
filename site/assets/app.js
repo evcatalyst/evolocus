@@ -2548,12 +2548,22 @@ function inquiryPromptCards() {
   const topUnit = summary.topUnit;
   const selectedUnit = currentSelectedMapUnit();
   const auditSummary = inquiryAuditSummary(units);
+  const packageSummary = packageCoverageSummary();
+  const packageStats = importedPackageMapStats(mapLayers?.units || []);
   const cards = [
     {
       group: "Map",
       title: "Current filtered view",
       question: "What does the current filtered map view show?",
       detail: `${formatCount(units.length)} units · ${formatCount(summary.lawCount)} rows`,
+    },
+    {
+      group: "Package",
+      title: packageSummary.imported ? (packageSummary.syntheticPackage ? "Synthetic package overlay" : "Loaded package overlay") : "No package loaded",
+      question: "What does the loaded package show on the map?",
+      detail: packageSummary.imported
+        ? `${formatCount(packageStats.matchedRecords)}/${formatCount(packageStats.recordCount)} records matched · ${formatCount(packageStats.units.size)} units`
+        : "Use Load Demo Package or import a bounded local package",
     },
     {
       group: "Topic",
@@ -4782,6 +4792,9 @@ function answerQuestion(question) {
       matches: "",
     };
   }
+  if (/\b(package|imported|browser-local|loaded package|review package|overlay|local queue)\b/.test(normalized)) {
+    return packageInquiryAnswer();
+  }
   if (/\b(selected|current|this)\b/.test(normalized) && /\b(unit|county|town|municipal|municipality|jurisdiction|place)\b/.test(normalized)) {
     return selectedUnitAnswer();
   }
@@ -4836,6 +4849,101 @@ function answerQuestion(question) {
       </ol>
     `,
   };
+}
+
+function packageInquiryAnswer() {
+  const mapUnits = state.analysis.mapLayers?.units || [];
+  const summary = packageCoverageSummary();
+  const packageStats = importedPackageMapStats(mapUnits);
+  if (!summary.imported) {
+    return {
+      title: "No browser-local package loaded",
+      answer: "The public map and inquiry layers are loaded, but no browser-local package is active. Use Load Demo Package for a synthetic package overlay or import a bounded local review package. No LOCUS row text is published through this path.",
+      sections: "",
+      matches: `
+        <h4>Package boundary</h4>
+        <dl class="briefing-facts">
+          <dt>Public map</dt><dd>Available <span>aggregate artifacts</span></dd>
+          <dt>Browser package</dt><dd>Not loaded <span>localStorage</span></dd>
+          <dt>Raw LOCUS rows</dt><dd>Not published <span>publication policy</span></dd>
+        </dl>
+      `,
+    };
+  }
+  const sourceLabel = summary.syntheticPackage ? "synthetic browser package" : "browser-local imported package";
+  return {
+    title: summary.syntheticPackage ? "Synthetic package map overlay" : "Loaded package map overlay",
+    answer: `The active ${sourceLabel} contains ${formatCount(summary.recordCount)} browser-local records across ${formatCount(summary.unitCount)} package units. ${formatCount(packageStats.matchedRecords)} records match published aggregate map units, highlighting ${formatCount(packageStats.units.size)} county/town units. Review progress is ${formatCount(summary.metrics.reviewed)} reviewed, ${formatCount(summary.metrics.remaining)} remaining, ${formatCount(summary.metrics.skipped)} skipped, and ${formatCount(summary.metrics.flagged)} flagged. This is workflow coverage, not a civic finding or legal ranking.`,
+    sections: packageInquirySectionsHtml(summary, packageStats),
+    matches: `
+      <h4>Package evidence boundary</h4>
+      <dl class="briefing-facts">
+        <dt>Package source</dt><dd>${escapeHtml(summary.sourceDetail)} <span>browser localStorage</span></dd>
+        <dt>Map join</dt><dd>${escapeHtml(formatCount(packageStats.matchedRecords))}/${escapeHtml(formatCount(packageStats.recordCount))} records matched <span>map_layers.json unit IDs</span></dd>
+        <dt>Text state</dt><dd>${escapeHtml(summary.syntheticPackage ? "Synthetic placeholders only" : summary.textIncluded ? "LOCUS text loaded locally" : "Metadata only")} <span>not a Pages artifact</span></dd>
+        <dt>Source locators</dt><dd>${escapeHtml(summary.sourceLocatorsIncluded ? "Present locally, not listed here" : "Not loaded")} <span>provenance boundary</span></dd>
+      </dl>
+    `,
+  };
+}
+
+function packageInquirySectionsHtml(summary, packageStats) {
+  const rows = [
+    {
+      level: "overview",
+      heading: "Package map coverage",
+      body: `${formatCount(packageStats.units.size)} public aggregate units are represented in the browser-local package overlay. Package-only filtering narrows the map, inquiry, score, audit, and snapshot context to those units.`,
+      rows: [
+        { field: "records", value: formatCount(summary.recordCount) },
+        { field: "units", value: formatCount(summary.unitCount) },
+        { field: "matched records", value: `${formatCount(packageStats.matchedRecords)}/${formatCount(packageStats.recordCount)}` },
+        { field: "text boundary", value: summary.syntheticPackage ? "synthetic placeholders only" : summary.textIncluded ? "local LOCUS text present" : "metadata only" },
+      ],
+    },
+  ];
+  if (["unit", "evidence"].includes(state.disclosureLevel)) {
+    rows.push({
+      level: "unit",
+      heading: "Package composition",
+      body: "These counts summarize the browser-local queue, not public LOCUS rows.",
+      rows: [
+        { field: "state mix", value: compactCounts(summary.stateCounts) },
+        { field: "topic mix", value: compactCounts(summary.topicCounts) },
+        { field: "function mix", value: compactCounts(summary.functionCounts) },
+        { field: "workflow", value: `reviewed ${formatCount(summary.metrics.reviewed)} · remaining ${formatCount(summary.metrics.remaining)} · skipped ${formatCount(summary.metrics.skipped)} · flagged ${formatCount(summary.metrics.flagged)}` },
+      ],
+    });
+  }
+  if (state.disclosureLevel === "evidence") {
+    rows.push({
+      level: "evidence",
+      heading: "Highest matched package units",
+      body: "Matched unit rows use aggregate map unit IDs and browser-local record counts. They do not expose ordinance text or source locator values.",
+      rows: [...packageStats.units.values()]
+        .sort((a, b) => b.recordCount - a.recordCount || displayUnitName(a.unit).localeCompare(displayUnitName(b.unit)))
+        .slice(0, 8)
+        .map((hit) => ({
+          field: displayUnitName(hit.unit),
+          value: `${hit.unit?.state || "NA"} · ${formatCount(hit.recordCount)} records · ${formatCount(hit.reviewed)} reviewed`,
+        })),
+    });
+  }
+  return `
+    <div class="briefing-sections package-briefing">
+      ${rows
+        .map(
+          (section) => `
+            <section>
+              <span>${escapeHtml(section.level)}</span>
+              <h4>${escapeHtml(section.heading)}</h4>
+              <p>${escapeHtml(section.body)}</p>
+              ${briefingRowsHtml(section.rows)}
+            </section>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
 }
 
 function filteredAuditAnswer() {

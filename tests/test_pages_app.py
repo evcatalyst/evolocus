@@ -56,6 +56,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "matchInquiryBriefing" in js
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js
+    assert "packageInquiryAnswer" in js
+    assert "What does the loaded package show on the map?" in js
+    assert "Package evidence boundary" in js
     assert "filteredAuditAnswer" in js
     assert "filteredScoreAnswer" in js
     assert "briefingSectionsHtml" in js

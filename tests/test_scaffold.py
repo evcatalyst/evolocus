@@ -207,6 +207,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-ask-unit-id" in js
     assert "briefing-sections" in js
     assert "matchInquiryBriefing" in js
+    assert "packageInquiryAnswer" in js
+    assert "packageInquirySectionsHtml" in js
+    assert "What does the loaded package show on the map?" in js
+    assert "Package evidence boundary" in js
     assert "selectedUnitAnswer" in js
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js

@@ -89,7 +89,7 @@ Current coverage stats:
 - Unit audit-quality counts: 55,816 medium/high OCR-review rows, 29,194 duplicate text-hash rows, max audit attention 30.88/100
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
-- Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, topic, function, audit, score, and selected-unit answers
+- Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, package overlay, topic, function, audit, score, and selected-unit answers
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download
@@ -98,6 +98,7 @@ Current coverage stats:
 - Import status surface: GitHub Pages shows browser-local package provenance, text-inclusion state, and safety flags after upload
 - Package map overlay surface: GitHub Pages highlights imported browser-local package units on the aggregate map, official county polygons, municipal points, selected-unit panel, and map table
 - Imported package filter surface: GitHub Pages can narrow map-driven aggregate visuals to units represented in the browser-local review package
+- Package inquiry surface: GitHub Pages explains active browser-local package coverage, map matches, workflow status, and safety boundaries without listing text or source locator values
 - Package coverage surface: GitHub Pages Results tab summarizes imported browser-local queues by state, topic, function, jurisdiction type, OCR-risk mix, safety markers, and review progress
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots
@@ -163,6 +164,7 @@ Latest update:
 - Optimized `materialize-review-package` to filter by native Polars unit keys before expensive derived fields, then verified a real 24-record local package across 12 public aggregate units.
 - Added safe local-package verification counts to the Pages Analysis Status tab; no package text, headers, record IDs, or locator values are published.
 - Added a one-click synthetic package demo in the toolbar and Walkthrough so the public site can demonstrate imported-unit map overlays, package-only filters, package coverage charts, and review flow without loading LOCUS row text.
+- Added a package-aware Inquiry prompt and answer that summarizes local package map coverage, workflow progress, and publication boundaries without exposing record text or source locator values.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.

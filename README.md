@@ -61,7 +61,8 @@ The Pages app supports:
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
-- Inquiry question matrix with filter-aware prompts for map, topic, function, audit, score, and selected-unit questions;
+- Inquiry question matrix with filter-aware prompts for map, package overlay, topic, function, audit, score, and selected-unit questions;
+- package-aware inquiry answer that summarizes browser-local package coverage, map matches, workflow progress, and text/source-locator boundaries without listing record text;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
 - current-view snapshot export for filtered map/inquiry context, with aggregate metadata only;
@@ -109,6 +110,7 @@ Support tooling:
 - Browser package-request preview for inspecting unit mix, record budget, and publication safety gates before download.
 - Browser import-status panel for local package provenance and review readiness after upload; this state remains in localStorage.
 - Browser synthetic package demo for exercising package import, package-to-map overlay, package-only filtering, Results-tab package charts, and review workflow without loading LOCUS row text.
+- Browser package inquiry answer for explaining the active local package overlay from counts, map-unit matches, workflow status, and safety flags only.
 - Browser package-to-map overlay for imported local queues; it joins local `unit_id` values to public aggregate units and highlights matches without writing records to public artifacts.
 - Browser imported-package-only map filter for focusing aggregate map, inquiry, snapshot, score, and audit views on local package coverage.
 - Browser package-coverage charts for imported local queues; these summarize only browser-local records and are never written to `site/data/analysis/`.

@@ -34,7 +34,7 @@ flowchart LR
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - The Walkthrough tab orchestrates the public map, inquiry, ontology, queue planning, and snapshots into a guided real-aggregate demo flow without adding a separate data publication channel.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
-- Inquiry prompt cards use current map filters and static artifacts to answer map, topic, function, audit, score, and selected-unit questions without live model calls.
+- Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
 - The manual analysis-refresh workflow can use `GROK_API_KEY` to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - The Analysis Status tab reads `audit_status.json`, a full-row-count audit summary that excludes raw rows, ordinance text, sampled findings, and record locators.
@@ -44,6 +44,7 @@ flowchart LR
 - The Queue Plan tab combines current map filters, `map_layers.json`, and `unit_audit_quality.json` to rank aggregate county/town units for future local review packaging. Its preview shows record budget, state/type/topic mix, and safety gates before exporting unit IDs, aggregate counts, review signals, strategy metadata, and optional local materialization instructions only.
 - The Queue Plan review-package request can be consumed by `materialize-review-package` to create a bounded browser-import package from ignored local Parquet. The request itself remains aggregate-only.
 - The browser can generate a synthetic package demo from the currently published aggregate units, exercising package overlays, package-only filters, package coverage charts, and review workflow without loading LOCUS row text.
+- Package-aware inquiry answers summarize browser-local package coverage, map-unit matches, workflow progress, text state, and source-locator state without listing record text or locator values.
 - The map and inquiry tabs can export the current filtered view as aggregate JSON with filters, counts, selected-unit metadata, audit signals, and briefing provenance only.
 - The Snapshots tab saves those aggregate current-view payloads in browser localStorage for comparison and reloads only filter state and selected aggregate unit IDs.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.

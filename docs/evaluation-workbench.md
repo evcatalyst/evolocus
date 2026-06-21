@@ -37,7 +37,8 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
 - Score Lens tab with released model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over published aggregate artifacts;
-- Inquiry question matrix for filter-aware map, topic, function, audit, score, and selected-unit prompts;
+- Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
+- package-aware inquiry answer for browser-local package coverage, map matches, workflow progress, and publication boundaries;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - current-view snapshot export for filtered map/inquiry context without LOCUS text or review events;
 - browser-local snapshot gallery for comparing saved aggregate map/inquiry exports;
@@ -67,6 +68,8 @@ The browser can import a bounded queue JSON file with a top-level `records` arra
 After import, the Law Map highlights imported package units in the state-clustered aggregate map, official county polygons, municipal points, selected-unit detail, and map table. A binary imported-package-units filter narrows the aggregate map and downstream inquiry/snapshot context to locally loaded package units. The Results tab summarizes the browser-local package with record/unit counts, state/topic/function/type/OCR distributions, safety markers, and review progress. These visuals read localStorage and the imported package only; they are not copied into public static artifacts.
 
 The toolbar and Walkthrough can also load a synthetic browser package generated from the current published aggregate units. That demo creates placeholder review records in localStorage, highlights their aggregate units, enables package-only filtering, and populates Results-tab package charts. It is labeled synthetic and does not load LOCUS ordinance text, source locators, raw rows, review history, or secrets.
+
+When a package is active, the Inquiry tab adds a Package prompt. The answer reports matched aggregate units, record counts, review workflow status, text/source-locator state, and localStorage provenance. It never lists ordinance text, headers, source locator values, or row-level LOCUS samples.
 
 The local package handoff has been smoke-tested against real LOCUS Parquet: 24 records across 12 public aggregate units were materialized into ignored `data/exports/` packages, including one metadata-only package and one local text-bearing review package. Pages publishes only aggregate verification counts from that smoke test.
 

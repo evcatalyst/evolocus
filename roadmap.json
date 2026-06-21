@@ -66,7 +66,8 @@
         "Add package-to-map overlay for imported browser-local review queues",
         "Add one-click imported-package-units map filter",
         "Verify bounded real LOCUS review-package materialization and map-unit matching",
-        "Add one-click synthetic browser package demo for package-to-map visuals"
+        "Add one-click synthetic browser package demo for package-to-map visuals",
+        "Add package-aware inquiry answers for browser-local overlays"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

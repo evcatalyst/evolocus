@@ -57,3 +57,4 @@
 - Review-package materialization must filter to requested aggregate unit IDs before deriving OCR/content metadata; otherwise small local packages can accidentally trigger slow full-corpus work.
 - Public status may report aggregate local-package smoke counts, but must omit package paths, record IDs, text, headers, and locator values.
 - A browser-generated package demo should be explicitly synthetic, anchored only to already-published aggregate units, and reuse the same localStorage package boundary as real imports.
+- Package-aware inquiry should answer from browser-local package counts and aggregate map matches only, never by listing imported ordinance text, headers, source locator values, or review-event details.
