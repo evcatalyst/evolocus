@@ -34,6 +34,7 @@ The Pages app supports:
 - filtered-view insight cards and inquiry answers over the current aggregate map selection;
 - filtered-vs-full comparison panels for topic, tier, function, jurisdiction kind, and neutral score means;
 - state/topic small-multiple charts in the Charts tab from the same aggregate map layer;
+- county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - static inquiry over current analysis artifacts;

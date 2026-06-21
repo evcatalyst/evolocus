@@ -103,6 +103,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Progressive disclosure" in html
     assert "analysis-chart-grid" in html
     assert "state-topic-grid" in html
+    assert "coverage-matrix-grid" in html
     assert "status-card-grid" in html
     assert "status-detail-grid" in html
     assert "status-gate-grid" in html
@@ -115,6 +116,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderMapComparisons" in js
     assert "compareCounts" in js
     assert "renderStateTopicCharts" in js
+    assert "renderCoverageMatrix" in js
+    assert "coverageMatrixRows" in js
     assert "renderAnalysisStatusPanel" in js
     assert "publication_gates" in js
     assert "stateSummaries" in js

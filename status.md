@@ -107,6 +107,7 @@ Latest update:
 - Added filtered-vs-full aggregate comparison panels for topic, tier, function, jurisdiction kind, and neutral score means.
 - Added Charts-tab state/topic small multiples from the same real aggregate map layer.
 - Added an Analysis Status tab on GitHub Pages with artifact freshness, publication gates, aggregate-only boundaries, geometry-review status, and Grok secret policy.
+- Added a Charts-tab county/town aggregate coverage atlas by state, source-unit type, neutral tier, law count, and top topic.
 
 Evaluator implementation state:
 

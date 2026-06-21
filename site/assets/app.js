@@ -1123,6 +1123,7 @@ function renderExplorer() {
 function renderResults() {
   renderAnalysisCharts();
   renderStateTopicCharts();
+  renderCoverageMatrix();
   const latest = Array.from(latestEvents().values()).filter((event) => event.reviewer_id === state.reviewer);
   const reviewed = latest.filter((event) => ["save", "save_next"].includes(event.event_type));
   const flagged = latest.filter((event) => event.event_type === "flag").length;
@@ -1257,6 +1258,122 @@ function renderStateTopicCharts() {
         : '<article class="state-topic-card"><h3>No matching states</h3><p>Adjust map filters to restore aggregate chart data.</p></article>'
     }
   `;
+}
+
+function renderCoverageMatrix() {
+  const mapLayers = state.analysis.mapLayers;
+  const grid = $("#coverage-matrix-grid");
+  if (!grid) {
+    return;
+  }
+  if (!mapLayers) {
+    grid.innerHTML = `<article class="coverage-matrix-card wide"><h3>Coverage atlas loading</h3><p>Aggregate map artifacts have not loaded yet.</p></article>`;
+    return;
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const rows = coverageMatrixRows(units);
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const visibleRows = showUnit ? rows : rows.slice(0, 12);
+  grid.innerHTML = `
+    <article class="coverage-matrix-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>County/town aggregate coverage atlas</h3>
+          <p>State rows summarize county and municipal source units in the current filtered aggregate layer. Colors are neutral tier bands, not legal rankings.</p>
+        </div>
+        <span>${escapeHtml(formatCount(units.length))} units · ${escapeHtml(formatCount(summarizeUnits(units).lawCount))} law records</span>
+      </div>
+      <div class="coverage-matrix-list">
+        ${
+          visibleRows.length
+            ? visibleRows.map((row) => coverageMatrixRow(row, mapLayers.tier_definitions || {})).join("")
+            : '<p class="muted-note">No state coverage rows match the current filters.</p>'
+        }
+      </div>
+      ${
+        !showUnit && rows.length > visibleRows.length
+          ? `<p class="muted-note">Switch to Unit detail to show all ${escapeHtml(formatCount(rows.length))} state rows.</p>`
+          : ""
+      }
+      ${
+        showEvidence
+          ? `<p class="muted-note">Geometry evidence status: ${escapeHtml(mapLayers.geometry_status || "not recorded")}. This atlas uses aggregate unit metadata until reviewed county/town geometries are available.</p>`
+          : ""
+      }
+    </article>
+  `;
+}
+
+function coverageMatrixRows(units) {
+  const grouped = new Map();
+  for (const unit of units) {
+    const stateCode = unit.state || "NA";
+    if (!grouped.has(stateCode)) {
+      grouped.set(stateCode, {
+        state: stateCode,
+        lawCount: 0,
+        substantiveCount: 0,
+        countyUnits: 0,
+        municipalUnits: 0,
+        unknownUnits: 0,
+        tierCounts: {},
+        kindCounts: {},
+        topTopicCounts: {},
+      });
+    }
+    const row = grouped.get(stateCode);
+    row.lawCount += Number(unit.law_count || 0);
+    row.substantiveCount += Number(unit.substantive_count || 0);
+    row.tierCounts[unit.tier || "no_data"] = (row.tierCounts[unit.tier || "no_data"] || 0) + 1;
+    row.kindCounts[unit.kind || "unknown"] = (row.kindCounts[unit.kind || "unknown"] || 0) + 1;
+    addCounts(row.topTopicCounts, unit.topic_counts || {});
+    if (unit.kind === "county") {
+      row.countyUnits += 1;
+    } else if (unit.kind === "city") {
+      row.municipalUnits += 1;
+    } else {
+      row.unknownUnits += 1;
+    }
+  }
+  return [...grouped.values()].sort((a, b) => b.lawCount - a.lawCount || a.state.localeCompare(b.state));
+}
+
+function coverageMatrixRow(row, tierDefinitions) {
+  const totalUnits = row.countyUnits + row.municipalUnits + row.unknownUnits;
+  const topTopic = topEntry(row.topTopicCounts);
+  const tiers = Object.keys(tierDefinitions).length ? Object.keys(tierDefinitions) : Object.keys(row.tierCounts).sort();
+  return `
+    <div class="coverage-matrix-row">
+      <div class="coverage-state">
+        <strong>${escapeHtml(row.state)}</strong>
+        <span>${escapeHtml(formatCount(row.lawCount))} laws · ${escapeHtml(formatCount(totalUnits))} units</span>
+      </div>
+      <div class="coverage-kind-bars" aria-label="County and municipal unit mix">
+        ${coverageKindSegment("County", row.countyUnits, totalUnits)}
+        ${coverageKindSegment("Municipal", row.municipalUnits, totalUnits)}
+        ${coverageKindSegment("Unknown", row.unknownUnits, totalUnits)}
+      </div>
+      <div class="coverage-tier-bars" aria-label="Neutral tier mix">
+        ${tiers
+          .map((tier) => coverageTierSegment(tier, row.tierCounts[tier] || 0, totalUnits, tierDefinitions[tier]))
+          .join("")}
+      </div>
+      <span class="coverage-topic">Top topic: ${escapeHtml(topTopic.label)} (${escapeHtml(formatCount(topTopic.value))})</span>
+    </div>
+  `;
+}
+
+function coverageKindSegment(label, value, total) {
+  const width = total ? (Number(value || 0) / total) * 100 : 0;
+  return `<span style="width:${Math.max(value ? 7 : 0, width)}%"><strong>${escapeHtml(label)}</strong><em>${escapeHtml(formatCount(value))}</em></span>`;
+}
+
+function coverageTierSegment(tier, value, total, definition = {}) {
+  const width = total ? (Number(value || 0) / total) * 100 : 0;
+  const color = definition.color || "#d8dee8";
+  const label = definition.label || tier;
+  return `<span style="width:${Math.max(value ? 7 : 0, width)}%; background:${escapeHtml(color)}" title="${escapeHtml(label)}: ${escapeHtml(formatCount(value))}">${escapeHtml(formatCount(value))}</span>`;
 }
 
 function stateSummaries(units) {

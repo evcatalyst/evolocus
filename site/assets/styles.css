@@ -1047,6 +1047,106 @@ th {
   background: rgba(196, 107, 83, 0.35);
 }
 
+.coverage-matrix-grid {
+  display: grid;
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.coverage-matrix-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+.coverage-matrix-heading {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.coverage-matrix-heading h3,
+.coverage-matrix-heading p {
+  margin-top: 0;
+}
+
+.coverage-matrix-heading span,
+.coverage-topic {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.coverage-matrix-list {
+  display: grid;
+  gap: 9px;
+}
+
+.coverage-matrix-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.85fr) minmax(180px, 1fr) minmax(160px, 0.8fr) minmax(150px, 0.85fr);
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 10px;
+}
+
+.coverage-state {
+  display: grid;
+  gap: 4px;
+}
+
+.coverage-state span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.coverage-kind-bars,
+.coverage-tier-bars {
+  display: flex;
+  min-height: 34px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.coverage-kind-bars span,
+.coverage-tier-bars span {
+  display: grid;
+  min-width: 0;
+  place-items: center;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.coverage-kind-bars span {
+  background: rgba(50, 111, 112, 0.16);
+  border-right: 1px solid rgba(50, 111, 112, 0.12);
+}
+
+.coverage-kind-bars span:nth-child(2) {
+  background: rgba(224, 192, 112, 0.28);
+}
+
+.coverage-kind-bars span:nth-child(3) {
+  background: rgba(216, 222, 232, 0.7);
+}
+
+.coverage-kind-bars em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 700;
+}
+
 .ontology-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1098,6 +1198,7 @@ th {
   .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
+  .coverage-matrix-row,
   .ontology-layout,
   .results-grid,
   .protocol-grid {
@@ -1129,6 +1230,7 @@ th {
   .status-gate-grid,
   .chart-grid,
   .state-topic-grid,
+  .coverage-matrix-row,
   .ontology-layout,
   .inquiry-form,
   .metric-grid,
