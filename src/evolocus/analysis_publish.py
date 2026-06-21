@@ -566,6 +566,7 @@ def _status_artifact(corpus: LocusCorpus, units: list[dict[str, Any]], *, synthe
         "law_count": sum(unit["law_count"] for unit in units),
         "real_locus_rows_published": False,
         "grok_secret_name": "GROK_API_KEY",
+        "grok_secret_aliases": ["GROK_API_KEY", "Grok_api_key"],
         "grok_browser_policy": "Grok API keys must never be embedded in GitHub Pages JavaScript.",
         "publication_gates": [
             {"id": "source_schema_validated", "label": "Source schema validated", "status": "complete" if synthetic else "pending_review"},

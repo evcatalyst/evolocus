@@ -27,6 +27,7 @@ jobs:
     timeout-minutes: 15
     env:
       GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+      GROK_API_KEY_ALIAS: ${{ secrets.Grok_api_key }}
       USE_GROK: ${{ inputs.use_grok }}
     steps:
       - name: Checkout
@@ -39,6 +40,9 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Check optional Grok secret presence
         run: |
+          if [ -z "$GROK_API_KEY" ] && [ -n "$GROK_API_KEY_ALIAS" ]; then
+            export GROK_API_KEY="$GROK_API_KEY_ALIAS"
+          fi
           if [ "$USE_GROK" = "true" ] && [ -n "$GROK_API_KEY" ]; then
             echo "GROK_API_KEY is configured for offline analysis jobs."
           elif [ "$USE_GROK" = "true" ]; then
@@ -48,6 +52,9 @@ jobs:
           fi
       - name: Generate aggregate-only inquiry briefings
         run: |
+          if [ -z "$GROK_API_KEY" ] && [ -n "$GROK_API_KEY_ALIAS" ]; then
+            export GROK_API_KEY="$GROK_API_KEY_ALIAS"
+          fi
           if [ "$USE_GROK" = "true" ]; then
             PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings \
               --analysis-dir site/data/analysis \

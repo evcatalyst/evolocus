@@ -149,9 +149,9 @@ The review-package request export is the handoff from public aggregate visuals t
 
 After a bounded package is imported, the browser stores a small import-status record in localStorage. The status panel shows dataset revision, package schema, record and unit counts, whether local text is present, source-locator provenance state, and publication-safety flags. The package contents are not uploaded.
 
-The current-view snapshot export captures active filters, visible aggregate summaries, selected-unit metadata, audit signals, and Grok briefing provenance. It excludes ordinance text, headers, raw rows, record locators, browser review events, local databases, and secrets.
+The current-view snapshot export captures active filters, visible aggregate summaries, selected-unit metadata, audit signals, Grok briefing provenance, and local package aggregate counts when a package is active. It excludes ordinance text, headers, raw rows, record locators, browser review events, local databases, and secrets.
 
-The Snapshots tab stores those aggregate current-view payloads in browser localStorage, renders comparison bars, and can reload a saved view's map filters. Gallery export uses the same aggregate-only policy.
+The Snapshots tab stores those aggregate current-view payloads in browser localStorage, renders comparison bars, and can reload a saved view's map filters. Package-aware snapshot cards compare matched package units and record counts while preserving text and locator exclusion. Gallery export uses the same aggregate-only policy.
 
 The Inquiry question matrix reads current browser filter state and static aggregate artifacts. It is deterministic browser logic unless a future offline workflow publishes refreshed briefing JSON.
 
@@ -163,7 +163,7 @@ PYTHONPATH=src python -m evolocus.cli publish-inquiry-briefings \
   --output site/data/analysis/inquiry_briefings.json
 ```
 
-Offline jobs may add `--use-grok` when `GROK_API_KEY` is available. The output must remain aggregate-only and must not include ordinance text, headers, source locators, local paths, or secrets.
+Offline jobs may add `--use-grok` when `GROK_API_KEY` is available. The GitHub workflow also accepts the existing `Grok_api_key` secret alias and exports it as the canonical environment variable during the Action. The output must remain aggregate-only and must not include ordinance text, headers, source locators, local paths, or secrets.
 
 Validate the public artifact boundary:
 

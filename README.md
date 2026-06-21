@@ -119,6 +119,7 @@ Support tooling:
 - Local package materializer verified against real LOCUS Parquet for a bounded 24-record smoke package; public Pages shows aggregate verification counts only.
 - Browser current-view snapshot export for sharing filtered aggregate map/inquiry context without text, raw rows, review events, or record locators.
 - Browser snapshot gallery storage in localStorage for aggregate current-view snapshots only; it does not store LOCUS text or review-event history.
+- Browser package-aware snapshot comparison for saved views with local package counts, matched units, and text/source-locator exclusion state only.
 - Browser walkthrough cards for the real aggregate visual path; these route across existing public tabs and do not introduce a separate data publication channel.
 
 Deferred optional tools: DuckDB for ad hoc SQL, LanceDB for semantic retrieval, Postgres for multi-user writes, and geospatial/Census enrichment after the browser evaluator path is stable.
@@ -269,13 +270,13 @@ Ignored storage locations:
 
 ## Grok Secret
 
-Use the repository secret name `GROK_API_KEY` for future offline analysis jobs. Add it in GitHub under repository settings, or with:
+Use the repository secret name `GROK_API_KEY` for future offline analysis jobs. The refresh workflow also accepts the existing `Grok_api_key` repository secret as an alias and normalizes it to `GROK_API_KEY` inside the Action process only. Add the canonical secret in GitHub under repository settings, or with:
 
 ```bash
 gh secret set GROK_API_KEY --repo evcatalyst/evolocus
 ```
 
-The `GROK_API_KEY` repository secret is configured for GitHub Actions offline jobs. The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
+The `GROK_API_KEY` or `Grok_api_key` repository secret is configured for GitHub Actions offline jobs. The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
 
 The current tracked `site/data/analysis/inquiry_briefings.json` artifact is Grok-enriched and aggregate-only. Run the manual `Refresh static analysis artifacts` workflow to regenerate static inquiry briefings with the secret. Both the normal Pages deploy workflow and the manual refresh workflow validate `site/data/analysis/` with `validate-public-artifacts` before deploying Pages.
 

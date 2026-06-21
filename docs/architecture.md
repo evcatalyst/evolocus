@@ -35,7 +35,7 @@ flowchart LR
 - The Walkthrough tab orchestrates the public map, inquiry, ontology, queue planning, and snapshots into a guided real-aggregate demo flow without adding a separate data publication channel.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
-- The manual analysis-refresh workflow can use `GROK_API_KEY` to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
+- The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - The Analysis Status tab reads `audit_status.json`, a full-row-count audit summary that excludes raw rows, ordinance text, sampled findings, and record locators.
 - The map reads `unit_audit_quality.json`, a per-published-unit aggregate of OCR-risk and duplicate-text-hash review signals scoped to the public map layer.
@@ -46,7 +46,7 @@ flowchart LR
 - The browser can generate a synthetic package demo from the currently published aggregate units, exercising package overlays, package-only filters, package coverage charts, and review workflow without loading LOCUS row text.
 - Package-aware inquiry answers summarize browser-local package coverage, map-unit matches, workflow progress, text state, and source-locator state without listing record text or locator values.
 - The map and inquiry tabs can export the current filtered view as aggregate JSON with filters, counts, selected-unit metadata, audit signals, and briefing provenance only.
-- The Snapshots tab saves those aggregate current-view payloads in browser localStorage for comparison and reloads only filter state and selected aggregate unit IDs.
+- The Snapshots tab saves those aggregate current-view payloads in browser localStorage for comparison and reloads only filter state and selected aggregate unit IDs. When a local package is active, snapshots store aggregate package counts, matched unit counts, workflow status, and text/source-locator exclusion state only.
 - Selected units render an ontology neighborhood from aggregate topic, function, tier, score, and geometry-match fields without publishing raw ordinance text.
 - Active packages render an ontology bridge from browser-local topic/function counts, matched aggregate unit tiers, and map-unit joins without exposing record text or source locator values.
 - Selected units render peer comparisons against similar published aggregate units by shared topic, function, tier, kind, state, and law-count proximity; this is review context, not a legal ranking.

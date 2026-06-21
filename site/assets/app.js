@@ -1320,6 +1320,9 @@ function renderAnalysisStatusPanel() {
   const inquiryBriefings = state.analysis.inquiryBriefings;
   const briefingGrok = inquiryBriefings?.grok || {};
   const packageVerification = status?.local_package_verification || null;
+  const grokSecretNames = Array.isArray(status?.grok_secret_aliases) && status.grok_secret_aliases.length
+    ? status.grok_secret_aliases.join(" / ")
+    : status?.grok_secret_name || "Configured offline secret";
   const cardsGrid = $("#status-card-grid");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
@@ -1391,7 +1394,8 @@ function renderAnalysisStatusPanel() {
     ["Duplicate content hashes", auditStatus ? formatCount(auditStatus.quality_counts?.duplicate_content_hash_count) : "not loaded"],
     ["Inquiry generated", inquiryBriefings ? formatDateTime(inquiryBriefings.generated_at) : "not loaded"],
     ["Grok enrichment", inquiryBriefings ? (briefingGrok.used ? `offline ${briefingGrok.model}` : `not used${briefingGrok.error ? ` · ${briefingGrok.error}` : ""}`) : "not loaded"],
-    ["Grok boundary", `${status.grok_secret_name || "Configured offline secret"} is for offline artifact generation only; no API key is embedded in Pages.`],
+    ["Grok secret aliases", grokSecretNames],
+    ["Grok boundary", `${grokSecretNames} is for offline artifact generation only; no API key is embedded in Pages.`],
     ["Local package smoke", packageVerification ? `${packageVerification.status} · ${formatCount(packageVerification.matched_public_unit_count)} matched units · ${formatCount(packageVerification.content_package_record_count)} local review records` : "not recorded"],
   ];
   detailGrid.innerHTML = details
@@ -4138,6 +4142,7 @@ function currentViewSnapshotPayload() {
       duplicate_text_hash_rows: auditSummary.duplicateRows,
       visible_audit_attention_max: maxAuditAttention(visibleUnits),
     },
+    package_summary: snapshotPackageSummary(allUnits, visibleUnits),
     grok_briefing: {
       used: Boolean(briefings.grok?.used),
       model: briefings.grok?.model || null,
@@ -4155,6 +4160,69 @@ function currentViewSnapshotPayload() {
       "It excludes LOCUS ordinance text, headers, raw rows, record locators, browser review events, local databases, and secrets.",
       "Tiers, labels, audit signals, and scores are review aids, not legal findings or rankings.",
     ],
+  };
+}
+
+function snapshotPackageSummary(allUnits, visibleUnits) {
+  const allStats = importedPackageMapStats(allUnits);
+  const visibleStats = importedPackageMapStats(visibleUnits);
+  const meta = allStats.meta || {};
+  const metrics = queueMetrics();
+  const active = Boolean(allStats.imported);
+  const textState = !active
+    ? "No local package active"
+    : allStats.syntheticDemo
+      ? "Synthetic package text may be present locally; snapshot excludes text"
+      : allStats.textIncluded
+        ? "Local review text loaded in this browser; snapshot excludes text"
+        : "Metadata-only package";
+  const sourceLocatorState = !active
+    ? "No local package active"
+    : meta.source_locators_included
+      ? "Source locator values may exist locally; snapshot excludes values"
+      : "Source locator values not included in local package";
+  const topUnits = Array.from(visibleStats.units.values())
+    .sort((a, b) => b.recordCount - a.recordCount || displayUnitName(a.unit).localeCompare(displayUnitName(b.unit)))
+    .slice(0, 10)
+    .map((row) => ({
+      unit_id: row.unitId,
+      unit_name: displayUnitName(row.unit),
+      state: row.unit.state || null,
+      kind: row.unit.kind || null,
+      record_count: row.recordCount,
+      reviewed: row.reviewed,
+      skipped: row.skipped,
+      flagged: row.flagged,
+      remaining: row.remaining,
+    }));
+  return {
+    active,
+    mode_label: active ? (allStats.syntheticDemo ? "Browser-local synthetic package" : "Browser-local imported package") : "Synthetic demo queue",
+    synthetic_demo: Boolean(allStats.syntheticDemo),
+    dataset_revision: allStats.datasetRevision || null,
+    package_file: active ? allStats.fileName : null,
+    imported_at: allStats.importedAt || null,
+    package_record_count: allStats.recordCount,
+    all_matched_record_count: allStats.matchedRecords,
+    visible_matched_record_count: visibleStats.matchedRecords,
+    all_matched_unit_count: allStats.units.size,
+    visible_matched_unit_count: visibleStats.units.size,
+    unmatched_record_count: allStats.unmatchedRecords,
+    review_status: {
+      reviewed: metrics.reviewed,
+      skipped: metrics.skipped,
+      flagged: metrics.flagged,
+      remaining: metrics.remaining,
+    },
+    text_state: textState,
+    source_locator_state: sourceLocatorState,
+    publication_allowed: false,
+    ordinance_text_included_in_snapshot: false,
+    record_locator_values_included_in_snapshot: false,
+    review_events_included_in_snapshot: false,
+    topic_counts_top: topCountEntries(countBy(records, (record) => topicLabelForCoverage(record)), 5),
+    function_counts_top: topCountEntries(countBy(records, (record) => normalizedCountLabel(record.function, "Unknown function")), 5),
+    top_visible_units: topUnits,
   };
 }
 
@@ -4313,10 +4381,12 @@ function renderSnapshotGallery() {
 function snapshotSummaryHtml(snapshots) {
   const latest = snapshots[0];
   const totalUnits = snapshots.reduce((sum, snapshot) => sum + Number(snapshot.payload.visible_summary?.unit_count || 0), 0);
+  const packageSnapshots = snapshots.filter((snapshot) => snapshot.payload.package_summary?.active);
   const cards = [
     ["Saved snapshots", formatCount(snapshots.length), "Browser-local aggregate views"],
     ["Latest", latest ? formatDateTime(latest.saved_at) : "None saved", latest ? latest.name : "Save the current map first"],
     ["Total visible-unit references", formatCount(totalUnits), "Sum across saved aggregate snapshots"],
+    ["Package overlay snapshots", formatCount(packageSnapshots.length), "Saved views with local package counts"],
     ["Export boundary", "Aggregate only", "No text, locators, review events, or secrets"],
   ];
   return cards
@@ -4338,6 +4408,7 @@ function snapshotCompareHtml(snapshots) {
   }
   const recent = snapshots.slice(0, 6);
   const maxLaws = Math.max(1, ...recent.map((snapshot) => Number(snapshot.payload.visible_summary?.law_count || 0)));
+  const packageSnapshots = recent.filter((snapshot) => snapshot.payload.package_summary?.active);
   return `
     <article class="snapshot-compare-card wide">
       <div class="coverage-matrix-heading">
@@ -4351,6 +4422,7 @@ function snapshotCompareHtml(snapshots) {
         ${recent.map((snapshot) => snapshotBarHtml(snapshot, maxLaws)).join("")}
       </div>
     </article>
+    ${snapshotPackageComparisonHtml(packageSnapshots)}
   `;
 }
 
@@ -4368,6 +4440,41 @@ function snapshotBarHtml(snapshot, maxLaws) {
   `;
 }
 
+function snapshotPackageComparisonHtml(snapshots) {
+  if (!snapshots.length) {
+    return `<article class="snapshot-compare-card"><h3>Package overlay snapshots</h3><p>No saved aggregate snapshot currently includes a browser-local package overlay.</p></article>`;
+  }
+  const maxRecords = Math.max(1, ...snapshots.map((snapshot) => Number(snapshot.payload.package_summary?.visible_matched_record_count || 0)));
+  return `
+    <article class="snapshot-compare-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>Package overlay snapshots</h3>
+          <p>Bars compare locally imported package matches in the saved filtered views. Snapshot payloads exclude ordinance text, record locators, and review events.</p>
+        </div>
+        <span>${escapeHtml(formatCount(snapshots.length))} active</span>
+      </div>
+      <div class="snapshot-bars package-snapshot-bars">
+        ${snapshots.map((snapshot) => snapshotPackageBarHtml(snapshot, maxRecords)).join("")}
+      </div>
+    </article>
+  `;
+}
+
+function snapshotPackageBarHtml(snapshot, maxRecords) {
+  const summary = snapshot.payload.package_summary || {};
+  const recordsMatched = Number(summary.visible_matched_record_count || 0);
+  const width = Math.max(recordsMatched ? 4 : 0, (recordsMatched / maxRecords) * 100);
+  return `
+    <div class="snapshot-bar-row package-snapshot-row">
+      <span>${escapeHtml(snapshot.name)}</span>
+      <div><i style="width:${width}%"></i></div>
+      <strong>${escapeHtml(formatCount(recordsMatched))}</strong>
+      <em>${escapeHtml(formatCount(summary.visible_matched_unit_count || 0))} matched units · ${escapeHtml(summary.text_state || "snapshot excludes text")}</em>
+    </div>
+  `;
+}
+
 function snapshotListHtml(snapshots) {
   if (!snapshots.length) {
     return `<article class="snapshot-list-card"><p class="muted-note">No browser-local aggregate snapshots are saved yet.</p></article>`;
@@ -4380,12 +4487,18 @@ function snapshotCardHtml(snapshot) {
   const summary = payload.visible_summary || {};
   const selected = payload.selected_unit;
   const filters = payload.view_state?.filter_labels || [];
+  const packageSummary = payload.package_summary || {};
   return `
     <article class="snapshot-list-card">
       <div>
         <span>${escapeHtml(formatDateTime(snapshot.saved_at))}</span>
         <h3>${escapeHtml(snapshot.name)}</h3>
         <p>${escapeHtml(formatCount(summary.unit_count || 0))} visible units · ${escapeHtml(formatCount(summary.law_count || 0))} aggregate rows · top topic ${escapeHtml(summary.top_topic?.label || "No topic")}</p>
+        ${
+          packageSummary.active
+            ? `<p class="snapshot-package-row">${escapeHtml(formatCount(packageSummary.visible_matched_unit_count || 0))} package units · ${escapeHtml(formatCount(packageSummary.visible_matched_record_count || 0))} package records · ${escapeHtml(packageSummary.text_state || "snapshot excludes text")}</p>`
+            : `<p class="snapshot-package-row">No package overlay stored in this snapshot.</p>`
+        }
         <p>${escapeHtml(selected ? `Selected ${displayUnitName(selected.name)} (${selected.state})` : "No selected unit stored")}</p>
         <em>${escapeHtml(filters.length ? filters.join(" · ") : "No active filters")}</em>
       </div>

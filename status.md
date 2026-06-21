@@ -102,10 +102,10 @@ Current coverage stats:
 - Package ontology surface: GitHub Pages bridges active browser-local package counts into topic, function, tier, and matched-unit ontology context without rendering row text
 - Package coverage surface: GitHub Pages Results tab summarizes imported browser-local queues by state, topic, function, jurisdiction type, OCR-risk mix, safety markers, and review progress
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
-- Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots
+- Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots, including package-count comparisons when a local package overlay is active
 - Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots
 - Model registry: released LOCUS output fields imported
-- Grok secret wiring: `GROK_API_KEY` documented for offline jobs only
+- Grok secret wiring: `GROK_API_KEY` documented for offline jobs only, with the existing `Grok_api_key` Actions secret accepted as an alias by the refresh workflow
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
 - Pages deploy guard: normal Pages workflow validates public artifacts before upload
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
@@ -167,6 +167,8 @@ Latest update:
 - Added a one-click synthetic package demo in the toolbar and Walkthrough so the public site can demonstrate imported-unit map overlays, package-only filters, package coverage charts, and review flow without loading LOCUS row text.
 - Added a package-aware Inquiry prompt and answer that summarizes local package map coverage, workflow progress, and publication boundaries without exposing record text or source locator values.
 - Added a package-to-ontology bridge that connects browser-local package topic/function/tier counts to matched aggregate map units without exposing text, headers, locator values, or review-event details.
+- Added package-aware snapshot summaries and comparisons so saved browser-local aggregate views can show local package counts and matched units without text, locators, or review-event history.
+- Added Actions support for the existing `Grok_api_key` secret alias while keeping generated artifacts normalized to `GROK_API_KEY` and browser JavaScript key-free.
 - Added a public-artifact guard and hardened the Grok briefing refresh workflow so generated inquiry artifacts are validated before Pages deployment.
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.

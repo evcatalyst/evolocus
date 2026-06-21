@@ -31,6 +31,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "importStatusFromPayload" in js
     assert "renderPackageCoverage" in js
     assert "packageCoverageSummary" in js
+    assert "snapshotPackageSummary" in js
+    assert "snapshotPackageComparisonHtml" in js
     assert "importedPackageMapStats" in js
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js
@@ -53,6 +55,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "data-walkthrough-tab" in js
     assert "renderOntology" in js
     assert "package-ontology-bridge" in html
+    assert "Package overlay snapshots" in js
     assert "packageOntologyBridgeHtml" in js
     assert "packageOntologyNodeCard" in js
     assert "data-package-ontology-unit" in js

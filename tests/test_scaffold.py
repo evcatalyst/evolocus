@@ -136,6 +136,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "snapshot-summary" in html
     assert "snapshot-compare" in html
     assert "snapshot-list" in html
+    assert "Package overlay snapshots" in js
     assert "view-export-strip" in html
     assert "inquiry-export-row" in html
     assert "Min laws" in html
@@ -284,6 +285,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "evolocus-current-view-snapshot.json" in js
     assert "record_locator_values_included" in js
     assert "review_events_included" in js
+    assert "package_summary" in js
+    assert "snapshotPackageSummary" in js
     assert "audit-gradient" in css
     assert "import-status-card" in css
     assert "import-safety-grid" in css
@@ -301,6 +304,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "snapshot-summary" in css
     assert "snapshot-bar-row" in css
     assert "snapshot-list-card" in css
+    assert "package-snapshot-row" in css
+    assert "snapshot-package-row" in css
     assert "score-summary-grid" in css
     assert "score-state-row" in css
     assert "score-unit-row" in css
@@ -454,6 +459,8 @@ def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() ->
     assert "workflow_dispatch" in workflow
     assert "use_grok" in workflow
     assert "secrets.GROK_API_KEY" in workflow
+    assert "secrets.Grok_api_key" in workflow
+    assert "GROK_API_KEY_ALIAS" in workflow
     assert "publish-inquiry-briefings" in workflow
     assert "validate-public-artifacts" in workflow
     assert "actions/upload-pages-artifact@v3" in workflow

@@ -7,6 +7,10 @@
   "dataset_revision": "main",
   "generated_at": "2026-06-21T15:37:25.327380+00:00",
   "grok_browser_policy": "Grok API keys must never be embedded in GitHub Pages JavaScript.",
+  "grok_secret_aliases": [
+    "GROK_API_KEY",
+    "Grok_api_key"
+  ],
   "grok_secret_name": "GROK_API_KEY",
   "law_count": 1517672,
   "license": "CC-BY-NC-4.0",

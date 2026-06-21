@@ -1170,12 +1170,23 @@ textarea {
   background: var(--green);
 }
 
+.package-snapshot-row i {
+  background: var(--gold);
+}
+
 .snapshot-bar-row span,
 .snapshot-bar-row em {
   color: var(--muted);
   font-style: normal;
   font-size: 0.86rem;
   overflow-wrap: anywhere;
+}
+
+.snapshot-package-row {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f9fafb;
 }
 
 .status-card p,

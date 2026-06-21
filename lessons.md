@@ -43,6 +43,8 @@
 - Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.
 - Record-level review queues should still be materialized with local ignored tooling before any ordinance text is reviewed or exported.
 - Grok refreshes need a deployment-time public artifact guard because model enrichment is still generated text and must not weaken raw-data, source-locator, or secret boundaries.
+- GitHub Actions may accept a user-created Grok secret alias, but generated artifacts should continue to reference the canonical `GROK_API_KEY` name and never expose secret values to browser assets.
+- Package-aware snapshots should persist only counts, matched aggregate units, workflow status, and explicit text/source-locator exclusion state, never imported record text or locator values.
 - xAI currently documents the Responses endpoint and `grok-4.3`; keep the model configurable so future API changes do not require browser changes.
 - A manually refreshed Pages artifact can be lost on the next normal deploy unless the generated JSON is validated, committed, and covered by tests.
 - Browser exports for public sharing should export aggregate filter state and visible summaries, not record-level evaluation queues or local review history.
