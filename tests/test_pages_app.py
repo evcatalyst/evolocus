@@ -30,6 +30,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
     assert "map-freshness-badge" in html
+    assert "map-refresh-source" in html
     assert "inquiry-freshness-badge" in html
     assert "ontology-tier-focus" in html
     assert "ontology-query-presets" in html
@@ -80,6 +81,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "reveal_prediction" in js
     assert "exportLatestCsv" in js
     assert "renderMap" in js
+    assert "renderMapRefreshSource" in js
+    assert "lastRefreshSourceSummary" in js
+    assert "tracked Polars aggregate artifact" in js
+    assert "public artifact validator runs before Pages upload" in js
     assert "renderMapReadingGuide" in js
     assert "renderMapInlineInquiry" in js
     assert "mapInlineInquiryPrompts" in js
@@ -257,3 +262,4 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "No row text published" in js
     assert "artifact-freshness-card" in css
     assert "artifact-freshness-grid" in css
+    assert "map-refresh-source-card" in css

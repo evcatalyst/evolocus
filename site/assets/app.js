@@ -627,6 +627,7 @@ function renderMap() {
   if (!mapLayers) {
     $("#map-generated").textContent = state.analysis.error || "Analysis artifacts are loading.";
     $("#map-geometry-status").textContent = "No map layer loaded";
+    $("#map-refresh-source").innerHTML = "";
     $("#tier-legend").innerHTML = "";
     $("#map-reading-guide").innerHTML = "";
     $("#map-inline-inquiry").innerHTML = "";
@@ -651,6 +652,7 @@ function renderMap() {
   }
   renderCountyChoropleth(units, packageStats);
   renderMapReadingGuide(units, allUnits, mapLayers, packageStats);
+  renderMapRefreshSource(status, mapLayers);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -693,6 +695,66 @@ function renderMap() {
   renderGeoLayerControls();
 }
 
+function renderMapRefreshSource(status, mapLayers) {
+  const target = $("#map-refresh-source");
+  if (!target) {
+    return;
+  }
+  const summary = lastRefreshSourceSummary(status, mapLayers);
+  target.innerHTML = `
+    <article class="map-refresh-source-card">
+      <div>
+        <p class="eyebrow">Last refresh source</p>
+        <h3>${escapeHtml(summary.title)}</h3>
+        <p>${escapeHtml(summary.detail)}</p>
+      </div>
+      <dl>
+        ${summary.rows
+          .map(
+            ([label, value]) => `
+              <dt>${escapeHtml(label)}</dt>
+              <dd>${escapeHtml(value)}</dd>
+            `,
+          )
+          .join("")}
+      </dl>
+    </article>
+  `;
+}
+
+function lastRefreshSourceSummary(status, mapLayers) {
+  const inquiryBriefings = state.analysis.inquiryBriefings;
+  const questionPack = state.analysis.questionPack;
+  const briefingGrok = inquiryBriefings?.grok || {};
+  const mapSource = mapLayers?.synthetic ? "synthetic demo artifact" : "tracked Polars aggregate artifact";
+  const briefingSource = inquiryBriefings
+    ? briefingGrok.used
+      ? `offline Grok briefing (${briefingGrok.model || "model recorded"})`
+      : "deterministic static briefing"
+    : "briefing artifact loading";
+  const questionPackSource = questionPack
+    ? questionPack.grok?.used
+      ? `offline Grok question pack (${questionPack.grok.model || "model recorded"})`
+      : "deterministic question pack"
+    : "question pack loading";
+  const title = status?.analysis_state ? `${status.analysis_state} · ${mapSource}` : `Loading · ${mapSource}`;
+  const detail = "The map uses committed aggregate JSON produced from local Polars analysis. Manual Actions refreshes may update inquiry briefings, but the browser still receives only validated aggregate artifacts.";
+  return {
+    title,
+    detail,
+    rows: [
+      ["Map source", mapSource],
+      ["Map generated", mapLayers?.generated_at ? `${formatDateTime(mapLayers.generated_at)} · ${artifactAgeLabel(mapLayers.generated_at)}` : "loading"],
+      ["Analysis commit", shortCommit(status?.code_commit)],
+      ["Briefing source", briefingSource],
+      ["Briefing generated", inquiryBriefings?.generated_at ? `${formatDateTime(inquiryBriefings.generated_at)} · ${artifactAgeLabel(inquiryBriefings.generated_at)}` : "loading"],
+      ["Question pack", questionPackSource],
+      ["Deploy guard", "public artifact validator runs before Pages upload"],
+      ["Boundary", status?.real_locus_rows_published === false ? "aggregate only; no LOCUS row text" : "publication boundary loading"],
+    ],
+  };
+}
+
 function renderArtifactFreshnessBadges() {
   artifactFreshnessTargets().forEach(({ targetId, title, context }) => {
     const target = $(`#${targetId}`);
@@ -733,12 +795,14 @@ function artifactFreshnessBadgeHtml(title, context) {
       ? `Offline Grok ${briefingGrok.model || "enrichment"}`
       : "Deterministic static briefing"
     : "Briefing loading";
+  const refreshSummary = lastRefreshSourceSummary(status, mapLayers);
   const rowBoundary = status?.real_locus_rows_published === false ? "No row text published" : "Publication boundary loading";
   const rows = [
     ["Dataset", datasetRevision],
     ["Map layer", mapGenerated ? `${formatDateTime(mapGenerated)} · ${artifactAgeLabel(mapGenerated)}` : "loading"],
     ["Briefing", briefingGenerated ? `${formatDateTime(briefingGenerated)} · ${artifactAgeLabel(briefingGenerated)}` : "loading"],
     ["Question pack", questionPackGenerated ? `${formatDateTime(questionPackGenerated)} · ${artifactAgeLabel(questionPackGenerated)}` : "loading"],
+    ["Refresh source", refreshSummary.rows[0][1]],
     ["Mode", currentMode],
     ["Boundary", rowBoundary],
   ];

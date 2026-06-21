@@ -484,6 +484,51 @@ textarea {
   margin-bottom: 18px;
 }
 
+.map-refresh-source {
+  margin: -4px 0 18px;
+}
+
+.map-refresh-source-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.map-refresh-source-card h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.map-refresh-source-card p {
+  margin: 8px 0 0;
+}
+
+.map-refresh-source-card dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.4fr) minmax(0, 1fr);
+  gap: 7px 10px;
+  margin: 0;
+}
+
+.map-refresh-source-card dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.map-refresh-source-card dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
 .walkthrough-status,
 .walkthrough-flow,
 .walkthrough-gates {
@@ -4299,6 +4344,8 @@ th {
   .filter-grid,
   .map-filter-grid,
   .artifact-freshness-grid,
+  .map-refresh-source-card,
+  .map-refresh-source-card dl,
   .inquiry-context-grid,
   .inquiry-question-matrix,
   .review-layout,
@@ -4397,6 +4444,8 @@ th {
   .filter-grid,
   .map-filter-grid,
   .artifact-freshness-grid,
+  .map-refresh-source-card,
+  .map-refresh-source-card dl,
   .inquiry-context-grid,
   .inquiry-question-matrix,
   .review-layout,

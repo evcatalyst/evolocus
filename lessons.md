@@ -69,6 +69,7 @@
 - A public walkthrough is useful when it orchestrates already-validated aggregate artifacts instead of creating a new path for raw rows, source locators, or model secrets.
 - A public refresh control can safely live on GitHub Pages when it opens the GitHub Actions workflow only and never performs browser-side model calls or embeds secret names in JavaScript.
 - Freshness badges belong on primary map and inquiry views, not only status tabs, because users need artifact age and aggregate-only boundaries before trusting a visual or answer.
+- Refresh-source details should distinguish the Polars aggregate build from offline briefing refreshes so the public map does not imply every deployed asset was regenerated in the same workflow.
 - The public-to-local handoff should export aggregate unit requests from Pages and materialize text-bearing review packages only through ignored local tooling with an explicit content flag.
 - Review-package handoffs should preview record budgets, unit mix, and safety gates before download so users see the public/private boundary before moving into local text-bearing work.
 - After a local package import, the browser should show provenance and text-inclusion state immediately so reviewers can distinguish synthetic demo records from browser-local LOCUS text.

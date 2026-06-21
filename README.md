@@ -47,6 +47,7 @@ The Pages app supports:
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - map and inquiry artifact freshness badges with aggregate layer, briefing, question-pack, dataset revision, and no-row-text boundary;
+- Law Map last-refresh source detail showing tracked Polars artifact source, analysis commit, briefing source, deploy guard, and publication boundary;
 - full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
 - per-unit audit review signals for the published map layer, including OCR-risk and duplicate-text-hash rates;
 - audit-driven map filters and an audit-attention geography color mode, framed as review priority rather than ranking;

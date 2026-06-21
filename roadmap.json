@@ -89,7 +89,8 @@
         "Add aggregate-only map inquiry history export",
         "Add Pages Actions-only inquiry briefing refresh control",
         "Add map and inquiry artifact freshness badges",
-        "Add browser-local aggregate inquiry results log"
+        "Add browser-local aggregate inquiry results log",
+        "Add Law Map last-refresh source detail"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

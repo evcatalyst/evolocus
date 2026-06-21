@@ -134,6 +134,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
     assert "map-freshness-badge" in html
+    assert "map-refresh-source" in html
     assert "inquiry-freshness-badge" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
@@ -472,6 +473,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "lawCountColor" in js
     assert "official_census_county_geometry_machine_matched_pending_review" not in js
     assert "renderAnalysisStatusPanel" in js
+    assert "renderMapRefreshSource" in js
+    assert "lastRefreshSourceSummary" in js
+    assert "tracked Polars aggregate artifact" in js
+    assert "public artifact validator runs before Pages upload" in js
     assert "renderArtifactFreshnessBadges" in js
     assert "artifactFreshnessBadgeHtml" in js
     assert "artifactAgeLabel" in js
@@ -498,6 +503,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "geography-ontology-detail" in css
     assert "artifact-freshness-card" in css
     assert "artifact-freshness-grid" in css
+    assert "map-refresh-source-card" in css
     assert "publication_gates" in js
     assert "status-action-grid" in html
     assert "ACTIONS_REFRESH_WORKFLOW_URL" in js
