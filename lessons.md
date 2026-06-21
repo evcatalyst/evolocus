@@ -46,3 +46,4 @@
 - xAI currently documents the Responses endpoint and `grok-4.3`; keep the model configurable so future API changes do not require browser changes.
 - A manually refreshed Pages artifact can be lost on the next normal deploy unless the generated JSON is validated, committed, and covered by tests.
 - Browser exports for public sharing should export aggregate filter state and visible summaries, not record-level evaluation queues or local review history.
+- Saved visual comparison state can live in browser localStorage when it stores only aggregate snapshot payloads and never imported queue text or review events.

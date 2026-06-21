@@ -2,6 +2,7 @@ const STORAGE_EVENTS = "evolocus.pages.reviewEvents.v1";
 const STORAGE_REVIEWER = "evolocus.pages.reviewer.v1";
 const STORAGE_BLIND = "evolocus.pages.blind.v1";
 const STORAGE_RECORDS = "evolocus.pages.records.v1";
+const STORAGE_SNAPSHOTS = "evolocus.pages.viewSnapshots.v1";
 
 const ANALYSIS_PATHS = {
   status: "data/analysis/status.json",
@@ -287,6 +288,21 @@ function saveEvents(events) {
   localStorage.setItem(STORAGE_EVENTS, JSON.stringify(events));
 }
 
+function loadSnapshots() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_SNAPSHOTS) || "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((snapshot) => snapshot?.payload?.schema_version === "evolocus-current-view-snapshot-v1")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSnapshots(snapshots) {
+  localStorage.setItem(STORAGE_SNAPSHOTS, JSON.stringify(snapshots.slice(0, 24)));
+}
+
 function eventId() {
   if (window.crypto && window.crypto.randomUUID) {
     return window.crypto.randomUUID();
@@ -365,6 +381,7 @@ function render() {
   renderMap();
   renderOntology();
   renderInquiry();
+  renderSnapshotGallery();
   renderReview();
   renderExplorer();
   renderResults();
@@ -3201,6 +3218,185 @@ function exportCurrentViewSnapshot() {
   download("evolocus-current-view-snapshot.json", JSON.stringify(payload, null, 2), "application/json");
 }
 
+function saveCurrentViewSnapshot() {
+  const payload = currentViewSnapshotPayload();
+  const savedAt = new Date().toISOString();
+  const snapshot = {
+    snapshot_id: `snapshot-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    saved_at: savedAt,
+    name: snapshotName(payload),
+    payload,
+  };
+  saveSnapshots([snapshot, ...loadSnapshots()]);
+  state.activeTab = "snapshots";
+  render();
+}
+
+function snapshotName(payload) {
+  const labels = payload.view_state?.filter_labels || [];
+  const selected = payload.selected_unit?.name ? displayUnitName(payload.selected_unit.name) : "";
+  if (labels.length) {
+    return labels.join(" + ");
+  }
+  if (selected) {
+    return selected;
+  }
+  return "All published aggregate units";
+}
+
+function snapshotGalleryPayload() {
+  const snapshots = loadSnapshots();
+  return {
+    schema_version: "evolocus-snapshot-gallery-v1",
+    generated_at: new Date().toISOString(),
+    snapshot_count: snapshots.length,
+    publication_policy: {
+      aggregate_only: true,
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      record_locator_values_included: false,
+      browser_llm_calls: false,
+      review_events_included: false,
+      legal_findings: false,
+    },
+    snapshots,
+    limitations: [
+      "Gallery snapshots are browser-local aggregate map/inquiry exports.",
+      "They exclude ordinance text, headers, raw rows, record locators, local databases, review events, and secrets.",
+    ],
+  };
+}
+
+function exportSnapshotGallery() {
+  download("evolocus-snapshot-gallery.json", JSON.stringify(snapshotGalleryPayload(), null, 2), "application/json");
+}
+
+function clearSnapshotGallery() {
+  if (window.confirm("Clear saved aggregate snapshots from this browser?")) {
+    saveSnapshots([]);
+    renderSnapshotGallery();
+  }
+}
+
+function loadSnapshotView(snapshotId) {
+  const snapshot = loadSnapshots().find((item) => item.snapshot_id === snapshotId);
+  if (!snapshot) {
+    return;
+  }
+  const view = snapshot.payload.view_state || {};
+  state.mapFilters = { ...state.mapFilters, ...(view.filters || {}) };
+  state.selectedUnitId = view.selected_unit_id || null;
+  state.disclosureLevel = view.disclosure_level || state.disclosureLevel;
+  state.geographyColorMode = view.geography_color_mode || state.geographyColorMode;
+  state.activeTab = "map";
+  render();
+}
+
+function deleteSnapshot(snapshotId) {
+  saveSnapshots(loadSnapshots().filter((snapshot) => snapshot.snapshot_id !== snapshotId));
+  renderSnapshotGallery();
+}
+
+function renderSnapshotGallery() {
+  const summary = $("#snapshot-summary");
+  const compare = $("#snapshot-compare");
+  const list = $("#snapshot-list");
+  if (!summary || !compare || !list) {
+    return;
+  }
+  const snapshots = loadSnapshots();
+  summary.innerHTML = snapshotSummaryHtml(snapshots);
+  compare.innerHTML = snapshotCompareHtml(snapshots);
+  list.innerHTML = snapshotListHtml(snapshots);
+}
+
+function snapshotSummaryHtml(snapshots) {
+  const latest = snapshots[0];
+  const totalUnits = snapshots.reduce((sum, snapshot) => sum + Number(snapshot.payload.visible_summary?.unit_count || 0), 0);
+  const cards = [
+    ["Saved snapshots", formatCount(snapshots.length), "Browser-local aggregate views"],
+    ["Latest", latest ? formatDateTime(latest.saved_at) : "None saved", latest ? latest.name : "Save the current map first"],
+    ["Total visible-unit references", formatCount(totalUnits), "Sum across saved aggregate snapshots"],
+    ["Export boundary", "Aggregate only", "No text, locators, review events, or secrets"],
+  ];
+  return cards
+    .map(
+      ([label, value, detail]) => `
+        <article class="snapshot-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(String(value))}</strong>
+          <em>${escapeHtml(detail)}</em>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function snapshotCompareHtml(snapshots) {
+  if (!snapshots.length) {
+    return `<article class="snapshot-compare-card wide"><h3>No saved snapshots</h3><p>Use Save Current View from the Law Map or Inquiry tab to build a comparison gallery.</p></article>`;
+  }
+  const recent = snapshots.slice(0, 6);
+  const maxLaws = Math.max(1, ...recent.map((snapshot) => Number(snapshot.payload.visible_summary?.law_count || 0)));
+  return `
+    <article class="snapshot-compare-card wide">
+      <div class="coverage-matrix-heading">
+        <div>
+          <h3>Recent aggregate snapshot comparison</h3>
+          <p>Bars compare visible law rows in saved filtered views. Counts are aggregate LOCUS rows, not exported records.</p>
+        </div>
+        <span>${escapeHtml(formatCount(recent.length))} shown</span>
+      </div>
+      <div class="snapshot-bars">
+        ${recent.map((snapshot) => snapshotBarHtml(snapshot, maxLaws)).join("")}
+      </div>
+    </article>
+  `;
+}
+
+function snapshotBarHtml(snapshot, maxLaws) {
+  const summary = snapshot.payload.visible_summary || {};
+  const laws = Number(summary.law_count || 0);
+  const width = Math.max(laws ? 4 : 0, (laws / maxLaws) * 100);
+  return `
+    <div class="snapshot-bar-row">
+      <span>${escapeHtml(snapshot.name)}</span>
+      <div><i style="width:${width}%"></i></div>
+      <strong>${escapeHtml(formatCount(laws))}</strong>
+      <em>${escapeHtml(formatCount(summary.unit_count || 0))} units · ${escapeHtml(summary.top_topic?.label || "No topic")}</em>
+    </div>
+  `;
+}
+
+function snapshotListHtml(snapshots) {
+  if (!snapshots.length) {
+    return `<article class="snapshot-list-card"><p class="muted-note">No browser-local aggregate snapshots are saved yet.</p></article>`;
+  }
+  return snapshots.map(snapshotCardHtml).join("");
+}
+
+function snapshotCardHtml(snapshot) {
+  const payload = snapshot.payload;
+  const summary = payload.visible_summary || {};
+  const selected = payload.selected_unit;
+  const filters = payload.view_state?.filter_labels || [];
+  return `
+    <article class="snapshot-list-card">
+      <div>
+        <span>${escapeHtml(formatDateTime(snapshot.saved_at))}</span>
+        <h3>${escapeHtml(snapshot.name)}</h3>
+        <p>${escapeHtml(formatCount(summary.unit_count || 0))} visible units · ${escapeHtml(formatCount(summary.law_count || 0))} aggregate rows · top topic ${escapeHtml(summary.top_topic?.label || "No topic")}</p>
+        <p>${escapeHtml(selected ? `Selected ${displayUnitName(selected.name)} (${selected.state})` : "No selected unit stored")}</p>
+        <em>${escapeHtml(filters.length ? filters.join(" · ") : "No active filters")}</em>
+      </div>
+      <div class="snapshot-card-actions">
+        <button type="button" data-load-snapshot="${escapeHtml(snapshot.snapshot_id)}">Load View</button>
+        <button type="button" data-delete-snapshot="${escapeHtml(snapshot.snapshot_id)}">Delete</button>
+      </div>
+    </article>
+  `;
+}
+
 function renderAnalysisCharts() {
   const charts = state.analysis.charts ? state.analysis.charts.charts || {} : null;
   const grid = $("#analysis-chart-grid");
@@ -4460,6 +4656,23 @@ function bindEvents() {
   $("#export-queue-plan").addEventListener("click", exportQueuePlan);
   $all(".export-current-view").forEach((button) => {
     button.addEventListener("click", exportCurrentViewSnapshot);
+  });
+  $all(".save-current-view").forEach((button) => {
+    button.addEventListener("click", saveCurrentViewSnapshot);
+  });
+  $("#save-snapshot").addEventListener("click", saveCurrentViewSnapshot);
+  $("#export-snapshot-gallery").addEventListener("click", exportSnapshotGallery);
+  $("#clear-snapshot-gallery").addEventListener("click", clearSnapshotGallery);
+  $("#snapshots-panel").addEventListener("click", (event) => {
+    const loadButton = event.target.closest("[data-load-snapshot]");
+    if (loadButton) {
+      loadSnapshotView(loadButton.dataset.loadSnapshot);
+      return;
+    }
+    const deleteButton = event.target.closest("[data-delete-snapshot]");
+    if (deleteButton) {
+      deleteSnapshot(deleteButton.dataset.deleteSnapshot);
+    }
   });
   $("#queueplan-panel").addEventListener("click", (event) => {
     const button = event.target.closest("[data-open-queue-unit]");

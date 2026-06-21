@@ -106,6 +106,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Pages-first UI" in html
     assert "Law Map" in html
     assert "Inquiry" in html
+    assert "Snapshots" in html
     assert "Score Lens" in html
     assert "Audit Lens" in html
     assert "Queue Plan" in html
@@ -116,6 +117,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
     assert "Export Current View JSON" in html
+    assert "Save to Snapshots" in html
+    assert "snapshots-panel" in html
+    assert "snapshot-summary" in html
+    assert "snapshot-compare" in html
+    assert "snapshot-list" in html
     assert "view-export-strip" in html
     assert "inquiry-export-row" in html
     assert "Min laws" in html
@@ -207,6 +213,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-open-queue-unit" in js
     assert "currentViewSnapshotPayload" in js
     assert "exportCurrentViewSnapshot" in js
+    assert "STORAGE_SNAPSHOTS" in js
+    assert "saveCurrentViewSnapshot" in js
+    assert "snapshotGalleryPayload" in js
+    assert "evolocus-snapshot-gallery.json" in js
+    assert "loadSnapshotView" in js
     assert "evolocus-current-view-snapshot.json" in js
     assert "record_locator_values_included" in js
     assert "review_events_included" in js
@@ -219,6 +230,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "queue-plan-row" in css
     assert "view-export-strip" in css
     assert "inquiry-export-row" in css
+    assert "snapshot-summary" in css
+    assert "snapshot-bar-row" in css
+    assert "snapshot-list-card" in css
     assert "score-summary-grid" in css
     assert "score-state-row" in css
     assert "score-unit-row" in css

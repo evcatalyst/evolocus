@@ -15,6 +15,7 @@
         <div class="nav-links" role="list">
           <button class="tab-link active" type="button" data-tab="map">Law Map</button>
           <button class="tab-link" type="button" data-tab="inquiry">Inquiry</button>
+          <button class="tab-link" type="button" data-tab="snapshots">Snapshots</button>
           <button class="tab-link" type="button" data-tab="ontology">Ontology</button>
           <button class="tab-link" type="button" data-tab="results">Charts</button>
           <button class="tab-link" type="button" data-tab="score">Score Lens</button>
@@ -146,6 +147,7 @@
             <p>Exports current filters, visible aggregate counts, selected unit metadata, audit signals, and briefing provenance only.</p>
           </div>
           <button class="export-current-view" type="button">Export Current View JSON</button>
+          <button class="save-current-view" type="button">Save to Snapshots</button>
         </section>
         <section class="disclosure-control" aria-label="Progressive disclosure level">
           <div>
@@ -235,6 +237,7 @@
         <div class="inquiry-export-row">
           <span>Export the current filtered map and inquiry context as aggregate JSON.</span>
           <button class="export-current-view" type="button">Export Current View JSON</button>
+          <button class="save-current-view" type="button">Save to Snapshots</button>
         </div>
         <div id="inquiry-context-grid" class="inquiry-context-grid"></div>
         <section class="inquiry-matrix-card" aria-labelledby="inquiry-matrix-heading">
@@ -249,6 +252,25 @@
         </section>
         <div id="suggested-questions" class="suggested-questions"></div>
         <article id="inquiry-answer" class="inquiry-answer"></article>
+      </section>
+
+      <section id="snapshots-panel" class="panel" aria-labelledby="snapshots-heading">
+        <div class="section-heading">
+          <p class="eyebrow">Snapshots</p>
+          <h2 id="snapshots-heading">Compare saved aggregate views.</h2>
+          <p>
+            Save browser-local map/inquiry snapshots to compare filtered real-data aggregate views over time.
+            Snapshots contain counts, filters, selected unit metadata, audit signals, and briefing provenance only.
+          </p>
+        </div>
+        <div class="snapshot-actions">
+          <button id="save-snapshot" type="button">Save Current View</button>
+          <button id="export-snapshot-gallery" type="button">Export Gallery JSON</button>
+          <button id="clear-snapshot-gallery" type="button">Clear Gallery</button>
+        </div>
+        <div id="snapshot-summary" class="snapshot-summary"></div>
+        <div id="snapshot-compare" class="snapshot-compare"></div>
+        <div id="snapshot-list" class="snapshot-list"></div>
       </section>
 
       <section id="ontology-panel" class="panel" aria-labelledby="ontology-heading">
