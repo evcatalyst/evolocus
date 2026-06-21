@@ -747,10 +747,153 @@ function renderMapInlineInquiry() {
           ${inquiryAnswerHtml(answer)}
         </div>
       </div>
+      ${mapInlineComparisonStripHtml(activePrompt.key)}
       <p class="map-inline-inquiry-boundary">
         Answers are recomputed from current filters, selected unit, package overlay, and progressive disclosure level. They omit ordinance text, source locator values, review events, and legal conclusions.
       </p>
     </section>
+  `;
+}
+
+function mapInlineComparisonStripHtml(promptKey) {
+  const rows = mapInlineComparisonRows(promptKey);
+  const maxValue = Math.max(1, ...rows.map((row) => Number(row.value || 0)));
+  return `
+    <section class="map-inline-comparison-strip" aria-label="County and town comparison for active map inquiry">
+      <div class="map-inline-comparison-heading">
+        <div>
+          <span>Comparison strip</span>
+          <strong>${escapeHtml(mapInlineComparisonTitle(promptKey))}</strong>
+        </div>
+        <em>${escapeHtml(disclosureComparisonLabel())}</em>
+      </div>
+      <div class="map-inline-comparison-rows">
+        ${
+          rows.length
+            ? rows.map((row) => mapInlineComparisonRowHtml(row, maxValue)).join("")
+            : '<p class="muted-note">No comparable aggregate units match the current map state.</p>'
+        }
+      </div>
+    </section>
+  `;
+}
+
+function mapInlineComparisonRows(promptKey) {
+  const mapUnits = state.analysis.mapLayers?.units || [];
+  const visibleUnits = filterMapUnits(mapUnits);
+  const limit = state.disclosureLevel === "evidence" ? 8 : state.disclosureLevel === "unit" ? 6 : 4;
+  if (promptKey === "selected") {
+    const selectedUnit = currentSelectedMapUnit();
+    if (!selectedUnit) {
+      return largestVisibleComparisonRows(visibleUnits, limit);
+    }
+    const peers = selectedUnitPeers(selectedUnit)
+      .slice(0, Math.max(0, limit - 1))
+      .map((peer) => ({
+        unit: peer.unit,
+        value: peer.score,
+        metric: `peer ${peer.score.toFixed(1)}`,
+        detail: peer.reasons.slice(0, 3).join(" · ") || "aggregate similarity",
+      }));
+    return [
+      {
+        unit: selectedUnit,
+        value: Math.max(1, ...peers.map((row) => row.value || 0)),
+        metric: "selected",
+        detail: `${formatCount(selectedUnit.law_count)} rows · ${text(selectedUnit.tier_label)}`,
+      },
+      ...peers,
+    ].slice(0, limit);
+  }
+  if (promptKey === "audit") {
+    return visibleAuditRows()
+      .filter((row) => row.mapUnit)
+      .sort((a, b) => Number(b.audit_attention_score || 0) - Number(a.audit_attention_score || 0))
+      .slice(0, limit)
+      .map((row) => ({
+        unit: row.mapUnit,
+        value: Number(row.audit_attention_score || 0),
+        metric: `${formatNumber(row.audit_attention_score)} / 100`,
+        detail: `${formatCount(row.ocr_review_rows)} OCR rows · ${formatCount(row.duplicate_text_hash_rows)} duplicate hashes`,
+      }));
+  }
+  if (promptKey === "scores") {
+    return visibleUnits
+      .slice()
+      .sort((a, b) => scoreSpread(b) - scoreSpread(a) || Number(b.law_count || 0) - Number(a.law_count || 0))
+      .slice(0, limit)
+      .map((unit) => ({
+        unit,
+        value: scoreSpread(unit),
+        metric: `spread ${scoreSpread(unit).toFixed(3)}`,
+        detail: scoreSnapshot(unit.model_score_means || {}),
+      }));
+  }
+  if (promptKey === "package") {
+    const visibleIds = new Set(visibleUnits.map((unit) => unit.unit_id));
+    return [...importedPackageMapStats(mapUnits).units.values()]
+      .filter((hit) => visibleIds.has(hit.unitId))
+      .sort((a, b) => b.recordCount - a.recordCount || displayUnitName(a.unit).localeCompare(displayUnitName(b.unit)))
+      .slice(0, limit)
+      .map((hit) => ({
+        unit: hit.unit,
+        value: hit.recordCount,
+        metric: `${formatCount(hit.recordCount)} local`,
+        detail: `${formatCount(hit.reviewed)} reviewed · ${formatCount(hit.remaining)} remaining`,
+      }));
+  }
+  return largestVisibleComparisonRows(visibleUnits, limit);
+}
+
+function largestVisibleComparisonRows(units, limit) {
+  return units
+    .slice()
+    .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0))
+    .slice(0, limit)
+    .map((unit) => ({
+      unit,
+      value: Number(unit.law_count || 0),
+      metric: `${formatCount(unit.law_count)} rows`,
+      detail: `${text(unit.dominant_topic)} · ${text(unit.dominant_function)} · ${text(unit.tier_label)}`,
+    }));
+}
+
+function mapInlineComparisonTitle(promptKey) {
+  const titles = {
+    view: "Largest visible county/town units",
+    selected: "Selected unit and aggregate peers",
+    audit: "Highest visible audit-review signals",
+    scores: "Highest visible score-profile contrast",
+    package: "Visible browser-local package matches",
+  };
+  return titles[promptKey] || titles.view;
+}
+
+function disclosureComparisonLabel() {
+  if (state.disclosureLevel === "evidence") {
+    return "evidence depth: 8 units";
+  }
+  if (state.disclosureLevel === "unit") {
+    return "unit detail: 6 units";
+  }
+  return "overview: 4 units";
+}
+
+function mapInlineComparisonRowHtml(row, maxValue) {
+  const unit = row.unit || {};
+  const selected = unit.unit_id === state.selectedUnitId ? " selected" : "";
+  const width = Math.max(4, (Number(row.value || 0) / Math.max(1, Number(maxValue || 1))) * 100);
+  return `
+    <button type="button" class="map-inline-comparison-row${selected}" data-map-compare-unit="${escapeHtml(unit.unit_id || "")}">
+      <i style="background:${escapeHtml(unit.tier_color || "#d8dee8")}"></i>
+      <span>
+        <strong>${escapeHtml(displayUnitName(unit))}</strong>
+        <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(titleCase(unit.kind || "unit"))}</em>
+      </span>
+      <b>${escapeHtml(row.metric)}</b>
+      <u><small style="width:${width.toFixed(2)}%"></small></u>
+      <small>${escapeHtml(row.detail)}</small>
+    </button>
   `;
 }
 
@@ -6655,6 +6798,12 @@ function bindEvents() {
       event.preventDefault();
       state.mapInlineInquiry = mapInquiryButton.dataset.mapInquiry;
       renderMap();
+      return;
+    }
+    const mapCompareButton = event.target.closest("[data-map-compare-unit]");
+    if (mapCompareButton) {
+      event.preventDefault();
+      openAuditUnitOnMap(mapCompareButton.dataset.mapCompareUnit);
       return;
     }
     const tierOntologyButton = event.target.closest("[data-tier-ontology]");

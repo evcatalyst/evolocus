@@ -232,7 +232,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderMapReadingGuide" in js
     assert "renderMapInlineInquiry" in js
     assert "mapInlineInquiryPrompts" in js
+    assert "mapInlineComparisonStripHtml" in js
+    assert "mapInlineComparisonRows" in js
+    assert "largestVisibleComparisonRows" in js
     assert "data-map-inquiry" in js
+    assert "data-map-compare-unit" in js
     assert "tierColorForLabel" in js
     assert "tierKeyForLabel" in js
     assert "openTierOntology" in js
@@ -275,6 +279,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-reading-guide-tiers" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
+    assert "map-inline-comparison-strip" in css
+    assert "map-inline-comparison-row" in css
     assert "ontology-tier-focus" in css
     assert "ontology-tier-focus-metrics" in css
     assert "package-map-actions" in css

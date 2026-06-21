@@ -50,6 +50,7 @@
         "Add map-side law-location tier guide with active filters and county/town scope",
         "Add tier-to-ontology clickthrough from map guide tier chips",
         "Add map-side chat-style inquiry panel for current aggregate filters",
+        "Add inquiry-driven county/town comparison strip with map drillback",
         "Add selected-unit progressive visual trail on the map panel",
         "Add selected-unit ontology drilldown cards on the map panel",
         "Add selected-unit peer comparison visuals for similar published aggregate units",

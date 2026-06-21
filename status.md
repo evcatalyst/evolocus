@@ -94,6 +94,7 @@ Current coverage stats:
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
 - Tier-to-ontology clickthrough: GitHub Pages tier chips open a focused ontology card with visible units, topic/function links, neutral score means, and current filter context
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
+- Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
 - Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
 - Selected-unit progressive trail: GitHub Pages map panel walks from aggregate overview to unit-detail model outputs to evidence/provenance boundaries with disclosure buttons
 - Selected-unit ontology drilldowns: GitHub Pages map panel shows topic/function/tier/score/geometry/package cards that route to ontology context, evidence depth, or package focus without raw text
@@ -169,6 +170,7 @@ Latest update:
 - Added a map-side law-location tier guide that explains current filters, county/town scope, neutral tier mix, geography color mode, disclosure depth, and no-row-text publication boundaries.
 - Added tier-to-ontology clickthrough from the map guide so neutral tier chips open focused ontology context for visible county/town units.
 - Added a map-side chat-style inquiry panel that answers current-filter, selected-unit, audit-signal, model-score, and package-overlay prompts without live browser model calls.
+- Added an inquiry-driven county/town comparison strip so each map-side prompt shows relevant aggregate units and can open them back on the map.
 - Added a Queue Plan tab that ranks aggregate county/town units for future local review packaging and exports only unit-level planning metadata.
 - Added a review-package request export and `materialize-review-package` local CLI handoff so aggregate visual plans can become bounded browser-import packages without publishing LOCUS text.
 - Added a review-package request preview that displays record budget, state/type/topic mix, and request safety gates before download.
