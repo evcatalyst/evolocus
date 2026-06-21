@@ -86,6 +86,7 @@ Latest update:
 - Did not download LOCUS-v1, run scrapers, create databases, or create embeddings.
 - Recorded the canonical arXiv source page supplied by the user: https://arxiv.org/abs/2606.19334.
 - Added production Local Law Analytics Platform plan; it is now aligned to the Polars + Parquet + SQLite + Streamlit evaluator path, with DuckDB/LanceDB/RAG/FastAPI deferred.
+- Refreshed the GitHub Pages companion site so it reports the Phase 1 evaluator MVP state and clearly explains that Streamlit runs locally rather than on Pages.
 
 Evaluator implementation state:
 

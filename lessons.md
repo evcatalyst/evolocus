@@ -18,3 +18,4 @@
 - Evaluation queues must pin dataset revisions, manifest fingerprints, sampling parameters, and random seeds.
 - Full corpus materialization is prohibited in request paths.
 - Real data, SQLite evaluation databases, and exports remain ignored.
+- The public GitHub Pages companion must be kept in sync with evaluator status so users do not mistake a static Phase 0 page for a failed Streamlit deployment.

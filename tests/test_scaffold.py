@@ -80,7 +80,8 @@ def test_static_site_is_relative_and_synthetic_only() -> None:
     css = read_text("site/assets/styles.css")
     assert 'href="assets/styles.css"' in html
     assert "Synthetic only" in html
-    assert "No LOCUS data has been downloaded" in html
+    assert "No real LOCUS rows published" in html
+    assert "GitHub Pages is static" in html
     assert "https://fonts." not in html + css
     assert "googletagmanager" not in html + css
     assert "analytics" not in html.lower()

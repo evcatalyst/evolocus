@@ -122,6 +122,22 @@ a {
   padding: 72px 0;
 }
 
+.notice {
+  width: min(1120px, calc(100% - 32px));
+  margin: -34px auto 0;
+  border: 1px solid #e3c36f;
+  border-radius: 8px;
+  background: #fff6dc;
+  color: #5f4100;
+  padding: 18px 20px;
+  box-shadow: 0 12px 32px rgba(29, 36, 51, 0.12);
+}
+
+.notice strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
 .section-heading {
   max-width: 760px;
 }
@@ -203,6 +219,44 @@ a {
   background: #e5f0ea;
   color: var(--green);
   font-weight: 850;
+}
+
+.command-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #111827;
+  color: #e5edf7;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.command-label {
+  margin: 0 0 8px;
+  color: #a8c7fa;
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+pre {
+  margin: 0 0 18px;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: #0b1020;
+  padding: 14px;
+}
+
+pre:last-child {
+  margin-bottom: 0;
+}
+
+pre code {
+  border: 0;
+  background: transparent;
+  color: #f8fafc;
+  padding: 0;
+  white-space: pre;
 }
 
 .preview-section {
@@ -345,6 +399,10 @@ code {
     padding: 64px 0;
   }
 
+  .notice {
+    margin-top: 18px;
+  }
+
   .metric-grid,
   .split,
   .atlas {
@@ -356,4 +414,3 @@ code {
     border-top: 1px solid var(--line);
   }
 }
-

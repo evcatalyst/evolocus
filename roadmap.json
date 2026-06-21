@@ -27,7 +27,8 @@
         "Draft production Local Law Analytics Platform architecture and starter code",
         "Implement Polars-first evaluator vertical slice",
         "Complete mandatory synthetic validation",
-        "Run bounded Streamlit demo smoke test"
+        "Run bounded Streamlit demo smoke test",
+        "Refresh GitHub Pages companion site for evaluator MVP status"
       ],
       "remaining_items": [
         "Run real LOCUS local-Parquet audit when user supplies or downloads source shards",
