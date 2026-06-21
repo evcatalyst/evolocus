@@ -20,6 +20,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - county/town aggregate coverage atlas by state, source-unit type, and neutral tier;
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
 - ontology and model-output registry views;
+- selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
 - static progressive inquiry briefings over published aggregate artifacts;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate chart panels and publication gates;

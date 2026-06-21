@@ -1312,6 +1312,7 @@ function renderSelectedUnit() {
       <dt>Dominant function</dt><dd>${escapeHtml(text(unit.dominant_function))}</dd>
       <dt>OCR risk</dt><dd>${escapeHtml(text(unit.ocr_risk_level))}</dd>
     </dl>
+    ${selectedUnitOntologyNeighborhoodHtml(unit, { compact: true })}
     ${
       showUnit
         ? `<h4>Neutral model-score means</h4><ul>${scores}</ul>`
@@ -1362,10 +1363,14 @@ function renderGeoColorButtons() {
 function renderOntology() {
   const ontology = state.analysis.ontology;
   const models = state.analysis.models;
+  const selectedNeighborhood = $("#selected-ontology-neighborhood");
   if (!ontology) {
     $("#ontology-summary").innerHTML = `
       <article class="metric-card"><span class="metric-value">...</span><span class="metric-label">Loading ontology</span></article>
     `;
+    if (selectedNeighborhood) {
+      selectedNeighborhood.innerHTML = "<p>Selected-unit ontology neighborhood loading.</p>";
+    }
     $("#ontology-node-list").innerHTML = "";
     $("#model-list").innerHTML = "";
     return;
@@ -1393,6 +1398,12 @@ function renderOntology() {
     .slice(0, 80)
     .map((node) => `<span>${escapeHtml(node.type)} · ${escapeHtml(node.label)}${node.count ? ` (${escapeHtml(String(node.count))})` : ""}</span>`)
     .join("");
+  if (selectedNeighborhood) {
+    const selectedUnit = currentSelectedMapUnit();
+    selectedNeighborhood.innerHTML = selectedUnit
+      ? selectedUnitOntologyNeighborhoodHtml(selectedUnit, { compact: false })
+      : "<h3>Selected-unit ontology neighborhood</h3><p>Select a county or town on the map to show its aggregate ontology neighborhood.</p>";
+  }
   $("#model-list").innerHTML = models
     ? models.models
         .map(
@@ -1405,6 +1416,126 @@ function renderOntology() {
         )
         .join("")
     : "<span>Model registry loading</span>";
+}
+
+function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
+  const geometry = geometryMatchForUnit(unit.unit_id);
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const nodes = selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence);
+  return `
+    <section class="ontology-neighborhood${compact ? " compact" : ""}" aria-label="Selected unit ontology neighborhood">
+      <div class="ontology-neighborhood-heading">
+        <div>
+          <p class="eyebrow">Selected ontology</p>
+          <h3>${escapeHtml(displayUnitName(unit))}</h3>
+        </div>
+        <span>${escapeHtml(formatCount(unit.law_count))} law records</span>
+      </div>
+      <svg class="ontology-neighborhood-svg" viewBox="0 0 640 300" role="img" aria-label="Aggregate ontology neighborhood for selected unit">
+        ${nodes
+          .filter((node) => node.id !== "unit")
+          .map((node) => `<line x1="320" y1="150" x2="${node.x}" y2="${node.y}" class="ontology-edge"></line>`)
+          .join("")}
+        ${nodes.map(ontologyNodeSvg).join("")}
+      </svg>
+      <div class="ontology-neighborhood-facts">
+        <span><strong>Topic</strong>${escapeHtml(text(unit.dominant_topic))}</span>
+        <span><strong>Function</strong>${escapeHtml(text(unit.dominant_function))}</span>
+        <span><strong>Tier</strong>${escapeHtml(text(unit.tier_label))}</span>
+        ${
+          showUnit
+            ? `<span><strong>Score means</strong>${escapeHtml(scoreSnapshot(unit.model_score_means || {}))}</span>`
+            : ""
+        }
+        ${
+          showEvidence
+            ? `<span><strong>Geometry</strong>${escapeHtml(geometry.matchStatus)} via ${escapeHtml(geometry.source)}</span>`
+            : ""
+        }
+      </div>
+      <p class="muted-note">Neighborhood edges summarize released LOCUS aggregate fields and machine-match artifacts. They are not verified legal relationships.</p>
+    </section>
+  `;
+}
+
+function selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence) {
+  const nodes = [
+    {
+      id: "unit",
+      label: displayUnitName(unit),
+      sublabel: `${text(unit.state)} · ${text(unit.kind)}`,
+      x: 320,
+      y: 150,
+      r: 54,
+      fill: unit.tier_color || "#d8dee8",
+      className: "unit-node",
+    },
+    {
+      id: "topic",
+      label: text(unit.dominant_topic),
+      sublabel: "dominant topic",
+      x: 138,
+      y: 72,
+      r: 42,
+      fill: TOPIC_COLORS[unit.dominant_topic] || TOPIC_COLORS.Unknown,
+    },
+    {
+      id: "function",
+      label: text(unit.dominant_function),
+      sublabel: "dominant function",
+      x: 502,
+      y: 72,
+      r: 42,
+      fill: FUNCTION_COLORS[unit.dominant_function] || FUNCTION_COLORS.Unknown,
+    },
+    {
+      id: "tier",
+      label: text(unit.tier_label),
+      sublabel: "neutral tier",
+      x: 138,
+      y: 228,
+      r: 42,
+      fill: unit.tier_color || "#d8dee8",
+    },
+  ];
+  if (showUnit) {
+    nodes.push({
+      id: "scores",
+      label: "Scores",
+      sublabel: "neutral means",
+      x: 502,
+      y: 228,
+      r: 42,
+      fill: "#8d6aa8",
+    });
+  }
+  if (showEvidence) {
+    nodes.push({
+      id: "geometry",
+      label: "Geometry",
+      sublabel: geometry.source,
+      x: 320,
+      y: 262,
+      r: 36,
+      fill: "#b7892c",
+    });
+  }
+  return nodes;
+}
+
+function ontologyNodeSvg(node) {
+  const words = String(node.label || "Unknown").split(/\s+/).slice(0, 3);
+  const labelLines = words.length ? words : ["Unknown"];
+  return `
+    <g class="ontology-node ${escapeHtml(node.className || "")}" transform="translate(${node.x} ${node.y})">
+      <circle r="${node.r}" fill="${escapeHtml(node.fill)}"></circle>
+      ${labelLines
+        .map((line, index) => `<text y="${(index - (labelLines.length - 1) / 2) * 14 - 2}" class="node-label">${escapeHtml(line)}</text>`)
+        .join("")}
+      <text y="${node.r - 12}" class="node-sublabel">${escapeHtml(node.sublabel || "")}</text>
+    </g>
+  `;
 }
 
 function renderInquiry() {

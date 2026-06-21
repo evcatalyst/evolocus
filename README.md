@@ -40,6 +40,7 @@ The Pages app supports:
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
+- selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;

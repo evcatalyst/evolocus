@@ -452,6 +452,7 @@ textarea {
 .map-card,
 .unit-detail,
 .inquiry-answer,
+.selected-ontology-card,
 .ontology-layout article {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -816,6 +817,105 @@ textarea {
 
 .ask-unit-button {
   margin: 0 0 12px;
+}
+
+.ontology-neighborhood {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  margin: 14px 0;
+  padding: 12px;
+}
+
+.ontology-neighborhood.compact {
+  background: #ffffff;
+}
+
+.ontology-neighborhood-heading {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ontology-neighborhood-heading h3,
+.ontology-neighborhood-heading p {
+  margin: 0;
+}
+
+.ontology-neighborhood-heading span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 6px 9px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.ontology-neighborhood-svg {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #edf3f1;
+}
+
+.ontology-edge {
+  stroke: rgba(23, 32, 51, 0.34);
+  stroke-width: 2;
+}
+
+.ontology-node circle {
+  stroke: rgba(17, 24, 39, 0.72);
+  stroke-width: 1.6;
+}
+
+.ontology-node.unit-node circle {
+  stroke-width: 2.4;
+}
+
+.ontology-node text {
+  fill: #111827;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.ontology-node .node-label {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.ontology-node .node-sublabel {
+  fill: rgba(17, 24, 39, 0.72);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.ontology-neighborhood-facts {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ontology-neighborhood-facts span {
+  display: grid;
+  gap: 2px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.ontology-neighborhood-facts strong {
+  color: var(--ink);
+}
+
+.selected-ontology-card {
+  margin-bottom: 18px;
 }
 
 .selected-unit-briefing section {

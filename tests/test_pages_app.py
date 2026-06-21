@@ -19,4 +19,6 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "briefingSectionsHtml" in js
     assert "selectedUnitAnswer" in js
     assert "askAboutMapUnit" in js
+    assert "selectedUnitOntologyNeighborhoodHtml" in js
+    assert "ontologyNodeSvg" in js
     assert "fetchAnalysisArtifacts" in js

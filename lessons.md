@@ -31,3 +31,4 @@
 - Color modes should stay tied to aggregate model-output fields and visible denominators; topic/function/tier/law-count views are exploratory review aids, not legal rankings.
 - Progressive inquiry should be generated as aggregate-only static JSON; Grok may enrich that artifact offline, but Pages must never make live model calls or expose API endpoints with secrets.
 - Map-to-inquiry drilldowns should answer from the selected aggregate unit and geometry-match artifacts, while preserving the same raw-text and legal-conclusion boundaries as the public map.
+- Selected-unit ontology neighborhoods are useful when they visualize only aggregate model-output relationships and explicitly label geometry matches as machine-generated pending review.

@@ -101,6 +101,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Pages-first UI" in html
     assert "Law Map" in html
     assert "Inquiry" in html
+    assert "selected-ontology-neighborhood" in html
     assert "Analysis Status" in html
     assert "map-filter-form" in html
     assert "map-insight-grid" in html
@@ -132,6 +133,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitAnswer" in js
     assert "askAboutMapUnit" in js
     assert "geometryMatchForUnit" in js
+    assert "selectedUnitOntologyNeighborhoodHtml" in js
+    assert "selectedUnitOntologyNodes" in js
+    assert "ontologyNodeSvg" in js
+    assert "ontology-neighborhood-svg" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js
