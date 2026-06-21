@@ -6,6 +6,7 @@ from pathlib import Path
 def test_pages_app_contains_review_workflow() -> None:
     html = Path("site/index.html").read_text(encoding="utf-8")
     js = Path("site/assets/app.js").read_text(encoding="utf-8")
+    css = Path("site/assets/styles.css").read_text(encoding="utf-8")
     assert "Review Queue" in html
     assert "Dataset Explorer" in html
     assert "Charts" in html
@@ -36,6 +37,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "importedPackageMapStats" in js
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js
+    assert "selectedUnitProgressiveTrailHtml" in js
+    assert "data-selected-disclosure" in js
     assert "applyPackageMapFilter" in js
     assert "packageOnly" in js
     assert "package-hit" in js
@@ -72,6 +75,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitAnswer" in js
     assert "askAboutMapUnit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
+    assert "selected-disclosure-trail" in css
     assert "ontologyNodeSvg" in js
     assert "selectedUnitPeerComparisonHtml" in js
     assert "scoreDeltaSummary" in js

@@ -2049,6 +2049,7 @@ function renderSelectedUnit() {
     <h3>${escapeHtml(displayUnitName(unit))}</h3>
     <p>${escapeHtml(text(unit.state))} ${escapeHtml(text(unit.kind))} · ${escapeHtml(unit.tier_label)}</p>
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(unit.unit_id)}">Ask about this unit</button>
+    ${selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit)}
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
       <dt>Substantive</dt><dd>${escapeHtml(String(unit.substantive_count))}</dd>
@@ -2072,6 +2073,60 @@ function renderSelectedUnit() {
         ? `<h4>Evidence trail</h4><p class="muted-note">Model substantive share denominator: ${escapeHtml(formatCount(unit.substantive_count || 0))}/${escapeHtml(formatCount(unit.law_count || 0))} released LOCUS rows in this aggregate unit. This is a model output, not a verified legal classification.</p><ol>${samples || "<li>No public samples in this artifact.</li>"}</ol>`
         : `<p class="muted-note">Switch to Evidence trail to reveal source locators and public samples when allowed.</p>`
     }
+  `;
+}
+
+function selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit) {
+  const geometry = geometryMatchForUnit(unit.unit_id);
+  const scoreSummary = scoreSnapshot(unit.model_score_means || {});
+  const packageSummary = packageHit
+    ? `${formatCount(packageHit.recordCount)} local package records matched in this browser`
+    : "No local package match for this aggregate unit";
+  const steps = [
+    {
+      level: "overview",
+      label: "Overview",
+      value: `${formatCount(unit.law_count)} aggregate rows`,
+      detail: `${text(unit.tier_label)} · ${text(unit.dominant_topic)} · ${text(unit.dominant_function)}`,
+      boundary: "Public map color and counts only",
+    },
+    {
+      level: "unit",
+      label: "Unit detail",
+      value: `${formatPercentRatio(modelSubstantiveShare(unit))} model-substantive`,
+      detail: `Neutral score means: ${scoreSummary}`,
+      boundary: "Model outputs are review aids, not legal findings",
+    },
+    {
+      level: "evidence",
+      label: "Evidence trail",
+      value: auditQuality ? `Audit attention ${formatNumber(auditQuality.audit_attention_score)} / 100` : "Audit artifact not loaded",
+      detail: `${geometry.matchStatus} geometry via ${geometry.source}; ${packageSummary}`,
+      boundary: "No ordinance text or locator values are published",
+    },
+  ];
+  return `
+    <section class="selected-disclosure-trail" aria-label="Selected unit progressive disclosure trail">
+      <div class="selected-disclosure-heading">
+        <p class="eyebrow">Progressive visual trail</p>
+        <strong>${escapeHtml(titleCase(state.disclosureLevel))}</strong>
+      </div>
+      <div class="selected-disclosure-steps">
+        ${steps.map(selectedUnitDisclosureStepHtml).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function selectedUnitDisclosureStepHtml(step) {
+  const active = step.level === state.disclosureLevel ? " active" : "";
+  return `
+    <button class="selected-disclosure-step${active}" type="button" data-selected-disclosure="${escapeHtml(step.level)}" aria-pressed="${step.level === state.disclosureLevel ? "true" : "false"}">
+      <span>${escapeHtml(step.label)}</span>
+      <strong>${escapeHtml(step.value)}</strong>
+      <em>${escapeHtml(step.detail)}</em>
+      <small>${escapeHtml(step.boundary)}</small>
+    </button>
   `;
 }
 
@@ -6082,6 +6137,13 @@ function bindEvents() {
     render();
   });
   $("#map-panel").addEventListener("click", (event) => {
+    const selectedDisclosureButton = event.target.closest("[data-selected-disclosure]");
+    if (selectedDisclosureButton) {
+      event.preventDefault();
+      state.disclosureLevel = selectedDisclosureButton.dataset.selectedDisclosure;
+      render();
+      return;
+    }
     const packageFilterButton = event.target.closest("[data-package-map-filter]");
     if (packageFilterButton) {
       event.preventDefault();

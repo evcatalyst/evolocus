@@ -32,6 +32,7 @@
 - Progressive inquiry should be generated as aggregate-only static JSON; Grok may enrich that artifact offline, but Pages must never make live model calls or expose API endpoints with secrets.
 - Map-to-inquiry drilldowns should answer from the selected aggregate unit and geometry-match artifacts, while preserving the same raw-text and legal-conclusion boundaries as the public map.
 - Selected-unit ontology neighborhoods are useful when they visualize only aggregate model-output relationships and explicitly label geometry matches as machine-generated pending review.
+- A selected-unit progressive trail keeps the demo understandable from the map itself: aggregate color first, neutral model-output summaries second, provenance boundaries third.
 - Peer comparisons must disclose their matching method and stay framed as aggregate review context, not as best/worst or legal-burden rankings.
 - A configured `GROK_API_KEY` repository secret should be verified by name only and consumed by GitHub Actions/local offline jobs, never by browser-delivered assets.
 - Model-substantive-share visuals must show denominators and describe substantivity as a released model label, not as a verified legal classification.
