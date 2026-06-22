@@ -77,6 +77,12 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
 
             page.locator("[data-chart-route-action='map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".selected-map-ontology-route [data-selected-route-open='topic']", timeout=10_000)
+            selected_route_text = page.locator(".selected-map-ontology-route").inner_text(timeout=5_000)
+            assert "map-to-ontology route" in selected_route_text.lower()
+            assert "No ordinance text" in selected_route_text
+            page.locator(".selected-map-ontology-route [data-selected-route-open='topic']").click()
+            page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
 
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='ask']", timeout=10_000)

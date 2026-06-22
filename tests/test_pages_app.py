@@ -111,6 +111,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js
     assert "selectedUnitProgressiveTrailHtml" in js
+    assert "selectedUnitMapOntologyRouteHtml" in js
+    assert "selectedUnitMapOntologyRouteStages" in js
+    assert "selectedUnitMapOntologyRouteStageHtml" in js
+    assert "openSelectedUnitOntologyRoute" in js
+    assert "data-selected-route-open" in js
+    assert "Map-to-ontology route" in js
+    assert "How this selected color reaches the graph" in js
+    assert "Route stages pass only aggregate unit IDs" in js
     assert "data-selected-disclosure" in js
     assert "selectedUnitOntologyDrilldownHtml" in js
     assert "applySelectedOntologyDrilldown" in js
@@ -412,6 +420,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Map-to-ontology animation controls" in js
     assert "Controls focus aggregate map-to-ontology stages only" in js
     assert "selected-disclosure-trail" in css
+    assert "selected-map-ontology-route" in css
+    assert "selected-route-strip" in css
     assert "analysis-journey" in css
     assert "analysis-journey-step" in css
     assert "analysis-journey-boundary" in css

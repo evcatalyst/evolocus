@@ -4391,6 +4391,126 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.selected-map-ontology-route {
+  border: 1px solid rgba(50, 111, 112, 0.24);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #f4fafc);
+  margin: 12px 0 14px;
+  padding: 12px;
+}
+
+.selected-route-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.selected-route-heading h4,
+.selected-route-heading p {
+  margin: 0;
+}
+
+.selected-route-heading button {
+  border: 1px solid rgba(50, 111, 112, 0.36);
+  border-radius: 8px;
+  background: #edf3f1;
+  color: var(--green);
+  padding: 7px 9px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.selected-route-strip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.selected-route-strip::before {
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(50, 111, 112, 0.78), rgba(183, 137, 44, 0.72), rgba(107, 79, 214, 0.72));
+  content: "";
+}
+
+.selected-route-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  min-height: 96px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  color: inherit;
+  padding: 26px 8px 9px;
+  text-align: left;
+}
+
+.selected-route-stage::before {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(50, 111, 112, 0.28);
+  content: "";
+  animation: ontologyNodePulse 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--route-index, 0) * 0.16s);
+}
+
+.selected-route-stage:hover,
+.selected-route-stage:focus-visible,
+.selected-route-stage.active {
+  border-color: rgba(50, 111, 112, 0.48);
+  background: #edf3f1;
+}
+
+.selected-route-stage.active::before {
+  background: #b7892c;
+  animation: none;
+  box-shadow: 0 0 0 6px rgba(183, 137, 44, 0.14);
+}
+
+.selected-route-stage span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.selected-route-stage strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.selected-route-stage em,
+.selected-route-boundary {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.selected-route-boundary {
+  margin: 9px 0 0;
+}
+
 .ontology-neighborhood {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -7329,6 +7449,8 @@ th {
   .inquiry-log-entry dl,
   .geo-layer-legend-pills,
   .geo-layer-link-list button,
+  .selected-route-heading,
+  .selected-route-strip,
   .selected-disclosure-steps,
   .selected-ontology-drilldown-grid,
   .ontology-path-strip,
@@ -7340,6 +7462,7 @@ th {
 
 @media (prefers-reduced-motion: reduce) {
   .chart-route-stage,
+  .selected-route-stage::before,
   .ontology-path-strip::before,
   .ontology-path-step::before {
     animation: none;
@@ -7466,6 +7589,8 @@ th {
   .inquiry-log-entry dl,
   .geo-layer-legend-pills,
   .geo-layer-link-list button,
+  .selected-route-heading,
+  .selected-route-strip,
   .selected-disclosure-heading,
   .selected-disclosure-steps,
   .selected-ontology-drilldown-heading,

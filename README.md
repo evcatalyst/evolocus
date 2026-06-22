@@ -111,6 +111,7 @@ The Pages app supports:
 - map-linked ontology chips inside topic/tier pathway cells for aggregate topic, tier, and top-unit drillback;
 - package-aware inquiry answer that summarizes browser-local package coverage, map matches, workflow progress, and text/source-locator boundaries without listing record text;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
+- selected-unit map-to-ontology route trail with stage buttons that open Ontology at the matching progressive disclosure depth;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
 - aggregate chart rows can open the Law Map with safe browser-only filters or published aggregate unit IDs;
 - aggregate chart Ask buttons can open Inquiry with the same safe filters and no browser model calls;

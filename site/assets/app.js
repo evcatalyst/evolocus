@@ -4443,6 +4443,7 @@ function renderSelectedUnit() {
     <p>${escapeHtml(text(unit.state))} ${escapeHtml(text(unit.kind))} · ${escapeHtml(unit.tier_label)}</p>
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(unit.unit_id)}">Ask about this unit</button>
     ${selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit)}
+    ${selectedUnitMapOntologyRouteHtml(unit, auditQuality, packageHit)}
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
       <dt>Substantive</dt><dd>${escapeHtml(String(unit.substantive_count))}</dd>
@@ -4585,6 +4586,109 @@ function applySelectedOntologyDrilldown(action) {
     state.disclosureLevel = action;
     render();
   }
+}
+
+function selectedUnitMapOntologyRouteHtml(unit, auditQuality, packageHit) {
+  const geometry = geometryMatchForUnit(unit.unit_id);
+  const routeStages = selectedUnitMapOntologyRouteStages(unit, geometry, auditQuality, packageHit);
+  const activeStage = state.ontologyPathStage === "auto" ? "unit" : state.ontologyPathStage;
+  return `
+    <section class="selected-map-ontology-route" aria-label="Selected unit map-to-ontology route trail">
+      <div class="selected-route-heading">
+        <div>
+          <p class="eyebrow">Map-to-ontology route</p>
+          <h4>How this selected color reaches the graph</h4>
+        </div>
+        <button type="button" data-selected-route-open="auto">Open full path</button>
+      </div>
+      <div class="selected-route-strip" aria-label="Aggregate route stages">
+        ${routeStages.map((stage, index) => selectedUnitMapOntologyRouteStageHtml(stage, index, activeStage)).join("")}
+      </div>
+      <p class="selected-route-boundary">Route stages pass only aggregate unit IDs, model-output labels, neutral score summaries, and match status. No ordinance text, source locators, legal conclusions, or live model calls are published.</p>
+    </section>
+  `;
+}
+
+function selectedUnitMapOntologyRouteStages(unit, geometry, auditQuality, packageHit) {
+  return [
+    {
+      key: "unit",
+      label: "Map color",
+      value: text(unit.tier_label),
+      detail: `${formatCount(unit.law_count)} aggregate rows in ${displayUnitName(unit)}`,
+    },
+    {
+      key: "topic",
+      label: "Topic node",
+      value: text(unit.dominant_topic),
+      detail: "released LOCUS model label",
+    },
+    {
+      key: "function",
+      label: "Function node",
+      value: text(unit.dominant_function),
+      detail: "released LOCUS model label",
+    },
+    {
+      key: "tier",
+      label: "Tier node",
+      value: text(unit.tier_label),
+      detail: "neutral grouping, not a ranking",
+    },
+    {
+      key: "scores",
+      label: "Score node",
+      value: state.disclosureLevel === "overview" ? "Unit detail gated" : scoreSnapshot(unit.model_score_means || {}),
+      detail: "relative numeric outputs; direction unverified",
+    },
+    {
+      key: "geometry",
+      label: "Evidence gate",
+      value: state.disclosureLevel === "evidence" ? geometry.matchStatus : "Evidence gated",
+      detail: packageHit
+        ? `${formatCount(packageHit.recordCount)} browser-local package records`
+        : auditQuality
+          ? `audit attention ${formatNumber(auditQuality.audit_attention_score)} / 100`
+          : "match and audit provenance",
+    },
+  ];
+}
+
+function selectedUnitMapOntologyRouteStageHtml(stage, index, activeStage) {
+  const active = stage.key === activeStage ? " active" : "";
+  return `
+    <button type="button" class="selected-route-stage${active}" data-selected-route-open="${escapeHtml(stage.key)}" style="--route-index:${index}">
+      <span>${escapeHtml(stage.label)}</span>
+      <strong>${escapeHtml(stage.value)}</strong>
+      <em>${escapeHtml(stage.detail)}</em>
+    </button>
+  `;
+}
+
+function openSelectedUnitOntologyRoute(stage = "auto") {
+  const allowed = new Set(["auto", "unit", "topic", "function", "tier", "scores", "geometry"]);
+  const nextStage = allowed.has(stage) ? stage : "auto";
+  state.ontologyPathStage = nextStage;
+  if (nextStage === "scores" && state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  if (nextStage === "geometry") {
+    state.disclosureLevel = "evidence";
+  }
+  if (state.disclosureLevel === "overview" && nextStage !== "auto" && nextStage !== "unit") {
+    state.disclosureLevel = "unit";
+  }
+  const selectedUnit = currentSelectedMapUnit();
+  if (selectedUnit?.tier) {
+    state.ontologyFocusTier = selectedUnit.tier;
+  }
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    ontology: true,
+  };
+  state.activeTab = "ontology";
+  render();
 }
 
 function openTierOntology(tierKey) {
@@ -11453,6 +11557,12 @@ function bindEvents() {
       event.preventDefault();
       state.disclosureLevel = selectedDisclosureButton.dataset.selectedDisclosure;
       render();
+      return;
+    }
+    const selectedRouteButton = event.target.closest("[data-selected-route-open]");
+    if (selectedRouteButton) {
+      event.preventDefault();
+      openSelectedUnitOntologyRoute(selectedRouteButton.dataset.selectedRouteOpen || "auto");
       return;
     }
     const ontologyPathButton = event.target.closest("[data-ontology-path-stage]");

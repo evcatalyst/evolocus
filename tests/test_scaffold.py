@@ -303,6 +303,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitPackageCoverageHtml" in js
     assert "selectedUnitProgressiveTrailHtml" in js
     assert "selectedUnitDisclosureStepHtml" in js
+    assert "selectedUnitMapOntologyRouteHtml" in js
+    assert "selectedUnitMapOntologyRouteStages" in js
+    assert "selectedUnitMapOntologyRouteStageHtml" in js
+    assert "openSelectedUnitOntologyRoute" in js
+    assert "data-selected-route-open" in js
+    assert "Map-to-ontology route" in js
+    assert "How this selected color reaches the graph" in js
+    assert "Route stages pass only aggregate unit IDs" in js
     assert "data-selected-disclosure" in js
     assert "selectedUnitOntologyDrilldownHtml" in js
     assert "selectedUnitOntologyDrilldownCards" in js
@@ -546,6 +554,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-ontology-lane" in css
     assert "package-ontology-bars" in css
     assert "selected-disclosure-trail" in css
+    assert "selected-map-ontology-route" in css
+    assert "selected-route-stage" in css
+    assert "selected-route-boundary" in css
     assert "analysis-journey" in css
     assert "analysis-journey-step" in css
     assert "analysis-journey-boundary" in css
