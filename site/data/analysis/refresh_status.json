@@ -1,15 +1,15 @@
 {
-  "artifact_commit": "29a6b97eaeb28cd3cf74d38a4b51ffb96c9fbf37",
+  "artifact_commit": "202268cb0070c8ca34227f3425eee511e8dc53ef",
   "artifacts": {
     "inquiry_briefings": {
       "briefing_count": 5,
-      "generated_at": "2026-06-22T06:22:13.844470+00:00",
+      "generated_at": "2026-06-22T06:48:54.556805+00:00",
       "grok_used": true,
       "model": "grok-4.3",
       "path": "site/data/analysis/inquiry_briefings.json"
     },
     "question_pack": {
-      "generated_at": "2026-06-22T06:22:17.401318+00:00",
+      "generated_at": "2026-06-22T06:48:58.375912+00:00",
       "grok_used": true,
       "model": "grok-4.3",
       "path": "site/data/analysis/question_pack.json",
@@ -18,13 +18,13 @@
   },
   "branch": "main",
   "browser_boundary": "GitHub Pages displays static run metadata only. Grok calls, if enabled, run offline in GitHub Actions and no model credentials are delivered to browser JavaScript.",
-  "completed_at": "2026-06-22T06:22:20.327516+00:00",
+  "completed_at": "2026-06-22T06:49:00.776171+00:00",
   "conclusion": "success_if_pages_deploys",
-  "created_at": "2026-06-22T06:22:20.327516+00:00",
+  "created_at": "2026-06-22T06:49:00.776171+00:00",
   "dataset_revision": "main",
   "event": "workflow_dispatch",
-  "generated_at": "2026-06-22T06:22:20.327516+00:00",
-  "head_sha": "29a6b97eaeb28cd3cf74d38a4b51ffb96c9fbf37",
+  "generated_at": "2026-06-22T06:49:00.776171+00:00",
+  "head_sha": "202268cb0070c8ca34227f3425eee511e8dc53ef",
   "persist_artifacts_input": true,
   "publication_policy": {
     "artifact_kind": "aggregate_only_actions_refresh_status",
@@ -36,10 +36,10 @@
     "review_events_included": false,
     "secrets_included": false
   },
-  "run_id": 27933693576,
-  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27933693576",
+  "run_id": 27934813781,
+  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27934813781",
   "schema_version": "evolocus-actions-refresh-status-v1",
-  "started_at": "2026-06-22T06:22:20.327516+00:00",
+  "started_at": "2026-06-22T06:49:00.776171+00:00",
   "status": "completed_if_pages_deploys",
   "use_grok_input": true,
   "validation": {
