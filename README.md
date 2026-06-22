@@ -42,6 +42,7 @@ The Pages app supports:
 - first-screen saved visual route cards that replay browser-local aggregate questions back to answers, map filters, and ontology context;
 - first-screen visual story packet that exports the current Ask -> Map -> Ontology aggregate route with counts, public unit IDs, ontology nodes, and provenance only;
 - first-screen visual story packet import/replay that validates a shared story JSON and replays its aggregate route back to Map, Inquiry, or Ontology;
+- visual story packets can be saved into the browser-local route gallery and replayed with the same Map, Inquiry, and Ontology controls as question routes;
 - content-free landing route export packet for sharing saved aggregate visual routes without answer text, ordinance text, locators, review events, or secrets;
 - content-free landing route import that rejects row-text or locator-shaped fields before replaying shared aggregate routes;
 - one-click front-door example questions that apply aggregate topic/tier filters before opening Inquiry, Map, or Ontology;

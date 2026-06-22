@@ -133,6 +133,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert story_payload["map_route"]["previewed_from_typed_question"] is True
             assert story_payload["ontology_route"]["schema_version"] == "evolocus-question-ontology-route-v1"
             assert "answer_excerpt" not in story_payload
+            page.locator(".frontdoor-story-packet [data-frontdoor-story-action='save']").click()
+            page.wait_for_selector(".frontdoor-saved-route.story [data-frontdoor-route-action='map']", timeout=10_000)
+            story_route_text = page.locator(".frontdoor-saved-route.story").first.inner_text(timeout=5_000).lower()
+            assert "story packet" in story_route_text
+            assert "where are zoning enforcement laws in cities" in story_route_text
             page.once("dialog", lambda dialog: dialog.accept())
             page.locator("[data-frontdoor-import-story]").set_input_files(story_download.path())
             page.wait_for_selector(".frontdoor-imported-story [data-frontdoor-imported-story-action='map']", timeout=10_000)
@@ -140,6 +145,8 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "imported story ready" in imported_story_text
             assert "no text" in imported_story_text
             assert "no text, locators, answers, reviews, or secrets" in imported_story_text
+            saved_story_routes_text = page.locator(".frontdoor-saved-routes").inner_text(timeout=5_000).lower()
+            assert "story packet" in saved_story_routes_text
             page.locator(".frontdoor-imported-story [data-frontdoor-imported-story-action='map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
             page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)

@@ -148,3 +148,4 @@
 - Topic playback presets should remain browser-state routes over published aggregate topic counts, not regenerated analysis, row-level evidence, or browser-side model calls.
 - Visual story packets should package Ask -> Map -> Ontology as aggregate route metadata only: typed filters, public unit IDs, counts, ontology nodes, provenance, and explicit no-text/no-answer/no-locator policy flags.
 - Story packet import/replay should validate schema and publication policy, reject raw-text/locator/answer/review/local-path/secret-shaped fields, and replay only aggregate filters, public unit IDs, counts, ontology nodes, and provenance.
+- Story packets become more useful when they can be saved into the existing browser-local route gallery; route exports must still strip answer text and keep only aggregate filters, counts, public unit IDs, ontology nodes, and provenance.

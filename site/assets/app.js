@@ -750,6 +750,7 @@ function frontdoorVisualStoryPacketHtml(question, visibleUnits, summary, selecte
         </div>
         <div class="frontdoor-story-actions">
           <button type="button" data-frontdoor-story-action="export">Download story JSON</button>
+          <button type="button" data-frontdoor-story-action="save">Save story</button>
           <button type="button" data-frontdoor-story-action="map">Open story map</button>
           <button type="button" data-frontdoor-story-action="ask">Ask story</button>
           <button type="button" data-frontdoor-story-action="ontology">Graph story</button>
@@ -880,6 +881,7 @@ function frontdoorImportedStoryHtml() {
           <em>${escapeHtml(story.filename || "story packet")} · ${escapeHtml(story.dataset_revision || "revision unknown")}</em>
         </div>
         <div class="frontdoor-imported-story-actions">
+          <button type="button" data-frontdoor-imported-story-action="save">Save to routes</button>
           <button type="button" data-frontdoor-imported-story-action="map">Replay map</button>
           <button type="button" data-frontdoor-imported-story-action="ask">Replay ask</button>
           <button type="button" data-frontdoor-imported-story-action="ontology">Replay graph</button>
@@ -1025,6 +1027,61 @@ function exportFrontdoorVisualStoryPacket() {
   download("evolocus-visual-story-packet.json", JSON.stringify(payload, null, 2), "application/json");
 }
 
+function saveFrontdoorVisualStoryPacketToGallery(payload = frontdoorVisualStoryPacketPayload(), source = "visual story packet") {
+  const entry = frontdoorVisualStoryRouteEntry(payload, source);
+  state.activeInquiryReplayId = entry.id;
+  saveInquiryResultsLog([entry, ...state.inquiryResultsLog.filter((item) => item.id !== entry.id)]);
+  return entry;
+}
+
+function frontdoorVisualStoryRouteEntry(payload, source) {
+  const storyId = String(payload.route_id || payload.story_id || payload.generated_at || Date.now())
+    .replace(/[^a-zA-Z0-9_-]/g, "")
+    .slice(0, 80);
+  const route = payload.map_route || {};
+  const selected = payload.selected_unit || {};
+  const visibleSummary = sanitizedStorySummary(payload.visible_summary || {});
+  const ontologyRoute = normalizedQuestionOntologyRoute(payload.ontology_route || route.highlight?.ontology_route);
+  return {
+    schema_version: "evolocus-aggregate-inquiry-result-v1",
+    id: `story-packet-${Date.now()}-${storyId || Math.random().toString(16).slice(2)}`,
+    created_at: new Date().toISOString(),
+    source: source || "visual story packet",
+    question: String(payload.story_question || "Aggregate visual story").slice(0, 300),
+    answer_title: "Aggregate visual story packet",
+    answer_excerpt: "Saved story packet preserves Ask -> Map -> Ontology route metadata only; no answer text or ordinance text is included.",
+    disclosure_level: ["overview", "unit", "evidence"].includes(route.disclosure_level) ? route.disclosure_level : "overview",
+    geography_color_mode: route.geography_color_mode || "tier",
+    map_filters: normalizedLogMapFilters(route.filters || {}),
+    filter_labels: Array.isArray(route.filter_labels) ? route.filter_labels.slice(0, 8).map((label) => String(label).slice(0, 80)) : [],
+    question_highlight: route.highlight || frontdoorImportedStoryHighlight(payload, normalizedLogMapFilters(route.filters || {}), route.filter_labels || [], ontologyRoute, visibleSummary),
+    ontology_route: ontologyRoute,
+    selected_unit: selected?.unit_id
+      ? {
+          unit_id: selected.unit_id || null,
+          name: selected.name || null,
+          state: selected.state || null,
+          kind: selected.kind || null,
+          tier_label: selected.neutral_tier || selected.tier_label || null,
+        }
+      : null,
+    visible_summary: {
+      unit_count: Number(visibleSummary.unit_count || 0),
+      law_count: Number(visibleSummary.law_count || 0),
+      substantive_count: Number(visibleSummary.substantive_count || 0),
+      top_topic: visibleSummary.top_topic || null,
+      top_function: visibleSummary.top_function || null,
+      tier_counts: visibleSummary.tier_counts || {},
+    },
+    artifact_provenance: {
+      ...(payload.artifact_provenance || {}),
+      story_packet_schema: payload.schema_version || "unknown",
+      story_packet_saved_at: new Date().toISOString(),
+    },
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
+}
+
 function importFrontdoorVisualStoryPacket(event) {
   const file = event.target.files[0];
   if (!file) {
@@ -1036,12 +1093,13 @@ function importFrontdoorVisualStoryPacket(event) {
       const payload = JSON.parse(String(reader.result || "{}"));
       const importedStory = frontdoorVisualStoryImportPayload(payload, file);
       state.frontdoorImportedStory = importedStory;
+      saveFrontdoorVisualStoryPacketToGallery(importedStory, "imported visual story packet");
       state.frontdoorStoryImportStatus = {
-        status: "imported",
+        status: "imported + saved",
         filename: file.name || "story packet",
         unit_count: importedStory.visible_summary.unit_count || 0,
       };
-      alert("Imported one content-free aggregate visual story packet.");
+      alert("Imported one content-free aggregate visual story packet and saved it to visual routes.");
       event.target.value = "";
       render();
     } catch (error) {
@@ -1265,6 +1323,11 @@ function applyFrontdoorVisualStoryAction(action) {
     exportFrontdoorVisualStoryPacket();
     return;
   }
+  if (action === "save") {
+    saveFrontdoorVisualStoryPacketToGallery(payload, "visual story packet");
+    render();
+    return;
+  }
   state.inquiryMapHighlight = payload.map_route.highlight;
   state.mapFilters = payload.map_route.filters;
   state.geographyColorMode = payload.map_route.geography_color_mode || state.geographyColorMode;
@@ -1291,6 +1354,11 @@ function applyImportedVisualStoryAction(action) {
   if (action === "clear") {
     state.frontdoorImportedStory = null;
     state.frontdoorStoryImportStatus = null;
+    render();
+    return;
+  }
+  if (action === "save") {
+    saveFrontdoorVisualStoryPacketToGallery(story, "imported visual story packet");
     render();
     return;
   }
@@ -1601,11 +1669,12 @@ function frontdoorSavedRouteCardHtml(item, index, maxRows) {
   const width = Math.max(lawCount ? 5 : 0, (lawCount / maxRows) * 100).toFixed(2);
   const filters = item.filter_labels?.length ? item.filter_labels : ["No active filters"];
   const activeClass = item.id === state.activeInquiryReplayId ? " active" : "";
+  const storyRoute = String(item.source || "").includes("story packet") || Boolean(item.artifact_provenance?.story_packet_schema);
   return `
-    <article class="frontdoor-saved-route${activeClass}">
+    <article class="frontdoor-saved-route${activeClass}${storyRoute ? " story" : ""}">
       <div class="frontdoor-saved-route-heading">
         <span>Route ${escapeHtml(String(index + 1))}</span>
-        <em>${escapeHtml(formatDateTime(item.created_at))}</em>
+        <em>${escapeHtml(storyRoute ? `Story packet · ${formatDateTime(item.created_at)}` : formatDateTime(item.created_at))}</em>
       </div>
       <strong>${escapeHtml(item.question || "Aggregate question")}</strong>
       <div class="frontdoor-saved-scale" aria-label="Saved aggregate route scale">
