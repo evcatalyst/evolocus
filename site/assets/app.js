@@ -10395,7 +10395,7 @@ function chartRouteLegendCard() {
         <button type="button" data-chart-route-action="ask">Ask route</button>
         <button type="button" data-chart-route-action="graph">Graph route</button>
       </div>
-      <p class="chart-drilldown-note">The route legend is navigational context, not evidence or legal analysis. It never expands beyond aggregate map, inquiry, and ontology artifacts.</p>
+      <p class="chart-drilldown-note">The route legend is navigational context, not evidence or legal analysis. Chart map actions brush matching counties and towns on the Law Map without expanding beyond aggregate map, inquiry, and ontology artifacts.</p>
     </article>
   `;
 }
@@ -10492,7 +10492,7 @@ function chartCard(title, rows, action = "") {
             const enabled = chartMapFilterEnabled(action, value);
             return `
               <div class="chart-drilldown-line">
-                <button type="button" class="bar-row chart-drilldown-row${enabled ? "" : " disabled"}" ${enabled ? "" : "disabled"} data-chart-map-filter="${escapeHtml(enabled ? action : "")}" data-chart-map-value="${escapeHtml(enabled ? value : "")}">
+                <button type="button" class="bar-row chart-drilldown-row${enabled ? "" : " disabled"}" ${enabled ? "" : "disabled"} data-chart-map-filter="${escapeHtml(enabled ? action : "")}" data-chart-map-value="${escapeHtml(enabled ? value : "")}" data-chart-map-label="${escapeHtml(enabled ? row.label : "")}">
                   <span>${escapeHtml(row.label)}</span>
                   <div><i style="width:${Math.max(3, (Number(row.value || 0) / max) * 100)}%"></i></div>
                   <strong>${escapeHtml(String(row.value))}</strong>
@@ -10504,7 +10504,7 @@ function chartCard(title, rows, action = "") {
           })
           .join("") || "<p>No aggregate rows.</p>"}
       </div>
-      <p class="chart-drilldown-note">Click a row to filter the Law Map, or Ask to open a deterministic Inquiry answer. This changes browser state only.</p>
+      <p class="chart-drilldown-note">Click a row to brush/filter the Law Map, or Ask to open a deterministic Inquiry answer. This changes browser state only.</p>
     </article>
   `;
 }
@@ -10800,7 +10800,39 @@ function chartMapFilterEnabled(action, value) {
   return ["tier", "function", "kind"].includes(action);
 }
 
-function applyChartMapFilter(action, value) {
+function chartBrushQuestion(action, value, label = "", stateCode = "") {
+  const displayLabel = label || value || "current chart scope";
+  if (action === "topic") {
+    return `Brush chart topic ${displayLabel} on the Law Map`;
+  }
+  if (action === "function") {
+    return `Brush chart function ${displayLabel} on the Law Map`;
+  }
+  if (action === "kind") {
+    return `Brush chart unit type ${displayLabel} on the Law Map`;
+  }
+  if (action === "tier") {
+    return `Brush chart neutral tier ${displayLabel} on the Law Map`;
+  }
+  if (action === "state_topic") {
+    return `Brush chart topic ${displayLabel} in ${stateCode || "this state"} on the Law Map`;
+  }
+  if (action === "state") {
+    return `Brush chart state ${stateCode || displayLabel} on the Law Map`;
+  }
+  if (action === "unit") {
+    return `Brush chart unit ${displayLabel} on the Law Map`;
+  }
+  return "Brush current chart scope on the Law Map";
+}
+
+function setChartBrushHighlight(action, value, label = "", stateCode = "") {
+  const units = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const question = chartBrushQuestion(action, value, label, stateCode);
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "charts tab brush", units);
+}
+
+function applyChartMapFilter(action, value, label = "") {
   if (!chartMapFilterEnabled(action, value)) {
     return;
   }
@@ -10812,17 +10844,20 @@ function applyChartMapFilter(action, value) {
     tier: action === "tier" ? value : state.mapFilters.tier,
   };
   state.selectedUnitId = null;
+  setChartBrushHighlight(action, value, label || value);
   state.activeTab = "map";
   render();
 }
 
 function applyChartStateTopicFilter(stateCode, topic) {
+  const validTopic = topic && topic !== "No matching rows" ? topic : "";
   state.mapFilters = {
     ...state.mapFilters,
     state: stateCode || state.mapFilters.state,
-    topic: topic && topic !== "No matching rows" ? topic : state.mapFilters.topic,
+    topic: validTopic || state.mapFilters.topic,
   };
   state.selectedUnitId = null;
+  setChartBrushHighlight(validTopic ? "state_topic" : "state", validTopic || stateCode, validTopic || stateCode, stateCode);
   state.activeTab = "map";
   render();
 }
@@ -11004,11 +11039,12 @@ function applyChartRouteLegend(action) {
   if (action === "map") {
     if (target.action === "view") {
       state.selectedUnitId = null;
+      setChartBrushHighlight("view", "", target.label);
       state.activeTab = "map";
       render();
       return;
     }
-    applyChartMapFilter(target.action, target.value);
+    applyChartMapFilter(target.action, target.value, target.label);
     return;
   }
   if (action === "ask") {
@@ -11018,6 +11054,20 @@ function applyChartRouteLegend(action) {
   if (action === "graph") {
     applyChartOntologyAction(target.action, target.value, target.label);
   }
+}
+
+function openChartUnitOnMap(unitId) {
+  const unit = (state.analysis.mapLayers?.units || []).find((item) => item.unit_id === unitId);
+  if (!unit) {
+    return;
+  }
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    chartBrushQuestion("unit", unit.unit_id, displayUnitName(unit)),
+    "charts tab brush",
+    [unit],
+    summarizeUnits([unit]),
+  );
+  openAuditUnitOnMap(unitId);
 }
 
 function applyChartUnitOntology(unitId) {
@@ -12858,7 +12908,7 @@ function bindEvents() {
     const unitButton = event.target.closest("[data-chart-map-unit]");
     if (unitButton) {
       event.preventDefault();
-      openAuditUnitOnMap(unitButton.dataset.chartMapUnit || "");
+      openChartUnitOnMap(unitButton.dataset.chartMapUnit || "");
       return;
     }
     const stateTopicButton = event.target.closest("[data-chart-state-topic-map]");
@@ -12882,7 +12932,11 @@ function bindEvents() {
     const chartFilterButton = event.target.closest("[data-chart-map-filter]");
     if (chartFilterButton) {
       event.preventDefault();
-      applyChartMapFilter(chartFilterButton.dataset.chartMapFilter || "", chartFilterButton.dataset.chartMapValue || "");
+      applyChartMapFilter(
+        chartFilterButton.dataset.chartMapFilter || "",
+        chartFilterButton.dataset.chartMapValue || "",
+        chartFilterButton.dataset.chartMapLabel || "",
+      );
     }
   });
   $("#audit-panel").addEventListener("click", (event) => {

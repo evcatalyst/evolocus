@@ -125,3 +125,4 @@
 - Map-side ontology filters are useful only when they remain aggregate lenses and peer drillbacks; they must not imply the selected county/town has verified legal relationships, rankings, or row-level evidence on Pages.
 - Chat-to-map highlights should store public aggregate unit IDs and filter metadata only; the visual affordance is navigation context, not evidence that a law controls a place or person.
 - Tier-neighborhood graph nodes should be treated as aggregate navigation affordances from the public map layer, not as a complete legal ontology or proof of controlling authority.
+- Chart brushes should reuse the existing chat-to-map highlight panel so chart exploration visibly lands on counties/towns without creating row-level evidence, source locators, or browser-side model calls.

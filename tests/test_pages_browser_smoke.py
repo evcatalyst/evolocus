@@ -117,6 +117,12 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
 
             page.locator("[data-chart-route-action='map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            chart_brush_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "chat-to-map highlight" in chart_brush_text
+            assert "charts tab brush" in chart_brush_text
+            assert "no browser-side grok call" in chart_brush_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
             page.wait_for_selector(".selected-map-ontology-route [data-selected-route-open='topic']", timeout=10_000)
             page.wait_for_selector(".selected-query-replay [data-selected-query-route='save']", timeout=10_000)
             selected_query_text = page.locator(".selected-query-replay").inner_text(timeout=5_000)

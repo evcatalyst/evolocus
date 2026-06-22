@@ -947,6 +947,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chartMapFilterEnabled" in js
     assert "applyChartMapFilter" in js
     assert "applyChartStateTopicFilter" in js
+    assert "setChartBrushHighlight" in js
+    assert "chartBrushQuestion" in js
+    assert "openChartUnitOnMap" in js
+    assert "charts tab brush" in js
+    assert "Brush chart topic" in js
+    assert "brush/filter the Law Map" in js
     assert "chartInquiryCard" in js
     assert "chartRouteLegendCard" in js
     assert "renderVisualRouteVerification" in js
@@ -969,6 +975,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "focusChartOntologyTier" in js
     assert "data-chart-map-filter" in js
     assert "data-chart-map-value" in js
+    assert "data-chart-map-label" in js
     assert "data-chart-map-unit" in js
     assert "data-chart-state-map" in js
     assert "data-chart-topic-map" in js
@@ -993,7 +1000,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Graph top topic" in js
     assert "Open model graph" in js
     assert "charts tab aggregate ask" in js
-    assert "Click a row to filter the Law Map, or Ask to open a deterministic Inquiry answer. This changes browser state only." in js
+    assert "Click a row to brush/filter the Law Map, or Ask to open a deterministic Inquiry answer. This changes browser state only." in js
     assert "Inquiry answers are generated from published aggregate JSON artifacts" in js
     assert "Topic bars and state cards can route back to the Law Map using aggregate filters only." in js
     assert "api.x.ai" not in js

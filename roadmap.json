@@ -121,6 +121,7 @@
         "Add pathway-cell mini peer comparison visual",
         "Add county/town comparison drawer from Inquiry ontology mini-map nodes",
         "Add Charts-tab aggregate drilldowns back to the county/town map",
+        "Add chart-to-map brushing for aggregate chart routes and chart rows",
         "Add Charts-tab aggregate Ask handoff into deterministic Inquiry",
         "Add Charts-tab aggregate Graph handoff into Ontology",
         "Add animated Charts route legend for progressive disclosure",

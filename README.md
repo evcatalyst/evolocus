@@ -54,6 +54,7 @@ The Pages app supports:
 - filtered-vs-full comparison panels for topic, tier, function, jurisdiction kind, and neutral score means;
 - state/topic small-multiple charts in the Charts tab from the same aggregate map layer;
 - chart-to-map drilldowns from aggregate tier, topic, function, jurisdiction kind, state/topic, and top-unit chart rows;
+- map-linked chart brushing that highlights matching county/town aggregate units after chart rows or route buttons open the Law Map;
 - chart-to-inquiry Ask actions that turn aggregate chart rows into saved deterministic Inquiry answers;
 - chart-to-ontology Graph actions that open the aggregate ontology with chart-scoped filters and selected units;
 - animated Charts route legend for Chart -> Map -> Inquiry -> Ontology progressive disclosure;
@@ -124,6 +125,7 @@ The Pages app supports:
 - selected-unit map-to-ontology route trail with stage buttons that open Ontology at the matching progressive disclosure depth;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
 - aggregate chart rows can open the Law Map with safe browser-only filters or published aggregate unit IDs;
+- aggregate chart map actions now brush matching county/town units in the existing chat-to-map highlight panel;
 - aggregate chart Ask buttons can open Inquiry with the same safe filters and no browser model calls;
 - aggregate chart Graph buttons can open Ontology using the same filters, tier focus, and progressive disclosure boundary;
 - aggregate chart route legend shows the current visual path before opening Map, Inquiry, or Ontology;

@@ -113,6 +113,7 @@ Current coverage stats:
 - Tier mini-chart drilldowns: GitHub Pages topic, function, and unit-type bars apply browser map filters and return to the county/town map
 - Score-band drilldowns: GitHub Pages neutral score mini-chart rows apply relative model-score band filters and return to the county/town map without directional legal interpretation
 - Charts-tab drilldowns: GitHub Pages aggregate tier, topic, function, jurisdiction-kind, state/topic, and top-unit chart rows open the county/town map with browser-only filters or published aggregate unit IDs
+- Charts-to-map brushing: GitHub Pages chart rows and route buttons now highlight matching county/town aggregate units in the existing chat-to-map panel after opening the Law Map
 - Charts-tab inquiry handoff: GitHub Pages chart Ask buttons route aggregate chart scope into deterministic Inquiry answers and saved browser-local inquiry logs without model calls
 - Charts-tab ontology handoff: GitHub Pages chart Graph buttons route aggregate chart scope into the existing Ontology tab with tier focus, ontology layer visibility, and no row text
 - Charts route legend: GitHub Pages animates Chart -> Map -> Inquiry -> Ontology as an aggregate-only progressive disclosure path with route buttons
@@ -271,3 +272,4 @@ Evaluator implementation state:
 - Inquiry replay timeline surface: saved aggregate inquiry entries render as browser-local row/unit sparklines with replay and map actions, excluding text, locators, review events, and browser model calls.
 - Inquiry ontology-chip surface: topic/tier pathway cells now include aggregate topic, tier, and top-unit chips that route to Ontology or Law Map using safe filters and published unit IDs only.
 - Analysis journey surface: GitHub Pages shows a persistent Map -> Inquiry -> Ontology -> Queue Plan strip that routes tabs with aggregate counts, filters, disclosure level, and no row-level data.
+- Chart-brush surface: GitHub Pages chart route buttons and chart rows now open the Law Map with a visible aggregate-only county/town highlight, no raw rows, no locators, and no browser model call.
