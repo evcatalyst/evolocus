@@ -35,6 +35,7 @@ The Pages app supports:
 
 - state-clustered county/town law map units colored by neutral tier;
 - guided Walkthrough tab for the public map -> inquiry -> ontology -> queue plan -> package overlay -> snapshots demo flow;
+- compact analysis journey strip connecting Map -> Inquiry -> Ontology -> Queue Plan with aggregate-only status;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
 - official geography layer toggles for county polygons, town points, and progressive aggregate ontology links;

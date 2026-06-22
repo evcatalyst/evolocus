@@ -44,6 +44,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - Score Lens tab with released model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over published aggregate artifacts;
 - static filter-aware question pack over published aggregate artifacts;
+- compact analysis journey strip connecting Map, Inquiry, Ontology, and Queue Plan with current aggregate status;
 - Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
 - Inquiry topic/tier pathway chart that groups current aggregate units into visual question cells and safe map actions;
 - map-linked ontology chips inside pathway cells for aggregate topic, neutral tier, and top-unit drillback;

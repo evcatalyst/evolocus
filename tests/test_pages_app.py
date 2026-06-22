@@ -13,6 +13,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "import-status" in html
     assert "Walkthrough" in html
     assert "walkthrough-panel" in html
+    assert "analysis-journey" in html
+    assert "Aggregate analysis journey" in html
     assert "Score Lens" in html
     assert "Audit Lens" in html
     assert "Queue Plan" in html
@@ -52,6 +54,13 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Load Demo Package" in html
     assert "localStorage" in js
     assert "renderImportStatus" in js
+    assert "renderAnalysisJourney" in js
+    assert "analysisJourneyStepHtml" in js
+    assert "openAnalysisJourneyStep" in js
+    assert "data-journey-tab" in js
+    assert "Progressive analysis journey" in js
+    assert "Map -&gt; Inquiry -&gt; Ontology -&gt; Queue Plan" in js
+    assert "Public journey steps pass only filters" in js
     assert "importStatusFromPayload" in js
     assert "renderPackageCoverage" in js
     assert "packageCoverageSummary" in js
@@ -216,6 +225,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitOntologyNeighborhoodHtml" in js
     assert "selectedUnitOntologyPathHtml" in js
     assert "selected-disclosure-trail" in css
+    assert "analysis-journey" in css
+    assert "analysis-journey-step" in css
+    assert "analysis-journey-boundary" in css
     assert "selected-ontology-drilldown" in css
     assert "ontology-query-presets" in css
     assert "ontology-query-grid" in css

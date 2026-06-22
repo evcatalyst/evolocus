@@ -33,6 +33,7 @@ flowchart LR
 - Browser JavaScript handles queue review, explorer filters, metrics, local persistence, and exports.
 - Browser JavaScript handles the map, ontology, and static inquiry over `site/data/analysis/`.
 - The Walkthrough tab orchestrates the public map, inquiry, ontology, queue planning, and snapshots into a guided real-aggregate demo flow without adding a separate data publication channel.
+- The persistent analysis journey strip connects Map, Inquiry, Ontology, and Queue Plan steps using only filters, disclosure level, aggregate counts, and published unit IDs.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
 - Inquiry pathway cells group current aggregate map units by dominant topic and neutral tier, then apply safe filters or deterministic aggregate questions without exposing rows.

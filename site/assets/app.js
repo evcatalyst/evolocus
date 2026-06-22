@@ -441,6 +441,7 @@ function render() {
   renderTabs();
   renderToolbar();
   renderImportStatus();
+  renderAnalysisJourney();
   renderArtifactFreshnessBadges();
   renderMap();
   renderWalkthrough();
@@ -469,6 +470,104 @@ function renderToolbar() {
   $("#reviewer-input").value = state.reviewer;
   $("#blind-toggle").checked = state.blind;
   $("#mode-select").value = isSyntheticQueue() ? "demo" : "imported";
+}
+
+function renderAnalysisJourney() {
+  const target = $("#analysis-journey");
+  if (!target) {
+    return;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  const status = state.analysis.status;
+  if (!mapLayers || !status) {
+    target.innerHTML = `
+      <article class="analysis-journey-card loading">
+        <span>Journey loading</span>
+        <strong>Aggregate analysis artifacts</strong>
+        <p>Map, inquiry, ontology, and queue-plan context will appear after static Pages artifacts load.</p>
+      </article>
+    `;
+    return;
+  }
+  const visibleUnits = filterMapUnits(mapLayers.units || []);
+  const summary = summarizeUnits(visibleUnits);
+  const selectedUnit = currentSelectedMapUnit();
+  const packageSummary = packageCoverageSummary();
+  const planCount = Math.min(Number(state.queuePlan.size || 0), visibleUnits.length);
+  const filters = activeFilterLabels();
+  const steps = [
+    {
+      key: "map",
+      tab: "map",
+      label: "1. Law Map",
+      value: `${formatCount(visibleUnits.length)} units`,
+      detail: `${formatCount(summary.lawCount)} aggregate rows${filters.length ? ` · ${filters.slice(0, 2).join(" · ")}` : ""}`,
+      disclosure: "overview",
+    },
+    {
+      key: "inquiry",
+      tab: "inquiry",
+      label: "2. Inquiry",
+      value: summary.topTopic.label || "No topic",
+      detail: `${formatCount(summary.topTopic.value || 0)} rows in top topic · deterministic browser answer`,
+      disclosure: "unit",
+    },
+    {
+      key: "ontology",
+      tab: "ontology",
+      label: "3. Ontology",
+      value: selectedUnit ? displayUnitName(selectedUnit) : summary.topFunction.label,
+      detail: selectedUnit ? `${selectedUnit.state || "NA"} · ${selectedUnit.tier_label || "neutral tier"}` : "topic/function/tier links from aggregate artifacts",
+      disclosure: "unit",
+    },
+    {
+      key: "queueplan",
+      tab: "queueplan",
+      label: "4. Queue Plan",
+      value: `${formatCount(planCount)} candidates`,
+      detail: `${state.queuePlan.strategy.replace(/_/g, " ")} · content-free unit request`,
+      disclosure: "evidence",
+    },
+  ];
+  target.innerHTML = `
+    <div class="analysis-journey-heading">
+      <div>
+        <span>Progressive analysis journey</span>
+        <strong>Map -&gt; Inquiry -&gt; Ontology -&gt; Queue Plan</strong>
+      </div>
+      <em>${escapeHtml(packageSummary.imported ? "Browser-local package overlay active" : "Aggregate-only public path")}</em>
+    </div>
+    <div class="analysis-journey-steps">
+      ${steps.map(analysisJourneyStepHtml).join("")}
+    </div>
+    <p class="analysis-journey-boundary">Public journey steps pass only filters, disclosure level, aggregate counts, and published unit IDs. No ordinance text, source locators, review events, or browser model calls.</p>
+  `;
+}
+
+function analysisJourneyStepHtml(step) {
+  const active = state.activeTab === step.tab ? " active" : "";
+  return `
+    <button type="button" class="analysis-journey-step${active}" data-journey-tab="${escapeHtml(step.tab)}" data-journey-disclosure="${escapeHtml(step.disclosure)}">
+      <span>${escapeHtml(step.label)}</span>
+      <strong>${escapeHtml(step.value)}</strong>
+      <em>${escapeHtml(step.detail)}</em>
+    </button>
+  `;
+}
+
+function openAnalysisJourneyStep(tab, disclosure) {
+  if (["overview", "unit", "evidence"].includes(disclosure)) {
+    state.disclosureLevel = disclosure;
+  }
+  if (tab === "ontology" && !state.ontologyFocusTier) {
+    const selectedUnit = currentSelectedMapUnit();
+    const tier = selectedUnit?.tier || selectedUnit?.tier_label || state.mapFilters.tier || "";
+    if (tier) {
+      state.ontologyFocusTier = tier;
+    }
+  }
+  state.activeTab = tab || "map";
+  render();
 }
 
 function renderImportStatus() {
@@ -8218,6 +8317,13 @@ function bindEvents() {
   $("#queue-import").addEventListener("change", importQueue);
   $("#export-events").addEventListener("click", exportEvents);
   $("#export-latest").addEventListener("click", exportLatestCsv);
+  $("#analysis-journey").addEventListener("click", (event) => {
+    const stepButton = event.target.closest("[data-journey-tab]");
+    if (!stepButton) {
+      return;
+    }
+    openAnalysisJourneyStep(stepButton.dataset.journeyTab, stepButton.dataset.journeyDisclosure);
+  });
   $("#previous-record").addEventListener("click", () => {
     state.currentIndex = Math.max(0, state.currentIndex - 1);
     render();

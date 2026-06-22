@@ -71,6 +71,7 @@
 - Browser exports for public sharing should export aggregate filter state and visible summaries, not record-level evaluation queues or local review history.
 - Saved visual comparison state can live in browser localStorage when it stores only aggregate snapshot payloads and never imported queue text or review events.
 - A public walkthrough is useful when it orchestrates already-validated aggregate artifacts instead of creating a new path for raw rows, source locators, or model secrets.
+- A persistent journey strip should expose the public analysis path and route tabs with filters/disclosure only, so users understand progression without expanding data publication.
 - A public refresh control can safely live on GitHub Pages when it opens the GitHub Actions workflow only and never performs browser-side model calls or embeds secret names in JavaScript.
 - Freshness badges belong on primary map and inquiry views, not only status tabs, because users need artifact age and aggregate-only boundaries before trusting a visual or answer.
 - Refresh-source details should distinguish the Polars aggregate build from offline briefing refreshes so the public map does not imply every deployed asset was regenerated in the same workflow.

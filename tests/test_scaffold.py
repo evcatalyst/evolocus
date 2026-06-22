@@ -116,6 +116,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "walkthrough-disclosure" in html
     assert "walkthrough-gates" in html
     assert "public real-aggregate demo path" in html
+    assert "analysis-journey" in html
+    assert "Aggregate analysis journey" in html
     assert "Inquiry" in html
     assert "Snapshots" in html
     assert "Score Lens" in html
@@ -221,6 +223,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Ask about this unit" in js
     assert "STORAGE_IMPORT_STATUS" in js
     assert "renderImportStatus" in js
+    assert "renderAnalysisJourney" in js
+    assert "analysisJourneyStepHtml" in js
+    assert "openAnalysisJourneyStep" in js
+    assert "data-journey-tab" in js
+    assert "Progressive analysis journey" in js
+    assert "Map -&gt; Inquiry -&gt; Ontology -&gt; Queue Plan" in js
+    assert "Public journey steps pass only filters" in js
     assert "importStatusFromPayload" in js
     assert "renderPackageCoverage" in js
     assert "packageCoverageSummary" in js
@@ -383,6 +392,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-ontology-lane" in css
     assert "package-ontology-bars" in css
     assert "selected-disclosure-trail" in css
+    assert "analysis-journey" in css
+    assert "analysis-journey-step" in css
+    assert "analysis-journey-boundary" in css
     assert "selected-disclosure-step" in css
     assert "selected-ontology-drilldown" in css
     assert "ontology-query-presets" in css

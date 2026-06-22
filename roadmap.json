@@ -94,7 +94,8 @@
         "Add replay controls for saved aggregate inquiry logs",
         "Add Inquiry topic/tier pathway chart",
         "Add replay timeline for saved aggregate inquiry logs",
-        "Add map-linked ontology chips for Inquiry pathway cells"
+        "Add map-linked ontology chips for Inquiry pathway cells",
+        "Add persistent analysis journey strip"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"
