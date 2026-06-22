@@ -307,7 +307,7 @@
     "top_topic": "Other (407704)",
     "unit_count": 1000
   },
-  "generated_at": "2026-06-21T18:58:46.702559+00:00",
+  "generated_at": "2026-06-22T04:25:08.601564+00:00",
   "generator": "evolocus-static-progressive-inquiry",
   "grok": {
     "docs": "https://docs.x.ai/overview",
@@ -317,7 +317,7 @@
     "secret_env": "GROK_API_KEY",
     "used": true
   },
-  "grok_summary": "The EvoLOCUS aggregate covers 50 states and 1,000 units (823 cities, 177 counties) drawn from 1,517,672 laws. Ontology contains 1,018 nodes and 3,000 edges. Matches total 815 municipal and 177 county. Tiers are balanced (334/333/333); top function is Rules (962,831) and top topic is Other (407,704). Raw ordinance text is not published. Model-produced scores remain neutral unless direction is verified. Dataset revision: main.",
+  "grok_summary": "EvoLOCUS aggregate covers 1,517,672 laws from 1,000 units (823 cities, 177 counties) across 50 states. Ontology comprises 1,018 nodes and 3,000 edges; rules lead functions (962,831) and \u201cOther\u201d leads topics (407,704). Raw ordinance text is not published. Model-produced scores remain neutral unless direction is verified. Dataset revision: main.",
   "license": "CC-BY-NC-4.0",
   "paper": "https://arxiv.org/abs/2606.19334",
   "publication_policy": {

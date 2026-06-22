@@ -29,14 +29,15 @@
       "value": 407704
     }
   },
-  "generated_at": "2026-06-21T21:23:58.908993+00:00",
+  "generated_at": "2026-06-22T04:25:14.282844+00:00",
   "generator": "evolocus-static-question-pack",
   "grok": {
     "error": null,
     "model": "grok-4.3",
     "secret_env": "GROK_API_KEY",
-    "used": false
+    "used": true
   },
+  "grok_note": "Use this filter-aware pack\u2019s eight prompts (Current view, CA focus, Other topic, Rules function, Tier 1 tier, Audit signals, Selected unit, Local package) from dataset main to explore aggregate facts only. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
   "license": "CC-BY-NC-4.0",
   "paper": "https://arxiv.org/abs/2606.19334",
   "prompts": [
@@ -258,7 +259,7 @@
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-21T18:58:46.702559+00:00",
+      "generated_at": "2026-06-22T04:25:08.601564+00:00",
       "id": "inquiry_briefings",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-progressive-inquiry-v1",
