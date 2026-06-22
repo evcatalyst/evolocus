@@ -556,6 +556,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitAnswer" in js
     assert "inquiryAnswerMiniChartsHtml" in js
     assert "inquiryAnswerFreshnessHtml" in js
+    assert "inquiry-answer-route-source" in js
+    assert "Route source:" in js
     assert "inquiryAnswerFreshnessBadgeHtml" in js
     assert "inquiryAnswerQuestionMapCardsHtml" in js
     assert "inquiryAnswerTierColorRows" in js
@@ -979,6 +981,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "offline-refresh-grid" in css
     assert "offline-refresh-boundary" in css
     assert "inquiry-answer-freshness" in css
+    assert "inquiry-answer-route-source" in css
     assert "inquiry-answer-freshness-heading" in css
     assert "inquiry-answer-freshness-grid" in css
     assert "selected-disclosure-step" in css
@@ -1037,10 +1040,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chart-question-chip-card" in css
     assert "chart-question-chip-grid" in css
     assert "chart-question-chip" in css
+    assert "chart-question-chip-wrap" in css
+    assert "chart-question-share" in css
     assert "chart-route-legend-card" in css
     assert "chart-route-strip" in css
     assert "chart-route-stage" in css
     assert "chart-route-actions" in css
+    assert "chart-route-share-card" in css
+    assert "chart-route-share-actions" in css
     assert "chartRoutePulse" in css
     assert "chart-inquiry-actions" in css
     assert "chart-inquiry-chip" in css
@@ -1346,6 +1353,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chartQuestionChipRows" in js
     assert "chartQuestionChipHtml" in js
     assert "applyChartQuestionChip" in js
+    assert "shareChartQuestionChip" in js
     assert "Chart-to-chat question chips" in js
     assert "Reusable questions from current aggregate charts." in js
     assert "Question chips are generated from visible aggregate chart rows" in js
@@ -1359,6 +1367,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chartRouteTarget" in js
     assert "chartRouteStageHtml" in js
     assert "applyChartRouteLegend" in js
+    assert "chartRouteShareHtml" in js
+    assert "chartPresetFilters" in js
+    assert "chartPresetRouteItem" in js
+    assert "shareChartPresetRoute" in js
     assert "chartInquiryButton" in js
     assert "applyChartInquiryAction" in js
     assert "applyChartUnitInquiry" in js
@@ -1379,6 +1391,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-chart-inquiry-state" in js
     assert "data-chart-inquiry-label" in js
     assert "data-chart-question-chip" in js
+    assert "data-chart-question-share" in js
     assert "data-chart-question-value" in js
     assert "data-chart-question-state" in js
     assert "data-chart-question-label" in js
@@ -1387,6 +1400,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-chart-ontology-state" in js
     assert "data-chart-ontology-label" in js
     assert "data-chart-route-action" in js
+    assert "Share map route" in js
+    assert "Share graph route" in js
+    assert "Shareable chart/filter route" in js
+    assert "charts tab shareable route" in js
     assert "Progressive chart route" in js
     assert "Chart -> Map -> Inquiry -> Ontology" in js
     assert "Animated chart route legend" in js

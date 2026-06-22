@@ -11874,6 +11874,12 @@ th {
   gap: 8px;
 }
 
+.chart-question-chip-wrap {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
 .chart-question-chip {
   display: grid;
   gap: 4px;
@@ -11916,6 +11922,22 @@ th {
   font-size: 0.7rem;
   font-style: normal;
   line-height: 1.25;
+}
+
+.chart-question-share {
+  min-height: 32px;
+  border-color: rgba(50, 111, 112, 0.2);
+  background: #ffffff;
+  color: var(--green);
+  padding: 6px 8px;
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.chart-question-share:hover,
+.chart-question-share:focus-visible {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.1);
 }
 
 .chart-route-legend-card {
@@ -12034,6 +12056,98 @@ th {
 .chart-route-actions button {
   border-color: rgba(36, 95, 159, 0.26);
   background: #f4f8fd;
+}
+
+.chart-route-share-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 1.35fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-top: 12px;
+  border: 1px solid rgba(36, 95, 159, 0.2);
+  border-radius: 8px;
+  background: #f8fbff;
+  padding: 10px;
+}
+
+.chart-route-share-card div,
+.chart-route-share-card label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.chart-route-share-card span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.chart-route-share-card strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.chart-route-share-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.chart-route-share-card input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 7px 8px;
+  font-size: 0.78rem;
+}
+
+.chart-route-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.chart-route-share-actions a,
+.chart-route-share-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border: 1px solid rgba(36, 95, 159, 0.24);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--blue);
+  padding: 7px 9px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.chart-route-share-actions a:hover,
+.chart-route-share-actions a:focus-visible,
+.chart-route-share-actions button:hover,
+.chart-route-share-actions button:focus-visible {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(36, 95, 159, 0.1);
+}
+
+.inquiry-answer-route-source {
+  display: inline-block;
+  margin: 0 0 8px;
+  border: 1px solid rgba(50, 111, 112, 0.18);
+  border-radius: 999px;
+  background: #f8fbfa;
+  color: var(--green);
+  padding: 5px 8px;
+  font-size: 0.76rem;
+  font-weight: 850;
 }
 
 @keyframes chartRoutePulse {
@@ -12323,6 +12437,7 @@ th {
   .chart-question-chip-grid,
   .chart-route-heading,
   .chart-route-strip,
+  .chart-route-share-card,
   .chart-drilldown-line,
   .ai-analysis-pack-heading,
   .ai-analysis-pack-status,

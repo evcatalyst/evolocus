@@ -164,3 +164,4 @@
 - Ontology peer-link legends should explain aggregate link reasons as navigation lenses and must explicitly deny legal-authority, ranking, source-record, or controlling-law meaning.
 - Saved route ladders should show the map-to-inquiry journey as aggregate metadata stages: question, filters, map color, selected unit, ontology, and publication boundary, never as law text, source locators, review events, or live model calls.
 - Shareable route URLs should encode only bounded aggregate route state and reconstruct current visuals from public artifacts, not embed ordinance text, source locators, review events, local paths, or model outputs.
+- Chart/filter share links should turn visual presets into reproducible aggregate routes while making the source visible in Inquiry answers and keeping all row text, locators, and review state out of the URL.

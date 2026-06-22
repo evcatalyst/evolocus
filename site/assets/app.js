@@ -302,6 +302,7 @@ let state = {
   frontdoorComposerQuestion: "",
   frontdoorRouteImportStatus: null,
   frontdoorRouteShareStatus: null,
+  chartRouteShareStatus: null,
   frontdoorStoryImportStatus: null,
   frontdoorImportedStory: null,
   pendingShareableRoute: null,
@@ -12178,6 +12179,7 @@ function inquiryAnswerHtml(answer) {
   return `
     <h3>${escapeHtml(answer.title)}</h3>
     ${inquiryAnswerFreshnessHtml()}
+    ${answer.source ? `<p class="inquiry-answer-route-source">Route source: ${escapeHtml(answer.source)} · aggregate metadata only</p>` : ""}
     <p>${escapeHtml(answer.answer)}</p>
     ${inquiryAnswerQuestionMapCardsHtml(answer)}
     ${inquiryAnswerFilterChipsHtml(answer)}
@@ -15322,9 +15324,37 @@ function chartRouteLegendCard() {
         <button type="button" data-chart-route-action="map">Open map route</button>
         <button type="button" data-chart-route-action="ask">Ask route</button>
         <button type="button" data-chart-route-action="graph">Graph route</button>
+        <button type="button" data-chart-route-action="share-map">Share map route</button>
+        <button type="button" data-chart-route-action="share-graph">Share graph route</button>
       </div>
+      ${chartRouteShareHtml()}
       <p class="chart-drilldown-note">The route legend is navigational context, not evidence or legal analysis. Chart map actions brush matching counties and towns on the Law Map without expanding beyond aggregate map, inquiry, and ontology artifacts.</p>
     </article>
+  `;
+}
+
+function chartRouteShareHtml() {
+  const status = state.chartRouteShareStatus;
+  if (!status) {
+    return "";
+  }
+  return `
+    <section class="chart-route-share-card ${escapeHtml(status.status || "ready")}" aria-label="Shareable chart filter route">
+      <div>
+        <span>Shareable chart/filter route</span>
+        <strong>${escapeHtml(status.title || "Content-free chart route is ready.")}</strong>
+        <p>${escapeHtml(status.message || "Links encode aggregate filters, map color, disclosure level, selected public unit ID, and ontology route context only.")}</p>
+      </div>
+      ${
+        status.url
+          ? `<label><span>URL</span><input type="url" readonly value="${escapeHtml(status.url)}" aria-label="Shareable chart filter route URL"></label>`
+          : ""
+      }
+      <div class="chart-route-share-actions">
+        ${status.url ? `<a href="${escapeHtml(status.url)}" target="_blank" rel="noopener noreferrer">Open link</a>` : ""}
+        <button type="button" data-chart-route-clear-share>Clear</button>
+      </div>
+    </section>
   `;
 }
 
@@ -15488,11 +15518,14 @@ function chartQuestionChipRow(action, value, label, detail, stateCode = "", ques
 
 function chartQuestionChipHtml(row) {
   return `
-    <button type="button" class="chart-question-chip" data-chart-question-chip="${escapeHtml(row.action)}" data-chart-question-value="${escapeHtml(row.value)}" data-chart-question-state="${escapeHtml(row.stateCode || "")}" data-chart-question-label="${escapeHtml(row.questionLabel || row.label)}">
-      <span>${escapeHtml(row.label)}</span>
-      <strong>${escapeHtml(row.question)}</strong>
-      <em>${escapeHtml(row.detail)}</em>
-    </button>
+    <div class="chart-question-chip-wrap">
+      <button type="button" class="chart-question-chip" data-chart-question-chip="${escapeHtml(row.action)}" data-chart-question-value="${escapeHtml(row.value)}" data-chart-question-state="${escapeHtml(row.stateCode || "")}" data-chart-question-label="${escapeHtml(row.questionLabel || row.label)}">
+        <span>${escapeHtml(row.label)}</span>
+        <strong>${escapeHtml(row.question)}</strong>
+        <em>${escapeHtml(row.detail)}</em>
+      </button>
+      <button type="button" class="chart-question-share" data-chart-question-share="${escapeHtml(row.action)}" data-chart-question-value="${escapeHtml(row.value)}" data-chart-question-state="${escapeHtml(row.stateCode || "")}" data-chart-question-label="${escapeHtml(row.questionLabel || row.label)}">Share</button>
+    </div>
   `;
 }
 
@@ -15501,6 +15534,13 @@ function applyChartQuestionChip(action, value, label = "", stateCode = "") {
     return;
   }
   applyChartInquiryAction(action, value, label, stateCode);
+}
+
+function shareChartQuestionChip(action, value, label = "", stateCode = "") {
+  if (!action) {
+    return;
+  }
+  shareChartPresetRoute(action, value, label, stateCode, "inquiry");
 }
 
 function chartCard(title, rows, action = "") {
@@ -16059,6 +16099,11 @@ function applyChartRouteLegend(action) {
   const mapLayers = state.analysis.mapLayers;
   const summary = summarizeUnits(mapLayers ? filterMapUnits(mapLayers.units || []) : []);
   const target = chartRouteTarget(summary, mapLayers);
+  if (action === "share-map" || action === "share-graph" || action === "share-ask") {
+    const destination = action === "share-graph" ? "ontology" : action === "share-ask" ? "inquiry" : "map";
+    shareChartPresetRoute(target.action, target.value, target.label, "", destination);
+    return;
+  }
   if (action === "map") {
     if (target.action === "view") {
       state.selectedUnitId = null;
@@ -16077,6 +16122,94 @@ function applyChartRouteLegend(action) {
   if (action === "graph") {
     applyChartOntologyAction(target.action, target.value, target.label);
   }
+}
+
+function chartPresetFilters(action, value, stateCode = "") {
+  const nextFilters = { ...state.mapFilters };
+  if (action === "topic" && chartMapFilterEnabled("topic", value)) {
+    nextFilters.topic = value;
+  }
+  if (action === "function" && chartMapFilterEnabled("function", value)) {
+    nextFilters.function = value;
+  }
+  if (action === "kind" && chartMapFilterEnabled("kind", value)) {
+    nextFilters.kind = normalizePackageKind(value);
+  }
+  if (action === "tier" && chartMapFilterEnabled("tier", value)) {
+    nextFilters.tier = value;
+  }
+  if (action === "state") {
+    nextFilters.state = value || stateCode || nextFilters.state;
+  }
+  if (action === "state_topic") {
+    nextFilters.state = stateCode || nextFilters.state;
+    nextFilters.topic = value || nextFilters.topic;
+  }
+  return normalizedLogMapFilters(nextFilters);
+}
+
+function chartPresetRouteItem(action, value, label = "", stateCode = "") {
+  const mapLayers = state.analysis.mapLayers;
+  const allUnits = mapLayers?.units || [];
+  const filters = chartPresetFilters(action, value, stateCode);
+  const selectedUnit = action === "unit" ? allUnits.find((unit) => unit.unit_id === value) : null;
+  const routeUnits = selectedUnit ? [selectedUnit] : filterMapUnitsWithFilters(allUnits, filters);
+  const summary = summarizeUnits(routeUnits);
+  const question = chartInquiryQuestion(action, value, label, stateCode);
+  const ontologyRoute = questionOntologyRouteFromUnits(question, "charts tab shareable route", routeUnits, filters, summary);
+  const selected = selectedUnit || summary.topUnit || null;
+  return {
+    schema_version: "evolocus-aggregate-inquiry-result-v1",
+    id: `chart-share-${Date.now()}-${String(action || "view").replace(/[^a-z0-9_-]/gi, "")}`,
+    created_at: new Date().toISOString(),
+    source: "charts tab shareable route",
+    question,
+    answer_title: "Shared aggregate chart/filter route",
+    answer_excerpt: "Content-free route metadata generated from the current aggregate Charts view.",
+    disclosure_level: action === "unit" ? "unit" : state.disclosureLevel,
+    geography_color_mode: action === "score" ? "score" : state.geographyColorMode,
+    map_filters: filters,
+    filter_labels: mapComposerFilterLabels(filters),
+    selected_unit: selected
+      ? {
+          unit_id: selected.unit_id,
+          name: displayUnitName(selected),
+          state: selected.state || null,
+          kind: selected.kind || null,
+          tier_label: selected.tier_label || null,
+        }
+      : null,
+    question_highlight: inquiryMapHighlightFromOntologyRoute(question, "charts tab shareable route", ontologyRoute, mapComposerFilterLabels(filters)),
+    ontology_route: ontologyRoute,
+    visible_summary: {
+      unit_count: routeUnits.length,
+      law_count: summary.lawCount,
+      substantive_count: summary.substantiveCount,
+      top_topic: summary.topTopic,
+      top_function: summary.topFunction,
+      tier_counts: summary.tierCounts,
+    },
+    artifact_provenance: {
+      dataset_id: state.analysis.status?.dataset_id || "LocalLaws/LOCUS-v1",
+      dataset_revision: state.analysis.status?.dataset_revision || mapLayers?.dataset_revision || "unknown",
+      chart_generated_at: state.analysis.charts?.generated_at || null,
+      map_generated_at: mapLayers?.generated_at || null,
+      browser_model_call: false,
+    },
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
+}
+
+function shareChartPresetRoute(action, value, label = "", stateCode = "", destination = "map") {
+  const item = chartPresetRouteItem(action || "view", value || "", label || "", stateCode || "");
+  const share = frontdoorShareRouteUrl(item, destination);
+  state.chartRouteShareStatus = {
+    status: "ready",
+    title: `${titleCase(share.payload.destination)} chart/filter link ready.`,
+    message: "This content-free URL restores the aggregate chart filter route, map color, selected public unit, disclosure level, and ontology context only.",
+    url: share.url,
+  };
+  render();
 }
 
 function openChartUnitOnMap(unitId) {
@@ -18195,10 +18328,28 @@ function bindEvents() {
     render();
   });
   $("#results-panel").addEventListener("click", (event) => {
+    const clearChartShare = event.target.closest("[data-chart-route-clear-share]");
+    if (clearChartShare) {
+      event.preventDefault();
+      state.chartRouteShareStatus = null;
+      render();
+      return;
+    }
     const routeButton = event.target.closest("[data-chart-route-action]");
     if (routeButton) {
       event.preventDefault();
       applyChartRouteLegend(routeButton.dataset.chartRouteAction || "");
+      return;
+    }
+    const chartQuestionShare = event.target.closest("[data-chart-question-share]");
+    if (chartQuestionShare) {
+      event.preventDefault();
+      shareChartQuestionChip(
+        chartQuestionShare.dataset.chartQuestionShare || "",
+        chartQuestionShare.dataset.chartQuestionValue || "",
+        chartQuestionShare.dataset.chartQuestionLabel || "",
+        chartQuestionShare.dataset.chartQuestionState || "",
+      );
       return;
     }
     const chartOntologyButton = event.target.closest("[data-chart-ontology-action]");

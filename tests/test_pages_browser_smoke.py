@@ -355,6 +355,33 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='map']", timeout=10_000)
             assert page.locator("#results-panel").evaluate("element => element.classList.contains('active')")
+            page.locator(".chart-route-legend-card [data-chart-route-action='share-map']").click()
+            page.wait_for_selector(".chart-route-share-card input", timeout=10_000)
+            chart_share_text = page.locator(".chart-route-share-card").inner_text(timeout=5_000).lower()
+            assert "shareable chart/filter route" in chart_share_text
+            assert "content-free" in chart_share_text
+            chart_share_map_url = page.locator(".chart-route-share-card input").input_value(timeout=5_000)
+            assert "?route=" in chart_share_map_url
+            page.goto(chart_share_map_url, wait_until="networkidle")
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            chart_shared_map_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "shareable aggregate route url" in chart_shared_map_text
+            assert "no browser-side grok call" in chart_shared_map_text
+            page.locator("[data-tab='results']").click()
+            page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='share-graph']", timeout=10_000)
+            page.locator(".chart-route-legend-card [data-chart-route-action='share-graph']").click()
+            page.wait_for_selector(".chart-route-share-card input", timeout=10_000)
+            chart_share_graph_url = page.locator(".chart-route-share-card input").input_value(timeout=5_000)
+            assert "?route=" in chart_share_graph_url
+            page.goto(chart_share_graph_url, wait_until="networkidle")
+            page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
+            page.wait_for_selector("#ontology-panel .question-ontology-route", timeout=10_000)
+            chart_shared_graph_text = page.locator("#ontology-panel .question-ontology-route").first.inner_text(timeout=5_000).lower()
+            assert "ontology-backed route" in chart_shared_graph_text
+            assert "no row text" in chart_shared_graph_text
+            page.locator("[data-tab='results']").click()
+            page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='map']", timeout=10_000)
 
             page.locator("[data-chart-route-action='map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
@@ -480,6 +507,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "chart-to-chat question chips" in chart_chip_text
             assert "reusable questions from current aggregate charts" in chart_chip_text
             assert "no browser model" in chart_chip_text
+            page.locator(".chart-question-chip-card [data-chart-question-share]").first.click()
+            page.wait_for_selector(".chart-route-share-card input", timeout=10_000)
+            chart_chip_share_url = page.locator(".chart-route-share-card input").input_value(timeout=5_000)
+            assert "?route=" in chart_chip_share_url
+            page.goto(chart_chip_share_url, wait_until="networkidle")
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
+            chart_chip_shared_answer = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
+            assert "shareable aggregate route url" in chart_chip_shared_answer
+            assert "no browser model call" in chart_chip_shared_answer
+            page.locator("[data-tab='results']").click()
+            page.wait_for_selector(".chart-question-chip-card [data-chart-question-chip]", timeout=10_000)
             page.locator(".chart-question-chip-card [data-chart-question-chip]").first.click()
             page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
             page.wait_for_selector("#inquiry-answer .inquiry-answer-freshness", timeout=10_000)
