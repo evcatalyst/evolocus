@@ -257,6 +257,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "score-visual-grid" in html
     assert "score-state-grid" in html
     assert "score-unit-list" in html
+    assert "model-import-status" in html
     assert "audit-summary-grid" in html
     assert "audit-visual-grid" in html
     assert "audit-state-grid" in html
@@ -1001,6 +1002,16 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontology-build-status" in html
     assert "ontologyBuildStatusHtml" in js
     assert "ontologyBuildCardHtml" in js
+    assert "modelImportStatusHtml" in js
+    assert "modelImportCardHtml" in js
+    assert "modelOutputCardHtml" in js
+    assert "applyModelStatusAction" in js
+    assert "data-model-status-action" in js
+    assert "Model import status" in js
+    assert "Released model outputs, not browser inference." in js
+    assert "HF model imports" in js
+    assert "Score direction" in js
+    assert "Model cards are pending verification" in js
     assert "Ontology build status" in js
     assert "Graph freshness and artifact provenance." in js
     assert "ontology.json + models.json" in js
@@ -1010,6 +1021,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontology-build-flow" in css
     assert "ontology-build-grid" in css
     assert "ontology-build-boundary-grid" in css
+    assert "model-import-status" in css
+    assert "model-import-flow" in css
+    assert "model-import-grid" in css
+    assert "model-output-grid" in css
+    assert "model-output-card.score" in css
     assert "geographyDatumColor" in js
     assert "geographyColorLegend" in js
     assert "modelSubstantiveShare" in js
@@ -1178,7 +1194,19 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
         assert 0 <= layout["x"] <= 100
         assert 0 <= layout["y"] <= 86
     assert models["import_policy"]["status"] == "released_dataset_outputs_imported"
+    assert models["import_policy"]["hf_model_downloads"] == "deferred_until_model_cards_are_verified"
+    assert models["import_policy"]["score_direction"] == "unverified"
     assert models["grok"]["forbidden_use"] == "embedding the key in GitHub Pages JavaScript"
+    assert len(models["models"]) == 7
+    assert {model["output_field"] for model in models["models"]} >= {
+        "is_substantive",
+        "function",
+        "topic",
+        "enforcement_discretion",
+        "opacity",
+        "paternalism",
+        "problem_salience",
+    }
     assert charts["synthetic"] is False
     assert charts["charts"]["tier_counts"]
     assert charts["charts"]["score_means"]

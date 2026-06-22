@@ -139,3 +139,4 @@
 - Tier-color drilldowns should explain visible aggregate county/town map colors with counts and graph routes, not as rankings, controlling legal authority, or source-backed findings.
 - Chart-to-chat question chips should make aggregate chart rows reusable as deterministic Inquiry prompts while preserving the no-row-text and no-browser-model boundary.
 - Selected-unit ontology route comparisons should compare aggregate navigation stages, not rank legal authority or imply that a law controls a person, parcel, or dispute.
+- Model import/status surfaces should distinguish released dataset output columns from executable model-weight imports, especially while score direction and model cards remain unverified.

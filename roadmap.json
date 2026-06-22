@@ -54,6 +54,7 @@
         "Add map-side chat-style inquiry panel for current aggregate filters",
         "Add chat-to-map highlighting for deterministic aggregate question routes",
         "Add ontology tier-neighborhood graph for topic/function/unit-type/model-score drillbacks",
+        "Add model import/status cards for released LOCUS output columns",
         "Add inquiry-driven county/town comparison strip with map drillback",
         "Add selected-unit progressive visual trail on the map panel",
         "Add selected-unit ontology drilldown cards on the map panel",

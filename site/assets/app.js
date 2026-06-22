@@ -6383,6 +6383,7 @@ function renderOntology() {
   const ontology = state.analysis.ontology;
   const models = state.analysis.models;
   const buildStatus = $("#ontology-build-status");
+  const modelImportStatus = $("#model-import-status");
   const queryPresets = $("#ontology-query-presets");
   const tierFocus = $("#ontology-tier-focus");
   const selectedNeighborhood = $("#selected-ontology-neighborhood");
@@ -6399,6 +6400,9 @@ function renderOntology() {
     }
     if (buildStatus) {
       buildStatus.innerHTML = "<p>Ontology build status loading.</p>";
+    }
+    if (modelImportStatus) {
+      modelImportStatus.innerHTML = "<p>Model import status loading.</p>";
     }
     if (tierFocus) {
       tierFocus.innerHTML = "<p>Tier ontology focus loading.</p>";
@@ -6432,6 +6436,9 @@ function renderOntology() {
   if (buildStatus) {
     buildStatus.innerHTML = ontologyBuildStatusHtml(ontology, models);
   }
+  if (modelImportStatus) {
+    modelImportStatus.innerHTML = modelImportStatusHtml(models, ontology);
+  }
   $("#ontology-node-list").innerHTML = (ontology.nodes || [])
     .slice(0, 80)
     .map((node) => `<span>${escapeHtml(node.type)} · ${escapeHtml(node.label)}${node.count ? ` (${escapeHtml(String(node.count))})` : ""}</span>`)
@@ -6463,6 +6470,114 @@ function renderOntology() {
         )
         .join("")
     : "<span>Model registry loading</span>";
+}
+
+function modelImportStatusHtml(models, ontology) {
+  if (!models) {
+    return `
+      <section class="model-import-status" aria-label="Model import status cards">
+        <div class="model-import-heading">
+          <div>
+            <p class="eyebrow">Model import status</p>
+            <h3>Released LOCUS model-output registry loading.</h3>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+  const rows = models.models || [];
+  const scoreRows = rows.filter((model) => SCORE_FIELDS.includes(model.output_field) || String(model.task || "").includes("score"));
+  const classifierRows = rows.filter((model) => !scoreRows.includes(model));
+  const releasedRows = rows.filter((model) => model.status === "released_column");
+  const verifiedScoreRows = scoreRows.filter((model) => model.direction_verified === true);
+  const policy = models.import_policy || {};
+  const grok = models.grok || {};
+  const mapLayers = state.analysis.mapLayers || {};
+  const latest = latestIso([models.generated_at, ontology?.generated_at, mapLayers.generated_at]);
+  const cards = [
+    ["Registry artifact", `${formatCount(rows.length)} output fields`, `${models.schema_version || "schema unknown"} · generated ${formatDateTime(models.generated_at)}`],
+    ["Released columns", formatCount(releasedRows.length), `${formatCount(classifierRows.length)} classifiers · ${formatCount(scoreRows.length)} continuous score fields`],
+    ["HF model imports", titleCase(policy.hf_model_downloads || "not recorded"), "Executable model downloads are deferred until model cards are reviewed."],
+    ["Score direction", scoreRows.length === verifiedScoreRows.length && scoreRows.length ? "verified" : "unverified", "Display as neutral relative model scores until authoritative direction is verified."],
+    ["Browser model calls", "none", "Pages reads static aggregate artifacts only; no model endpoint is called from the browser."],
+  ];
+  return `
+    <section class="model-import-status" aria-label="Model import status cards">
+      <div class="model-import-heading">
+        <div>
+          <p class="eyebrow">Model import status</p>
+          <h3>Released model outputs, not browser inference.</h3>
+          <p>EvoLOCUS currently imports LOCUS-v1 released model-output columns into aggregate artifacts. It has not imported executable Hugging Face model weights into the public site.</p>
+        </div>
+        <span>${escapeHtml(latest ? `${formatDateTime(latest)} · ${artifactAgeLabel(latest)}` : "artifact timestamps loading")}</span>
+      </div>
+      <div class="model-import-flow" aria-label="Model import flow">
+        <span>LOCUS-v1 released columns</span>
+        <b aria-hidden="true">&rarr;</b>
+        <span>Local Polars aggregate artifacts</span>
+        <b aria-hidden="true">&rarr;</b>
+        <span>Pages map, charts, inquiry, and ontology</span>
+      </div>
+      <div class="model-import-grid">
+        ${cards.map(([label, value, detail]) => modelImportCardHtml(label, value, detail)).join("")}
+      </div>
+      <div class="model-output-grid" aria-label="Released model output fields">
+        ${rows.map(modelOutputCardHtml).join("")}
+      </div>
+      <p class="model-import-boundary">Model cards are pending verification; score direction remains unverified. The public site treats labels and scores as model-produced review signals, not legal facts, rankings, legal authority, or source-backed findings. Grok is ${escapeHtml(grok.allowed_use || "offline only")} and forbidden for ${escapeHtml(grok.forbidden_use || "browser key delivery")}.</p>
+      <div class="model-import-actions">
+        <button type="button" data-model-status-action="score">Open Score Lens</button>
+        <button type="button" data-model-status-action="status">Open Analysis Status</button>
+        <button type="button" data-model-status-action="ask">Ask about model outputs</button>
+      </div>
+    </section>
+  `;
+}
+
+function modelImportCardHtml(label, value, detail) {
+  return `
+    <article class="model-import-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(String(value))}</strong>
+      <em>${escapeHtml(String(detail))}</em>
+    </article>
+  `;
+}
+
+function modelOutputCardHtml(model) {
+  const scoreField = SCORE_FIELDS.includes(model.output_field);
+  const direction = scoreField ? (model.direction_verified ? "direction verified" : "direction unverified") : "label output";
+  return `
+    <article class="model-output-card ${scoreField ? "score" : "label"}">
+      <span>${escapeHtml(scoreField ? "score field" : "classifier field")}</span>
+      <strong>${escapeHtml(model.output_field || model.id || "unknown")}</strong>
+      <em>${escapeHtml(model.display_name || model.id || "Unnamed output")}</em>
+      <small>${escapeHtml(model.task || "task not recorded")} · ${escapeHtml(model.status || "status unknown")} · ${escapeHtml(direction)}</small>
+    </article>
+  `;
+}
+
+function applyModelStatusAction(action) {
+  if (action === "score") {
+    state.activeTab = "score";
+    render();
+    return;
+  }
+  if (action === "status") {
+    state.activeTab = "status";
+    render();
+    return;
+  }
+  if (action === "ask") {
+    const question = "What model outputs are imported into the current EvoLOCUS public site?";
+    const input = $("#inquiry-form input[name='question']");
+    if (input) {
+      input.value = question;
+    }
+    answerAndLogInquiry(question, "model import status card");
+    state.activeTab = "inquiry";
+    render();
+  }
 }
 
 function ontologyBuildStatusHtml(ontology, models) {
@@ -14539,6 +14654,12 @@ function bindEvents() {
     if (questionOntologyButton) {
       event.preventDefault();
       applyQuestionOntologyRoute();
+      return;
+    }
+    const modelStatusButton = event.target.closest("[data-model-status-action]");
+    if (modelStatusButton) {
+      event.preventDefault();
+      applyModelStatusAction(modelStatusButton.dataset.modelStatusAction || "");
       return;
     }
     const actionButton = event.target.closest("[data-ontology-action]");

@@ -226,6 +226,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "No ordinance text" in selected_route_text
             page.locator(".selected-map-ontology-route [data-selected-route-open='topic']").click()
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
+            page.wait_for_selector(".model-import-status-card [data-model-status-action='score']", timeout=10_000)
+            model_status_text = page.locator(".model-import-status-card").inner_text(timeout=5_000).lower()
+            assert "model import status" in model_status_text
+            assert "released model outputs" in model_status_text
+            assert "not browser inference" in model_status_text
+            assert "score direction" in model_status_text
+            assert "model cards are pending verification" in model_status_text
+            page.locator(".model-import-status-card [data-model-status-action='score']").click()
+            page.wait_for_function("() => document.querySelector('#score-panel')?.classList.contains('active')")
+            page.locator("[data-tab='ontology']").click()
+            page.wait_for_selector(".model-import-status-card [data-model-status-action='ask']", timeout=10_000)
 
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-question-chip-card [data-chart-question-chip]", timeout=10_000)

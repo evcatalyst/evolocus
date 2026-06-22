@@ -6849,6 +6849,126 @@ textarea {
   gap: 8px;
 }
 
+.model-import-status {
+  display: grid;
+  gap: 12px;
+}
+
+.model-import-heading {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.model-import-heading h3,
+.model-import-heading p {
+  margin-top: 0;
+}
+
+.model-import-heading > span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 6px 9px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.model-import-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.model-import-flow span {
+  border: 1px solid rgba(50, 111, 112, 0.18);
+  border-radius: 8px;
+  background: #f5fbfa;
+  padding: 8px 9px;
+  color: var(--green);
+  font-size: 0.8rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.model-import-flow b {
+  color: var(--muted);
+}
+
+.model-import-grid,
+.model-output-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.model-import-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.model-output-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.model-import-card,
+.model-output-card {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.model-output-card.score {
+  box-shadow: inset 4px 0 0 #b7892c;
+}
+
+.model-output-card.label {
+  box-shadow: inset 4px 0 0 var(--green);
+}
+
+.model-import-card span,
+.model-output-card span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.model-import-card strong,
+.model-output-card strong {
+  color: var(--ink);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.model-import-card em,
+.model-output-card em,
+.model-output-card small,
+.model-import-boundary {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.model-import-boundary {
+  margin: 0;
+}
+
+.model-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .ontology-query-presets {
   display: grid;
   gap: 12px;
@@ -10016,6 +10136,10 @@ th {
   .ontology-layout,
   .ontology-query-heading,
   .ontology-query-grid,
+  .model-import-heading,
+  .model-import-flow,
+  .model-import-grid,
+  .model-output-grid,
   .ontology-map-preset-heading,
   .ontology-map-preset-grid,
   .ontology-tier-focus-heading,
@@ -10184,6 +10308,10 @@ th {
   .ontology-layout,
   .ontology-query-heading,
   .ontology-query-grid,
+  .model-import-heading,
+  .model-import-flow,
+  .model-import-grid,
+  .model-output-grid,
   .ontology-map-preset-heading,
   .ontology-map-preset-grid,
   .ontology-tier-focus-heading,

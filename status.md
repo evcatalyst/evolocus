@@ -139,6 +139,7 @@ Current coverage stats:
 - Highlighted-unit ontology traces: GitHub Pages shows a compact aggregate topic/function/tier/unit route inside each highlighted county/town card without row text, source locators, rankings, or legal-authority claims
 - Question-to-ontology routing: GitHub Pages stores content-free ontology route metadata with question highlights and saved routes so users can move from a question to highlighted units to aggregate graph nodes
 - Ontology build-status surface: GitHub Pages shows graph freshness, node/edge mix, model registry provenance, snapshot deltas, and aggregate-only boundaries
+- Model import/status surface: GitHub Pages shows the released LOCUS output-column registry, deferred executable model imports, unverified score direction, and no-browser-inference boundary with routes to Score Lens, Analysis Status, and deterministic Inquiry
 - Ontology tier-neighborhood graph: GitHub Pages links the active neutral tier to aggregate topic, function, unit-type, and model-score nodes with map drillback and no row-level evidence
 - Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
 - Map-side ontology neighborhood filters: GitHub Pages filters selected-unit neighborhood nodes and aggregate peer drillbacks by topic, function, neutral tier, geography, and relative model-score lenses without exposing row text or source locators

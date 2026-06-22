@@ -90,6 +90,7 @@ The Pages app supports:
 - question-to-ontology route cards that carry typed aggregate questions from map highlights into the ontology graph without row text or live model calls;
 - map-side cross-filter legend for visible topic, function, and neutral-tier routes with safe drillback into the Law Map;
 - ontology-to-map visual presets that preview county/town color routes for tiers, topics, functions, audit signals, law-count intensity, and score bands before opening the map;
+- model import/status cards showing released LOCUS output columns, deferred executable model imports, unverified score direction, and the no-browser-inference boundary;
 - package-to-ontology bridge that connects browser-local package counts to topic, function, tier, and matched map-unit nodes without exposing row text;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
 - map-side ontology neighborhood filters for topic, function, neutral tier, geography, and score lenses with aggregate peer drillback only;
