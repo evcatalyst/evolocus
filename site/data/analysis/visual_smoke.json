@@ -149,6 +149,23 @@
         "Ontology replay opens from saved route metadata without row-level data",
         "No text, locators, review events, secrets, or browser model calls are observed"
       ]
+    },
+    {
+      "name": "Timeline-driven map layer playback",
+      "steps": [
+        "Load the Law Map coverage timeline",
+        "Inspect the timeline-driven map layer playback controls",
+        "Open the audit-attention playback stage",
+        "Verify the county/town map color mode changes",
+        "Open Analysis Status from the timeline"
+      ],
+      "assertions": [
+        "Timeline playback renders from public aggregate artifact metadata only",
+        "Playback changes aggregate map controls without creating new analysis",
+        "Audit-stage playback changes the visible map color mode to audit attention",
+        "Timeline status routing opens the static Analysis Status panel",
+        "No ordinance text, source locator, secret, browser model call, legal finding, or legal-change claim is observed"
+      ]
     }
   ],
   "publication_policy": {
