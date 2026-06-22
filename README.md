@@ -139,6 +139,7 @@ The Pages app supports:
 - package-aware inquiry answer that summarizes browser-local package coverage, map matches, workflow progress, and text/source-locator boundaries without listing record text;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - selected-unit query replay cards that save a county/town aggregate question route and replay it into Inquiry or Ontology;
+- selected-unit county/town ontology answer cards that preview aggregate answers and route topic/function/tier/audit/peer lenses back to the colored map or graph;
 - selected-unit map-to-ontology route trail with stage buttons that open Ontology at the matching progressive disclosure depth;
 - selected-unit ontology route comparison overlay that compares a selected county/town route against its strongest aggregate peer across map color, topic, function, rows, neutral scores, and provenance gates without rankings or legal findings;
 - selected-unit county/town ontology query drawer that turns topic, function, tier, score, provenance, and peer nodes into safe aggregate map or inquiry routes;

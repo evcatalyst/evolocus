@@ -143,3 +143,4 @@
 - Question-to-map ontology depth overlays should make route stages inspectable across highlighted units while keeping stage actions to aggregate filters, Score Lens, Ontology focus, and provenance gates.
 - A first-map coverage timeline should animate artifact milestones from status JSON only; it is publication provenance and must not imply legal change, controlling authority, or row-level evidence.
 - Timeline playback should drive existing map controls instead of duplicating data; stage changes are visual disclosure states, not new analysis or legal findings.
+- Selected-unit answer cards should show the answer preview before navigation, then reuse the same aggregate lens for Inquiry, Map, and Ontology so question answering and colored geography stay connected.

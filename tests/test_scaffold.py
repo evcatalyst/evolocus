@@ -372,6 +372,17 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Selected-unit query replay" in js
     assert "Ask -> answer -> ontology for this county/town" in js
     assert "Route stores only aggregate filters" in js
+    assert "selectedUnitOntologyAnswerCardsHtml" in js
+    assert "selectedUnitOntologyAnswerCards" in js
+    assert "selectedUnitOntologyAnswerCardHtml" in js
+    assert "selectedUnitOntologyAnswerTargetUnits" in js
+    assert "applySelectedUnitOntologyAnswerCard" in js
+    assert "selectedUnitOntologyAnswerObject" in js
+    assert "data-selected-ontology-answer-card" in js
+    assert "data-selected-ontology-answer-action" in js
+    assert "County/town ontology answer cards" in js
+    assert "Ask this color mark through aggregate graph lenses" in js
+    assert "Answer cards use aggregate unit counts" in js
     assert "selectedUnitOntologyQueryDrawerHtml" in js
     assert "selectedUnitOntologyQueryNodes" in js
     assert "selectedUnitOntologyQueryNodeHtml" in js
@@ -1110,6 +1121,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "coverage-playback-step" in css
     assert "coverageTimelineSweep" in css
     assert "coverageTimelinePulse" in css
+    assert "selected-ontology-answer-cards" in css
+    assert "selected-ontology-answer-grid" in css
+    assert "selected-ontology-answer-card" in css
     assert "map-refresh-source-card" in css
     assert "publication_gates" in js
     assert "status-action-grid" in html

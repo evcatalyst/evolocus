@@ -152,7 +152,8 @@
         "Add selected-unit query replay from map to Inquiry and Ontology",
         "Add saved inquiry route comparison visuals",
         "Add real-data coverage timeline animation",
-        "Add timeline-driven map layer playback"
+        "Add timeline-driven map layer playback",
+        "Add selected-unit ontology answer cards"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

@@ -173,6 +173,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "map cross-filter legend" in cross_filter_highlight_text
             assert "no browser-side grok call" in cross_filter_highlight_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.wait_for_selector(".selected-ontology-answer-cards [data-selected-ontology-answer-card='topic'][data-selected-ontology-answer-action='map']:not([disabled])", timeout=10_000)
+            answer_cards_text = page.locator(".selected-ontology-answer-cards").inner_text(timeout=5_000).lower()
+            assert "county/town ontology answer cards" in answer_cards_text
+            assert "ask this color mark through aggregate graph lenses" in answer_cards_text
+            assert "no ordinance text" in answer_cards_text
+            page.locator(".selected-ontology-answer-cards [data-selected-ontology-answer-card='topic'][data-selected-ontology-answer-action='map']:not([disabled])").first.click()
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            answer_card_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "selected-unit ontology answer card" in answer_card_highlight_text
+            assert "no browser-side grok call" in answer_card_highlight_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
             page.wait_for_selector(".selected-ontology-query-drawer [data-selected-ontology-query='topic']:not([disabled])", timeout=10_000)
             query_drawer_text = page.locator(".selected-ontology-query-drawer").inner_text(timeout=5_000).lower()
             assert "county/town ontology query drawer" in query_drawer_text

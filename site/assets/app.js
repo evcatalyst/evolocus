@@ -6091,6 +6091,7 @@ function renderSelectedUnit() {
     ${selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit)}
     ${selectedUnitMapOntologyRouteHtml(unit, auditQuality, packageHit)}
     ${selectedUnitOntologyRouteComparisonOverlayHtml(unit, auditQuality, packageHit, packageStats)}
+    ${selectedUnitOntologyAnswerCardsHtml(unit, auditQuality, packageHit)}
     ${selectedUnitOntologyQueryDrawerHtml(unit, auditQuality, packageHit)}
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
@@ -6177,6 +6178,295 @@ function selectedUnitQueryReplayStepHtml(step, index) {
 
 function selectedUnitRouteQuestion(unit) {
   return `What does the selected unit ${displayUnitName(unit)} show?`;
+}
+
+function selectedUnitOntologyAnswerCardsHtml(unit, auditQuality, packageHit) {
+  const cards = selectedUnitOntologyAnswerCards(unit, auditQuality, packageHit);
+  return `
+    <section class="selected-ontology-answer-cards" aria-label="County and town ontology answer cards">
+      <div class="selected-ontology-answer-heading">
+        <div>
+          <p class="eyebrow">County/town ontology answer cards</p>
+          <h4>Ask this color mark through aggregate graph lenses</h4>
+          <p>Cards generate deterministic answers from public aggregate unit fields and then route the same lens back to the colored map or ontology graph.</p>
+        </div>
+        <span>${escapeHtml(formatCount(cards.length))} answer routes</span>
+      </div>
+      <div class="selected-ontology-answer-grid">
+        ${cards.map(selectedUnitOntologyAnswerCardHtml).join("")}
+      </div>
+      <p class="selected-ontology-answer-boundary">Answer cards use aggregate unit counts, model labels, score summaries, audit-review signals, and peer metadata only. They publish no ordinance text, source locators, review events, secrets, live model calls, rankings, or legal findings.</p>
+    </section>
+  `;
+}
+
+function selectedUnitOntologyAnswerCards(unit, auditQuality, packageHit) {
+  const tierKey = unit.tier || tierKeyForLabel(unit.tier_label, state.analysis.mapLayers?.tier_definitions || {});
+  const topicRows = Number(unit.topic_counts?.[unit.dominant_topic] || 0);
+  const functionRows = Number(unit.function_counts?.[unit.dominant_function] || 0);
+  const peers = selectedUnitPeers(unit);
+  const auditScore = Number(auditQuality?.audit_attention_score || 0);
+  const baseFilters = { state: unit.state || "", kind: unit.kind || "" };
+  const cards = [
+    {
+      key: "topic",
+      label: "Topic answer",
+      title: text(unit.dominant_topic),
+      question: `Where does ${text(unit.dominant_topic)} appear around ${displayUnitName(unit)}?`,
+      answer: `${displayUnitName(unit)} contributes ${formatCount(topicRows)} aggregate rows to the ${text(unit.dominant_topic)} topic route inside ${text(unit.state)}. The route colors the county/town map by topic and uses model-produced topic labels only.`,
+      detail: `${formatCount(topicRows)} rows in selected unit`,
+      filters: { ...baseFilters, topic: unit.dominant_topic || "" },
+      colorMode: "topic",
+      ontologyStage: "topic",
+      routeAction: "topic",
+      routeValue: unit.dominant_topic || "",
+      disabled: !unit.dominant_topic || topicRows <= 0,
+    },
+    {
+      key: "function",
+      label: "Function answer",
+      title: text(unit.dominant_function),
+      question: `Where do ${text(unit.dominant_function)} provisions appear around ${displayUnitName(unit)}?`,
+      answer: `${displayUnitName(unit)} contributes ${formatCount(functionRows)} aggregate rows to the ${text(unit.dominant_function)} function route. The route colors geography by released function labels without treating them as verified legal conclusions.`,
+      detail: `${formatCount(functionRows)} rows in selected unit`,
+      filters: { ...baseFilters, function: unit.dominant_function || "" },
+      colorMode: "function",
+      ontologyStage: "function",
+      routeAction: "function",
+      routeValue: unit.dominant_function || "",
+      disabled: !unit.dominant_function || functionRows <= 0,
+    },
+    {
+      key: "tier",
+      label: "Tier answer",
+      title: text(unit.tier_label),
+      question: `Which county/town units share the ${text(unit.tier_label)} neutral tier with ${displayUnitName(unit)}?`,
+      answer: `${displayUnitName(unit)} sits in the ${text(unit.tier_label)} neutral tier. Tier colors are review bands over aggregate model outputs, not rankings or legal findings.`,
+      detail: "neutral color-band route",
+      filters: { ...baseFilters, tier: tierKey || "" },
+      colorMode: "tier",
+      ontologyStage: "tier",
+      routeAction: "tier",
+      routeValue: tierKey || "",
+      disabled: !tierKey,
+    },
+    {
+      key: "audit",
+      label: "Audit answer",
+      title: auditQuality ? `${formatNumber(auditScore)} / 100` : "Audit loading",
+      question: `What review signals are visible for ${displayUnitName(unit)}?`,
+      answer: auditQuality
+        ? `${displayUnitName(unit)} has audit attention ${formatNumber(auditScore)} / 100, with ${formatCount(auditQuality.ocr_review_rows)} medium/high OCR-review rows and ${formatCount(auditQuality.duplicate_text_hash_rows)} duplicate text-hash rows summarized locally. These are review-priority signals, not proof of text defects.`
+        : `Audit-quality signals are not loaded for ${displayUnitName(unit)}.`,
+      detail: auditQuality ? `${formatCount(auditQuality.ocr_review_rows)} OCR-review rows` : "audit artifact unavailable",
+      filters: { ...baseFilters, auditFocus: "attention", minAuditScore: Math.max(0, Math.floor(auditScore)) },
+      colorMode: "audit_attention",
+      ontologyStage: "geometry",
+      routeAction: "evidence",
+      routeValue: "audit",
+      disabled: !auditQuality,
+    },
+    {
+      key: "peers",
+      label: "Peer answer",
+      title: `${formatCount(peers.length)} peers`,
+      question: `Which aggregate peers connect to ${displayUnitName(unit)} in the ontology?`,
+      answer: `${displayUnitName(unit)} has ${formatCount(peers.length)} aggregate peer routes based on shared topic, function, tier, state, unit type, and law-count proximity. Peer links are navigation aids, not legal relationships or rankings.`,
+      detail: "selected unit plus aggregate peers",
+      filters: { ...baseFilters },
+      colorMode: "tier",
+      ontologyStage: "unit",
+      routeAction: "peers",
+      routeValue: "peers",
+      disabled: peers.length === 0,
+      peerUnits: peers.map((peer) => peer.unit),
+    },
+  ];
+  return cards.map((card) => {
+    const targetUnits = selectedUnitOntologyAnswerTargetUnits(card, unit);
+    const targetSummary = summarizeUnits(targetUnits);
+    return {
+      ...card,
+      targetUnits,
+      targetSummary,
+    };
+  });
+}
+
+function selectedUnitOntologyAnswerCardHtml(card) {
+  const style = `--answer-card-color:${escapeHtml(selectedUnitOntologyAnswerCardColor(card))}`;
+  return `
+    <article class="selected-ontology-answer-card${card.disabled ? " disabled" : ""}" style="${style}">
+      <span>${escapeHtml(card.label)}</span>
+      <strong>${escapeHtml(card.title)}</strong>
+      <p>${escapeHtml(card.question)}</p>
+      <em>${escapeHtml(card.answer)}</em>
+      <div class="selected-ontology-answer-metrics">
+        ${selectedUnitOntologyAnswerMetricHtml("Route units", formatCount(card.targetUnits.length), "aggregate units")}
+        ${selectedUnitOntologyAnswerMetricHtml("Route rows", formatCount(card.targetSummary.lawCount), "aggregate rows")}
+      </div>
+      <div class="selected-ontology-answer-actions">
+        <button type="button" data-selected-ontology-answer-card="${escapeHtml(card.key)}" data-selected-ontology-answer-action="answer"${card.disabled ? " disabled" : ""}>Open answer</button>
+        <button type="button" data-selected-ontology-answer-card="${escapeHtml(card.key)}" data-selected-ontology-answer-action="map"${card.disabled ? " disabled" : ""}>Color map</button>
+        <button type="button" data-selected-ontology-answer-card="${escapeHtml(card.key)}" data-selected-ontology-answer-action="ontology"${card.disabled ? " disabled" : ""}>Replay graph</button>
+      </div>
+    </article>
+  `;
+}
+
+function selectedUnitOntologyAnswerMetricHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(value)}</b>
+      <small>${escapeHtml(detail)}</small>
+    </span>
+  `;
+}
+
+function selectedUnitOntologyAnswerCardColor(card) {
+  if (card.key === "topic") {
+    return TOPIC_COLORS[card.routeValue] || TOPIC_COLORS.Unknown;
+  }
+  if (card.key === "function") {
+    return FUNCTION_COLORS[card.routeValue] || FUNCTION_COLORS.Unknown;
+  }
+  if (card.key === "tier") {
+    const tierDefinitions = state.analysis.mapLayers?.tier_definitions || {};
+    return tierDefinitions[card.routeValue]?.color || "#d8dee8";
+  }
+  if (card.key === "audit") {
+    return "#b7892c";
+  }
+  return "#326f70";
+}
+
+function selectedUnitOntologyAnswerTargetUnits(card, unit) {
+  if (card.key === "peers") {
+    return [unit, ...(card.peerUnits || [])].filter(Boolean);
+  }
+  const allUnits = state.analysis.mapLayers?.units || [];
+  return allUnits.filter((item) => selectedUnitOntologyAnswerUnitMatches(item, card));
+}
+
+function selectedUnitOntologyAnswerUnitMatches(unit, card) {
+  const filters = card.filters || {};
+  if (filters.state && unit.state !== filters.state) {
+    return false;
+  }
+  if (filters.kind && unit.kind !== filters.kind) {
+    return false;
+  }
+  if (filters.topic && unit.dominant_topic !== filters.topic && !Number(unit.topic_counts?.[filters.topic] || 0)) {
+    return false;
+  }
+  if (filters.function && unit.dominant_function !== filters.function && !Number(unit.function_counts?.[filters.function] || 0)) {
+    return false;
+  }
+  if (filters.tier && unit.tier !== filters.tier) {
+    return false;
+  }
+  if (filters.auditFocus) {
+    const audit = unitAuditQualityFor(unit.unit_id);
+    if (Number(audit?.audit_attention_score || 0) < Number(filters.minAuditScore || 0)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function selectedUnitOntologyAnswerCardByKey(unit, key) {
+  const auditQuality = unitAuditQualityFor(unit.unit_id);
+  const packageHit = importedPackageMapStats(state.analysis.mapLayers?.units || []).units.get(unit.unit_id);
+  return selectedUnitOntologyAnswerCards(unit, auditQuality, packageHit).find((card) => card.key === key) || null;
+}
+
+function applySelectedUnitOntologyAnswerCard(action, key) {
+  const unit = currentSelectedMapUnit();
+  if (!unit) {
+    return;
+  }
+  const card = selectedUnitOntologyAnswerCardByKey(unit, key);
+  if (!card || card.disabled) {
+    return;
+  }
+  applySelectedUnitOntologyAnswerRoute(card, unit);
+  if (action === "answer") {
+    const answer = answerWithRouteMetadata(card.question, `selected-unit ontology answer card: ${card.label}`, selectedUnitOntologyAnswerObject(card, unit));
+    const input = $("#inquiry-form input[name='question']");
+    if (input) {
+      input.value = card.question;
+    }
+    state.inquiryAnswer = answer;
+    state.inquiryOntologyDrawer = null;
+    appendInquiryResultsLog(card.question, answer, `selected-unit ontology answer card: ${card.label}`);
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    state.ontologyPathStage = card.ontologyStage || "unit";
+    state.geographyLayers = {
+      ...defaultGeographyLayers(),
+      ...state.geographyLayers,
+      ontology: true,
+    };
+    state.disclosureLevel = "unit";
+    state.activeTab = "ontology";
+    render();
+    return;
+  }
+  state.activeTab = "map";
+  render();
+}
+
+function applySelectedUnitOntologyAnswerRoute(card, unit) {
+  state.selectedUnitId = unit.unit_id;
+  state.mapFilters = {
+    ...state.mapFilters,
+    state: "",
+    topic: "",
+    function: "",
+    kind: "",
+    tier: "",
+    auditFocus: "",
+    minAuditScore: 0,
+    ...card.filters,
+  };
+  state.geographyColorMode = card.colorMode || "tier";
+  state.disclosureLevel = card.key === "audit" ? "evidence" : "unit";
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    ontology: card.key === "peers" || card.key === "tier",
+  };
+  const targetUnits = selectedUnitOntologyAnswerTargetUnits(card, unit);
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    card.question,
+    "selected-unit ontology answer card",
+    targetUnits.length ? targetUnits : [unit],
+  );
+}
+
+function selectedUnitOntologyAnswerObject(card, unit) {
+  const targetSummary = card.targetSummary || summarizeUnits(card.targetUnits || []);
+  return {
+    title: `${card.label}: ${displayUnitName(unit)}`,
+    answer: card.answer,
+    sections: `
+      <h4>Ontology answer route</h4>
+      <p>This answer starts from the selected county/town color mark, applies the ${escapeHtml(card.label.toLowerCase())} lens, and reuses the same aggregate filters for Map and Ontology navigation.</p>
+      <dl class="briefing-facts">
+        <dt>Selected unit</dt><dd>${escapeHtml(displayUnitName(unit))} <span>${escapeHtml(text(unit.state))} · ${escapeHtml(text(unit.kind))}</span></dd>
+        <dt>Route units</dt><dd>${escapeHtml(formatCount(card.targetUnits.length))} <span>aggregate unit IDs only</span></dd>
+        <dt>Route rows</dt><dd>${escapeHtml(formatCount(targetSummary.lawCount))} <span>aggregate row count</span></dd>
+      </dl>
+    `,
+    matches: `
+      <h4>Progressive disclosure boundary</h4>
+      <p>No ordinance text, source locators, review events, secrets, rankings, legal findings, or browser model calls are included in this selected-unit answer card.</p>
+    `,
+  };
 }
 
 function selectedUnitOntologyQueryDrawerHtml(unit, auditQuality, packageHit) {
@@ -14927,6 +15217,15 @@ function bindEvents() {
       applySelectedUnitQueryRoute(
         selectedQueryButton.dataset.selectedQueryRoute || "inquiry",
         selectedQueryButton.dataset.selectedQueryUnit || "",
+      );
+      return;
+    }
+    const selectedOntologyAnswerButton = event.target.closest("[data-selected-ontology-answer-card]");
+    if (selectedOntologyAnswerButton) {
+      event.preventDefault();
+      applySelectedUnitOntologyAnswerCard(
+        selectedOntologyAnswerButton.dataset.selectedOntologyAnswerAction || "answer",
+        selectedOntologyAnswerButton.dataset.selectedOntologyAnswerCard || "",
       );
       return;
     }

@@ -130,6 +130,7 @@ Current coverage stats:
 - Visual smoke public artifact: `visual_smoke.json` records workflow metadata and no-row/no-text/no-secret policy flags for the verified public route
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Selected-unit query replay: GitHub Pages map detail cards can save a county/town aggregate question route, open the static answer, or replay the selected unit into the ontology graph without text or locator exposure
+- Selected-unit ontology answer cards: GitHub Pages map detail cards preview safe aggregate answers for topic, function, neutral tier, audit signals, and peer routes, then open Inquiry, color the map, or replay the graph
 - Map-side route playback: GitHub Pages restores saved aggregate question paths directly from the Law Map, including filters, color mode, selected unit, answer replay, and ontology route
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows
 - Map inquiry history export: GitHub Pages exports sanitized aggregate answer history JSON with no text, locators, review events, local paths, or secrets
