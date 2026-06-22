@@ -911,6 +911,23 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
             ],
         },
         {
+            "name": "Selected-unit ontology query drawer",
+            "steps": [
+                "Open a selected county/town aggregate unit on the Law Map",
+                "Open the county/town ontology query drawer from selected-unit detail",
+                "Inspect topic, function, tier, score, provenance, and peer query nodes",
+                "Run a drawer query back into deterministic Inquiry",
+                "Route a peer node back to the colored county/town map",
+            ],
+            "assertions": [
+                "Drawer nodes use public aggregate unit metadata, released model-output labels, and reviewed artifact provenance only",
+                "Query buttons pass aggregate filters, selected public unit IDs, and ontology stages only",
+                "Peer routes are navigation aids and do not rank units or claim legal authority",
+                "Score query nodes remain neutral because score direction is unverified",
+                "No ordinance text, source locator, secret, browser model call, review event, or legal finding is observed",
+            ],
+        },
+        {
             "name": "Saved inquiry route comparison",
             "steps": [
                 "Open Inquiry after creating aggregate question routes",
