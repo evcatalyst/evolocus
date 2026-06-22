@@ -61,6 +61,7 @@ flowchart LR
 - Inquiry answers render mini charts from the current aggregate map scope and drill back to map filters or published aggregate units only.
 - Charts-tab aggregate rows for tier, topic, function, jurisdiction kind, state/topic small multiples, and top units route back to the Law Map with browser-only filters or published aggregate unit IDs.
 - Charts-tab Ask actions reuse the deterministic Inquiry answer path and saved aggregate inquiry log; they pass only aggregate filters or published unit IDs.
+- Charts-tab Graph actions open the existing Ontology tab with chart-scoped aggregate filters, selected unit IDs, and ontology layer visibility enabled.
 - Tier chips in the map guide click through to an ontology tier-focus card that summarizes visible units, topic/function links, neutral score means, and filter context.
 - The tier-focus ontology card includes mini charts for topic mix, function mix, unit type mix, and neutral score means under the current filters.
 - Topic, function, and unit-type mini-chart bars can drill back into the map by applying aggregate filters; this changes only browser state and does not publish rows.

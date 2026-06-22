@@ -6367,7 +6367,7 @@ th {
 
 .chart-drilldown-line {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(74px, auto);
+  grid-template-columns: minmax(0, 1fr) repeat(2, minmax(74px, auto));
   gap: 8px;
   align-items: stretch;
 }
@@ -6460,7 +6460,8 @@ th {
   margin-top: 12px;
 }
 
-.chart-inquiry-chip {
+.chart-inquiry-chip,
+.chart-ontology-chip {
   display: grid;
   gap: 2px;
   min-height: 42px;
@@ -6474,35 +6475,54 @@ th {
   cursor: pointer;
 }
 
-.chart-inquiry-chip strong {
+.chart-ontology-chip {
+  border-color: rgba(166, 106, 19, 0.28);
+  background: #fff8ed;
+}
+
+.chart-inquiry-chip strong,
+.chart-ontology-chip strong {
   font-size: 0.82rem;
 }
 
-.chart-inquiry-chip span {
+.chart-inquiry-chip span,
+.chart-ontology-chip span {
   color: var(--muted);
   font-size: 0.76rem;
   overflow-wrap: anywhere;
 }
 
-.chart-inquiry-chip.compact {
+.chart-inquiry-chip.compact,
+.chart-ontology-chip.compact {
   align-content: center;
   min-height: 0;
   padding: 5px 8px;
 }
 
-.chart-inquiry-chip.compact span {
+.chart-inquiry-chip.compact span,
+.chart-ontology-chip.compact span {
   display: none;
 }
 
 .chart-inquiry-chip:hover,
-.chart-inquiry-chip:focus-visible {
+.chart-inquiry-chip:focus-visible,
+.chart-ontology-chip:hover,
+.chart-ontology-chip:focus-visible {
   border-color: rgba(36, 95, 159, 0.5);
   background: #eaf2fb;
   outline: none;
 }
 
+.chart-ontology-chip:hover,
+.chart-ontology-chip:focus-visible {
+  border-color: rgba(166, 106, 19, 0.52);
+  background: #fff1d8;
+}
+
 .chart-inquiry-chip.disabled,
-.chart-inquiry-chip:disabled {
+.chart-inquiry-chip:disabled,
+.chart-ontology-chip.disabled,
+.chart-ontology-chip:disabled {
   cursor: not-allowed;
   opacity: 0.58;
 }
@@ -6513,7 +6533,7 @@ th {
 
 .top-unit-list-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(74px, auto);
+  grid-template-columns: minmax(0, 1fr) repeat(2, minmax(74px, auto));
   gap: 8px;
   align-items: stretch;
 }
@@ -6691,6 +6711,10 @@ th {
   }
 
   .chart-inquiry-chip.compact span {
+    display: block;
+  }
+
+  .chart-ontology-chip.compact span {
     display: block;
   }
 }

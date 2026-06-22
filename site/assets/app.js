@@ -9106,12 +9106,20 @@ function chartInquiryCard() {
       </div>
       <div class="chart-inquiry-actions">
         ${chartInquiryButton("view", "", "Ask current view", "Visible aggregate chart scope", true, "", "current chart view")}
+        ${chartOntologyButton("view", "", "Open current ontology", "Visible chart scope", true, "", "current chart view")}
         ${chartInquiryButton("topic", topTopic, "Ask top topic", topTopic ? `${topTopic} · ${formatCount(summary.topTopic.value)} rows` : "No topic rows", Boolean(topTopic), "", topTopic)}
+        ${chartOntologyButton("topic", topTopic, "Graph top topic", topTopic ? `${topTopic} · ${formatCount(summary.topTopic.value)} rows` : "No topic rows", Boolean(topTopic), "", topTopic)}
         ${chartInquiryButton("tier", topTierKey, "Ask top tier", topTier.value ? `${topTier.label} · ${formatCount(topTier.value)} units` : "No tier rows", topTier.value > 0, "", topTier.label)}
+        ${chartOntologyButton("tier", topTierKey, "Graph top tier", topTier.value ? `${topTier.label} · ${formatCount(topTier.value)} units` : "No tier rows", topTier.value > 0, "", topTier.label)}
         ${
           topUnit
             ? chartInquiryButton("unit", topUnit.unit_id, "Ask top unit", `${displayUnitName(topUnit)} · ${topUnit.state || "NA"}`, true, "", displayUnitName(topUnit))
             : chartInquiryButton("unit", "", "Ask top unit", "No visible unit", false)
+        }
+        ${
+          topUnit
+            ? chartOntologyButton("unit", topUnit.unit_id, "Graph top unit", `${displayUnitName(topUnit)} · ${topUnit.state || "NA"}`, true, "", displayUnitName(topUnit))
+            : chartOntologyButton("unit", "", "Graph top unit", "No visible unit", false)
         }
       </div>
       <p class="chart-drilldown-note">Inquiry answers are generated from published aggregate JSON artifacts and omit ordinance text, source locators, review events, and browser model calls.</p>
@@ -9137,6 +9145,7 @@ function chartCard(title, rows, action = "") {
                   <strong>${escapeHtml(String(row.value))}</strong>
                 </button>
                 ${chartInquiryButton(action, value, "Ask", `Inquiry for ${row.label}`, enabled, "", row.label, "compact")}
+                ${chartOntologyButton(action, value, "Graph", `Ontology for ${row.label}`, enabled, "", row.label, "compact")}
               </div>
             `;
           })
@@ -9172,6 +9181,7 @@ function scoreCard(title, rows) {
       </div>
       <div class="chart-inquiry-actions compact">
         ${chartInquiryButton("score", "", "Ask score profile", "Current filtered map view", true, "", "score profile")}
+        ${chartOntologyButton("score", "", "Open model graph", "Current filtered map view", true, "", "score profile")}
       </div>
       <p>Scores are neutral model outputs; direction is not verified.</p>
     </article>
@@ -9192,6 +9202,7 @@ function topUnitsCard(rows) {
                 <span>${escapeHtml(row.state)} · ${escapeHtml(String(row.law_count))} laws · ${escapeHtml(row.tier_label)}</span>
               </button>
               ${chartInquiryButton("unit", row.unit_id || "", "Ask", "Selected-unit inquiry", Boolean(row.unit_id), "", displayUnitName(row.name), "compact")}
+              ${chartOntologyButton("unit", row.unit_id || "", "Graph", "Selected-unit ontology", Boolean(row.unit_id), "", displayUnitName(row.name), "compact")}
             </li>
           `)
           .join("")}
@@ -9380,6 +9391,8 @@ function stateTopicCard(summary) {
         <button type="button" data-chart-state-topic-map="${escapeHtml(summary.state)}" data-chart-topic-map="${escapeHtml(topTopic.label)}">Map top topic</button>
         ${chartInquiryButton("state", summary.state, "Ask state", `${formatCount(summary.lawCount)} rows`, true, summary.state, summary.state)}
         ${chartInquiryButton("state_topic", topTopic.label, "Ask top topic", `${topTopic.label} · ${formatCount(topTopic.value)} rows`, topTopic.value > 0, summary.state, topTopic.label)}
+        ${chartOntologyButton("state", summary.state, "Graph state", `${formatCount(summary.lawCount)} rows`, true, summary.state, summary.state)}
+        ${chartOntologyButton("state_topic", topTopic.label, "Graph topic", `${topTopic.label} · ${formatCount(topTopic.value)} rows`, topTopic.value > 0, summary.state, topTopic.label)}
       </div>
     </article>
   `;
@@ -9465,6 +9478,16 @@ function chartInquiryButton(action, value, label, detail, enabled = true, stateC
   const disabled = !enabled || (action !== "view" && action !== "score" && !value);
   return `
     <button type="button" class="chart-inquiry-chip${variant ? ` ${escapeHtml(variant)}` : ""}${disabled ? " disabled" : ""}" ${disabled ? "disabled" : ""} data-chart-inquiry-action="${escapeHtml(disabled ? "" : action)}" data-chart-inquiry-value="${escapeHtml(disabled ? "" : value)}" data-chart-inquiry-state="${escapeHtml(disabled ? "" : stateCode)}" data-chart-inquiry-label="${escapeHtml(disabled ? "" : questionLabel)}">
+      <strong>${escapeHtml(label)}</strong>
+      <span>${escapeHtml(detail)}</span>
+    </button>
+  `;
+}
+
+function chartOntologyButton(action, value, label, detail, enabled = true, stateCode = "", focusLabel = "", variant = "") {
+  const disabled = !enabled || (action !== "view" && action !== "score" && !value);
+  return `
+    <button type="button" class="chart-ontology-chip${variant ? ` ${escapeHtml(variant)}` : ""}${disabled ? " disabled" : ""}" ${disabled ? "disabled" : ""} data-chart-ontology-action="${escapeHtml(disabled ? "" : action)}" data-chart-ontology-value="${escapeHtml(disabled ? "" : value)}" data-chart-ontology-state="${escapeHtml(disabled ? "" : stateCode)}" data-chart-ontology-label="${escapeHtml(disabled ? "" : focusLabel)}">
       <strong>${escapeHtml(label)}</strong>
       <span>${escapeHtml(detail)}</span>
     </button>
@@ -9564,6 +9587,96 @@ function chartInquiryQuestion(action, value, label = "", stateCode = "") {
     return "What model score profile is visible in the current filtered map view?";
   }
   return "What does the current chart view show on the county and town map?";
+}
+
+function applyChartOntologyAction(action, value, label = "", stateCode = "") {
+  if (!action) {
+    return;
+  }
+  if (action === "unit") {
+    applyChartUnitOntology(value);
+    return;
+  }
+  const nextFilters = { ...state.mapFilters };
+  if (action === "topic") {
+    if (!chartMapFilterEnabled("topic", value)) {
+      return;
+    }
+    nextFilters.topic = value;
+  }
+  if (action === "function") {
+    if (!chartMapFilterEnabled("function", value)) {
+      return;
+    }
+    nextFilters.function = value;
+  }
+  if (action === "kind") {
+    if (!chartMapFilterEnabled("kind", value)) {
+      return;
+    }
+    nextFilters.kind = normalizePackageKind(value);
+  }
+  if (action === "tier") {
+    if (!chartMapFilterEnabled("tier", value)) {
+      return;
+    }
+    nextFilters.tier = value;
+  }
+  if (action === "state") {
+    nextFilters.state = value || stateCode || nextFilters.state;
+  }
+  if (action === "state_topic") {
+    nextFilters.state = stateCode || nextFilters.state;
+    nextFilters.topic = value || nextFilters.topic;
+  }
+  state.mapFilters = nextFilters;
+  state.selectedUnitId = null;
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    ontology: true,
+  };
+  if (state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  focusChartOntologyTier(action, value, label);
+  state.activeTab = "ontology";
+  render();
+}
+
+function applyChartUnitOntology(unitId) {
+  const unit = (state.analysis.mapLayers?.units || []).find((item) => item.unit_id === unitId);
+  if (!unit) {
+    return;
+  }
+  state.selectedUnitId = unit.unit_id;
+  state.ontologyFocusTier = unit.tier || tierKeyForLabel(unit.tier_label || "", state.analysis.mapLayers?.tier_definitions || {});
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    ontology: true,
+  };
+  state.disclosureLevel = "unit";
+  state.activeTab = "ontology";
+  render();
+}
+
+function focusChartOntologyTier(action, value, label = "") {
+  if (action === "tier" && value) {
+    state.ontologyFocusTier = value;
+    return;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    state.ontologyFocusTier = "";
+    return;
+  }
+  const summary = summarizeUnits(filterMapUnits(mapLayers.units || []));
+  const topTier = topEntry(summary.tierCounts);
+  state.ontologyFocusTier = topTier.value ? tierKeyForLabel(topTier.label, mapLayers.tier_definitions || {}) : "";
+  if (!state.ontologyFocusTier && label) {
+    state.ontologyFocusTier = label;
+  }
 }
 
 function agreementMetrics(events) {
@@ -11233,6 +11346,17 @@ function bindEvents() {
     render();
   });
   $("#results-panel").addEventListener("click", (event) => {
+    const chartOntologyButton = event.target.closest("[data-chart-ontology-action]");
+    if (chartOntologyButton) {
+      event.preventDefault();
+      applyChartOntologyAction(
+        chartOntologyButton.dataset.chartOntologyAction || "",
+        chartOntologyButton.dataset.chartOntologyValue || "",
+        chartOntologyButton.dataset.chartOntologyLabel || "",
+        chartOntologyButton.dataset.chartOntologyState || "",
+      );
+      return;
+    }
     const chartInquiryButton = event.target.closest("[data-chart-inquiry-action]");
     if (chartInquiryButton) {
       event.preventDefault();

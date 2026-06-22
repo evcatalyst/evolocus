@@ -144,6 +144,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "applyChartInquiryAction" in js
     assert "applyChartUnitInquiry" in js
     assert "chartInquiryQuestion" in js
+    assert "chartOntologyButton" in js
+    assert "applyChartOntologyAction" in js
+    assert "applyChartUnitOntology" in js
+    assert "focusChartOntologyTier" in js
     assert "data-chart-map-filter" in js
     assert "data-chart-map-value" in js
     assert "data-chart-map-unit" in js
@@ -154,8 +158,15 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "data-chart-inquiry-value" in js
     assert "data-chart-inquiry-state" in js
     assert "data-chart-inquiry-label" in js
+    assert "data-chart-ontology-action" in js
+    assert "data-chart-ontology-value" in js
+    assert "data-chart-ontology-state" in js
+    assert "data-chart-ontology-label" in js
     assert "Ask this chart view" in js
     assert "Ask score profile" in js
+    assert "Open current ontology" in js
+    assert "Graph top topic" in js
+    assert "Open model graph" in js
     assert "charts tab aggregate ask" in js
     assert "Click a row to filter the Law Map, or Ask to open a deterministic Inquiry answer. This changes browser state only." in js
     assert "Inquiry answers are generated from published aggregate JSON artifacts" in js
@@ -461,6 +472,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "chart-inquiry-card" in css
     assert "chart-inquiry-actions" in css
     assert "chart-inquiry-chip" in css
+    assert "chart-ontology-chip" in css
     assert "top-unit-list-row > button" in css
     assert "top-unit-list-row" in css
     assert "state-topic-actions" in css
