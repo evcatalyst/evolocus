@@ -124,7 +124,8 @@
         "Add optional browser click-smoke for Charts route buttons",
         "Add manual Pages browser-smoke workflow for deployed visual routes",
         "Add visible Pages visual-route verification card",
-        "Add selected-unit map-to-ontology route trails"
+        "Add selected-unit map-to-ontology route trails",
+        "Add first-screen deterministic chat-to-map composer"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

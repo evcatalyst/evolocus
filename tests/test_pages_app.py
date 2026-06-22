@@ -74,15 +74,23 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoorExampleQuestionRows" in js
     assert "frontdoorExampleQuestionsHtml" in js
     assert "frontdoorExampleQuestionCardHtml" in js
+    assert "frontdoorQuestionComposerHtml" in js
+    assert "frontdoorQuestionMetricHtml" in js
     assert "applyFrontdoorVisualPathAction" in js
     assert "applyFrontdoorExampleQuestion" in js
+    assert "applyFrontdoorComposerAction" in js
     assert "data-frontdoor-action" in js
+    assert "data-frontdoor-composer" in js
+    assert "data-frontdoor-composer-action" in js
     assert "data-frontdoor-example-action" in js
     assert "data-frontdoor-example-topic" in js
     assert "front-door topic-tier example" in js
+    assert "front-door question composer" in js
     assert "data-frontdoor-disclosure" in js
     assert "Ask -&gt; Map -&gt; Ontology" in js
     assert "No browser Grok call" in js
+    assert "Ask the aggregate map" in js
+    assert "Front-door chat is deterministic filter routing" in js
     assert "analysisJourneyStepHtml" in js
     assert "openAnalysisJourneyStep" in js
     assert "data-journey-tab" in js
@@ -426,6 +434,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "analysis-journey-step" in css
     assert "analysis-journey-boundary" in css
     assert "frontdoor-visual-path-card" in css
+    assert "frontdoor-question-composer" in css
+    assert "frontdoor-question-actions" in css
+    assert "frontdoor-question-metrics" in css
     assert "frontdoor-step-card" in css
     assert "frontdoor-example-questions" in css
     assert "frontdoor-example-card" in css

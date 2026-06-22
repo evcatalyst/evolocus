@@ -71,6 +71,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "No rows" in verification_text
             assert "No text" in verification_text
 
+            page.wait_for_selector("[data-frontdoor-composer] #frontdoor-question-input", timeout=10_000)
+            page.locator("#frontdoor-question-input").fill("Where are zoning enforcement laws in cities?")
+            page.locator("[data-frontdoor-composer-action='preview']").click()
+            composer_text = page.locator(".frontdoor-question-composer").inner_text(timeout=5_000)
+            assert "Topic Zoning" in composer_text
+            assert "Function Enforcement" in composer_text
+            assert "State IN" not in composer_text
+            assert "no ordinance text" in composer_text.lower()
+            page.locator("[data-frontdoor-composer-action='ontology']").click()
+            page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
+
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='map']", timeout=10_000)
             assert page.locator("#results-panel").evaluate("element => element.classList.contains('active')")

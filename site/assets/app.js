@@ -290,6 +290,7 @@ let state = {
   ontologyFocusTier: "",
   ontologyPathStage: "auto",
   inquiryMapComposerQuestion: "",
+  frontdoorComposerQuestion: "",
   mapFilters: {
     state: "",
     topic: "",
@@ -656,6 +657,7 @@ function renderFrontdoorVisualPath() {
   const topTier = topEntry(summary.tierCounts);
   const filters = activeFilterLabels();
   const question = frontdoorVisualPathQuestion(summary, visibleUnits);
+  const composerPlan = inquiryMapComposerPlan(state.frontdoorComposerQuestion);
   const exampleRows = frontdoorExampleQuestionRows(visibleUnits);
   const selectedLabel = selectedUnit
     ? `${displayUnitName(selectedUnit)}${selectedUnit.state ? `, ${selectedUnit.state}` : ""}`
@@ -702,6 +704,7 @@ function renderFrontdoorVisualPath() {
         <strong>${escapeHtml(question)}</strong>
         <em>${escapeHtml(filters.length ? filters.slice(0, 4).join(" · ") : "No active map filters")}</em>
       </div>
+      ${frontdoorQuestionComposerHtml(composerPlan, question)}
       <div class="frontdoor-visual-path-steps">
         ${cards.map((card) => frontdoorVisualPathStepHtml(card, question)).join("")}
       </div>
@@ -711,6 +714,60 @@ function renderFrontdoorVisualPath() {
       </div>
       <p class="frontdoor-visual-path-boundary">Actions pass only aggregate filters, disclosure level, selected published unit IDs, and deterministic answers. No browser Grok call, API key, source locator, review event, or LOCUS ordinance text is exposed.</p>
     </article>
+  `;
+}
+
+function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
+  const question = state.frontdoorComposerQuestion || "";
+  const previewReady = Boolean(question);
+  const filterChips = plan.filterLabels.length
+    ? plan.filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")
+    : "<span>No inferred filters yet</span>";
+  const reasonRows = plan.reasons.length
+    ? plan.reasons.slice(0, 4).map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")
+    : "<li>Type a topic, state, county/town cue, model-score field, audit cue, or neutral tier to preview an aggregate route.</li>";
+  const topUnit = plan.previewSummary.topUnit;
+  return `
+    <section class="frontdoor-question-composer" aria-label="Landing question to map composer">
+      <form data-frontdoor-composer>
+        <label for="frontdoor-question-input">
+          <span>Ask the aggregate map</span>
+          <input id="frontdoor-question-input" name="frontdoor_question" type="search" value="${escapeHtml(question)}" placeholder="${escapeHtml(suggestedQuestion)}" autocomplete="off">
+        </label>
+        <div class="frontdoor-question-actions">
+          <button type="submit" data-frontdoor-composer-action="preview">Preview route</button>
+          <button type="button" data-frontdoor-composer-action="map"${previewReady ? "" : " disabled"}>Map question</button>
+          <button type="button" data-frontdoor-composer-action="ask"${previewReady ? "" : " disabled"}>Ask + save</button>
+          <button type="button" data-frontdoor-composer-action="ontology"${previewReady ? "" : " disabled"}>Ontology route</button>
+        </div>
+      </form>
+      <div class="frontdoor-question-preview">
+        <div class="frontdoor-question-chips" aria-label="Front-door inferred aggregate filters">
+          ${filterChips}
+        </div>
+        <div class="frontdoor-question-metrics">
+          ${frontdoorQuestionMetricHtml("Matching units", formatCount(plan.previewUnits.length), `${formatCount(plan.currentUnits.length)} before preview`)}
+          ${frontdoorQuestionMetricHtml("Aggregate rows", formatCount(plan.previewSummary.lawCount), "no ordinance text")}
+          ${frontdoorQuestionMetricHtml("Top topic", plan.previewSummary.topTopic.label, `${formatCount(plan.previewSummary.topTopic.value)} rows`)}
+          ${frontdoorQuestionMetricHtml("Top unit", topUnit ? displayUnitName(topUnit) : "No matching unit", topUnit ? `${topUnit.state || "NA"} · ${formatCount(topUnit.law_count)} rows` : "adjust the question")}
+        </div>
+        <div class="frontdoor-question-reasons">
+          <strong>Route logic</strong>
+          <ul>${reasonRows}</ul>
+        </div>
+      </div>
+      <p class="frontdoor-question-boundary">Front-door chat is deterministic filter routing over published aggregate artifacts. It makes no browser Grok call, reads no ordinance text, exposes no source locators, and creates no legal finding.</p>
+    </section>
+  `;
+}
+
+function frontdoorQuestionMetricHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(value)}</b>
+      <em>${escapeHtml(detail)}</em>
+    </span>
   `;
 }
 
@@ -963,6 +1020,49 @@ function applyFrontdoorExampleQuestion(action, topic, tier, question) {
   }
   answerAndLogInquiry(prompt, "front-door topic-tier example");
   state.activeTab = "inquiry";
+  render();
+}
+
+function applyFrontdoorComposerAction(action, form) {
+  const formData = form ? new FormData(form) : null;
+  const question = String(formData?.get("frontdoor_question") || state.frontdoorComposerQuestion || "").trim();
+  state.frontdoorComposerQuestion = question;
+  const plan = inquiryMapComposerPlan(question);
+  if (action === "preview" || !question) {
+    render();
+    return;
+  }
+  state.mapFilters = plan.proposedFilters;
+  state.selectedUnitId = plan.previewSummary.topUnit?.unit_id || null;
+  const inquiryInput = $("#inquiry-form input[name='question']");
+  if (inquiryInput) {
+    inquiryInput.value = question;
+  }
+  if (action === "ask") {
+    answerAndLogInquiry(question, "front-door question composer");
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    const topUnit = plan.previewSummary.topUnit;
+    const tier = topUnit?.tier || plan.proposedFilters.tier || "";
+    if (tier) {
+      state.ontologyFocusTier = tier;
+    }
+    state.geographyLayers = {
+      ...defaultGeographyLayers(),
+      ...state.geographyLayers,
+      ontology: true,
+    };
+    if (state.disclosureLevel === "overview") {
+      state.disclosureLevel = "unit";
+    }
+    state.activeTab = "ontology";
+    render();
+    return;
+  }
+  state.activeTab = "map";
   render();
 }
 
@@ -6312,7 +6412,13 @@ function inferQuestionState(normalizedQuestion, units) {
       return code;
     }
   }
-  const tokens = new Set(normalizedQuestion.toUpperCase().split(/\s+/));
+  const ambiguousWordCodes = new Set(["IN", "ME", "OR"]);
+  const tokens = new Set(
+    normalizedQuestion
+      .toUpperCase()
+      .split(/\s+/)
+      .filter((token) => token.length === 2 && !ambiguousWordCodes.has(token)),
+  );
   return [...availableStates].find((code) => tokens.has(code)) || "";
 }
 
@@ -11312,6 +11418,12 @@ function bindEvents() {
     openAnalysisJourneyStep(stepButton.dataset.journeyTab, stepButton.dataset.journeyDisclosure);
   });
   $("#frontdoor-visual-path").addEventListener("click", (event) => {
+    const composerButton = event.target.closest("[data-frontdoor-composer-action]");
+    if (composerButton) {
+      event.preventDefault();
+      applyFrontdoorComposerAction(composerButton.dataset.frontdoorComposerAction || "preview", composerButton.closest("form"));
+      return;
+    }
     const exampleButton = event.target.closest("[data-frontdoor-example-action]");
     if (exampleButton) {
       event.preventDefault();
@@ -11335,6 +11447,14 @@ function bindEvents() {
       state.disclosureLevel = disclosureButton.dataset.frontdoorDisclosure;
       render();
     }
+  });
+  $("#frontdoor-visual-path").addEventListener("submit", (event) => {
+    const form = event.target.closest("[data-frontdoor-composer]");
+    if (!form) {
+      return;
+    }
+    event.preventDefault();
+    applyFrontdoorComposerAction("preview", form);
   });
   $("#previous-record").addEventListener("click", () => {
     state.currentIndex = Math.max(0, state.currentIndex - 1);
