@@ -307,7 +307,7 @@
     "top_topic": "Other (407704)",
     "unit_count": 1000
   },
-  "generated_at": "2026-06-22T09:05:41.467851+00:00",
+  "generated_at": "2026-06-22T09:55:24.246180+00:00",
   "generator": "evolocus-static-progressive-inquiry",
   "grok": {
     "docs": "https://docs.x.ai/overview",
@@ -316,7 +316,7 @@
     "secret_env": "GROK_API_KEY",
     "used": true
   },
-  "grok_summary": "The EvoLOCUS aggregate covers 1,517,672 laws across 1,000 units in 50 states (823 cities, 177 counties). It includes an ontology of 1,018 nodes and 3,000 edges, with Rules (962,831) and Other (407,704) as leading categories. Raw ordinance text is not published. Model-produced scores are neutral unless direction is verified.",
+  "grok_summary": "This aggregate EvoLOCUS artifact summarizes 1,517,672 laws across 50 states from 1,000 units (823 cities, 177 counties). Ontology coverage includes 1,018 nodes and 3,000 edges, with top elements Rules (962,831) and Other (407,704). Raw ordinance text is not published. Model-produced scores remain neutral unless direction is verified. Dataset revision: main; analysis state: local_aggregate_ready.",
   "license": "CC-BY-NC-4.0",
   "paper": "https://arxiv.org/abs/2606.19334",
   "publication_policy": {

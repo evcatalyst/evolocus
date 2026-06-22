@@ -1,17 +1,17 @@
 {
   "analysis_status": {
-    "briefing_generated_at": "2026-06-22T09:05:41.467851+00:00",
+    "briefing_generated_at": "2026-06-22T09:55:24.246180+00:00",
     "law_count": 1517672,
     "map_generated_at": "2026-06-21T15:37:25.346485+00:00",
-    "question_pack_generated_at": "2026-06-22T09:05:46.019534+00:00",
-    "refresh_run_id": 27941425678,
-    "refresh_run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27941425678",
+    "question_pack_generated_at": "2026-06-22T09:55:29.920578+00:00",
+    "refresh_run_id": 27941659930,
+    "refresh_run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27941659930",
     "state": "local_aggregate_ready",
     "unit_count": 1000
   },
   "cards": [
     {
-      "answer": "The EvoLOCUS aggregate covers 1,517,672 laws across 1,000 units in 50 states (823 cities, 177 counties). It includes an ontology of 1,018 nodes and 3,000 edges, with Rules (962,831) and Other (407,704) as leading categories. Raw ordinance text is not published. Model-produced scores are neutral unless direction is verified.",
+      "answer": "This aggregate EvoLOCUS artifact summarizes 1,517,672 laws across 50 states from 1,000 units (823 cities, 177 counties). Ontology coverage includes 1,018 nodes and 3,000 edges, with top elements Rules (962,831) and Other (407,704). Raw ordinance text is not published. Model-produced scores remain neutral unless direction is verified. Dataset revision: main; analysis state: local_aggregate_ready.",
       "detail": "Open the high-level answer before drilling into unit or evidence views.",
       "id": "aggregate-summary",
       "label": "Grok summary",
@@ -46,7 +46,7 @@
       "title": "Offline aggregate synthesis"
     },
     {
-      "answer": "This question pack provides 8 filter-aware prompts from dataset revision main, titled Current view, CA focus, Other topic, Rules function, Tier 1 tier, Audit signals, Selected unit, and Local package. Select by title to apply filters. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
+      "answer": "This question pack includes 8 prompts (dataset revision main) titled Current view, CA focus, Other topic, Rules function, Tier 1 tier, Audit signals, Selected unit, and Local package. Apply filters to select relevant prompts for interface queries. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
       "detail": "Use the generated question to color the map before opening the answer.",
       "id": "question-router",
       "label": "Askable pack",
@@ -198,7 +198,7 @@
   "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
   "dataset_id": "LocalLaws/LOCUS-v1",
   "dataset_revision": "main",
-  "generated_at": "2026-06-22T09:05:51.815308+00:00",
+  "generated_at": "2026-06-22T09:55:37.952613+00:00",
   "generator": "evolocus-ai-analysis-pack",
   "grok": {
     "browser_policy": "Model calls run only in local tooling or GitHub Actions. Pages receives sanitized aggregate JSON.",
@@ -255,21 +255,21 @@
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T09:05:41.467851+00:00",
+      "generated_at": "2026-06-22T09:55:24.246180+00:00",
       "id": "inquiry_briefings",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-progressive-inquiry-v1",
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T09:05:46.019534+00:00",
+      "generated_at": "2026-06-22T09:55:29.920578+00:00",
       "id": "question_pack",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-filter-aware-question-pack-v1",
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T09:01:35.540738+00:00",
+      "generated_at": "2026-06-22T09:05:51.887130+00:00",
       "id": "refresh_status",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-actions-refresh-status-v1",
