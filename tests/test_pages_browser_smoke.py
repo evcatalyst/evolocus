@@ -226,6 +226,13 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "question-to-map answer card" in answer_card_highlight_text
             assert "no browser-side grok call" in answer_card_highlight_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.wait_for_selector(".map-question-highlight-detail-card [data-unit-id]", timeout=10_000)
+            detail_card_text = page.locator(".map-question-highlight-detail-card").first.inner_text(timeout=5_000).lower()
+            assert "why this unit matched" in detail_card_text
+            assert "not evidence that a law controls" in detail_card_text
+            assert "rows" in detail_card_text
+            page.locator(".map-question-highlight-detail-card [data-unit-id]").first.click()
+            page.wait_for_selector(".selected-query-replay", timeout=10_000)
             page.locator("[data-tab='inquiry']").click()
             page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
             page.locator("#inquiry-form input[name='question']").fill("Show zoning units on the map")

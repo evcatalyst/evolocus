@@ -213,6 +213,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "evolocus-question-map-highlight-v1" in js
     assert "data-clear-inquiry-map-highlight" in js
     assert "Chat-to-map highlight" in js
+    assert "mapQuestionHighlightDetailCardsHtml" in js
+    assert "mapQuestionHighlightDetailCardHtml" in js
+    assert "mapQuestionHighlightUnitReasons" in js
+    assert "Why highlighted county/town units matched" in js
+    assert "Why this unit matched is a public aggregate navigation explanation" in js
+    assert "map-question-highlight-details" in css
+    assert "map-question-highlight-detail-card" in css
+    assert "map-question-highlight-reasons" in css
     assert "map-unit${selected}${packageClass}${inquiryClass}" in js
     assert "browser-side Grok call" in js
     assert "browser_model_call: false" in js

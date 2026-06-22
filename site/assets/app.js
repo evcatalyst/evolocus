@@ -2296,11 +2296,97 @@ function renderMapQuestionHighlight(units) {
       </div>
       ${questionOntologyRouteHtml(ontologyRoute, "map")}
       ${topUnits.length ? `<div class="map-question-highlight-units">${topUnits.map((unit) => mapQuestionHighlightUnitHtml(unit)).join("")}</div>` : ""}
+      ${mapQuestionHighlightDetailCardsHtml(highlight, visibleHighlightedUnits)}
       <p class="map-question-highlight-boundary">
         Highlighting uses public aggregate unit IDs and counts from static artifacts. It exposes no ordinance text, source locators, review events, rankings, legal conclusions, and makes no browser-side Grok call.
       </p>
     </section>
   `;
+}
+
+function mapQuestionHighlightDetailCardsHtml(highlight, units) {
+  const detailUnits = (units || [])
+    .slice()
+    .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0) || displayUnitName(a).localeCompare(displayUnitName(b)))
+    .slice(0, state.disclosureLevel === "evidence" ? 5 : state.disclosureLevel === "unit" ? 4 : 3);
+  if (!detailUnits.length) {
+    return "";
+  }
+  return `
+    <div class="map-question-highlight-details" aria-label="Highlighted county and town detail cards">
+      <div class="map-question-highlight-details-heading">
+        <strong>Why highlighted county/town units matched</strong>
+        <span>Aggregate reasons from current filters and ontology route</span>
+      </div>
+      ${detailUnits.map((unit) => mapQuestionHighlightDetailCardHtml(highlight, unit)).join("")}
+      <p>No row text, source locators, rankings, legal findings, or browser model calls are used in these detail cards.</p>
+    </div>
+  `;
+}
+
+function mapQuestionHighlightDetailCardHtml(highlight, unit) {
+  const reasons = mapQuestionHighlightUnitReasons(highlight, unit);
+  return `
+    <article class="map-question-highlight-detail-card">
+      <button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">
+        <i style="background:${escapeHtml(unit.tier_color || "#d8dee8")}"></i>
+        <span>
+          <strong>${escapeHtml(displayUnitName(unit))}</strong>
+          <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</em>
+        </span>
+      </button>
+      <dl>
+        <div><dt>Rows</dt><dd>${escapeHtml(formatCount(unit.law_count))}</dd></div>
+        <div><dt>Topic</dt><dd>${escapeHtml(text(unit.dominant_topic))}</dd></div>
+        <div><dt>Function</dt><dd>${escapeHtml(text(unit.dominant_function))}</dd></div>
+        <div><dt>Model substantive</dt><dd>${escapeHtml(formatPercentRatio(modelSubstantiveShare(unit)))}</dd></div>
+      </dl>
+      <div class="map-question-highlight-reasons">
+        ${reasons.map((reason) => `<span>${escapeHtml(reason)}</span>`).join("")}
+      </div>
+      <small>Why this unit matched is a public aggregate navigation explanation, not evidence that a law controls a place or person.</small>
+    </article>
+  `;
+}
+
+function mapQuestionHighlightUnitReasons(highlight, unit) {
+  const filters = normalizedLogMapFilters(highlight?.map_filters || {});
+  const reasons = [];
+  if (filters.state && filters.state === unit.state) {
+    reasons.push(`state ${unit.state}`);
+  }
+  if (filters.topic && (unit.dominant_topic === filters.topic || Number(unit.topic_counts?.[filters.topic] || 0) > 0)) {
+    reasons.push(`topic ${filters.topic}`);
+  }
+  if (filters.function && (unit.dominant_function === filters.function || Number(unit.function_counts?.[filters.function] || 0) > 0)) {
+    reasons.push(`function ${filters.function}`);
+  }
+  if (filters.kind && normalizePackageKind(filters.kind) === normalizePackageKind(unit.kind)) {
+    reasons.push(`unit type ${unit.kind}`);
+  }
+  const tierDefinition = filters.tier ? tierDefinitionForKey(filters.tier) : null;
+  if (filters.tier && (unit.tier === filters.tier || unit.tier_label === tierDefinition?.label || unit.tier_label === filters.tier)) {
+    reasons.push(`tier ${unit.tier_label || filters.tier}`);
+  }
+  if (filters.scoreField || filters.scoreBand) {
+    reasons.push("relative score filter");
+  }
+  if (filters.auditFocus || filters.minAuditScore) {
+    reasons.push("audit review filter");
+  }
+  if (filters.packageOnly) {
+    reasons.push("browser-local package unit");
+  }
+  if (highlight?.ontology_route?.focus_unit_id === unit.unit_id) {
+    reasons.push("ontology route focus unit");
+  }
+  if (Array.isArray(highlight?.top_unit_ids) && highlight.top_unit_ids.includes(unit.unit_id)) {
+    reasons.push("top highlighted unit");
+  }
+  if (!reasons.length && highlight?.source) {
+    reasons.push(highlight.source);
+  }
+  return reasons.length ? [...new Set(reasons)].slice(0, 5) : ["current aggregate highlight"];
 }
 
 function mapQuestionHighlightMetricHtml(label, value, detail) {

@@ -132,6 +132,7 @@ Current coverage stats:
 - Map inquiry history export: GitHub Pages exports sanitized aggregate answer history JSON with no text, locators, review events, local paths, or secrets
 - Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
 - Chat-to-map highlighting: GitHub Pages turns Inquiry and landing question routes into highlighted county/town map units using aggregate unit IDs, counts, filters, and no-content policy flags only
+- Highlighted-unit detail cards: GitHub Pages explains why top highlighted county/town aggregate units matched a question using current filters, ontology route context, and aggregate denominators only
 - Question-to-ontology routing: GitHub Pages stores content-free ontology route metadata with question highlights and saved routes so users can move from a question to highlighted units to aggregate graph nodes
 - Ontology build-status surface: GitHub Pages shows graph freshness, node/edge mix, model registry provenance, snapshot deltas, and aggregate-only boundaries
 - Ontology tier-neighborhood graph: GitHub Pages links the active neutral tier to aggregate topic, function, unit-type, and model-score nodes with map drillback and no row-level evidence
@@ -288,3 +289,4 @@ Evaluator implementation state:
 - County/town ontology query drawer surface: GitHub Pages Law Map now exposes selected-unit graph-question nodes that filter the colored county/town map, open selected-unit answers, or move to aggregate peer units without publishing ordinance text or locators.
 - County/town peer comparison drawer surface: GitHub Pages Law Map now compares selected aggregate units to peer county/town units with row bars, shared aggregate reasons, and map drillback while avoiding rankings, legal findings, source locators, and browser model calls.
 - Answer-level question-to-map card surface: GitHub Pages Inquiry answers now include tier-color explanations and buttons that open aggregate county/town map highlights from the answer context without browser model calls or row-level evidence.
+- Highlighted county/town detail surface: GitHub Pages Law Map highlights now show per-unit match reasons, topic/function/tier context, and aggregate row denominators while explicitly avoiding legal-control claims and row-level evidence.

@@ -141,6 +141,7 @@
         "Add answer-level Inquiry provenance and Grok refresh badges",
         "Add answer-level question-to-map tier color cards",
         "Run persisted Grok-backed aggregate inquiry refresh after answer map cards",
+        "Add highlighted county town detail cards for question map routes",
         "Add selected-unit query replay from map to Inquiry and Ontology",
         "Add saved inquiry route comparison visuals"
       ],

@@ -86,6 +86,7 @@ The Pages app supports:
 - ontology tier-neighborhood graph linking neutral tiers to aggregate topic, function, unit-type, and model-score nodes with map drillback;
 - map-driven ontology query presets that route current aggregate map context into bounded Inquiry answers;
 - chat-to-map highlighting that turns deterministic question filters into highlighted county/town aggregate units on the Law Map;
+- highlighted county/town detail cards explaining why aggregate units matched a question, with safe map drillback and no row evidence;
 - question-to-ontology route cards that carry typed aggregate questions from map highlights into the ontology graph without row text or live model calls;
 - map-side cross-filter legend for visible topic, function, and neutral-tier routes with safe drillback into the Law Map;
 - ontology-to-map visual presets that preview county/town color routes for tiers, topics, functions, audit signals, law-count intensity, and score bands before opening the map;
@@ -120,6 +121,7 @@ The Pages app supports:
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;
 - answer-level question-to-map cards that explain neutral tier color swatches and open matching county/town aggregate map highlights;
+- map-side highlighted-unit detail cards showing topic/function/tier match reasons and aggregate denominators for the current question;
 - Inquiry question matrix with filter-aware prompts for map, package overlay, topic, function, audit, score, and selected-unit questions;
 - inquiry-to-map question composer that previews deterministic aggregate map filters before applying them;
 - click-through mini charts inside Inquiry answers for topic, function, tier, and top-unit aggregate drillbacks;
