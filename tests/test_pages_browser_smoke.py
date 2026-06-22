@@ -186,6 +186,18 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='graph']", timeout=10_000)
             page.locator("[data-chart-route-action='graph']").click()
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
+            page.wait_for_selector(".ontology-tier-neighborhood [data-tier-neighborhood-map]", timeout=10_000)
+            tier_neighborhood_text = page.locator(".ontology-tier-neighborhood").inner_text(timeout=5_000).lower()
+            assert "tier neighborhood graph" in tier_neighborhood_text
+            assert "model-score nodes" in tier_neighborhood_text
+            assert "not a legal ontology" in tier_neighborhood_text
+            page.locator(".ontology-tier-neighborhood [data-tier-neighborhood-map]").click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            tier_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "chat-to-map highlight" in tier_highlight_text
+            assert "ontology tier neighborhood" in tier_highlight_text
+            assert "no browser-side grok call" in tier_highlight_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
 
             assert errors == []
         finally:

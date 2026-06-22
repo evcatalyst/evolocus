@@ -688,6 +688,20 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-inline-comparison-row" in css
     assert "ontology-tier-focus" in css
     assert "ontology-tier-focus-metrics" in css
+    assert "ontologyTierNeighborhoodHtml" in js
+    assert "ontologyTierNeighborhoodNodeHtml" in js
+    assert "ontologyTierScoreNeighborhoodNodes" in js
+    assert "highlightOntologyTierOnMap" in js
+    assert "data-tier-neighborhood-filter" in js
+    assert "data-tier-neighborhood-score" in js
+    assert "data-tier-neighborhood-map" in js
+    assert "Tier neighborhood graph" in js
+    assert "Neighborhood nodes are aggregate visual routes" in js
+    assert "ontology tier neighborhood" in js
+    assert "ontology-tier-neighborhood" in css
+    assert "ontology-tier-neighborhood-grid" in css
+    assert "ontology-tier-neighborhood-center" in css
+    assert "ontology-tier-neighborhood-node" in css
     assert "ontology-tier-mini-charts" in css
     assert "ontology-tier-mini-bar" in css
     assert "button.ontology-tier-mini-bar" in css

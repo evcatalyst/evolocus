@@ -5954,6 +5954,186 @@ textarea {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.ontology-tier-neighborhood {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(50, 111, 112, 0.22);
+  border-radius: 8px;
+  background: #f5faf8;
+  padding: 12px;
+}
+
+.ontology-tier-neighborhood-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: start;
+}
+
+.ontology-tier-neighborhood-heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.ontology-tier-neighborhood-heading span,
+.ontology-tier-neighborhood-lane > div:first-child span,
+.ontology-tier-neighborhood-center span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ontology-tier-neighborhood-heading strong {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.ontology-tier-neighborhood-heading strong i {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(23, 32, 51, 0.18);
+  border-radius: 5px;
+}
+
+.ontology-tier-neighborhood-heading em,
+.ontology-tier-neighborhood-lane > div:first-child em,
+.ontology-tier-neighborhood-center em,
+.ontology-tier-neighborhood-center p,
+.ontology-tier-neighborhood-boundary {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.ontology-tier-neighborhood-heading button {
+  border-color: rgba(50, 111, 112, 0.36);
+  background: #ffffff;
+  color: var(--green);
+  padding: 8px 10px;
+}
+
+.ontology-tier-neighborhood-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.7fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.ontology-tier-neighborhood-center,
+.ontology-tier-neighborhood-lane {
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.ontology-tier-neighborhood-center {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  text-align: center;
+}
+
+.ontology-tier-neighborhood-center strong {
+  color: var(--ink);
+  font-size: 1.08rem;
+}
+
+.ontology-tier-neighborhood-lane {
+  display: grid;
+  gap: 8px;
+}
+
+.ontology-tier-neighborhood-lane:nth-child(4),
+.ontology-tier-neighborhood-lane:nth-child(5) {
+  grid-column: span 1;
+}
+
+.ontology-tier-neighborhood-nodes {
+  display: grid;
+  gap: 7px;
+}
+
+.ontology-tier-neighborhood-node {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(62px, 0.55fr) auto;
+  gap: 7px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.ontology-tier-neighborhood-node:hover,
+.ontology-tier-neighborhood-node:focus-visible {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.14);
+}
+
+.ontology-tier-neighborhood-node strong,
+.ontology-tier-neighborhood-node span,
+.ontology-tier-neighborhood-node em {
+  overflow-wrap: anywhere;
+}
+
+.ontology-tier-neighborhood-node strong {
+  font-size: 0.78rem;
+}
+
+.ontology-tier-neighborhood-node i {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7eef3;
+}
+
+.ontology-tier-neighborhood-node u {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+
+.ontology-tier-neighborhood-node.function u {
+  background: #4f6f91;
+}
+
+.ontology-tier-neighborhood-node.kind u {
+  background: #b7892c;
+}
+
+.ontology-tier-neighborhood-node.score u {
+  background: #8d6aa8;
+}
+
+.ontology-tier-neighborhood-node span,
+.ontology-tier-neighborhood-node em {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.ontology-tier-neighborhood-node em {
+  grid-column: 1 / -1;
+}
+
+.ontology-tier-neighborhood-boundary {
+  margin: 0;
+}
+
 .ontology-tier-mini-charts {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -8454,6 +8634,7 @@ th {
   .ontology-tier-focus-heading,
   .ontology-tier-focus-metrics,
   .ontology-tier-focus-links,
+  .ontology-tier-neighborhood-grid,
   .ontology-tier-mini-charts,
   .ontology-tier-focus-units > div,
   .package-ontology-lane,
@@ -8606,6 +8787,7 @@ th {
   .ontology-tier-focus-heading,
   .ontology-tier-focus-metrics,
   .ontology-tier-focus-links,
+  .ontology-tier-neighborhood-grid,
   .ontology-tier-mini-charts,
   .ontology-tier-focus-units > div,
   .package-ontology-heading,

@@ -79,6 +79,7 @@ The Pages app supports:
 - Results-tab package coverage visuals after bounded package upload, including state/topic/function/type/OCR mix and review progress;
 - ontology view for topics, functions, tiers, model outputs, and jurisdiction units;
 - ontology build-status panel for graph freshness, node/edge mix, model registry provenance, and aggregate-only boundaries;
+- ontology tier-neighborhood graph linking neutral tiers to aggregate topic, function, unit-type, and model-score nodes with map drillback;
 - map-driven ontology query presets that route current aggregate map context into bounded Inquiry answers;
 - chat-to-map highlighting that turns deterministic question filters into highlighted county/town aggregate units on the Law Map;
 - ontology-to-map visual presets that preview county/town color routes for tiers, topics, functions, audit signals, law-count intensity, and score bands before opening the map;

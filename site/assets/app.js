@@ -6017,6 +6017,7 @@ function ontologyTierFocusHtml() {
           <strong>${escapeHtml(filters)}</strong>
         </article>
       </div>
+      ${ontologyTierNeighborhoodHtml(tierKey, definition, summary, visibleUnits)}
       ${ontologyTierMiniChartsHtml(summary)}
       <div class="ontology-tier-focus-units">
         <h4>Visible county/town units in this tier</h4>
@@ -6043,6 +6044,117 @@ function ontologyTierMiniChartsHtml(summary) {
       ${ontologyTierScoreChartHtml(summary.scoreMeans)}
     </div>
   `;
+}
+
+function ontologyTierNeighborhoodHtml(tierKey, definition, summary, visibleUnits) {
+  const rowLimit = state.disclosureLevel === "overview" ? 3 : 5;
+  const topicNodes = topCountEntries(summary.topicCounts, rowLimit).map((row) => ontologyTierNeighborhoodNode("topic", row.label, row.value, summary.lawCount, "topic law rows"));
+  const functionNodes = topCountEntries(summary.functionCounts, rowLimit).map((row) => ontologyTierNeighborhoodNode("function", row.label, row.value, summary.lawCount, "function law rows"));
+  const kindNodes = topCountEntries(summary.kindCounts, Math.min(3, rowLimit)).map((row) => ontologyTierNeighborhoodNode("kind", row.label, row.value, visibleUnits.length, "visible units", titleCase(row.label)));
+  const scoreNodes = ontologyTierScoreNeighborhoodNodes(summary.scoreMeans);
+  const centerLabel = definition.label || tierKey || "Neutral tier";
+  const centerDetail = `${formatCount(visibleUnits.length)} units · ${formatCount(summary.lawCount)} rows`;
+  return `
+    <section class="ontology-tier-neighborhood" aria-label="Tier ontology neighborhood graph">
+      <div class="ontology-tier-neighborhood-heading">
+        <div>
+          <span>Tier neighborhood graph</span>
+          <strong><i style="background:${escapeHtml(definition.color || "#d8dee8")}"></i>${escapeHtml(centerLabel)}</strong>
+          <em>${escapeHtml(centerDetail)}</em>
+        </div>
+        <button type="button" data-tier-neighborhood-map>Highlight tier on map</button>
+      </div>
+      <div class="ontology-tier-neighborhood-grid">
+        ${ontologyTierNeighborhoodLaneHtml("Topic nodes", "released model topic labels", topicNodes)}
+        ${ontologyTierNeighborhoodCenterHtml(centerLabel, centerDetail)}
+        ${ontologyTierNeighborhoodLaneHtml("Function nodes", "released model function labels", functionNodes)}
+        ${ontologyTierNeighborhoodLaneHtml("Unit type nodes", "city/county aggregate units", kindNodes)}
+        ${ontologyTierNeighborhoodLaneHtml("Model-score nodes", "neutral relative means; direction unverified", scoreNodes)}
+      </div>
+      <p class="ontology-tier-neighborhood-boundary">Neighborhood nodes are aggregate visual routes from map_layers.json only. They are not a legal ontology, ranking, source-backed claim, or row-level evidence trail.</p>
+    </section>
+  `;
+}
+
+function ontologyTierNeighborhoodNode(type, value, amount, denominator, detail, label = value) {
+  return {
+    type,
+    value,
+    label,
+    amount: Number(amount || 0),
+    detail,
+    share: formatPercent(amount, denominator),
+  };
+}
+
+function ontologyTierScoreNeighborhoodNodes(scoreMeans) {
+  return SCORE_FIELDS.map((field) => {
+    const value = Number(scoreMeans?.[field]);
+    return {
+      type: "score",
+      value: field,
+      label: scoreFieldLabel(field),
+      amount: Number.isFinite(value) ? Math.abs(value) : 0,
+      rawValue: Number.isFinite(value) ? formatScore(value) : "n/a",
+      detail: "neutral mean",
+      share: "relative score",
+    };
+  });
+}
+
+function ontologyTierNeighborhoodCenterHtml(label, detail) {
+  return `
+    <article class="ontology-tier-neighborhood-center">
+      <span>Tier node</span>
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(detail)}</em>
+      <p>Click a surrounding node to carry this tier context back to the county/town map.</p>
+    </article>
+  `;
+}
+
+function ontologyTierNeighborhoodLaneHtml(title, detail, nodes) {
+  return `
+    <article class="ontology-tier-neighborhood-lane">
+      <div>
+        <span>${escapeHtml(title)}</span>
+        <em>${escapeHtml(detail)}</em>
+      </div>
+      <div class="ontology-tier-neighborhood-nodes">
+        ${
+          nodes.length
+            ? nodes.map(ontologyTierNeighborhoodNodeHtml).join("")
+            : '<p class="muted-note">No aggregate nodes available for this lane under current filters.</p>'
+        }
+      </div>
+    </article>
+  `;
+}
+
+function ontologyTierNeighborhoodNodeHtml(node) {
+  const isScore = node.type === "score";
+  const width = isScore
+    ? Math.max(4, Math.min(100, Number(node.amount || 0) * 100))
+    : Math.max(4, Math.min(100, Number.parseFloat(node.share) || 0));
+  const attrs = isScore
+    ? `data-tier-neighborhood-score="${escapeHtml(node.value)}"`
+    : `data-tier-neighborhood-filter="${escapeHtml(node.type)}" data-tier-neighborhood-value="${escapeHtml(node.value)}"`;
+  return `
+    <button type="button" class="ontology-tier-neighborhood-node ${escapeHtml(node.type)}" ${attrs}>
+      <strong>${escapeHtml(node.label)}</strong>
+      <i><u style="width:${width.toFixed(2)}%"></u></i>
+      <span>${escapeHtml(isScore ? node.rawValue : formatCount(node.amount))}</span>
+      <em>${escapeHtml(node.share)} · ${escapeHtml(node.detail)}</em>
+    </button>
+  `;
+}
+
+function applyTierNeighborhoodFilter(filterType, value) {
+  if (filterType === "score") {
+    applyTierScoreFilter(value, "high");
+    return;
+  }
+  applyTierMiniFilter(filterType, value);
 }
 
 function ontologyTierBarChartHtml(title, rows, detail, filterType = "", labeler = (value) => value) {
@@ -6096,6 +6208,26 @@ function applyTierMiniFilter(filterType, value) {
   }
   state.selectedUnitId = null;
   state.disclosureLevel = "unit";
+  state.activeTab = "map";
+  render();
+}
+
+function highlightOntologyTierOnMap() {
+  const tierKey = state.ontologyFocusTier;
+  if (!tierKey) {
+    state.activeTab = "map";
+    render();
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    tier: tierKey,
+  };
+  const units = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const definition = tierDefinitionForKey(tierKey);
+  const question = `Show ${definition.label || tierKey} aggregate units on the map`;
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "ontology tier neighborhood", units);
+  state.selectedUnitId = units[0]?.unit_id || null;
   state.activeTab = "map";
   render();
 }
@@ -12800,6 +12932,24 @@ function bindEvents() {
     const tierUnitButton = event.target.closest("[data-tier-ontology-unit]");
     if (tierUnitButton) {
       openAuditUnitOnMap(tierUnitButton.dataset.tierOntologyUnit);
+      return;
+    }
+    const tierNeighborhoodMapButton = event.target.closest("[data-tier-neighborhood-map]");
+    if (tierNeighborhoodMapButton) {
+      highlightOntologyTierOnMap();
+      return;
+    }
+    const tierNeighborhoodScoreButton = event.target.closest("[data-tier-neighborhood-score]");
+    if (tierNeighborhoodScoreButton) {
+      applyTierNeighborhoodFilter("score", tierNeighborhoodScoreButton.dataset.tierNeighborhoodScore || "");
+      return;
+    }
+    const tierNeighborhoodFilterButton = event.target.closest("[data-tier-neighborhood-filter]");
+    if (tierNeighborhoodFilterButton) {
+      applyTierNeighborhoodFilter(
+        tierNeighborhoodFilterButton.dataset.tierNeighborhoodFilter || "",
+        tierNeighborhoodFilterButton.dataset.tierNeighborhoodValue || "",
+      );
       return;
     }
     const tierMiniFilterButton = event.target.closest("[data-tier-mini-filter]");
