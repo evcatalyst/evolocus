@@ -282,10 +282,16 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderMapReadingGuide" in js
     assert "mapTopicTierMatrixHtml" in js
     assert "topicTierMatrixRows" in js
+    assert "mapTopicTierQuestion" in js
     assert "applyMapTopicTierMatrix" in js
+    assert "askMapTopicTierMatrix" in js
+    assert "data-map-topic-tier-filter" in js
     assert "data-map-topic-tier-topic" in js
+    assert "data-map-topic-tier-ask" in js
+    assert "Ask cell" in js
+    assert "map topic/tier matrix" in js
     assert "Topic/tier co-occurrence" in js
-    assert "Counts are aggregate jurisdiction units and rows, not legal findings." in js
+    assert "Ask opens a deterministic Inquiry answer for that aggregate cell." in js
     assert "renderMapInlineInquiry" in js
     assert "mapInlineInquiryPrompts" in js
     assert "mapInlineComparisonStripHtml" in js
@@ -419,6 +425,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-topic-tier-matrix" in css
     assert "map-topic-tier-grid" in css
     assert "map-topic-tier-cell" in css
+    assert "map-topic-tier-filter" in css
+    assert "map-topic-tier-ask" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
     assert "map-inline-inquiry-history" in css

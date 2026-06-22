@@ -2049,8 +2049,9 @@ textarea {
 }
 
 .map-topic-tier-topic em,
-.map-topic-tier-cell em,
-.map-topic-tier-cell small {
+.map-topic-tier-filter em,
+.map-topic-tier-filter small,
+.map-topic-tier-empty-label {
   color: var(--muted);
   font-size: 0.72rem;
   font-style: normal;
@@ -2059,25 +2060,47 @@ textarea {
 
 .map-topic-tier-cell {
   display: grid;
-  gap: 4px;
+  gap: 6px;
+}
+
+.map-topic-tier-cell.empty {
+  opacity: 0.58;
+}
+
+.map-topic-tier-filter,
+.map-topic-tier-ask {
   color: var(--ink);
   text-align: left;
   cursor: pointer;
 }
 
-.map-topic-tier-cell:hover,
-.map-topic-tier-cell:focus-visible {
+.map-topic-tier-filter {
+  display: grid;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.map-topic-tier-filter:hover,
+.map-topic-tier-filter:focus-visible,
+.map-topic-tier-ask:hover,
+.map-topic-tier-ask:focus-visible {
   border-color: var(--green);
-  background: #edf3f1;
   box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.12);
 }
 
-.map-topic-tier-cell:disabled {
+.map-topic-tier-filter:hover,
+.map-topic-tier-filter:focus-visible {
+  background: #edf3f1;
+}
+
+.map-topic-tier-filter:disabled {
   cursor: not-allowed;
   opacity: 0.48;
 }
 
-.map-topic-tier-cell span {
+.map-topic-tier-filter span {
   display: block;
   height: 8px;
   overflow: hidden;
@@ -2085,11 +2108,21 @@ textarea {
   background: #e6ecef;
 }
 
-.map-topic-tier-cell b {
+.map-topic-tier-filter b {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: var(--green);
+}
+
+.map-topic-tier-ask {
+  justify-self: start;
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--green);
+  padding: 5px 8px;
+  font-size: 0.72rem;
+  font-weight: 850;
 }
 
 .map-inline-inquiry {

@@ -53,6 +53,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - map-side law-location tier guide with active filters, visible county/town counts, neutral tier mix, and publication boundary copy;
 - map-side topic/tier co-occurrence mini matrix with aggregate-unit counts, row bars, and filter drillback;
+- matrix-linked Inquiry prompts that open deterministic aggregate answers for selected topic/tier cells;
 - tier-to-ontology clickthrough from neutral tier chips into a focused ontology context card for visible units, topic/function links, and score summaries;
 - tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology card;
 - tier-focus mini-chart drilldowns that return to the map with topic, function, or unit-type filters applied;

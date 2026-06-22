@@ -1052,7 +1052,7 @@ function mapTopicTierMatrixHtml(units, tierDefinitions) {
         ${matrix.tiers.map((tier) => mapTopicTierHeaderHtml(tier)).join("")}
         ${matrix.rows.map((row) => mapTopicTierRowHtml(row, matrix)).join("")}
       </div>
-      <p>Cells apply map filters by dominant topic and neutral tier. Counts are aggregate jurisdiction units and rows, not legal findings.</p>
+      <p>Filter narrows the map by dominant topic and neutral tier. Ask opens a deterministic Inquiry answer for that aggregate cell. Counts are aggregate jurisdiction units and rows, not legal findings.</p>
     </section>
   `;
 }
@@ -1146,14 +1146,28 @@ function mapTopicTierCellHtml(cell, maxLawCount) {
   const width = Math.max(cell.lawCount ? 7 : 0, (Number(cell.lawCount || 0) / maxLawCount) * 100).toFixed(2);
   const disabled = cell.unitCount ? "" : " disabled";
   const topUnit = cell.topUnit ? displayUnitName(cell.topUnit) : "No aggregate unit";
+  const question = mapTopicTierQuestion(cell);
   return `
-    <button type="button" class="map-topic-tier-cell"${disabled} data-map-topic-tier-topic="${escapeHtml(cell.topic)}" data-map-topic-tier-tier="${escapeHtml(cell.tierKey)}">
-      <span><b style="width:${escapeHtml(width)}%"></b></span>
-      <strong>${escapeHtml(formatCount(cell.unitCount))}</strong>
-      <em>${escapeHtml(formatCount(cell.lawCount))} rows</em>
-      <small>${escapeHtml(topUnit)}</small>
-    </button>
+    <div class="map-topic-tier-cell${cell.unitCount ? "" : " empty"}">
+      <button type="button" class="map-topic-tier-filter"${disabled} data-map-topic-tier-filter data-map-topic-tier-topic="${escapeHtml(cell.topic)}" data-map-topic-tier-tier="${escapeHtml(cell.tierKey)}">
+        <span><b style="width:${escapeHtml(width)}%"></b></span>
+        <strong>${escapeHtml(formatCount(cell.unitCount))}</strong>
+        <em>${escapeHtml(formatCount(cell.lawCount))} rows</em>
+        <small>${escapeHtml(topUnit)}</small>
+      </button>
+      ${
+        cell.unitCount
+          ? `<button type="button" class="map-topic-tier-ask" data-map-topic-tier-ask data-map-topic-tier-topic="${escapeHtml(cell.topic)}" data-map-topic-tier-tier="${escapeHtml(cell.tierKey)}" data-map-topic-tier-question="${escapeHtml(question)}">Ask cell</button>`
+          : '<span class="map-topic-tier-empty-label">No visible units</span>'
+      }
+    </div>
   `;
+}
+
+function mapTopicTierQuestion(cell) {
+  const topicClause = cell.topic ? `${cell.topic} laws` : "laws without a dominant topic";
+  const tierClause = cell.tierLabel || "the selected neutral tier";
+  return `What does the current filtered map view show for ${topicClause} in ${tierClause} units?`;
 }
 
 function renderMapInlineInquiry() {
@@ -7442,6 +7456,23 @@ function applyMapTopicTierMatrix(topic, tier) {
   renderMap();
 }
 
+function askMapTopicTierMatrix(topic, tier, question) {
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: topic || "",
+    tier: tier || "",
+  };
+  state.selectedUnitId = null;
+  const prompt = question || "What does the current filtered map view show?";
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = prompt;
+  }
+  answerAndLogInquiry(prompt, "map topic/tier matrix");
+  state.activeTab = "inquiry";
+  render();
+}
+
 function resetMapFilters() {
   state.mapFilters = defaultMapFilters();
   state.selectedUnitId = null;
@@ -8714,7 +8745,17 @@ function bindEvents() {
       openAuditUnitOnMap(mapCompareButton.dataset.mapCompareUnit);
       return;
     }
-    const topicTierButton = event.target.closest("[data-map-topic-tier-topic], [data-map-topic-tier-tier]");
+    const topicTierAskButton = event.target.closest("[data-map-topic-tier-ask]");
+    if (topicTierAskButton) {
+      event.preventDefault();
+      askMapTopicTierMatrix(
+        topicTierAskButton.dataset.mapTopicTierTopic || "",
+        topicTierAskButton.dataset.mapTopicTierTier || "",
+        topicTierAskButton.dataset.mapTopicTierQuestion || "",
+      );
+      return;
+    }
+    const topicTierButton = event.target.closest("[data-map-topic-tier-filter]");
     if (topicTierButton) {
       event.preventDefault();
       applyMapTopicTierMatrix(topicTierButton.dataset.mapTopicTierTopic || "", topicTierButton.dataset.mapTopicTierTier || "");
