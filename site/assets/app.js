@@ -1892,6 +1892,7 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
       <div class="map-reading-guide-tiers" aria-label="Visible neutral tier mix">
         ${tierRows || "<span><strong>No visible tiers</strong><em>adjust filters</em></span>"}
       </div>
+      ${mapTierLegendDrilldownHtml(units, summary, tierDefinitions)}
       ${mapCrossFilterLegendHtml(units, summary, tierDefinitions)}
       ${mapTopicTierMatrixHtml(units, tierDefinitions)}
       <div class="map-reading-guide-filters" aria-label="Active map filters">
@@ -1905,6 +1906,111 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
         Official county polygons and municipal points are machine-matched and pending review. Public artifacts contain aggregate counts only: no ordinance text, source locators, review events, or legal findings.
       </p>
     </section>
+  `;
+}
+
+function mapTierLegendDrilldownHtml(units, summary, tierDefinitions) {
+  const rows = mapTierLegendDrilldownRows(units, summary, tierDefinitions);
+  if (!rows.length) {
+    return "";
+  }
+  return `
+    <section class="map-tier-drilldown" aria-label="County/town tier color drilldown">
+      <div class="map-tier-drilldown-heading">
+        <div>
+          <span>County/town tier color drilldown</span>
+          <strong>Explain the visible map colors.</strong>
+        </div>
+        <em>Aggregate rows and units only</em>
+      </div>
+      <div class="map-tier-drilldown-grid">
+        ${rows.map(mapTierLegendDrilldownCardHtml).join("")}
+      </div>
+      <p>Tier colors are neutral model-output review bands. Drilldowns filter or focus aggregate county/town units only; they are not rankings, legal findings, source records, or evidence that a law controls a place.</p>
+    </section>
+  `;
+}
+
+function mapTierLegendDrilldownRows(units, summary, tierDefinitions) {
+  const rows = new Map();
+  for (const unit of units || []) {
+    const tierKey = unit.tier || tierKeyForLabel(unit.tier_label, tierDefinitions) || "";
+    const definition = tierDefinitionForKey(tierKey);
+    const rowKey = tierKey || unit.tier_label || "unknown";
+    const row = rows.get(rowKey) || {
+      tierKey,
+      label: definition.label || unit.tier_label || tierKey || "No neutral tier",
+      color: definition.color || unit.tier_color || "#d8dee8",
+      description: definition.description || "Neutral model-output review band.",
+      lawCount: 0,
+      unitCount: 0,
+      countyCount: 0,
+      municipalCount: 0,
+      topicCounts: {},
+      functionCounts: {},
+      topUnit: null,
+    };
+    row.lawCount += Number(unit.law_count || 0);
+    row.unitCount += 1;
+    row.countyCount += unit.kind === "county" ? 1 : 0;
+    row.municipalCount += unit.kind === "city" ? 1 : 0;
+    row.topUnit = !row.topUnit || Number(unit.law_count || 0) > Number(row.topUnit.law_count || 0) ? unit : row.topUnit;
+    for (const [topic, value] of Object.entries(unit.topic_counts || {})) {
+      if (topic && topic !== "Not_applicable") {
+        row.topicCounts[topic] = Number(row.topicCounts[topic] || 0) + Number(value || 0);
+      }
+    }
+    for (const [fn, value] of Object.entries(unit.function_counts || {})) {
+      if (fn) {
+        row.functionCounts[fn] = Number(row.functionCounts[fn] || 0) + Number(value || 0);
+      }
+    }
+    rows.set(rowKey, row);
+  }
+  const denominator = Number(summary?.lawCount || 0);
+  const limit = state.disclosureLevel === "overview" ? 3 : 5;
+  return [...rows.values()]
+    .map((row) => {
+      const topTopic = topEntry(row.topicCounts);
+      const topFunction = topEntry(row.functionCounts);
+      return {
+        ...row,
+        shareLabel: formatPercent(row.lawCount, denominator),
+        topTopic,
+        topFunction,
+      };
+    })
+    .sort((a, b) => b.lawCount - a.lawCount || b.unitCount - a.unitCount || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+function mapTierLegendDrilldownCardHtml(row) {
+  const tierKey = row.tierKey || tierKeyForLabel(row.label, state.analysis.mapLayers?.tier_definitions || {}) || row.label;
+  return `
+    <article class="map-tier-drilldown-card">
+      <div class="map-tier-drilldown-card-heading">
+        <i style="background:${escapeHtml(row.color)}"></i>
+        <span>
+          <strong>${escapeHtml(row.label)}</strong>
+          <em>${escapeHtml(row.description)}</em>
+        </span>
+      </div>
+      <dl>
+        <div><dt>Units</dt><dd>${escapeHtml(formatCount(row.unitCount))}</dd></div>
+        <div><dt>Rows</dt><dd>${escapeHtml(formatCount(row.lawCount))}</dd></div>
+        <div><dt>Share</dt><dd>${escapeHtml(row.shareLabel)}</dd></div>
+        <div><dt>County/town</dt><dd>${escapeHtml(`${formatCount(row.countyCount)} / ${formatCount(row.municipalCount)}`)}</dd></div>
+      </dl>
+      <p>
+        Top aggregate route: ${escapeHtml(row.topTopic.label)} topic (${escapeHtml(formatCount(row.topTopic.value))} rows)
+        · ${escapeHtml(row.topFunction.label)} function (${escapeHtml(formatCount(row.topFunction.value))} rows)
+        · ${escapeHtml(row.topUnit ? displayUnitName(row.topUnit) : "no unit")}
+      </p>
+      <div class="map-tier-drilldown-actions">
+        <button type="button" data-map-tier-drilldown="filter" data-map-tier-drilldown-value="${escapeHtml(tierKey)}">Filter map</button>
+        <button type="button" data-map-tier-drilldown="ontology" data-map-tier-drilldown-value="${escapeHtml(tierKey)}">Open ontology</button>
+      </div>
+    </article>
   `;
 }
 
@@ -12432,6 +12538,38 @@ function applyMapCrossFilterLegend(type, value, label = "") {
   renderMap();
 }
 
+function applyMapTierLegendDrilldown(action, tierKey) {
+  if (!tierKey) {
+    return;
+  }
+  const definition = tierDefinitionForKey(tierKey);
+  if (action === "ontology") {
+    state.mapFilters = {
+      ...state.mapFilters,
+      tier: tierKey,
+    };
+    openTierOntology(tierKey);
+    return;
+  }
+  if (action !== "filter") {
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    tier: tierKey,
+  };
+  state.selectedUnitId = null;
+  state.geographyColorMode = "tier";
+  state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+  const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    `Tier color drilldown: ${definition.label || tierKey}`,
+    "map tier legend drilldown",
+    visibleUnits,
+  );
+  renderMap();
+}
+
 function askMapTopicTierMatrix(topic, tier, question) {
   state.mapFilters = {
     ...state.mapFilters,
@@ -13946,6 +14084,15 @@ function bindEvents() {
         crossFilterButton.dataset.mapCrossFilter || "",
         crossFilterButton.dataset.mapCrossValue || "",
         crossFilterButton.dataset.mapCrossLabel || "",
+      );
+      return;
+    }
+    const tierDrilldownButton = event.target.closest("[data-map-tier-drilldown]");
+    if (tierDrilldownButton) {
+      event.preventDefault();
+      applyMapTierLegendDrilldown(
+        tierDrilldownButton.dataset.mapTierDrilldown || "",
+        tierDrilldownButton.dataset.mapTierDrilldownValue || "",
       );
       return;
     }

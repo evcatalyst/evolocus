@@ -136,3 +136,4 @@
 - Highlighted-unit detail cards should explain why a public aggregate unit matched a question using filter and ontology-route context, not by implying legal control or publishing row-level evidence.
 - Ontology traces on highlighted units should explain the aggregate navigation path from topic/function/tier nodes to a county/town color mark, not legal authority, rankings, or row-level evidence.
 - Answer-level ontology filter chips should be treated as progressive aggregate map navigation, not as evidence that a law controls a place or as a browser-side model answer.
+- Tier-color drilldowns should explain visible aggregate county/town map colors with counts and graph routes, not as rankings, controlling legal authority, or source-backed findings.

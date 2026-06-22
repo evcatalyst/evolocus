@@ -50,6 +50,7 @@
         "Add selected-unit mini ontology path animation",
         "Add map-side law-location tier guide with active filters and county/town scope",
         "Add tier-to-ontology clickthrough from map guide tier chips",
+        "Add map-side tier color drilldown cards for county town legend",
         "Add map-side chat-style inquiry panel for current aggregate filters",
         "Add chat-to-map highlighting for deterministic aggregate question routes",
         "Add ontology tier-neighborhood graph for topic/function/unit-type/model-score drillbacks",

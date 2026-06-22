@@ -449,6 +449,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Ask this pathway" in js
     assert "Open on map" in js
     assert "renderMapReadingGuide" in js
+    assert "mapTierLegendDrilldownHtml" in js
+    assert "mapTierLegendDrilldownRows" in js
+    assert "mapTierLegendDrilldownCardHtml" in js
+    assert "applyMapTierLegendDrilldown" in js
+    assert "County/town tier color drilldown" in js
+    assert "Explain the visible map colors." in js
+    assert "Tier colors are neutral model-output review bands" in js
+    assert "map tier legend drilldown" in js
+    assert "data-map-tier-drilldown" in js
     assert "mapCrossFilterLegendHtml" in js
     assert "crossFilterCountRows" in js
     assert "crossFilterTierRows" in js
@@ -460,6 +469,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Cross-filter legend" in js
     assert "Visible topic, function, and tier routes" in js
     assert "Rows apply browser map filters from aggregate counts only" in js
+    assert "map-tier-drilldown" in css
+    assert "map-tier-drilldown-card" in css
+    assert "map-tier-drilldown-actions" in css
     assert "map-cross-filter-legend" in css
     assert "map-cross-filter-grid" in css
     assert "map-cross-filter-row" in css

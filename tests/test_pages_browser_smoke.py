@@ -139,6 +139,16 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "charts tab brush" in chart_brush_text
             assert "no browser-side grok call" in chart_brush_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.wait_for_selector(".map-tier-drilldown [data-map-tier-drilldown='filter']", timeout=10_000)
+            tier_drilldown_text = page.locator(".map-tier-drilldown").inner_text(timeout=5_000).lower()
+            assert "county/town tier color drilldown" in tier_drilldown_text
+            assert "explain the visible map colors" in tier_drilldown_text
+            assert "not rankings" in tier_drilldown_text
+            page.locator(".map-tier-drilldown [data-map-tier-drilldown='filter']").first.click()
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            tier_drilldown_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "map tier legend drilldown" in tier_drilldown_highlight_text
+            assert "no browser-side grok call" in tier_drilldown_highlight_text
             page.wait_for_selector(".map-cross-filter-legend [data-map-cross-filter='function']", timeout=10_000)
             cross_filter_text = page.locator(".map-cross-filter-legend").inner_text(timeout=5_000).lower()
             assert "cross-filter legend" in cross_filter_text

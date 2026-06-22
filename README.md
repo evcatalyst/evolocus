@@ -96,6 +96,7 @@ The Pages app supports:
 - selected-unit mini ontology path animation over aggregate topic/function/tier/score/geometry steps;
 - map-to-ontology animation controls for focusing selected-unit path stages with disclosure-gated score and geometry steps;
 - map-side law-location tier guide with active filters, county/town counts, neutral tier mix, and publication boundary;
+- map-side tier-color drilldown cards that explain visible county/town color bands with aggregate unit counts, row shares, top topic/function routes, and map/ontology actions;
 - map-side topic/function/tier legend that summarizes current aggregate counts and applies browser-only filters;
 - map-side topic/tier co-occurrence mini matrix with aggregate-unit counts, row bars, and filter drillback;
 - matrix-linked Inquiry prompts that open deterministic aggregate answers for selected topic/tier cells;
