@@ -4838,6 +4838,7 @@ legend {
 
 .inquiry-context-card,
 .inquiry-matrix-card,
+.inquiry-map-composer-card,
 .inquiry-pathway-card {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -4863,8 +4864,131 @@ legend {
 }
 
 .inquiry-matrix-card,
+.inquiry-map-composer-card,
 .inquiry-pathway-card {
   margin-bottom: 14px;
+}
+
+.inquiry-map-composer {
+  display: grid;
+  gap: 10px;
+}
+
+.inquiry-map-composer-preview,
+.inquiry-map-composer-empty {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.inquiry-map-composer-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.inquiry-map-composer-heading span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-map-composer-heading strong {
+  display: block;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.inquiry-map-composer-chips,
+.inquiry-map-composer-actions,
+.inquiry-map-composer-units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inquiry-map-composer-chips span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--green);
+  padding: 6px 9px;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.inquiry-map-composer-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.inquiry-map-composer-metrics span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.inquiry-map-composer-metrics strong,
+.inquiry-map-composer-reasons strong {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-map-composer-metrics b {
+  color: var(--ink);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-map-composer-metrics em,
+.inquiry-map-composer-reasons li,
+.inquiry-map-composer-boundary,
+.inquiry-map-composer-empty p,
+.inquiry-map-composer-units em {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-map-composer-reasons ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.inquiry-map-composer-units button {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.inquiry-map-composer-units button:hover,
+.inquiry-map-composer-units button:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
+.inquiry-map-composer-boundary {
+  margin: 0;
 }
 
 .inquiry-pathway-grid {
@@ -5832,6 +5956,7 @@ th {
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,
+  .inquiry-map-composer-metrics,
   .inquiry-answer-mini-grid,
   .inquiry-answer-ontology-actions,
   .inquiry-answer-ontology-drawer-row,
@@ -5948,6 +6073,7 @@ th {
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,
+  .inquiry-map-composer-metrics,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
   .inquiry-answer-ontology-actions,

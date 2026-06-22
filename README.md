@@ -92,6 +92,7 @@ The Pages app supports:
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;
 - Inquiry question matrix with filter-aware prompts for map, package overlay, topic, function, audit, score, and selected-unit questions;
+- inquiry-to-map question composer that previews deterministic aggregate map filters before applying them;
 - click-through mini charts inside Inquiry answers for topic, function, tier, and top-unit aggregate drillbacks;
 - ontology mini-map inside Inquiry answers that links the current aggregate scope to topic, function, neutral tier, top county/town unit nodes, and a county/town comparison drawer;
 - Inquiry topic/tier pathway chart that turns current aggregate map filters into visual question cells with ask and map actions;

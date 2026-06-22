@@ -60,6 +60,7 @@
         "Add Audit Lens tab for aggregate OCR and duplicate-text review signals",
         "Add Score Lens tab for neutral released model-score visuals",
         "Add Inquiry question matrix for filter-aware aggregate answers",
+        "Add inquiry-to-map question composer",
         "Add click-through mini charts inside Inquiry answers",
         "Add ontology mini-map inside Inquiry answers",
         "Add static filter-aware question pack artifact for Pages inquiry",

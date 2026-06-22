@@ -140,7 +140,7 @@ The Audit Lens uses the same progressive disclosure control as the map and statu
 
 The Score Lens uses the same filters and disclosure levels. It displays score values as neutral relative model outputs only; directional legal interpretations remain out of scope until authoritative model-card verification is added.
 
-The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts and `question_pack.json`. It can fill and answer the inquiry form, apply safe filter templates, and change disclosure depth, but it does not call Grok or any browser-exposed LLM API.
+The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts and `question_pack.json`. It can fill and answer the inquiry form, apply safe filter templates, and change disclosure depth, but it does not call Grok or any browser-exposed LLM API. The inquiry-to-map composer uses deterministic keyword cues from a typed question to preview aggregate map filters before applying them; it does not inspect ordinance text or perform semantic retrieval.
 
 Inquiry answers include a filter-aware ontology mini-map that renders only aggregate topic, function, neutral-tier, and map-unit nodes from the current public artifact scope. Mini-map node clicks open a county/town comparison drawer over aggregate units before routing to existing map and ontology views; it does not publish ordinance text, source locators, review events, or live model calls.
 

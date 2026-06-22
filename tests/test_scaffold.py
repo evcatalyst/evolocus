@@ -389,6 +389,21 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "loadInquiryResultsLog" in js
     assert "saveInquiryResultsLog" in js
     assert "answerAndLogInquiry" in js
+    assert "inquiry-map-composer" in html
+    assert "Question to map filter composer" in html
+    assert "renderInquiryMapComposer" in js
+    assert "inquiryMapComposerPlan" in js
+    assert "inquiryMapComposerHtml" in js
+    assert "inferQuestionState" in js
+    assert "inferQuestionScoreField" in js
+    assert "applyInquiryMapComposerAction" in js
+    assert "data-inquiry-map-composer-action" in js
+    assert "Composer previews aggregate map filters only" in js
+    assert "No live browser LLM calls" in js
+    assert "inquiry-map-composer-card" in css
+    assert "inquiry-map-composer-preview" in css
+    assert "inquiry-map-composer-metrics" in css
+    assert "inquiry-map-composer-chips" in css
     assert "inquiryResultLogEntry" in js
     assert "mapFiltersSnapshot" in js
     assert "normalizedLogMapFilters" in js

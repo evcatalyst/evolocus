@@ -46,6 +46,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - static filter-aware question pack over published aggregate artifacts;
 - compact analysis journey strip connecting Map, Inquiry, Ontology, and Queue Plan with current aggregate status;
 - Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
+- inquiry-to-map question composer that previews deterministic aggregate map filters from typed questions before changing the map;
 - click-through mini charts inside Inquiry answers for topic, function, tier, and top-unit aggregate drillbacks;
 - Inquiry topic/tier pathway chart that groups current aggregate units into visual question cells and safe map actions;
 - pathway-cell mini peer comparison bars for top aggregate units with map drillback and no row text;

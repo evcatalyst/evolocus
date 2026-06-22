@@ -37,6 +37,59 @@ const SCORE_OPTIONS = [
 const TOPICS = ["Buildings", "Business", "Nuisance", "Zoning", "Other"];
 const FUNCTIONS = ["Context", "Rules", "Process", "Enforcement"];
 const SCORE_FIELDS = ["enforcement_discretion", "opacity", "paternalism", "problem_salience"];
+const STATE_NAME_TO_CODE = {
+  alabama: "AL",
+  alaska: "AK",
+  arizona: "AZ",
+  arkansas: "AR",
+  california: "CA",
+  colorado: "CO",
+  connecticut: "CT",
+  delaware: "DE",
+  florida: "FL",
+  georgia: "GA",
+  hawaii: "HI",
+  idaho: "ID",
+  illinois: "IL",
+  indiana: "IN",
+  iowa: "IA",
+  kansas: "KS",
+  kentucky: "KY",
+  louisiana: "LA",
+  maine: "ME",
+  maryland: "MD",
+  massachusetts: "MA",
+  michigan: "MI",
+  minnesota: "MN",
+  mississippi: "MS",
+  missouri: "MO",
+  montana: "MT",
+  nebraska: "NE",
+  nevada: "NV",
+  "new hampshire": "NH",
+  "new jersey": "NJ",
+  "new mexico": "NM",
+  "new york": "NY",
+  "north carolina": "NC",
+  "north dakota": "ND",
+  ohio: "OH",
+  oklahoma: "OK",
+  oregon: "OR",
+  pennsylvania: "PA",
+  "rhode island": "RI",
+  "south carolina": "SC",
+  "south dakota": "SD",
+  tennessee: "TN",
+  texas: "TX",
+  utah: "UT",
+  vermont: "VT",
+  virginia: "VA",
+  washington: "WA",
+  "west virginia": "WV",
+  wisconsin: "WI",
+  wyoming: "WY",
+  "district of columbia": "DC",
+};
 const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
 const TOPIC_COLORS = {
   Buildings: "#5f7fc8",
@@ -234,6 +287,7 @@ let state = {
   mapInlineInquiry: "view",
   ontologyFocusTier: "",
   ontologyPathStage: "auto",
+  inquiryMapComposerQuestion: "",
   mapFilters: {
     state: "",
     topic: "",
@@ -3442,55 +3496,60 @@ function packageAliasKey(value) {
 }
 
 function filterMapUnits(units) {
-  const packageUnitIds = state.mapFilters.packageOnly ? importedPackageMapStats(units).units : null;
-  const scoreBandMap = state.mapFilters.scoreField ? scoreBandLookupFor(units, state.mapFilters.scoreField) : new Map();
+  return filterMapUnitsWithFilters(units, state.mapFilters);
+}
+
+function filterMapUnitsWithFilters(units, filters) {
+  const normalized = normalizedLogMapFilters(filters);
+  const packageUnitIds = normalized.packageOnly ? importedPackageMapStats(units).units : null;
+  const scoreBandMap = normalized.scoreField ? scoreBandLookupFor(units, normalized.scoreField) : new Map();
   return units.filter((unit) => {
     if (packageUnitIds && !packageUnitIds.has(unit.unit_id)) {
       return false;
     }
-    return unitMatchesMapFilters(unit, scoreBandMap);
+    return unitMatchesMapFilters(unit, scoreBandMap, normalized);
   });
 }
 
-function unitMatchesMapFilters(unit, scoreBandMap = new Map()) {
+function unitMatchesMapFilters(unit, scoreBandMap = new Map(), filters = state.mapFilters) {
   const auditQuality = unitAuditQualityFor(unit.unit_id);
-  if (state.mapFilters.state && unit.state !== state.mapFilters.state) {
+  if (filters.state && unit.state !== filters.state) {
     return false;
   }
-  if (state.mapFilters.tier && unit.tier !== state.mapFilters.tier) {
+  if (filters.tier && unit.tier !== filters.tier) {
     return false;
   }
-  if (state.mapFilters.topic && !Number(unit.topic_counts?.[state.mapFilters.topic] || 0)) {
+  if (filters.topic && !Number(unit.topic_counts?.[filters.topic] || 0)) {
     return false;
   }
-  if (state.mapFilters.function && !Number(unit.function_counts?.[state.mapFilters.function] || 0)) {
+  if (filters.function && !Number(unit.function_counts?.[filters.function] || 0)) {
     return false;
   }
-  if (state.mapFilters.kind && normalizePackageKind(unit.kind) !== state.mapFilters.kind) {
+  if (filters.kind && normalizePackageKind(unit.kind) !== filters.kind) {
     return false;
   }
-  if (state.mapFilters.scoreField) {
-    const value = Number(unit.model_score_means?.[state.mapFilters.scoreField]);
+  if (filters.scoreField) {
+    const value = Number(unit.model_score_means?.[filters.scoreField]);
     if (!Number.isFinite(value)) {
       return false;
     }
-    if (state.mapFilters.scoreBand && scoreBandMap.get(unit.unit_id) !== state.mapFilters.scoreBand) {
+    if (filters.scoreBand && scoreBandMap.get(unit.unit_id) !== filters.scoreBand) {
       return false;
     }
   }
-  if (Number(unit.law_count || 0) < state.mapFilters.minLaws) {
+  if (Number(unit.law_count || 0) < filters.minLaws) {
     return false;
   }
-  if (Number(auditQuality?.audit_attention_score || 0) < state.mapFilters.minAuditScore) {
+  if (Number(auditQuality?.audit_attention_score || 0) < filters.minAuditScore) {
     return false;
   }
-  if (state.mapFilters.auditFocus === "ocr" && !Number(auditQuality?.ocr_review_rows || 0)) {
+  if (filters.auditFocus === "ocr" && !Number(auditQuality?.ocr_review_rows || 0)) {
     return false;
   }
-  if (state.mapFilters.auditFocus === "duplicate" && !Number(auditQuality?.duplicate_text_hash_rows || 0)) {
+  if (filters.auditFocus === "duplicate" && !Number(auditQuality?.duplicate_text_hash_rows || 0)) {
     return false;
   }
-  if (state.mapFilters.auditFocus === "attention" && Number(auditQuality?.audit_attention_score || 0) < 5) {
+  if (filters.auditFocus === "attention" && Number(auditQuality?.audit_attention_score || 0) < 5) {
     return false;
   }
   return true;
@@ -5243,6 +5302,7 @@ function renderInquiry() {
     `
     : "<span>Inquiry briefings loading</span>";
   renderInquiryContext();
+  renderInquiryMapComposer();
   renderInquiryPathways();
   renderInquiryMatrix();
   $("#suggested-questions").innerHTML = suggested
@@ -5285,6 +5345,265 @@ function renderInquiryContext() {
       `,
     )
     .join("");
+}
+
+function renderInquiryMapComposer() {
+  const target = $("#inquiry-map-composer");
+  const summaryTarget = $("#inquiry-map-composer-summary");
+  if (!target || !summaryTarget) {
+    return;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    summaryTarget.textContent = "Loading map artifact";
+    target.innerHTML = `<article class="inquiry-map-composer-empty"><strong>Map artifact loading.</strong><p>The composer will activate after aggregate map layers load.</p></article>`;
+    return;
+  }
+  const inputQuestion = String($("#inquiry-form input[name='question']")?.value || "");
+  const question = state.inquiryMapComposerQuestion || inputQuestion;
+  const plan = inquiryMapComposerPlan(question);
+  summaryTarget.textContent = question
+    ? `${formatCount(plan.previewUnits.length)} units · ${formatCount(plan.previewSummary.lawCount)} rows`
+    : "Type a question and preview filters";
+  target.innerHTML = inquiryMapComposerHtml(plan);
+}
+
+function inquiryMapComposerHtml(plan) {
+  const question = plan.question || "";
+  const filterChips = plan.filterLabels.length
+    ? plan.filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")
+    : "<span>No inferred filters yet</span>";
+  const reasonRows = plan.reasons.length
+    ? plan.reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")
+    : "<li>Preview uses the current aggregate map filters until the question includes a recognized topic, function, state, tier, score, audit, package, or unit-type cue.</li>";
+  const topUnits = plan.previewUnits
+    .slice(0, 3)
+    .map(
+      (unit) => `
+        <button type="button" data-inquiry-map-composer-unit="${escapeHtml(unit.unit_id)}">
+          <strong>${escapeHtml(displayUnitName(unit))}</strong>
+          <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(formatCount(unit.law_count))} rows</em>
+        </button>
+      `,
+    )
+    .join("");
+  return `
+    <article class="inquiry-map-composer-preview">
+      <div class="inquiry-map-composer-heading">
+        <div>
+          <span>Deterministic filter preview</span>
+          <strong>${escapeHtml(question || "No question previewed yet")}</strong>
+        </div>
+        <button type="button" data-inquiry-map-composer-action="preview">Preview typed question</button>
+      </div>
+      <div class="inquiry-map-composer-chips" aria-label="Inferred aggregate map filters">
+        ${filterChips}
+      </div>
+      <div class="inquiry-map-composer-metrics">
+        ${inquiryMapComposerMetricHtml("Matching units", formatCount(plan.previewUnits.length), `${formatCount(plan.currentUnits.length)} units before preview`)}
+        ${inquiryMapComposerMetricHtml("Law rows", formatCount(plan.previewSummary.lawCount), "aggregate rows only")}
+        ${inquiryMapComposerMetricHtml("Top topic", plan.previewSummary.topTopic.label, `${formatCount(plan.previewSummary.topTopic.value)} rows`)}
+        ${inquiryMapComposerMetricHtml("Top unit", plan.previewSummary.topUnit ? displayUnitName(plan.previewSummary.topUnit) : "No matching unit", plan.previewSummary.topUnit ? `${plan.previewSummary.topUnit.state} · ${formatCount(plan.previewSummary.topUnit.law_count)} rows` : "Adjust question or filters")}
+      </div>
+      <div class="inquiry-map-composer-reasons">
+        <strong>Why these filters?</strong>
+        <ul>${reasonRows}</ul>
+      </div>
+      ${topUnits ? `<div class="inquiry-map-composer-units" aria-label="Top aggregate units for preview">${topUnits}</div>` : ""}
+      <div class="inquiry-map-composer-actions">
+        <button type="button" data-inquiry-map-composer-action="apply-map"${question ? "" : " disabled"}>Apply preview on map</button>
+        <button type="button" data-inquiry-map-composer-action="ask"${question ? "" : " disabled"}>Ask with preview filters</button>
+      </div>
+      <p class="inquiry-map-composer-boundary">Composer previews aggregate map filters only. It does not call Grok, inspect ordinance text, expose source locators, or create legal findings.</p>
+    </article>
+  `;
+}
+
+function inquiryMapComposerMetricHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(value)}</b>
+      <em>${escapeHtml(detail)}</em>
+    </span>
+  `;
+}
+
+function inquiryMapComposerPlan(question) {
+  const mapUnits = state.analysis.mapLayers?.units || [];
+  const normalizedQuestion = normalizeInquiryText(question);
+  const filters = { ...state.mapFilters };
+  const reasons = [];
+  const inferred = {};
+  const stateCode = inferQuestionState(normalizedQuestion, mapUnits);
+  if (stateCode) {
+    inferred.state = stateCode;
+    reasons.push(`State cue -> ${stateCode}`);
+  }
+  const topic = inferQuestionOption(normalizedQuestion, [
+    ["Zoning", ["zoning", "zone", "land use", "rezoning", "variance"]],
+    ["Buildings", ["building", "buildings", "construction", "permit", "housing", "code enforcement"]],
+    ["Business", ["business", "license", "licensing", "commercial", "vendor"]],
+    ["Nuisance", ["nuisance", "noise", "trash", "weeds", "public nuisance"]],
+    ["Other", ["other topic", "miscellaneous"]],
+  ]);
+  if (topic) {
+    inferred.topic = topic;
+    reasons.push(`Topic cue -> ${topic}`);
+  }
+  const functionLabel = inferQuestionOption(normalizedQuestion, [
+    ["Enforcement", ["enforcement", "penalty", "penalties", "fine", "violation", "citation"]],
+    ["Process", ["process", "procedure", "application", "appeal", "hearing", "permit process"]],
+    ["Rules", ["rules", "requirements", "required", "shall", "must", "prohibit", "restriction"]],
+    ["Context", ["context", "purpose", "definition", "definitions", "findings"]],
+  ]);
+  if (functionLabel) {
+    inferred.function = functionLabel;
+    reasons.push(`Function cue -> ${functionLabel}`);
+  }
+  const kind = inferQuestionOption(normalizedQuestion, [
+    ["county", ["county", "counties"]],
+    ["city", ["city", "cities", "town", "towns", "municipal", "municipality", "village", "borough"]],
+  ]);
+  if (kind) {
+    inferred.kind = kind;
+    reasons.push(`Unit-type cue -> ${titleCase(kind)}`);
+  }
+  const tier = inferQuestionTier(normalizedQuestion);
+  if (tier) {
+    inferred.tier = tier;
+    reasons.push(`Neutral tier cue -> ${tierDefinitionForKey(tier).label || tier}`);
+  }
+  const scoreField = inferQuestionScoreField(normalizedQuestion);
+  const scoreBand = inferQuestionScoreBand(normalizedQuestion);
+  if (scoreField) {
+    inferred.scoreField = scoreField;
+    inferred.scoreBand = scoreBand || filters.scoreBand || "high";
+    reasons.push(`Model-score cue -> ${scoreFieldLabel(scoreField)} ${scoreBandLabel(inferred.scoreBand)}`);
+  }
+  const auditFocus = inferQuestionAuditFocus(normalizedQuestion);
+  if (auditFocus) {
+    inferred.auditFocus = auditFocus;
+    if (auditFocus === "attention" && !filters.minAuditScore) {
+      inferred.minAuditScore = 5;
+    }
+    reasons.push(`Audit cue -> ${auditFocusLabel(auditFocus)}`);
+  }
+  if (/\b(package|imported|review package|local queue|overlay)\b/.test(normalizedQuestion)) {
+    inferred.packageOnly = true;
+    reasons.push("Package cue -> imported package units");
+  }
+  if (/\b(large|largest|many laws|high count|dense)\b/.test(normalizedQuestion)) {
+    inferred.minLaws = Math.max(Number(filters.minLaws || 0), 10000);
+    reasons.push("Scale cue -> at least 10,000 aggregate law rows");
+  }
+  const proposedFilters = normalizedLogMapFilters({ ...filters, ...inferred });
+  const currentUnits = filterMapUnitsWithFilters(mapUnits, filters);
+  const previewUnits = filterMapUnitsWithFilters(mapUnits, proposedFilters);
+  const previewSummary = summarizeUnits(previewUnits);
+  return {
+    question: String(question || "").trim(),
+    proposedFilters,
+    currentUnits,
+    previewUnits,
+    previewSummary,
+    filterLabels: mapComposerFilterLabels(proposedFilters),
+    reasons,
+  };
+}
+
+function normalizeInquiryText(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function inferQuestionOption(normalizedQuestion, rows) {
+  for (const [value, keywords] of rows) {
+    if (keywords.some((keyword) => normalizedQuestion.includes(keyword))) {
+      return value;
+    }
+  }
+  return "";
+}
+
+function inferQuestionState(normalizedQuestion, units) {
+  const availableStates = new Set((units || []).map((unit) => unit.state).filter(Boolean));
+  for (const [name, code] of Object.entries(STATE_NAME_TO_CODE)) {
+    if (availableStates.has(code) && normalizedQuestion.includes(name)) {
+      return code;
+    }
+  }
+  const tokens = new Set(normalizedQuestion.toUpperCase().split(/\s+/));
+  return [...availableStates].find((code) => tokens.has(code)) || "";
+}
+
+function inferQuestionTier(normalizedQuestion) {
+  if (/\btier\s*1\b|\blow tier\b|\blower relative\b/.test(normalizedQuestion)) {
+    return "tier_1";
+  }
+  if (/\btier\s*2\b|\bmiddle tier\b|\bmid tier\b/.test(normalizedQuestion)) {
+    return "tier_2";
+  }
+  if (/\btier\s*3\b|\bhigh tier\b|\bhigher relative\b/.test(normalizedQuestion)) {
+    return "tier_3";
+  }
+  return "";
+}
+
+function inferQuestionScoreField(normalizedQuestion) {
+  if (/\benforcement discretion\b|\bdiscretion\b/.test(normalizedQuestion)) {
+    return "enforcement_discretion";
+  }
+  if (/\bopacity\b|\bopaque\b/.test(normalizedQuestion)) {
+    return "opacity";
+  }
+  if (/\bpaternalism\b|\bpaternalistic\b/.test(normalizedQuestion)) {
+    return "paternalism";
+  }
+  if (/\bproblem salience\b|\bsalience\b/.test(normalizedQuestion)) {
+    return "problem_salience";
+  }
+  return "";
+}
+
+function inferQuestionScoreBand(normalizedQuestion) {
+  if (/\blow\b|\blower\b|\bbottom\b/.test(normalizedQuestion)) {
+    return "low";
+  }
+  if (/\bmiddle\b|\bmid\b|\bmoderate\b/.test(normalizedQuestion)) {
+    return "middle";
+  }
+  if (/\bhigh\b|\bhigher\b|\btop\b/.test(normalizedQuestion)) {
+    return "high";
+  }
+  return "";
+}
+
+function inferQuestionAuditFocus(normalizedQuestion) {
+  if (/\bocr\b|\bunreadable\b|\btext quality\b/.test(normalizedQuestion)) {
+    return "ocr";
+  }
+  if (/\bduplicate\b|\bhash\b|\brepeated text\b/.test(normalizedQuestion)) {
+    return "duplicate";
+  }
+  if (/\baudit\b|\breview priority\b|\battention\b/.test(normalizedQuestion)) {
+    return "attention";
+  }
+  return "";
+}
+
+function mapComposerFilterLabels(filters) {
+  const labels = [];
+  if (filters.state) labels.push(`State ${filters.state}`);
+  if (filters.topic) labels.push(`Topic ${filters.topic}`);
+  if (filters.function) labels.push(`Function ${filters.function}`);
+  if (filters.kind) labels.push(`Unit type ${titleCase(filters.kind)}`);
+  if (filters.tier) labels.push(`Tier ${tierDefinitionForKey(filters.tier).label || filters.tier}`);
+  if (filters.scoreField) labels.push(`${scoreFieldLabel(filters.scoreField)} · ${scoreBandLabel(filters.scoreBand || "high")}`);
+  if (filters.auditFocus) labels.push(`Audit ${auditFocusLabel(filters.auditFocus)}`);
+  if (filters.minLaws) labels.push(`Min ${formatCount(filters.minLaws)} rows`);
+  if (filters.minAuditScore) labels.push(`Audit attention ${formatNumber(filters.minAuditScore)}+`);
+  if (filters.packageOnly) labels.push("Imported package units");
+  return labels;
 }
 
 function renderInquiryMatrix() {
@@ -8596,6 +8915,45 @@ function askMapTopicTierMatrix(topic, tier, question) {
   render();
 }
 
+function applyInquiryMapComposerAction(action) {
+  const input = $("#inquiry-form input[name='question']");
+  const question = String(input?.value || state.inquiryMapComposerQuestion || "").trim();
+  state.inquiryMapComposerQuestion = question;
+  const plan = inquiryMapComposerPlan(question);
+  if (action === "preview") {
+    renderInquiry();
+    return;
+  }
+  if (!question) {
+    renderInquiry();
+    return;
+  }
+  state.mapFilters = plan.proposedFilters;
+  state.selectedUnitId = null;
+  if (action === "apply-map") {
+    state.activeTab = "map";
+    render();
+    return;
+  }
+  if (action === "ask") {
+    answerAndLogInquiry(question, "inquiry-to-map composer");
+    state.activeTab = "inquiry";
+    render();
+  }
+}
+
+function openInquiryMapComposerUnit(unitId) {
+  if (!unitId) {
+    return;
+  }
+  state.selectedUnitId = unitId;
+  state.activeTab = "map";
+  if (state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  render();
+}
+
 function resetMapFilters() {
   state.mapFilters = defaultMapFilters();
   state.selectedUnitId = null;
@@ -9289,7 +9647,7 @@ function loadSyntheticPackageDemo() {
 }
 
 function demoPackageUnits(allUnits) {
-  const filtered = allUnits.filter(unitMatchesMapFilters);
+  const filtered = filterMapUnits(allUnits);
   const candidates = filtered.length ? filtered : allUnits;
   return [...candidates]
     .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0))
@@ -9741,6 +10099,18 @@ function bindEvents() {
     if (statusButton) {
       event.preventDefault();
       openAnalysisStatusTab();
+      return;
+    }
+    const composerActionButton = event.target.closest("[data-inquiry-map-composer-action]");
+    if (composerActionButton) {
+      event.preventDefault();
+      applyInquiryMapComposerAction(composerActionButton.dataset.inquiryMapComposerAction || "preview");
+      return;
+    }
+    const composerUnitButton = event.target.closest("[data-inquiry-map-composer-unit]");
+    if (composerUnitButton) {
+      event.preventDefault();
+      openInquiryMapComposerUnit(composerUnitButton.dataset.inquiryMapComposerUnit || "");
       return;
     }
     const answerChartButton = event.target.closest("[data-inquiry-answer-chart-action]");

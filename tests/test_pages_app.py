@@ -212,6 +212,22 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderInquiry" in js
     assert "matchInquiryBriefing" in js
     assert "renderInquiryContext" in js
+    assert "inquiry-map-composer" in html
+    assert "Question to map filter composer" in html
+    assert "renderInquiryMapComposer" in js
+    assert "inquiryMapComposerPlan" in js
+    assert "inquiryMapComposerHtml" in js
+    assert "inferQuestionState" in js
+    assert "inferQuestionTopic" not in js
+    assert "inferQuestionScoreField" in js
+    assert "applyInquiryMapComposerAction" in js
+    assert "data-inquiry-map-composer-action" in js
+    assert "Composer previews aggregate map filters only" in js
+    assert "No live browser LLM calls" in js
+    assert "inquiry-map-composer-card" in css
+    assert "inquiry-map-composer-preview" in css
+    assert "inquiry-map-composer-metrics" in css
+    assert "inquiry-map-composer-chips" in css
     assert "renderInquiryMatrix" in js
     assert "renderInquiryPathways" in js
     assert "inquiryPathwayRows" in js

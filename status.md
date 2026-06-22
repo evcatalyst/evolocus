@@ -182,6 +182,7 @@ Latest update:
 - Added an Audit Lens tab that visualizes per-unit aggregate audit signals with progressive disclosure and drill-through back to the map.
 - Added a Score Lens tab that visualizes released model-score means from aggregate map units with progressive disclosure and drill-through back to the map.
 - Added an Inquiry question matrix that turns current filters into deterministic aggregate answers for map, topic, function, audit, score, and selected-unit prompts.
+- Added an inquiry-to-map question composer that previews deterministic aggregate map filters and matching unit counts before applying them.
 - Added `question_pack.json` and `publish-question-pack` so the Inquiry matrix can render filter-aware static prompts generated from aggregate artifacts, optionally noted by Grok offline.
 - Added a selected-unit mini ontology path animation that shows aggregate topic/function/tier links first, then score and geometry links as progressive disclosure deepens.
 - Added a map-side law-location tier guide that explains current filters, county/town scope, neutral tier mix, geography color mode, disclosure depth, and no-row-text publication boundaries.
