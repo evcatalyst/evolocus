@@ -279,6 +279,16 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "question-to-map answer card" in answer_card_highlight_text
             assert "no browser-side grok call" in answer_card_highlight_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.wait_for_selector(".map-question-highlight-depth [data-map-highlight-depth-stage='score']", timeout=10_000)
+            depth_text = page.locator(".map-question-highlight-depth").inner_text(timeout=5_000).lower()
+            assert "question-to-map ontology highlight depth" in depth_text
+            assert "topic route" in depth_text
+            assert "score profile route" in depth_text
+            assert "no row text" in depth_text
+            page.locator(".map-question-highlight-depth [data-map-highlight-depth-stage='score']").click()
+            page.wait_for_function("() => document.querySelector('#score-panel')?.classList.contains('active')")
+            page.locator("[data-tab='map']").click()
+            page.wait_for_selector(".map-question-highlight-depth [data-map-highlight-depth-stage='ontology']", timeout=10_000)
             page.wait_for_selector(".map-question-highlight-detail-card [data-unit-id]", timeout=10_000)
             detail_card_text = page.locator(".map-question-highlight-detail-card").first.inner_text(timeout=5_000).lower()
             assert "why this unit matched" in detail_card_text

@@ -2401,6 +2401,7 @@ function renderMapQuestionHighlight(units) {
         ${filterLabels.length ? filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("") : "<span>No inferred filters</span>"}
       </div>
       ${questionOntologyRouteHtml(ontologyRoute, "map")}
+      ${mapQuestionHighlightDepthHtml(highlight, visibleHighlightedUnits, summary, ontologyRoute)}
       ${topUnits.length ? `<div class="map-question-highlight-units">${topUnits.map((unit) => mapQuestionHighlightUnitHtml(unit)).join("")}</div>` : ""}
       ${mapQuestionHighlightDetailCardsHtml(highlight, visibleHighlightedUnits)}
       <p class="map-question-highlight-boundary">
@@ -2408,6 +2409,154 @@ function renderMapQuestionHighlight(units) {
       </p>
     </section>
   `;
+}
+
+function mapQuestionHighlightDepthHtml(highlight, units, summary, ontologyRoute) {
+  const stages = mapQuestionHighlightDepthStages(highlight, units, summary, ontologyRoute);
+  if (!stages.length) {
+    return "";
+  }
+  const activeStages = stages.filter((stage) => stage.active).length;
+  return `
+    <section class="map-question-highlight-depth" aria-label="Question-to-map ontology highlight depth">
+      <div class="map-question-highlight-depth-heading">
+        <div>
+          <strong>Question-to-map ontology highlight depth</strong>
+          <span>${escapeHtml(formatCount(activeStages))}/${escapeHtml(formatCount(stages.length))} stages active across highlighted county/town units</span>
+        </div>
+        <button type="button" data-map-highlight-depth-stage="ontology">Open route in Ontology</button>
+      </div>
+      <div class="map-question-highlight-depth-grid" role="list">
+        ${stages.map(mapQuestionHighlightDepthStageHtml).join("")}
+      </div>
+      <p>Depth stages summarize aggregate route coverage only. They do not publish ordinance text, source locators, legal conclusions, rankings, or browser model calls.</p>
+    </section>
+  `;
+}
+
+function mapQuestionHighlightDepthStages(highlight, units, summary, ontologyRoute) {
+  const route = normalizedQuestionOntologyRoute(ontologyRoute || highlight?.ontology_route);
+  const filters = normalizedLogMapFilters(highlight?.map_filters || route?.map_filters || {});
+  const visibleUnits = units || [];
+  const routeSummary = summary || summarizeUnits(visibleUnits);
+  const topic = route?.focus_topic || filters.topic || routeSummary.topTopic?.label || "";
+  const functionLabel = route?.focus_function || filters.function || routeSummary.topFunction?.label || "";
+  const tierKey = route?.focus_tier || filters.tier || "";
+  const tierDefinition = tierKey ? tierDefinitionForKey(tierKey) : null;
+  const tierLabel = tierDefinition?.label || topEntry(routeSummary.tierCounts || {}).label || "";
+  const scoreField = filters.scoreField || topScoreField(routeSummary.scoreMeans || {});
+  const focusUnitId = route?.focus_unit_id || highlight?.top_unit_ids?.[0] || visibleUnits[0]?.unit_id || "";
+  const focusUnit = visibleUnits.find((unit) => unit.unit_id === focusUnitId) || visibleUnits[0] || null;
+  const topicRows = topic ? visibleUnits.reduce((sum, unit) => sum + Number(unit.topic_counts?.[topic] || (unit.dominant_topic === topic ? unit.law_count || 0 : 0)), 0) : 0;
+  const topicUnits = topic ? visibleUnits.filter((unit) => unit.dominant_topic === topic || Number(unit.topic_counts?.[topic] || 0) > 0).length : 0;
+  const functionRows = functionLabel
+    ? visibleUnits.reduce((sum, unit) => sum + Number(unit.function_counts?.[functionLabel] || (unit.dominant_function === functionLabel ? unit.law_count || 0 : 0)), 0)
+    : 0;
+  const functionUnits = functionLabel ? visibleUnits.filter((unit) => unit.dominant_function === functionLabel || Number(unit.function_counts?.[functionLabel] || 0) > 0).length : 0;
+  const tierUnits = tierKey || tierLabel ? visibleUnits.filter((unit) => unit.tier === tierKey || unit.tier_label === tierLabel || unit.tier_label === tierKey).length : 0;
+  const scoreUnits = scoreField ? visibleUnits.filter((unit) => Number.isFinite(Number(unit.model_score_means?.[scoreField]))).length : 0;
+  return [
+    {
+      stage: "topic",
+      label: "Topic route",
+      value: topic || "No topic route",
+      detail: topic ? `${formatCount(topicRows)} rows · ${formatCount(topicUnits)} units` : "topic not inferred",
+      active: Boolean(topic && topicUnits),
+    },
+    {
+      stage: "function",
+      label: "Function route",
+      value: functionLabel || "No function route",
+      detail: functionLabel ? `${formatCount(functionRows)} rows · ${formatCount(functionUnits)} units` : "function not inferred",
+      active: Boolean(functionLabel && functionUnits),
+    },
+    {
+      stage: "tier",
+      label: "Tier color route",
+      value: tierLabel || "No tier route",
+      detail: tierUnits ? `${formatCount(tierUnits)} highlighted units share/enter this neutral tier` : "tier not inferred",
+      active: Boolean(tierUnits),
+    },
+    {
+      stage: "score",
+      label: "Score profile route",
+      value: state.disclosureLevel === "overview" ? "Unit detail gated" : scoreField ? scoreFieldLabel(scoreField) : "No score route",
+      detail:
+        state.disclosureLevel === "overview"
+          ? "switch to Unit detail for neutral score means"
+          : scoreField
+            ? `${formatCount(scoreUnits)} units with ${scoreFieldLabel(scoreField)} · ${scoreSnapshot(routeSummary.scoreMeans || {})}`
+            : "score profile unavailable",
+      active: Boolean(scoreField && scoreUnits),
+    },
+    {
+      stage: "unit",
+      label: "County/town route",
+      value: focusUnit ? displayUnitName(focusUnit) : "No focus unit",
+      detail: focusUnit ? `${focusUnit.state || "NA"} · ${text(focusUnit.kind)} · ${formatCount(focusUnit.law_count)} rows` : "unit not available",
+      active: Boolean(focusUnit),
+    },
+    {
+      stage: "provenance",
+      label: "Provenance gate",
+      value: state.disclosureLevel === "evidence" ? "Evidence trail visible" : "Evidence gated",
+      detail: state.disclosureLevel === "evidence" ? "aggregate artifact provenance shown elsewhere on this map" : "no row text or source locators in overview",
+      active: state.disclosureLevel === "evidence",
+    },
+  ];
+}
+
+function mapQuestionHighlightDepthStageHtml(stage) {
+  return `
+    <button type="button" class="map-question-highlight-depth-stage${stage.active ? " active" : ""}" data-map-highlight-depth-stage="${escapeHtml(stage.stage)}" role="listitem">
+      <span>${escapeHtml(stage.label)}</span>
+      <strong>${escapeHtml(stage.value)}</strong>
+      <em>${escapeHtml(stage.detail)}</em>
+    </button>
+  `;
+}
+
+function applyMapQuestionHighlightDepthStage(stage) {
+  const highlight = normalizedInquiryMapHighlight(state.inquiryMapHighlight);
+  const route = normalizedQuestionOntologyRoute(highlight?.ontology_route);
+  if (!highlight || !route) {
+    return;
+  }
+  const highlightedUnits = (state.analysis.mapLayers?.units || []).filter((unit) => highlight.unit_ids.includes(unit.unit_id));
+  const summary = summarizeUnits(highlightedUnits);
+  if (stage === "ontology") {
+    applyQuestionOntologyRoute(route);
+    return;
+  }
+  if (stage === "topic" && route.focus_topic) {
+    state.mapFilters = { ...state.mapFilters, topic: route.focus_topic };
+    state.geographyColorMode = "topic";
+  }
+  if (stage === "function" && route.focus_function) {
+    state.mapFilters = { ...state.mapFilters, function: route.focus_function };
+    state.geographyColorMode = "function";
+  }
+  if (stage === "tier" && route.focus_tier) {
+    state.mapFilters = { ...state.mapFilters, tier: route.focus_tier };
+    state.ontologyFocusTier = route.focus_tier;
+    state.geographyColorMode = "tier";
+  }
+  if (stage === "score") {
+    const scoreField = state.mapFilters.scoreField || topScoreField(summary.scoreMeans || {});
+    state.mapFilters = { ...state.mapFilters, scoreField, scoreBand: state.mapFilters.scoreBand || "high" };
+    state.disclosureLevel = "unit";
+    state.activeTab = "score";
+    render();
+    return;
+  }
+  if (stage === "unit") {
+    state.selectedUnitId = route.focus_unit_id || highlight.top_unit_ids?.[0] || highlightedUnits[0]?.unit_id || state.selectedUnitId;
+  }
+  if (stage === "provenance") {
+    state.disclosureLevel = "evidence";
+  }
+  state.activeTab = "map";
+  render();
 }
 
 function mapQuestionHighlightDetailCardsHtml(highlight, units) {
@@ -14417,6 +14566,12 @@ function bindEvents() {
       event.preventDefault();
       state.inquiryMapHighlight = null;
       renderMap();
+      return;
+    }
+    const depthStageButton = event.target.closest("[data-map-highlight-depth-stage]");
+    if (depthStageButton) {
+      event.preventDefault();
+      applyMapQuestionHighlightDepthStage(depthStageButton.dataset.mapHighlightDepthStage || "");
       return;
     }
     const crossFilterButton = event.target.closest("[data-map-cross-filter]");

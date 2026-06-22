@@ -87,6 +87,7 @@ The Pages app supports:
 - map-driven ontology query presets that route current aggregate map context into bounded Inquiry answers;
 - chat-to-map highlighting that turns deterministic question filters into highlighted county/town aggregate units on the Law Map;
 - highlighted county/town detail cards explaining why aggregate units matched a question, with safe map drillback and no row evidence;
+- question-to-map ontology highlight depth overlay that summarizes topic, function, tier, score, unit, and provenance stages across highlighted county/town aggregate units;
 - question-to-ontology route cards that carry typed aggregate questions from map highlights into the ontology graph without row text or live model calls;
 - map-side cross-filter legend for visible topic, function, and neutral-tier routes with safe drillback into the Law Map;
 - ontology-to-map visual presets that preview county/town color routes for tiers, topics, functions, audit signals, law-count intensity, and score bands before opening the map;

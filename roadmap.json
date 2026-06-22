@@ -53,6 +53,7 @@
         "Add map-side tier color drilldown cards for county town legend",
         "Add map-side chat-style inquiry panel for current aggregate filters",
         "Add chat-to-map highlighting for deterministic aggregate question routes",
+        "Add question-to-map ontology highlight depth overlay",
         "Add ontology tier-neighborhood graph for topic/function/unit-type/model-score drillbacks",
         "Add model import/status cards for released LOCUS output columns",
         "Add inquiry-driven county/town comparison strip with map drillback",

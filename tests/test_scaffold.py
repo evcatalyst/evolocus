@@ -527,6 +527,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "mapQuestionHighlightDetailCardsHtml" in js
     assert "mapQuestionHighlightDetailCardHtml" in js
     assert "mapQuestionHighlightUnitReasons" in js
+    assert "mapQuestionHighlightDepthHtml" in js
+    assert "mapQuestionHighlightDepthStages" in js
+    assert "mapQuestionHighlightDepthStageHtml" in js
+    assert "applyMapQuestionHighlightDepthStage" in js
+    assert "data-map-highlight-depth-stage" in js
+    assert "Question-to-map ontology highlight depth" in js
+    assert "Depth stages summarize aggregate route coverage only" in js
     assert "mapQuestionHighlightOntologyTraceHtml" in js
     assert "mapQuestionHighlightOntologyTraceNodes" in js
     assert "Why highlighted county/town units matched" in js
@@ -540,6 +547,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-question-highlight-metrics" in css
     assert "map-question-highlight-details" in css
     assert "map-question-highlight-detail-card" in css
+    assert "map-question-highlight-depth" in css
+    assert "map-question-highlight-depth-grid" in css
+    assert "map-question-highlight-depth-stage" in css
     assert "map-question-highlight-reasons" in css
     assert "map-question-highlight-ontology-trace" in css
     assert "map-question-highlight-ontology-node" in css
