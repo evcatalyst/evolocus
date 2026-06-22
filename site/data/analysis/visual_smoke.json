@@ -168,6 +168,23 @@
       ]
     },
     {
+      "name": "Map-side layer step animation",
+      "steps": [
+        "Open the Law Map layer step animation card",
+        "Step the same county/town geography through topic, function, neutral score, and audit layers",
+        "Verify the map summary updates after each color lens",
+        "Inspect the selected-unit color explanation card",
+        "Open a deterministic Inquiry answer from the selected color lens"
+      ],
+      "assertions": [
+        "Layer steps reuse published aggregate map controls and do not generate new analysis",
+        "Topic and function layers remain released model-output facets, not verified legal conclusions",
+        "Score layers are described as neutral relative scores because score direction is unverified",
+        "Selected color explanations use aggregate counts and public unit IDs only",
+        "No ordinance text, source locator, secret, browser model call, ranking, or legal-control claim is observed"
+      ]
+    },
+    {
       "name": "Per-topic map playback presets",
       "steps": [
         "Open the Law Map topic playback preset card",
