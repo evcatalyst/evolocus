@@ -125,7 +125,8 @@
         "Add manual Pages browser-smoke workflow for deployed visual routes",
         "Add visible Pages visual-route verification card",
         "Add selected-unit map-to-ontology route trails",
-        "Add first-screen deterministic chat-to-map composer"
+        "Add first-screen deterministic chat-to-map composer",
+        "Add first-screen saved visual route cards"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

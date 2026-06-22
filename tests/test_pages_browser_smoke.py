@@ -79,7 +79,12 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Function Enforcement" in composer_text
             assert "State IN" not in composer_text
             assert "no ordinance text" in composer_text.lower()
-            page.locator("[data-frontdoor-composer-action='ontology']").click()
+            page.locator("[data-frontdoor-composer-action='save']").click()
+            page.wait_for_selector(".frontdoor-saved-route [data-frontdoor-route-action='ontology']", timeout=10_000)
+            saved_route_text = page.locator(".frontdoor-saved-routes").inner_text(timeout=5_000)
+            assert "saved visual routes" in saved_route_text.lower()
+            assert "no ordinance text" in saved_route_text.lower()
+            page.locator(".frontdoor-saved-route [data-frontdoor-route-action='ontology']").first.click()
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
 
             page.locator("[data-tab='results']").click()

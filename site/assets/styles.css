@@ -622,6 +622,131 @@ main {
   margin: 0;
 }
 
+.frontdoor-saved-routes {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(107, 79, 214, 0.2);
+  border-radius: 8px;
+  background: #fbfaff;
+  padding: 12px;
+}
+
+.frontdoor-saved-routes.empty {
+  background: #f8fafc;
+}
+
+.frontdoor-saved-heading,
+.frontdoor-saved-route-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: start;
+}
+
+.frontdoor-saved-heading div,
+.frontdoor-saved-routes.empty div {
+  display: grid;
+  gap: 3px;
+}
+
+.frontdoor-saved-heading span,
+.frontdoor-saved-heading em,
+.frontdoor-saved-route-heading span,
+.frontdoor-saved-route-heading em,
+.frontdoor-saved-routes.empty span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.frontdoor-saved-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.frontdoor-saved-route {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.frontdoor-saved-route.active {
+  border-color: rgba(107, 79, 214, 0.5);
+  box-shadow: 0 0 0 3px rgba(107, 79, 214, 0.08);
+}
+
+.frontdoor-saved-route > strong,
+.frontdoor-saved-routes.empty strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-saved-routes.empty p,
+.frontdoor-saved-boundary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.frontdoor-saved-scale {
+  display: grid;
+  gap: 5px;
+}
+
+.frontdoor-saved-scale b {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: #6b4fd6;
+}
+
+.frontdoor-saved-scale em {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-style: normal;
+}
+
+.frontdoor-saved-filters,
+.frontdoor-saved-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.frontdoor-saved-filters i {
+  border-radius: 999px;
+  background: #f1effb;
+  color: #4f3caf;
+  padding: 4px 7px;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.frontdoor-saved-actions button {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 6px 8px;
+  font-size: 0.76rem;
+}
+
+.frontdoor-saved-actions button:hover,
+.frontdoor-saved-actions button:focus-visible {
+  border-color: #6b4fd6;
+  box-shadow: 0 0 0 3px rgba(107, 79, 214, 0.1);
+}
+
 .frontdoor-visual-path-steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -7481,6 +7606,7 @@ th {
   .frontdoor-visual-path-heading,
   .frontdoor-question-composer form,
   .frontdoor-question-metrics,
+  .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,
   .frontdoor-disclosure-controls,
@@ -7622,6 +7748,7 @@ th {
   .frontdoor-question-composer form,
   .frontdoor-question-actions,
   .frontdoor-question-metrics,
+  .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,
   .frontdoor-disclosure-controls,

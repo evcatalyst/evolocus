@@ -705,6 +705,7 @@ function renderFrontdoorVisualPath() {
         <em>${escapeHtml(filters.length ? filters.slice(0, 4).join(" · ") : "No active map filters")}</em>
       </div>
       ${frontdoorQuestionComposerHtml(composerPlan, question)}
+      ${frontdoorSavedRoutesHtml(state.inquiryResultsLog)}
       <div class="frontdoor-visual-path-steps">
         ${cards.map((card) => frontdoorVisualPathStepHtml(card, question)).join("")}
       </div>
@@ -736,6 +737,7 @@ function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
         </label>
         <div class="frontdoor-question-actions">
           <button type="submit" data-frontdoor-composer-action="preview">Preview route</button>
+          <button type="button" data-frontdoor-composer-action="save"${previewReady ? "" : " disabled"}>Save route</button>
           <button type="button" data-frontdoor-composer-action="map"${previewReady ? "" : " disabled"}>Map question</button>
           <button type="button" data-frontdoor-composer-action="ask"${previewReady ? "" : " disabled"}>Ask + save</button>
           <button type="button" data-frontdoor-composer-action="ontology"${previewReady ? "" : " disabled"}>Ontology route</button>
@@ -758,6 +760,67 @@ function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
       </div>
       <p class="frontdoor-question-boundary">Front-door chat is deterministic filter routing over published aggregate artifacts. It makes no browser Grok call, reads no ordinance text, exposes no source locators, and creates no legal finding.</p>
     </section>
+  `;
+}
+
+function frontdoorSavedRoutesHtml(entries) {
+  const routes = (entries || []).slice(0, 3);
+  if (!routes.length) {
+    return `
+      <section class="frontdoor-saved-routes empty" aria-label="Saved landing question routes">
+        <div>
+          <span>Saved visual routes</span>
+          <strong>No browser-local routes yet.</strong>
+          <p>Use Save route or Ask + save to keep aggregate question routes on this landing surface.</p>
+        </div>
+      </section>
+    `;
+  }
+  const maxRows = Math.max(1, ...routes.map((item) => Number(item.visible_summary?.law_count || 0)));
+  return `
+    <section class="frontdoor-saved-routes" aria-label="Saved landing question routes">
+      <div class="frontdoor-saved-heading">
+        <div>
+          <span>Saved visual routes</span>
+          <strong>${escapeHtml(formatCount(routes.length))} browser-local aggregate routes</strong>
+        </div>
+        <em>localStorage only</em>
+      </div>
+      <div class="frontdoor-saved-grid">
+        ${routes.map((item, index) => frontdoorSavedRouteCardHtml(item, index, maxRows)).join("")}
+      </div>
+      <p class="frontdoor-saved-boundary">Saved route cards restore aggregate filters, selected public unit IDs, and deterministic answers only. No ordinance text, source locators, review events, secrets, or live model output is stored or published.</p>
+    </section>
+  `;
+}
+
+function frontdoorSavedRouteCardHtml(item, index, maxRows) {
+  const summary = item.visible_summary || {};
+  const lawCount = Number(summary.law_count || 0);
+  const unitCount = Number(summary.unit_count || 0);
+  const width = Math.max(lawCount ? 5 : 0, (lawCount / maxRows) * 100).toFixed(2);
+  const filters = item.filter_labels?.length ? item.filter_labels : ["No active filters"];
+  const activeClass = item.id === state.activeInquiryReplayId ? " active" : "";
+  return `
+    <article class="frontdoor-saved-route${activeClass}">
+      <div class="frontdoor-saved-route-heading">
+        <span>Route ${escapeHtml(String(index + 1))}</span>
+        <em>${escapeHtml(formatDateTime(item.created_at))}</em>
+      </div>
+      <strong>${escapeHtml(item.question || "Aggregate question")}</strong>
+      <div class="frontdoor-saved-scale" aria-label="Saved aggregate route scale">
+        <b style="width:${escapeHtml(width)}%"></b>
+        <em>${escapeHtml(formatCount(lawCount))} rows · ${escapeHtml(formatCount(unitCount))} units</em>
+      </div>
+      <div class="frontdoor-saved-filters" aria-label="Saved route filters">
+        ${filters.slice(0, 4).map((label) => `<i>${escapeHtml(label)}</i>`).join("")}
+      </div>
+      <div class="frontdoor-saved-actions">
+        <button type="button" data-frontdoor-route-action="answer" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Replay answer</button>
+        <button type="button" data-frontdoor-route-action="map" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Map route</button>
+        <button type="button" data-frontdoor-route-action="ontology" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Ontology route</button>
+      </div>
+    </article>
   `;
 }
 
@@ -1044,6 +1107,11 @@ function applyFrontdoorComposerAction(action, form) {
     render();
     return;
   }
+  if (action === "save") {
+    answerAndLogInquiry(question, "front-door saved route");
+    render();
+    return;
+  }
   if (action === "ontology") {
     const topUnit = plan.previewSummary.topUnit;
     const tier = topUnit?.tier || plan.proposedFilters.tier || "";
@@ -1064,6 +1132,14 @@ function applyFrontdoorComposerAction(action, form) {
   }
   state.activeTab = "map";
   render();
+}
+
+function applyFrontdoorSavedRoute(action, routeId) {
+  if (!routeId) {
+    return;
+  }
+  const destination = action === "map" || action === "ontology" ? action : "inquiry";
+  replayInquiryResultLog(routeId, destination);
 }
 
 function renderOfflineRefreshFreshness() {
@@ -11422,6 +11498,12 @@ function bindEvents() {
     if (composerButton) {
       event.preventDefault();
       applyFrontdoorComposerAction(composerButton.dataset.frontdoorComposerAction || "preview", composerButton.closest("form"));
+      return;
+    }
+    const savedRouteButton = event.target.closest("[data-frontdoor-route-action]");
+    if (savedRouteButton) {
+      event.preventDefault();
+      applyFrontdoorSavedRoute(savedRouteButton.dataset.frontdoorRouteAction || "answer", savedRouteButton.dataset.frontdoorRouteId || "");
       return;
     }
     const exampleButton = event.target.closest("[data-frontdoor-example-action]");

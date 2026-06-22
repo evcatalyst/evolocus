@@ -282,12 +282,17 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoorExampleQuestionCardHtml" in js
     assert "frontdoorQuestionComposerHtml" in js
     assert "frontdoorQuestionMetricHtml" in js
+    assert "frontdoorSavedRoutesHtml" in js
+    assert "frontdoorSavedRouteCardHtml" in js
     assert "applyFrontdoorVisualPathAction" in js
     assert "applyFrontdoorExampleQuestion" in js
     assert "applyFrontdoorComposerAction" in js
+    assert "applyFrontdoorSavedRoute" in js
     assert "data-frontdoor-action" in js
     assert "data-frontdoor-composer" in js
     assert "data-frontdoor-composer-action" in js
+    assert "data-frontdoor-route-action" in js
+    assert "data-frontdoor-route-id" in js
     assert "data-frontdoor-example-action" in js
     assert "data-frontdoor-example-topic" in js
     assert "front-door topic-tier example" in js
@@ -297,6 +302,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "No browser Grok call" in js
     assert "Ask the aggregate map" in js
     assert "Front-door chat is deterministic filter routing" in js
+    assert "Saved visual routes" in js
+    assert "front-door saved route" in js
     assert "analysisJourneyStepHtml" in js
     assert "openAnalysisJourneyStep" in js
     assert "data-journey-tab" in js
@@ -572,6 +579,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoor-question-composer" in css
     assert "frontdoor-question-actions" in css
     assert "frontdoor-question-metrics" in css
+    assert "frontdoor-saved-routes" in css
+    assert "frontdoor-saved-route" in css
+    assert "frontdoor-saved-actions" in css
     assert "frontdoor-step-card" in css
     assert "frontdoor-example-questions" in css
     assert "frontdoor-example-card" in css

@@ -38,6 +38,7 @@ The Pages app supports:
 - compact analysis journey strip connecting Map -> Inquiry -> Ontology -> Queue Plan with aggregate-only status;
 - first-screen Ask -> Map -> Ontology visual path with current aggregate denominators and progressive disclosure controls;
 - first-screen deterministic chat-to-map composer that previews aggregate filters from typed questions and routes to Map, Inquiry, or Ontology;
+- first-screen saved visual route cards that replay browser-local aggregate questions back to answers, map filters, and ontology context;
 - one-click front-door example questions that apply aggregate topic/tier filters before opening Inquiry, Map, or Ontology;
 - first-screen offline analysis freshness card for briefing/question-pack age, mode, validation, and Actions-only refresh;
 - first-screen Visual Route Verified card backed by `visual_smoke.json`, linking to the hosted browser-smoke workflow run;
