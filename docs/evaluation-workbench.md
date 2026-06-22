@@ -47,6 +47,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - compact analysis journey strip connecting Map, Inquiry, Ontology, and Queue Plan with current aggregate status;
 - Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
 - Inquiry topic/tier pathway chart that groups current aggregate units into visual question cells and safe map actions;
+- pathway-cell mini peer comparison bars for top aggregate units with map drillback and no row text;
 - map-linked ontology chips inside pathway cells for aggregate topic, neutral tier, and top-unit drillback;
 - package-aware inquiry answer for browser-local package coverage, map matches, workflow progress, and publication boundaries;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;

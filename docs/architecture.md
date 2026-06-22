@@ -37,6 +37,7 @@ flowchart LR
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
 - Inquiry pathway cells group current aggregate map units by dominant topic and neutral tier, then apply safe filters or deterministic aggregate questions without exposing rows.
+- Inquiry pathway peer comparisons show top aggregate units inside each cell and drill back to the Law Map by published unit ID only.
 - Inquiry pathway ontology chips route aggregate topic, tier, and top-unit context into Ontology or Law Map views using only browser state and published unit IDs.
 - Inquiry results are logged in browser localStorage as aggregate answer summaries with filter context, artifact timestamps, and explicit no-text/no-locator/no-review-event policy flags.
 - Saved inquiry results can replay only safe browser state: map filters, disclosure depth, and selected aggregate unit IDs. Replay does not create row-level evidence or call a model.

@@ -60,6 +60,7 @@
 - Inquiry replay should restore only aggregate browser state, never row-level evidence or source locators, so users can revisit a visual context without expanding the publication boundary.
 - Inquiry replay timelines can make saved analysis feel alive when bars scale only saved aggregate row/unit counts and reuse existing safe replay actions.
 - Inquiry pathway visuals should make topic and tier exploration clickable from aggregate cells while preserving the same no-row-text and no-locator boundary as map filters.
+- Pathway peer visuals should compare only aggregate unit counts and published unit IDs; peer drillback belongs on the map, not in row-level public evidence.
 - Pathway ontology chips should route through aggregate unit IDs and safe filters only, so inquiry-to-ontology drillback does not imply row-level evidence has been published.
 - Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.
 - Record-level review queues should still be materialized with local ignored tooling before any ordinance text is reviewed or exported.

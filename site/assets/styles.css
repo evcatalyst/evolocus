@@ -3851,6 +3851,67 @@ legend {
   margin: 0;
 }
 
+.inquiry-pathway-peers {
+  display: grid;
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.inquiry-pathway-peers > span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-pathway-peer-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.9fr) minmax(90px, 1fr);
+  gap: 4px 8px;
+  align-items: center;
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.inquiry-pathway-peer-row:hover,
+.inquiry-pathway-peer-row:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
+.inquiry-pathway-peer-row strong {
+  overflow-wrap: anywhere;
+}
+
+.inquiry-pathway-peer-row span {
+  display: grid;
+  grid-template-columns: minmax(44px, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.inquiry-pathway-peer-row b {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+.inquiry-pathway-peer-row em,
+.inquiry-pathway-peer-row small {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.76rem;
+}
+
+.inquiry-pathway-peer-row small {
+  grid-column: 1 / -1;
+}
+
 .inquiry-pathway-ontology-chips {
   display: flex;
   flex-wrap: wrap;

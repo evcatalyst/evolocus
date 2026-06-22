@@ -4590,12 +4590,39 @@ function inquiryPathwayCardHtml(row, maxLawCount, maxUnitCount) {
       </div>
       <p>${escapeHtml(stateList.join(", ") || "No state")} ${escapeHtml(moreStates)} · ${escapeHtml(row.topKind.label || "mixed")} source units</p>
       <em>${escapeHtml(unitPreview)}</em>
+      ${inquiryPathwayPeerComparisonHtml(row)}
       ${inquiryPathwayOntologyChipsHtml(row)}
       <div class="inquiry-pathway-actions">
         <button type="button" data-inquiry-pathway-ask data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}" data-pathway-question="${escapeHtml(question)}">Ask this pathway</button>
         <button type="button" data-inquiry-pathway-map data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}">Open on map</button>
       </div>
     </article>
+  `;
+}
+
+function inquiryPathwayPeerComparisonHtml(row) {
+  const peers = row.topUnits.slice(0, 3);
+  if (!peers.length) {
+    return '<div class="inquiry-pathway-peers empty"><span>No peer units in this aggregate cell.</span></div>';
+  }
+  const maxLawCount = Math.max(1, ...peers.map((unit) => Number(unit.law_count || 0)));
+  return `
+    <div class="inquiry-pathway-peers" aria-label="Aggregate peer comparison for pathway">
+      <span>Top aggregate units in this cell</span>
+      ${peers.map((unit) => inquiryPathwayPeerRowHtml(unit, maxLawCount)).join("")}
+    </div>
+  `;
+}
+
+function inquiryPathwayPeerRowHtml(unit, maxLawCount) {
+  const lawCount = Number(unit.law_count || 0);
+  const width = Math.max(lawCount ? 5 : 0, (lawCount / maxLawCount) * 100).toFixed(2);
+  return `
+    <button type="button" class="inquiry-pathway-peer-row" data-inquiry-pathway-peer-unit="${escapeHtml(unit.unit_id)}">
+      <strong>${escapeHtml(displayUnitName(unit))}</strong>
+      <span><b style="width:${escapeHtml(width)}%"></b><em>${escapeHtml(formatCount(lawCount))} rows</em></span>
+      <small>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</small>
+    </button>
   `;
 }
 
@@ -8417,6 +8444,12 @@ function bindEvents() {
     if (statusButton) {
       event.preventDefault();
       openAnalysisStatusTab();
+      return;
+    }
+    const pathwayPeerButton = event.target.closest("[data-inquiry-pathway-peer-unit]");
+    if (pathwayPeerButton) {
+      event.preventDefault();
+      openAuditUnitOnMap(pathwayPeerButton.dataset.inquiryPathwayPeerUnit);
       return;
     }
     const pathwayOntologyButton = event.target.closest("[data-inquiry-pathway-ontology]");

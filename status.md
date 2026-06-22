@@ -225,6 +225,7 @@ Evaluator implementation state:
 - Refresh-source surface: Law Map header distinguishes tracked Polars aggregate map artifacts, offline briefing source, analysis commit, deploy guard, and aggregate-only publication boundary.
 - Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.
 - Inquiry pathway surface: GitHub Pages groups current aggregate units into topic/tier visual cells with ask and map actions that reuse safe filters and deterministic aggregate answers only.
+- Inquiry pathway peer surface: topic/tier pathway cells compare top aggregate units with row-count bars and map drillback using published unit IDs only.
 - Inquiry replay timeline surface: saved aggregate inquiry entries render as browser-local row/unit sparklines with replay and map actions, excluding text, locators, review events, and browser model calls.
 - Inquiry ontology-chip surface: topic/tier pathway cells now include aggregate topic, tier, and top-unit chips that route to Ontology or Law Map using safe filters and published unit IDs only.
 - Analysis journey surface: GitHub Pages shows a persistent Map -> Inquiry -> Ontology -> Queue Plan strip that routes tabs with aggregate counts, filters, disclosure level, and no row-level data.

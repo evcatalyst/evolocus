@@ -178,12 +178,17 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderInquiryPathways" in js
     assert "inquiryPathwayRows" in js
     assert "inquiryPathwayCardHtml" in js
+    assert "inquiryPathwayPeerComparisonHtml" in js
+    assert "inquiryPathwayPeerRowHtml" in js
     assert "inquiryPathwayOntologyChipsHtml" in js
     assert "applyInquiryPathway" in js
     assert "applyInquiryPathwayOntology" in js
     assert "data-inquiry-pathway-ask" in js
     assert "data-inquiry-pathway-map" in js
+    assert "data-inquiry-pathway-peer-unit" in js
     assert "data-inquiry-pathway-ontology" in js
+    assert "Aggregate peer comparison for pathway" in js
+    assert "Top aggregate units in this cell" in js
     assert "Topic node:" in js
     assert "Tier node:" in js
     assert "Map unit:" in js
@@ -241,6 +246,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-pathway-card" in css
     assert "inquiry-pathway-grid" in css
     assert "inquiry-pathway-cell" in css
+    assert "inquiry-pathway-peers" in css
+    assert "inquiry-pathway-peer-row" in css
     assert "inquiry-pathway-ontology-chips" in css
     assert "inquiry-pathway-actions" in css
     assert "inquiry-log-actions" in css

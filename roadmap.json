@@ -95,7 +95,8 @@
         "Add Inquiry topic/tier pathway chart",
         "Add replay timeline for saved aggregate inquiry logs",
         "Add map-linked ontology chips for Inquiry pathway cells",
-        "Add persistent analysis journey strip"
+        "Add persistent analysis journey strip",
+        "Add pathway-cell mini peer comparison visual"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"
