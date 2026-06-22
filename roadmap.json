@@ -150,7 +150,8 @@
         "Run persisted Grok-backed aggregate inquiry refresh after answer map cards",
         "Add highlighted county town detail cards for question map routes",
         "Add selected-unit query replay from map to Inquiry and Ontology",
-        "Add saved inquiry route comparison visuals"
+        "Add saved inquiry route comparison visuals",
+        "Add real-data coverage timeline animation"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

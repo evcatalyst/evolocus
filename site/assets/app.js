@@ -513,6 +513,7 @@ function render() {
   renderVisualRouteVerification();
   renderOfflineRefreshFreshness();
   renderArtifactFreshnessBadges();
+  renderCoverageTimeline();
   renderMap();
   renderWalkthrough();
   renderOntology();
@@ -1681,6 +1682,189 @@ function renderMapRefreshSource(status, mapLayers) {
       </dl>
     </article>
   `;
+}
+
+function renderCoverageTimeline() {
+  const target = $("#coverage-timeline");
+  if (!target) {
+    return;
+  }
+  const stages = coverageTimelineStages();
+  const latest = latestIso(stages.map((stage) => stage.generatedAt));
+  target.innerHTML = `
+    <article class="coverage-timeline-card">
+      <div class="coverage-timeline-heading">
+        <div>
+          <p class="eyebrow">Real-data coverage timeline</p>
+          <h3>Current published analysis path from aggregate LOCUS artifacts.</h3>
+          <p>Coverage animation uses aggregate artifact metadata only. It is publication provenance, not a claim that any law changed or controls a person, parcel, or dispute.</p>
+        </div>
+        <span>${escapeHtml(latest ? `${formatDateTime(latest)} · ${artifactAgeLabel(latest)}` : "artifact timestamps loading")}</span>
+      </div>
+      <div class="coverage-timeline-rail" aria-label="Aggregate artifact milestone animation">
+        ${stages.map(coverageTimelineStageHtml).join("")}
+      </div>
+      <div class="coverage-timeline-metrics">
+        ${coverageTimelineMetrics().map(coverageTimelineMetricHtml).join("")}
+      </div>
+      <div class="coverage-timeline-policy">
+        ${coverageTimelinePolicyHtml()}
+      </div>
+      <div class="coverage-timeline-actions">
+        <button type="button" data-coverage-timeline-action="status">Open Analysis Status</button>
+        <button type="button" data-coverage-timeline-action="map">Inspect Map</button>
+        <button type="button" data-coverage-timeline-action="inquiry">Ask Aggregate Question</button>
+        <button type="button" data-coverage-timeline-action="ontology">Open Ontology</button>
+      </div>
+    </article>
+  `;
+}
+
+function coverageTimelineStages() {
+  const status = state.analysis.status || {};
+  const mapLayers = state.analysis.mapLayers || {};
+  const auditStatus = state.analysis.auditStatus || {};
+  const ontology = state.analysis.ontology || {};
+  const models = state.analysis.models || {};
+  const charts = state.analysis.charts || {};
+  const inquiryBriefings = state.analysis.inquiryBriefings || {};
+  const questionPack = state.analysis.questionPack || {};
+  const refreshStatus = state.analysis.refreshStatus || {};
+  const visualSmoke = state.analysis.visualSmoke || {};
+  const mapUnits = mapLayers.units || [];
+  const ontologyNodes = ontology.nodes || [];
+  const ontologyEdges = ontology.edges || [];
+  const chartCount = charts.charts ? Object.keys(charts.charts).length : 0;
+  const modelCount = models.models ? models.models.length : 0;
+  const briefingGrok = inquiryBriefings.grok || {};
+  const questionGrok = questionPack.grok || {};
+  return [
+    {
+      id: "scan",
+      title: "LOCUS aggregate scan",
+      value: `${formatCount(status.law_count || mapLayers.row_count || 0)} rows`,
+      detail: `${formatCount(status.unit_count || mapUnits.length)} published aggregate units · revision ${status.dataset_revision || mapLayers.dataset_revision || "loading"}`,
+      generatedAt: status.generated_at || mapLayers.generated_at,
+      action: "status",
+      state: status.analysis_state ? "complete" : "review",
+    },
+    {
+      id: "map",
+      title: "Map layer published",
+      value: `${formatCount(mapUnits.length || status.unit_count || 0)} county/town units`,
+      detail: mapLayers.geometry_status || "geometry review status loading",
+      generatedAt: mapLayers.generated_at,
+      action: "map",
+      state: mapLayers.generated_at ? "complete" : "review",
+    },
+    {
+      id: "audit",
+      title: "Audit layer published",
+      value: auditStatus.row_count ? `${formatCount(auditStatus.row_count)} audited rows` : "audit loading",
+      detail: auditStatus.manifest?.full_scan_completed ? "full local audit summarized as aggregate counts" : "audit manifest pending or loading",
+      generatedAt: auditStatus.generated_at,
+      action: "status",
+      state: auditStatus.generated_at ? "complete" : "review",
+    },
+    {
+      id: "ontology",
+      title: "Ontology/model layer",
+      value: `${formatCount(ontologyNodes.length)} nodes · ${formatCount(ontologyEdges.length)} edges`,
+      detail: `${formatCount(modelCount)} model-output records · ${formatCount(chartCount)} chart panels`,
+      generatedAt: latestIso([ontology.generated_at, models.generated_at, charts.generated_at]),
+      action: "ontology",
+      state: ontologyNodes.length ? "complete" : "review",
+    },
+    {
+      id: "inquiry",
+      title: "Inquiry refresh",
+      value: `${formatCount((inquiryBriefings.briefings || []).length)} briefings · ${formatCount((questionPack.prompts || []).length)} prompts`,
+      detail: briefingGrok.used || questionGrok.used ? "offline Grok-enriched aggregate artifacts" : "deterministic aggregate artifacts",
+      generatedAt: latestIso([inquiryBriefings.generated_at, questionPack.generated_at, refreshStatus.completed_at, refreshStatus.generated_at]),
+      action: "inquiry",
+      state: inquiryBriefings.generated_at || questionPack.generated_at ? "complete" : "review",
+    },
+    {
+      id: "smoke",
+      title: "Hosted route smoke",
+      value: visualSmoke.status || "not loaded",
+      detail: visualSmoke.verified_route?.name || "public visual route verification",
+      generatedAt: visualSmoke.completed_at || visualSmoke.generated_at,
+      action: "status",
+      state: visualSmoke.status === "passed" || visualSmoke.status === "success" ? "complete" : "review",
+    },
+  ];
+}
+
+function coverageTimelineMetrics() {
+  const status = state.analysis.status || {};
+  const mapLayers = state.analysis.mapLayers || {};
+  const auditStatus = state.analysis.auditStatus || {};
+  const refreshStatus = state.analysis.refreshStatus || {};
+  const packageVerification = status.local_package_verification || {};
+  return [
+    ["Published units", formatCount(status.unit_count || (mapLayers.units || []).length)],
+    ["Aggregate rows", formatCount(status.law_count || mapLayers.row_count || 0)],
+    ["Real rows in Pages", status.real_locus_rows_published ? "review needed" : "none"],
+    ["Audit rows", auditStatus.row_count ? formatCount(auditStatus.row_count) : "not loaded"],
+    ["Grok Actions secret", "repository Actions only"],
+    ["Latest refresh", refreshStatus.run_id ? `run ${refreshStatus.run_id}` : "not loaded"],
+    ["Local package smoke", packageVerification.status === "complete" ? `${formatCount(packageVerification.matched_public_unit_count)} matched units` : "not recorded"],
+    ["Display mode", status.synthetic ? "synthetic" : "real aggregate"],
+  ];
+}
+
+function coverageTimelineStageHtml(stage, index) {
+  const action = stage.action || "status";
+  return `
+    <article class="coverage-timeline-stage ${escapeHtml(stage.state)}" style="--stage-index:${index}">
+      <button type="button" data-coverage-timeline-action="${escapeHtml(action)}">
+        <span>${escapeHtml(stage.title)}</span>
+        <strong>${escapeHtml(stage.value)}</strong>
+        <em>${escapeHtml(stage.detail)}</em>
+        <small>${escapeHtml(stage.generatedAt ? `${formatDateTime(stage.generatedAt)} · ${artifactAgeLabel(stage.generatedAt)}` : "timestamp loading")}</small>
+      </button>
+    </article>
+  `;
+}
+
+function coverageTimelineMetricHtml([label, value]) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(String(value))}</em>
+    </span>
+  `;
+}
+
+function coverageTimelinePolicyHtml() {
+  const status = state.analysis.status || {};
+  const gates = status.publication_gates || [];
+  const gateSummary = gates.length
+    ? gates.map((gate) => `${gate.label}: ${gate.status}`).join(" · ")
+    : "publication gates loading";
+  return `
+    <span>No ordinance text, source locators, review events, secrets, or legal findings</span>
+    <span>Model scores are displayed as neutral relative outputs until score direction is verified</span>
+    <span>${escapeHtml(gateSummary)}</span>
+  `;
+}
+
+function applyCoverageTimelineAction(action) {
+  const tab = action === "map" || action === "inquiry" || action === "ontology" ? action : "status";
+  state.activeTab = tab;
+  render();
+  if (tab === "map") {
+    renderMap();
+    return;
+  }
+  if (tab === "inquiry") {
+    renderInquiry();
+    return;
+  }
+  if (tab === "ontology") {
+    renderOntology();
+  }
 }
 
 function lastRefreshSourceSummary(status, mapLayers) {
@@ -14506,6 +14690,12 @@ function bindEvents() {
     }
   });
   $("#map-panel").addEventListener("click", (event) => {
+    const coverageButton = event.target.closest("[data-coverage-timeline-action]");
+    if (coverageButton) {
+      event.preventDefault();
+      applyCoverageTimelineAction(coverageButton.dataset.coverageTimelineAction || "status");
+      return;
+    }
     const statusButton = event.target.closest("[data-open-status-tab]");
     if (statusButton) {
       event.preventDefault();

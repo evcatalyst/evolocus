@@ -141,3 +141,4 @@
 - Selected-unit ontology route comparisons should compare aggregate navigation stages, not rank legal authority or imply that a law controls a person, parcel, or dispute.
 - Model import/status surfaces should distinguish released dataset output columns from executable model-weight imports, especially while score direction and model cards remain unverified.
 - Question-to-map ontology depth overlays should make route stages inspectable across highlighted units while keeping stage actions to aggregate filters, Score Lens, Ontology focus, and provenance gates.
+- A first-map coverage timeline should animate artifact milestones from status JSON only; it is publication provenance and must not imply legal change, controlling authority, or row-level evidence.

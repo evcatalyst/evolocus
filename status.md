@@ -170,6 +170,7 @@ Current coverage stats:
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots, including package-count comparisons when a local package overlay is active
 - Artifact snapshot diff surface: GitHub Pages Analysis Status compares current aggregate metadata with `artifact_snapshot.json`, a stored public baseline containing counts and publication-policy flags only
 - Artifact refresh timeline surface: GitHub Pages Analysis Status compares current aggregate artifact timestamps with the stored public snapshot baseline as publication provenance only
+- Law Map real-data coverage timeline: GitHub Pages animates LOCUS aggregate scan, map, audit, ontology/model, inquiry refresh, and hosted smoke milestones from public metadata only
 - Artifact lineage surface: GitHub Pages Analysis Status maps each public visual surface to aggregate JSON dependencies and disclosure boundaries
 - Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots
 - Model registry: released LOCUS output fields imported

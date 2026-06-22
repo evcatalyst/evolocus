@@ -17,6 +17,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoor-visual-path" in html
     assert "visual-route-verification" in html
     assert "offline-refresh-freshness" in html
+    assert "coverage-timeline" in html
+    assert "Real-data coverage timeline animation" in html
     assert "Aggregate analysis journey" in html
     assert "Score Lens" in html
     assert "Audit Lens" in html
@@ -66,6 +68,19 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderFrontdoorVisualPath" in js
     assert "renderVisualRouteVerification" in js
     assert "renderOfflineRefreshFreshness" in js
+    assert "renderCoverageTimeline" in js
+    assert "coverageTimelineStages" in js
+    assert "coverageTimelineStageHtml" in js
+    assert "coverageTimelinePolicyHtml" in js
+    assert "applyCoverageTimelineAction" in js
+    assert "Real-data coverage timeline" in js
+    assert "Coverage animation uses aggregate artifact metadata only" in js
+    assert "No ordinance text, source locators, review events, secrets, or legal findings" in js
+    assert "LOCUS aggregate scan" in js
+    assert "Map layer published" in js
+    assert "Ontology/model layer" in js
+    assert "Hosted route smoke" in js
+    assert "data-coverage-timeline-action" in js
     assert "offlineRefreshMetricHtml" in js
     assert "refreshStatus" in js
     assert "data/analysis/refresh_status.json" in js
@@ -865,6 +880,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "No row text published" in js
     assert "artifact-freshness-card" in css
     assert "artifact-freshness-grid" in css
+    assert "coverage-timeline-card" in css
+    assert "coverage-timeline-rail" in css
+    assert "coverage-timeline-stage" in css
+    assert "coverageTimelineSweep" in css
+    assert "coverageTimelinePulse" in css
     assert "artifact-refresh-timeline" in css
     assert "artifact-refresh-timeline-strip" in css
     assert "artifact-refresh-timeline-row" in css

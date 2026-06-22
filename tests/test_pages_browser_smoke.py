@@ -77,6 +77,15 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "run " in refresh_badge_text
             assert "no model credentials" in refresh_badge_text
             assert "raw rows" in refresh_badge_text
+            page.wait_for_selector("#coverage-timeline [data-coverage-timeline-action='status']", timeout=10_000)
+            coverage_timeline_text = page.locator("#coverage-timeline").inner_text(timeout=5_000).lower()
+            assert "real-data coverage timeline" in coverage_timeline_text
+            assert "aggregate artifact metadata only" in coverage_timeline_text
+            assert "no ordinance text" in coverage_timeline_text
+            page.get_by_label("Real-data coverage timeline").get_by_role("button", name="Open Analysis Status").click()
+            page.wait_for_function("() => document.querySelector('#status-panel')?.classList.contains('active')")
+            page.locator("[data-tab='map']").click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
 
             page.wait_for_selector("[data-frontdoor-composer] #frontdoor-question-input", timeout=10_000)
             page.locator("#frontdoor-question-input").fill("Where are zoning enforcement laws in cities?")
