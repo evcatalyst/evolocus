@@ -92,6 +92,7 @@
         "Add browser-local aggregate inquiry results log",
         "Add Law Map last-refresh source detail",
         "Add replay controls for saved aggregate inquiry logs",
+        "Add map-side topic/tier co-occurrence mini matrix",
         "Add Inquiry topic/tier pathway chart",
         "Add replay timeline for saved aggregate inquiry logs",
         "Add map-linked ontology chips for Inquiry pathway cells",

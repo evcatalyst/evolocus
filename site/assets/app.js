@@ -1010,6 +1010,7 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
       <div class="map-reading-guide-tiers" aria-label="Visible neutral tier mix">
         ${tierRows || "<span><strong>No visible tiers</strong><em>adjust filters</em></span>"}
       </div>
+      ${mapTopicTierMatrixHtml(units, tierDefinitions)}
       <div class="map-reading-guide-filters" aria-label="Active map filters">
         ${
           filterLabels.length
@@ -1021,6 +1022,137 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
         Official county polygons and municipal points are machine-matched and pending review. Public artifacts contain aggregate counts only: no ordinance text, source locators, review events, or legal findings.
       </p>
     </section>
+  `;
+}
+
+function mapTopicTierMatrixHtml(units, tierDefinitions) {
+  const matrix = topicTierMatrixRows(units, tierDefinitions);
+  if (!matrix.rows.length || !matrix.tiers.length) {
+    return `
+      <section class="map-topic-tier-matrix empty" aria-label="Topic and tier co-occurrence matrix">
+        <div>
+          <span>Topic/tier co-occurrence</span>
+          <strong>No visible aggregate cells</strong>
+        </div>
+        <p>Adjust filters to compare aggregate dominant-topic and neutral-tier intersections.</p>
+      </section>
+    `;
+  }
+  return `
+    <section class="map-topic-tier-matrix" aria-label="Topic and tier co-occurrence matrix">
+      <div class="map-topic-tier-heading">
+        <div>
+          <span>Topic/tier co-occurrence</span>
+          <strong>${escapeHtml(formatCount(matrix.rows.length))} dominant topics across ${escapeHtml(formatCount(matrix.tiers.length))} neutral tiers</strong>
+        </div>
+        <em>Aggregate units only</em>
+      </div>
+      <div class="map-topic-tier-grid" style="--tier-columns:${escapeHtml(String(matrix.tiers.length))}">
+        <span class="map-topic-tier-corner">Topic</span>
+        ${matrix.tiers.map((tier) => mapTopicTierHeaderHtml(tier)).join("")}
+        ${matrix.rows.map((row) => mapTopicTierRowHtml(row, matrix)).join("")}
+      </div>
+      <p>Cells apply map filters by dominant topic and neutral tier. Counts are aggregate jurisdiction units and rows, not legal findings.</p>
+    </section>
+  `;
+}
+
+function topicTierMatrixRows(units, tierDefinitions) {
+  const grouped = new Map();
+  const tierMap = new Map();
+  for (const unit of units) {
+    const topic = unit.dominant_topic && unit.dominant_topic !== "Not available" ? String(unit.dominant_topic) : "";
+    const topicLabel = topic || "No dominant topic";
+    const tierKey = unit.tier || tierKeyForLabel(unit.tier_label, tierDefinitions) || "";
+    const definition = tierDefinitionForKey(tierKey);
+    const tierLabel = definition.label || unit.tier_label || tierKey || "No neutral tier";
+    const tierColor = definition.color || unit.tier_color || "#d8dee8";
+    const tierSortKey = tierKey || tierLabel;
+    if (!tierMap.has(tierSortKey)) {
+      tierMap.set(tierSortKey, {
+        key: tierKey,
+        label: tierLabel,
+        color: tierColor,
+        sortKey: tierSortKey,
+      });
+    }
+    const key = `${topic || "no-topic"}::${tierSortKey}`;
+    const cell = grouped.get(key) || {
+      key,
+      topic,
+      topicLabel,
+      tierKey,
+      tierLabel,
+      tierColor,
+      tierSortKey,
+      unitCount: 0,
+      lawCount: 0,
+      topUnit: null,
+    };
+    cell.unitCount += 1;
+    cell.lawCount += Number(unit.law_count || 0);
+    cell.topUnit = !cell.topUnit || Number(unit.law_count || 0) > Number(cell.topUnit.law_count || 0) ? unit : cell.topUnit;
+    grouped.set(key, cell);
+  }
+  const tiers = [...tierMap.values()].sort((a, b) => a.label.localeCompare(b.label) || a.sortKey.localeCompare(b.sortKey));
+  const topics = [...new Set([...grouped.values()].map((cell) => cell.topicLabel))].sort();
+  const rows = topics.map((topicLabel) => {
+    const cells = tiers.map((tier) => {
+      const match = grouped.get(`${topicLabel === "No dominant topic" ? "no-topic" : topicLabel}::${tier.sortKey}`);
+      return match || {
+        topic: topicLabel === "No dominant topic" ? "" : topicLabel,
+        topicLabel,
+        tierKey: tier.key,
+        tierLabel: tier.label,
+        tierColor: tier.color,
+        tierSortKey: tier.sortKey,
+        unitCount: 0,
+        lawCount: 0,
+        topUnit: null,
+      };
+    });
+    return {
+      topic: cells.find((cell) => cell.topic)?.topic || "",
+      topicLabel,
+      lawCount: cells.reduce((total, cell) => total + Number(cell.lawCount || 0), 0),
+      unitCount: cells.reduce((total, cell) => total + Number(cell.unitCount || 0), 0),
+      cells,
+    };
+  }).sort((a, b) => b.lawCount - a.lawCount || b.unitCount - a.unitCount || a.topicLabel.localeCompare(b.topicLabel));
+  const maxLawCount = Math.max(1, ...[...grouped.values()].map((cell) => Number(cell.lawCount || 0)));
+  return { rows, tiers, maxLawCount };
+}
+
+function mapTopicTierHeaderHtml(tier) {
+  return `
+    <span class="map-topic-tier-header">
+      <i style="background:${escapeHtml(tier.color)}"></i>
+      ${escapeHtml(tier.label)}
+    </span>
+  `;
+}
+
+function mapTopicTierRowHtml(row, matrix) {
+  return `
+    <span class="map-topic-tier-topic">
+      <strong>${escapeHtml(row.topicLabel)}</strong>
+      <em>${escapeHtml(formatCount(row.unitCount))} units · ${escapeHtml(formatCount(row.lawCount))} rows</em>
+    </span>
+    ${row.cells.map((cell) => mapTopicTierCellHtml(cell, matrix.maxLawCount)).join("")}
+  `;
+}
+
+function mapTopicTierCellHtml(cell, maxLawCount) {
+  const width = Math.max(cell.lawCount ? 7 : 0, (Number(cell.lawCount || 0) / maxLawCount) * 100).toFixed(2);
+  const disabled = cell.unitCount ? "" : " disabled";
+  const topUnit = cell.topUnit ? displayUnitName(cell.topUnit) : "No aggregate unit";
+  return `
+    <button type="button" class="map-topic-tier-cell"${disabled} data-map-topic-tier-topic="${escapeHtml(cell.topic)}" data-map-topic-tier-tier="${escapeHtml(cell.tierKey)}">
+      <span><b style="width:${escapeHtml(width)}%"></b></span>
+      <strong>${escapeHtml(formatCount(cell.unitCount))}</strong>
+      <em>${escapeHtml(formatCount(cell.lawCount))} rows</em>
+      <small>${escapeHtml(topUnit)}</small>
+    </button>
   `;
 }
 
@@ -7300,6 +7432,16 @@ function applyMapFilters(event) {
   renderMap();
 }
 
+function applyMapTopicTierMatrix(topic, tier) {
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: topic || "",
+    tier: tier || "",
+  };
+  state.selectedUnitId = null;
+  renderMap();
+}
+
 function resetMapFilters() {
   state.mapFilters = defaultMapFilters();
   state.selectedUnitId = null;
@@ -8570,6 +8712,12 @@ function bindEvents() {
     if (mapCompareButton) {
       event.preventDefault();
       openAuditUnitOnMap(mapCompareButton.dataset.mapCompareUnit);
+      return;
+    }
+    const topicTierButton = event.target.closest("[data-map-topic-tier-topic], [data-map-topic-tier-tier]");
+    if (topicTierButton) {
+      event.preventDefault();
+      applyMapTopicTierMatrix(topicTierButton.dataset.mapTopicTierTopic || "", topicTierButton.dataset.mapTopicTierTier || "");
       return;
     }
     const tierOntologyButton = event.target.closest("[data-tier-ontology]");

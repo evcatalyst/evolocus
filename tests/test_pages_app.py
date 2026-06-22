@@ -97,6 +97,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "tracked Polars aggregate artifact" in js
     assert "public artifact validator runs before Pages upload" in js
     assert "renderMapReadingGuide" in js
+    assert "mapTopicTierMatrixHtml" in js
+    assert "topicTierMatrixRows" in js
+    assert "applyMapTopicTierMatrix" in js
+    assert "data-map-topic-tier-topic" in js
+    assert "Topic/tier co-occurrence" in js
+    assert "Counts are aggregate jurisdiction units and rows, not legal findings." in js
     assert "renderMapInlineInquiry" in js
     assert "mapInlineInquiryPrompts" in js
     assert "mapInlineComparisonStripHtml" in js
@@ -238,6 +244,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontology-query-grid" in css
     assert "ontology-query-card" in css
     assert "map-reading-guide-card" in css
+    assert "map-topic-tier-matrix" in css
+    assert "map-topic-tier-grid" in css
+    assert "map-topic-tier-cell" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
     assert "map-inline-inquiry-history" in css

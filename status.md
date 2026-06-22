@@ -94,6 +94,7 @@ Current coverage stats:
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
+- Map-side topic/tier matrix: GitHub Pages shows aggregate dominant-topic by neutral-tier co-occurrence cells with unit counts, row bars, and safe map filter drillback
 - Tier-to-ontology clickthrough: GitHub Pages tier chips open a focused ontology card with visible units, topic/function links, neutral score means, and current filter context
 - Map-driven ontology query presets: GitHub Pages turns current filters, selected unit, visible topic/function/tier, audit, and score context into bounded Inquiry prompts
 - Tier-focus mini charts: GitHub Pages ontology focus cards show aggregate topic mix, function mix, unit type mix, and neutral score means for the active tier
