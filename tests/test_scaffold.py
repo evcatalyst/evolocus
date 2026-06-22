@@ -369,6 +369,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoorRouteExportItem" in js
     assert "exportFrontdoorSavedRoutes" in js
     assert "frontdoorRouteShareHtml" in js
+    assert "routeShareCopyStatusHtml" in js
+    assert "copyRouteShareUrl" in js
+    assert "writeTextToClipboard" in js
+    assert "data-frontdoor-copy-share" in js
     assert "frontdoorShareRoutePayload" in js
     assert "frontdoorShareRouteUrl" in js
     assert "encodeShareableRoutePayload" in js
@@ -977,6 +981,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoor-saved-export-card" in css
     assert "frontdoor-route-share-card" in css
     assert "frontdoor-route-share-actions" in css
+    assert "route-share-copy-status" in css
     assert "frontdoor-route-import" in css
     assert "frontdoor-story-packet" in css
     assert "frontdoor-story-metrics" in css
@@ -1040,6 +1045,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-tier-drilldown-action" in js
     assert 'data-tier-drilldown-action="share-map"' in js
     assert 'data-tier-drilldown-action="share-ask"' in js
+    assert "data-tier-drilldown-copy-share" in js
     assert "data-tier-drilldown-clear-share" in js
     assert "County/town tier drilldown" in js
     assert "Share tier map" in js
@@ -1404,6 +1410,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chartRouteStageHtml" in js
     assert "applyChartRouteLegend" in js
     assert "chartRouteShareHtml" in js
+    assert "data-chart-route-copy-share" in js
     assert "chartPresetFilters" in js
     assert "chartPresetRouteItem" in js
     assert "shareChartPresetRoute" in js

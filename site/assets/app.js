@@ -1805,11 +1805,72 @@ function frontdoorRouteShareHtml() {
           : ""
       }
       <div class="frontdoor-route-share-actions">
+        ${status.url ? `<button type="button" data-frontdoor-copy-share>Copy link</button>` : ""}
         ${status.url ? `<a href="${escapeHtml(status.url)}" target="_blank" rel="noopener noreferrer">Open link</a>` : ""}
         <button type="button" data-frontdoor-clear-share>Clear</button>
       </div>
+      ${routeShareCopyStatusHtml(status)}
     </div>
   `;
+}
+
+function routeShareCopyStatusHtml(status) {
+  if (!status?.copyMessage) {
+    return "";
+  }
+  return `<p class="route-share-copy-status ${escapeHtml(status.copyStatus || "ready")}" role="status" aria-live="polite">${escapeHtml(status.copyMessage)}</p>`;
+}
+
+async function copyRouteShareUrl(statusKey, label = "route") {
+  const status = state[statusKey];
+  if (!status?.url) {
+    return;
+  }
+  try {
+    await writeTextToClipboard(status.url);
+    state[statusKey] = {
+      ...status,
+      copyStatus: "copied",
+      copyMessage: `Copied ${label} link. It contains aggregate route metadata only.`,
+    };
+  } catch {
+    state[statusKey] = {
+      ...status,
+      copyStatus: "error",
+      copyMessage: "Copy failed. Select the URL field and copy it manually.",
+    };
+  }
+  render();
+}
+
+async function writeTextToClipboard(value) {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return;
+    } catch {
+      // Fall through to the textarea path when browser permission blocks the Clipboard API.
+    }
+  }
+  if (typeof document === "undefined" || !document.body) {
+    throw new Error("Clipboard is unavailable.");
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const copied = document.execCommand ? document.execCommand("copy") : false;
+    if (!copied) {
+      throw new Error("Fallback copy failed.");
+    }
+  } finally {
+    textarea.remove();
+  }
 }
 
 function frontdoorRouteImportHtml() {
@@ -10346,9 +10407,11 @@ function ontologyTierShareHtml(tierKey = "") {
           : ""
       }
       <div class="ontology-tier-share-actions">
+        ${status.url ? `<button type="button" data-tier-drilldown-copy-share>Copy link</button>` : ""}
         ${status.url ? `<a href="${escapeHtml(status.url)}" target="_blank" rel="noopener noreferrer">Open link</a>` : ""}
         <button type="button" data-tier-drilldown-clear-share>Clear</button>
       </div>
+      ${routeShareCopyStatusHtml(status)}
     </section>
   `;
 }
@@ -15686,9 +15749,11 @@ function chartRouteShareHtml() {
           : ""
       }
       <div class="chart-route-share-actions">
+        ${status.url ? `<button type="button" data-chart-route-copy-share>Copy link</button>` : ""}
         ${status.url ? `<a href="${escapeHtml(status.url)}" target="_blank" rel="noopener noreferrer">Open link</a>` : ""}
         <button type="button" data-chart-route-clear-share>Clear</button>
       </div>
+      ${routeShareCopyStatusHtml(status)}
     </section>
   `;
 }
@@ -18076,6 +18141,12 @@ function bindEvents() {
       exportFrontdoorSavedRoutes();
       return;
     }
+    const copyShareButton = event.target.closest("[data-frontdoor-copy-share]");
+    if (copyShareButton) {
+      event.preventDefault();
+      copyRouteShareUrl("frontdoorRouteShareStatus", "front-door route");
+      return;
+    }
     const clearShareButton = event.target.closest("[data-frontdoor-clear-share]");
     if (clearShareButton) {
       event.preventDefault();
@@ -18668,6 +18739,12 @@ function bindEvents() {
     render();
   });
   $("#results-panel").addEventListener("click", (event) => {
+    const copyChartShare = event.target.closest("[data-chart-route-copy-share]");
+    if (copyChartShare) {
+      event.preventDefault();
+      copyRouteShareUrl("chartRouteShareStatus", "chart route");
+      return;
+    }
     const clearChartShare = event.target.closest("[data-chart-route-clear-share]");
     if (clearChartShare) {
       event.preventDefault();
@@ -18813,6 +18890,12 @@ function bindEvents() {
     const mapPresetButton = event.target.closest("[data-ontology-map-preset]");
     if (mapPresetButton) {
       applyOntologyMapPreset(mapPresetButton.dataset.ontologyMapPreset, mapPresetButton.dataset.ontologyMapPresetAction || "map");
+      return;
+    }
+    const tierShareCopy = event.target.closest("[data-tier-drilldown-copy-share]");
+    if (tierShareCopy) {
+      event.preventDefault();
+      copyRouteShareUrl("ontologyTierShareStatus", "ontology tier route");
       return;
     }
     const tierShareClear = event.target.closest("[data-tier-drilldown-clear-share]");

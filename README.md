@@ -50,6 +50,7 @@ The Pages app supports:
 - visual story packets can be saved into the browser-local route gallery and replayed with the same Map, Inquiry, and Ontology controls as question routes;
 - content-free landing route export packet for sharing saved aggregate visual routes without answer text, ordinance text, locators, review events, or secrets;
 - content-free landing route import that rejects row-text or locator-shaped fields before replaying shared aggregate routes;
+- visible Copy link confirmations for front-door, chart, and ontology-tier aggregate route URLs;
 - one-click front-door example questions that apply aggregate topic/tier filters before opening Inquiry, Map, or Ontology;
 - first-screen offline analysis freshness card for briefing/question-pack age, mode, validation, and Actions-only refresh;
 - Pages-visible offline Grok refresh run badge with latest Actions run link, artifact counts, commit, and aggregate-only safety boundary;

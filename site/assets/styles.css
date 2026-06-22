@@ -1674,6 +1674,30 @@ main {
   box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.1);
 }
 
+.route-share-copy-status {
+  grid-column: 1 / -1;
+  margin: 0;
+  border: 1px solid rgba(50, 111, 112, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--muted);
+  padding: 7px 9px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.route-share-copy-status.copied {
+  border-color: rgba(50, 111, 112, 0.32);
+  background: #f3fbf8;
+  color: var(--green);
+}
+
+.route-share-copy-status.error {
+  border-color: rgba(164, 73, 63, 0.28);
+  background: #fff8f7;
+  color: #8b3f38;
+}
+
 .frontdoor-route-import {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
@@ -9791,7 +9815,8 @@ textarea {
   gap: 7px;
 }
 
-.ontology-tier-share-actions a {
+.ontology-tier-share-actions a,
+.ontology-tier-share-actions button {
   display: inline-flex;
   align-items: center;
   border: 1px solid rgba(91, 95, 151, 0.28);

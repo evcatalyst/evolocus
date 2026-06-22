@@ -304,6 +304,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "content-free" in share_card_text
             share_map_url = page.locator(".frontdoor-route-share-card input").input_value(timeout=5_000)
             assert "?route=" in share_map_url
+            page.locator(".frontdoor-route-share-card [data-frontdoor-copy-share]").click()
+            page.wait_for_selector(".frontdoor-route-share-card .route-share-copy-status.copied", timeout=10_000)
+            frontdoor_copy_text = page.locator(".frontdoor-route-share-card .route-share-copy-status").inner_text(timeout=5_000).lower()
+            assert "copied front-door route link" in frontdoor_copy_text
+            assert "aggregate route metadata only" in frontdoor_copy_text
             page.goto(share_map_url, wait_until="networkidle")
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
             page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
@@ -394,6 +399,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "content-free" in chart_share_text
             chart_share_map_url = page.locator(".chart-route-share-card input").input_value(timeout=5_000)
             assert "?route=" in chart_share_map_url
+            page.locator(".chart-route-share-card [data-chart-route-copy-share]").click()
+            page.wait_for_selector(".chart-route-share-card .route-share-copy-status.copied", timeout=10_000)
+            chart_copy_text = page.locator(".chart-route-share-card .route-share-copy-status").inner_text(timeout=5_000).lower()
+            assert "copied chart route link" in chart_copy_text
+            assert "aggregate route metadata only" in chart_copy_text
             page.goto(chart_share_map_url, wait_until="networkidle")
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
             page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
@@ -664,6 +674,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             tier_share_ask_url = page.locator(".ontology-tier-share-card input").input_value(timeout=5_000)
             assert "?route=" in tier_share_ask_url
             assert tier_share_ask_url != tier_share_map_url
+            page.locator(".ontology-tier-share-card [data-tier-drilldown-copy-share]").click()
+            page.wait_for_selector(".ontology-tier-share-card .route-share-copy-status.copied", timeout=10_000)
+            tier_copy_text = page.locator(".ontology-tier-share-card .route-share-copy-status").inner_text(timeout=5_000).lower()
+            assert "copied ontology tier route link" in tier_copy_text
+            assert "aggregate route metadata only" in tier_copy_text
             page.locator(".ontology-tier-drilldown [data-tier-drilldown-action='ask']").click()
             page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
             tier_drilldown_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
