@@ -83,6 +83,23 @@
         "The answer states aggregate metadata only and no browser model call",
         "No row text, source locator, secret, ranking, legal finding, or legal-control claim is observed"
       ]
+    },
+    {
+      "name": "Question-to-map highlight depth",
+      "steps": [
+        "Open a chart-scoped aggregate Inquiry answer",
+        "Use the answer map card to color matching county/town units",
+        "Inspect question-to-map ontology highlight depth",
+        "Open the score-profile depth stage",
+        "Return to map-side highlighted-unit detail cards"
+      ],
+      "assertions": [
+        "Answer-level map cards route aggregate answers into county/town highlights",
+        "Highlighted units render with no browser-side model call",
+        "Depth stages expose topic, score, ontology, and provenance routes",
+        "Highlighted-unit detail cards explain aggregate match reasons",
+        "No row text, source locator, ranking, legal authority, or legal-control claim is observed"
+      ]
     }
   ],
   "publication_policy": {

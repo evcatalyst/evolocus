@@ -172,3 +172,4 @@
 - Ontology tier share links should reuse the content-free route format so public URLs carry only aggregate filters, neutral tier context, selected public unit IDs, and graph metadata.
 - Public visual proof should name every verified progressive route in `visual_smoke.json`; otherwise the first-screen status can lag behind the actual hosted browser-smoke coverage.
 - Latest-analysis Ask-this-map-layer belongs in the public visual-smoke catalog because it proves offline aggregate analysis can become a visible Inquiry answer without browser model calls or row text.
+- Question-to-map highlight depth should be public proof because it shows progressive disclosure from an aggregate answer to map color, score depth, and highlighted-unit rationale without row-level evidence.

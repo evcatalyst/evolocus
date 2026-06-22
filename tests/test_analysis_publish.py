@@ -35,6 +35,7 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
         "Chart -> Map -> Inquiry -> Ontology",
         "Ontology tier drilldown share URLs",
         "Latest analysis Ask this map layer",
+        "Question-to-map highlight depth",
     ]
 
 

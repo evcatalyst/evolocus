@@ -75,6 +75,7 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Chart -> Map -> Inquiry -> Ontology" in verification_text
             assert "Ontology tier drilldown share URLs" in verification_text
             assert "Latest analysis Ask this map layer" in verification_text
+            assert "Question-to-map highlight depth" in verification_text
             assert "No rows" in verification_text
             assert "No text" in verification_text
             page.wait_for_selector(".grok-refresh-run-badge a[href*='/actions/runs/']", timeout=10_000)
