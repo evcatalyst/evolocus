@@ -6436,6 +6436,139 @@ th {
   align-items: start;
 }
 
+.chart-route-legend-card {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(36, 95, 159, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px;
+}
+
+.chart-route-heading {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.chart-route-heading h3,
+.chart-route-heading p {
+  margin-top: 0;
+}
+
+.chart-route-heading span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: var(--muted);
+  font-size: 0.83rem;
+  padding: 6px 9px;
+  white-space: nowrap;
+}
+
+.chart-route-strip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0 12px;
+}
+
+.chart-route-strip::before {
+  position: absolute;
+  top: 27px;
+  right: 8%;
+  left: 8%;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2d7d63, #245f9f, #a66a13);
+  content: "";
+  opacity: 0.22;
+}
+
+.chart-route-stage {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  min-height: 118px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+  transform: translateY(0);
+  animation: chartRoutePulse 2400ms ease-in-out infinite;
+  animation-delay: var(--route-delay);
+  z-index: 1;
+}
+
+.chart-route-stage::before {
+  width: 14px;
+  height: 14px;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  background: var(--green);
+  box-shadow: 0 0 0 1px rgba(23, 32, 51, 0.1);
+  content: "";
+}
+
+.chart-route-stage.inquiry::before,
+.chart-route-stage.ontology::before {
+  background: var(--blue);
+}
+
+.chart-route-stage.boundary::before {
+  background: var(--gold);
+}
+
+.chart-route-stage span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chart-route-stage strong,
+.chart-route-stage em {
+  overflow-wrap: anywhere;
+}
+
+.chart-route-stage strong {
+  font-size: 0.96rem;
+}
+
+.chart-route-stage em {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: normal;
+}
+
+.chart-route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chart-route-actions button {
+  border-color: rgba(36, 95, 159, 0.26);
+  background: #f4f8fd;
+}
+
+@keyframes chartRoutePulse {
+  0%,
+  100% {
+    border-color: var(--line);
+    box-shadow: none;
+    transform: translateY(0);
+  }
+
+  45% {
+    border-color: rgba(36, 95, 159, 0.34);
+    box-shadow: 0 10px 24px rgba(36, 95, 159, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
 .chart-inquiry-summary,
 .chart-inquiry-actions {
   display: flex;
@@ -6705,9 +6838,19 @@ th {
 
 @media (max-width: 760px) {
   .chart-inquiry-card,
+  .chart-route-heading,
+  .chart-route-strip,
   .chart-drilldown-line,
   .top-unit-list-row {
     grid-template-columns: 1fr;
+  }
+
+  .chart-route-heading {
+    display: grid;
+  }
+
+  .chart-route-strip::before {
+    display: none;
   }
 
   .chart-inquiry-chip.compact span {
@@ -7054,6 +7197,7 @@ th {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .chart-route-stage,
   .ontology-path-strip::before,
   .ontology-path-step::before {
     animation: none;

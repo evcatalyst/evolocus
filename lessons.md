@@ -71,6 +71,7 @@
 - Charts-tab rows should behave like navigation over aggregate filter state only; they must not introduce row text, source locators, or browser-side model calls.
 - Charts-tab Ask actions should reuse deterministic Inquiry and the browser-local aggregate log so visual exploration remains replayable without expanding the public data boundary.
 - Charts-tab Graph actions should reuse the existing Ontology tab and tier-focus model rather than creating a second graph surface.
+- Route legends should preview the progressive path with aggregate counts and boundary copy before changing tabs.
 - Mini-map comparison drawers should compare county/town aggregate rows before navigation, so users see why a node matters without expanding into row-level evidence.
 - Pathway peer visuals should compare only aggregate unit counts and published unit IDs; peer drillback belongs on the map, not in row-level public evidence.
 - Pathway ontology chips should route through aggregate unit IDs and safe filters only, so inquiry-to-ontology drillback does not imply row-level evidence has been published.

@@ -119,7 +119,8 @@
         "Add county/town comparison drawer from Inquiry ontology mini-map nodes",
         "Add Charts-tab aggregate drilldowns back to the county/town map",
         "Add Charts-tab aggregate Ask handoff into deterministic Inquiry",
-        "Add Charts-tab aggregate Graph handoff into Ontology"
+        "Add Charts-tab aggregate Graph handoff into Ontology",
+        "Add animated Charts route legend for progressive disclosure"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

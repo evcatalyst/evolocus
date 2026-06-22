@@ -55,6 +55,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - chart-to-map drilldowns from Charts-tab tier, topic, function, jurisdiction kind, state/topic, and top-unit aggregate rows;
 - chart-to-inquiry Ask buttons that create saved aggregate Inquiry answers from chart scope without browser model calls;
 - chart-to-ontology Graph buttons that open the existing ontology view with aggregate chart filters and progressive disclosure;
+- animated chart route legend that previews Chart -> Map -> Inquiry -> Ontology before changing tabs;
 - Inquiry topic/tier pathway chart that groups current aggregate units into visual question cells and safe map actions;
 - pathway-cell mini peer comparison bars for top aggregate units with map drillback and no row text;
 - map-linked ontology chips inside pathway cells for aggregate topic, neutral tier, and top-unit drillback;

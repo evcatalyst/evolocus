@@ -9074,6 +9074,7 @@ function renderAnalysisCharts() {
   }
   grid.innerHTML = [
     chartInquiryCard(),
+    chartRouteLegendCard(),
     chartCard("Tier distribution", charts.tier_counts || [], "tier"),
     chartCard("Topic distribution", charts.topic_counts || [], "topic"),
     chartCard("Function distribution", charts.function_counts || [], "function"),
@@ -9081,6 +9082,104 @@ function renderAnalysisCharts() {
     scoreCard("Neutral score means", charts.score_means || []),
     topUnitsCard(charts.top_units || []),
   ].join("");
+}
+
+function chartRouteLegendCard() {
+  const mapLayers = state.analysis.mapLayers;
+  const units = mapLayers ? filterMapUnits(mapLayers.units || []) : [];
+  const summary = summarizeUnits(units);
+  const target = chartRouteTarget(summary, mapLayers);
+  const filters = activeFilterLabels();
+  const selectedUnit = currentSelectedMapUnit();
+  const stages = [
+    {
+      key: "scope",
+      label: "Chart scope",
+      value: `${formatCount(units.length)} units`,
+      detail: `${formatCount(summary.lawCount)} aggregate rows from public JSON`,
+    },
+    {
+      key: "map",
+      label: "Map route",
+      value: filters.length ? filters.slice(0, 2).join(" · ") : target.label,
+      detail: "Applies browser filters only",
+    },
+    {
+      key: "inquiry",
+      label: "Inquiry route",
+      value: "Deterministic answer",
+      detail: "Saved to browser-local aggregate log",
+    },
+    {
+      key: "ontology",
+      label: "Ontology route",
+      value: selectedUnit ? displayUnitName(selectedUnit) : target.label,
+      detail: "Opens graph context and tier focus",
+    },
+    {
+      key: "boundary",
+      label: "Boundary",
+      value: "No row text",
+      detail: "No locators, secrets, or live model calls",
+    },
+  ];
+  return `
+    <article class="chart-route-legend-card">
+      <div class="chart-route-heading">
+        <div>
+          <p class="eyebrow">Progressive chart route</p>
+          <h3>Chart -> Map -> Inquiry -> Ontology</h3>
+          <p>Animated route over the current aggregate chart scope. Each action reuses published aggregate counts, filters, and unit IDs only.</p>
+        </div>
+        <span>${escapeHtml(target.detail)}</span>
+      </div>
+      <div class="chart-route-strip" aria-label="Animated chart route legend">
+        ${stages.map((stage, index) => chartRouteStageHtml(stage, index)).join("")}
+      </div>
+      <div class="chart-route-actions">
+        <button type="button" data-chart-route-action="map">Open map route</button>
+        <button type="button" data-chart-route-action="ask">Ask route</button>
+        <button type="button" data-chart-route-action="graph">Graph route</button>
+      </div>
+      <p class="chart-drilldown-note">The route legend is navigational context, not evidence or legal analysis. It never expands beyond aggregate map, inquiry, and ontology artifacts.</p>
+    </article>
+  `;
+}
+
+function chartRouteStageHtml(stage, index) {
+  return `
+    <section class="chart-route-stage ${escapeHtml(stage.key)}" style="--route-delay:${index * 120}ms">
+      <span>${escapeHtml(stage.label)}</span>
+      <strong>${escapeHtml(stage.value)}</strong>
+      <em>${escapeHtml(stage.detail)}</em>
+    </section>
+  `;
+}
+
+function chartRouteTarget(summary, mapLayers) {
+  if (summary.topTopic.value > 0) {
+    return {
+      action: "topic",
+      value: summary.topTopic.label,
+      label: `${summary.topTopic.label} topic`,
+      detail: `${formatCount(summary.topTopic.value)} top-topic rows`,
+    };
+  }
+  const topTier = topEntry(summary.tierCounts);
+  if (topTier.value > 0) {
+    return {
+      action: "tier",
+      value: tierKeyForLabel(topTier.label, mapLayers?.tier_definitions || {}),
+      label: topTier.label,
+      detail: `${formatCount(topTier.value)} top-tier units`,
+    };
+  }
+  return {
+    action: "view",
+    value: "",
+    label: "current chart scope",
+    detail: "current aggregate filters",
+  };
 }
 
 function chartInquiryCard() {
@@ -9642,6 +9741,29 @@ function applyChartOntologyAction(action, value, label = "", stateCode = "") {
   focusChartOntologyTier(action, value, label);
   state.activeTab = "ontology";
   render();
+}
+
+function applyChartRouteLegend(action) {
+  const mapLayers = state.analysis.mapLayers;
+  const summary = summarizeUnits(mapLayers ? filterMapUnits(mapLayers.units || []) : []);
+  const target = chartRouteTarget(summary, mapLayers);
+  if (action === "map") {
+    if (target.action === "view") {
+      state.selectedUnitId = null;
+      state.activeTab = "map";
+      render();
+      return;
+    }
+    applyChartMapFilter(target.action, target.value);
+    return;
+  }
+  if (action === "ask") {
+    applyChartInquiryAction(target.action, target.value, target.label);
+    return;
+  }
+  if (action === "graph") {
+    applyChartOntologyAction(target.action, target.value, target.label);
+  }
 }
 
 function applyChartUnitOntology(unitId) {
@@ -11346,6 +11468,12 @@ function bindEvents() {
     render();
   });
   $("#results-panel").addEventListener("click", (event) => {
+    const routeButton = event.target.closest("[data-chart-route-action]");
+    if (routeButton) {
+      event.preventDefault();
+      applyChartRouteLegend(routeButton.dataset.chartRouteAction || "");
+      return;
+    }
     const chartOntologyButton = event.target.closest("[data-chart-ontology-action]");
     if (chartOntologyButton) {
       event.preventDefault();

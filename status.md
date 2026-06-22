@@ -107,6 +107,7 @@ Current coverage stats:
 - Charts-tab drilldowns: GitHub Pages aggregate tier, topic, function, jurisdiction-kind, state/topic, and top-unit chart rows open the county/town map with browser-only filters or published aggregate unit IDs
 - Charts-tab inquiry handoff: GitHub Pages chart Ask buttons route aggregate chart scope into deterministic Inquiry answers and saved browser-local inquiry logs without model calls
 - Charts-tab ontology handoff: GitHub Pages chart Graph buttons route aggregate chart scope into the existing Ontology tab with tier focus, ontology layer visibility, and no row text
+- Charts route legend: GitHub Pages animates Chart -> Map -> Inquiry -> Ontology as an aggregate-only progressive disclosure path with route buttons
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Map-side route playback: GitHub Pages restores saved aggregate question paths directly from the Law Map, including filters, color mode, selected unit, answer replay, and ontology route
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows

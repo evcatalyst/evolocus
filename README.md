@@ -51,6 +51,7 @@ The Pages app supports:
 - chart-to-map drilldowns from aggregate tier, topic, function, jurisdiction kind, state/topic, and top-unit chart rows;
 - chart-to-inquiry Ask actions that turn aggregate chart rows into saved deterministic Inquiry answers;
 - chart-to-ontology Graph actions that open the aggregate ontology with chart-scoped filters and selected units;
+- animated Charts route legend for Chart -> Map -> Inquiry -> Ontology progressive disclosure;
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - map and inquiry artifact freshness badges with aggregate layer, briefing, question-pack, dataset revision, snapshot deltas, and no-row-text boundary;
@@ -113,6 +114,7 @@ The Pages app supports:
 - aggregate chart rows can open the Law Map with safe browser-only filters or published aggregate unit IDs;
 - aggregate chart Ask buttons can open Inquiry with the same safe filters and no browser model calls;
 - aggregate chart Graph buttons can open Ontology using the same filters, tier focus, and progressive disclosure boundary;
+- aggregate chart route legend shows the current visual path before opening Map, Inquiry, or Ontology;
 - current-view snapshot export for filtered map/inquiry context, with aggregate metadata only;
 - browser-local snapshot gallery for comparing saved aggregate map/inquiry views;
 - progressive disclosure from overview to unit detail to evidence trail;

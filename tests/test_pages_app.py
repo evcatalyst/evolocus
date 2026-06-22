@@ -140,6 +140,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "applyChartMapFilter" in js
     assert "applyChartStateTopicFilter" in js
     assert "chartInquiryCard" in js
+    assert "chartRouteLegendCard" in js
+    assert "chartRouteTarget" in js
+    assert "chartRouteStageHtml" in js
+    assert "applyChartRouteLegend" in js
     assert "chartInquiryButton" in js
     assert "applyChartInquiryAction" in js
     assert "applyChartUnitInquiry" in js
@@ -162,6 +166,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "data-chart-ontology-value" in js
     assert "data-chart-ontology-state" in js
     assert "data-chart-ontology-label" in js
+    assert "data-chart-route-action" in js
+    assert "Progressive chart route" in js
+    assert "Chart -> Map -> Inquiry -> Ontology" in js
+    assert "Animated chart route legend" in js
+    assert "Open map route" in js
+    assert "Graph route" in js
     assert "Ask this chart view" in js
     assert "Ask score profile" in js
     assert "Open current ontology" in js
@@ -470,6 +480,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "chart-drilldown-note" in css
     assert "chart-drilldown-line" in css
     assert "chart-inquiry-card" in css
+    assert "chart-route-legend-card" in css
+    assert "chart-route-strip" in css
+    assert "chart-route-stage" in css
+    assert "chart-route-actions" in css
+    assert "chartRoutePulse" in css
     assert "chart-inquiry-actions" in css
     assert "chart-inquiry-chip" in css
     assert "chart-ontology-chip" in css
