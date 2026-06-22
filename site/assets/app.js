@@ -10539,8 +10539,13 @@ function aiAnalysisRouteCountySvg(feature, context) {
   return `
     <path
       class="ai-route-mini-county${selected}"
+      data-ai-route-mini-unit="${escapeHtml(properties.unit_id || "")}"
+      data-ai-route-mini-card="${escapeHtml(context.card.id || "")}"
       d="${geometryPath(feature.geometry, context.bounds)}"
       fill="${escapeHtml(geographyDatumColor(properties, context.colorContext))}"
+      role="button"
+      aria-label="Open ${escapeHtml(properties.census_name || properties.unit_name || "county")} in the full aggregate map"
+      tabindex="0"
     >
       <title>${escapeHtml(properties.census_name || properties.unit_name || "County")} · ${escapeHtml(formatCount(properties.law_count || 0))} aggregate rows · route preview only</title>
     </path>
@@ -10554,10 +10559,15 @@ function aiAnalysisRoutePointSvg(point, context) {
   return `
     <circle
       class="ai-route-mini-town${selected}"
+      data-ai-route-mini-unit="${escapeHtml(point.unit_id || "")}"
+      data-ai-route-mini-card="${escapeHtml(context.card.id || "")}"
       cx="${x.toFixed(2)}"
       cy="${y.toFixed(2)}"
       r="${radius.toFixed(2)}"
       fill="${escapeHtml(geographyDatumColor(point, context.colorContext))}"
+      role="button"
+      aria-label="Open ${escapeHtml(point.census_name || point.unit_name || "town")} in the full aggregate map"
+      tabindex="0"
     >
       <title>${escapeHtml(point.census_name || point.unit_name || "Town")} · ${escapeHtml(formatCount(point.law_count || 0))} aggregate rows · route preview only</title>
     </circle>
@@ -10573,30 +10583,7 @@ function applyAiAnalysisPackCard(cardId, action) {
   if (!card) {
     return;
   }
-  const route = card.route || {};
-  const filters = route.filters || {};
-  state.mapFilters = {
-    ...state.mapFilters,
-    state: filters.state || "",
-    topic: filters.topic || "",
-    function: filters.function || "",
-    kind: filters.kind || "",
-    tier: filters.tier || "",
-    scoreField: filters.scoreField || filters.score_field || "",
-    scoreBand: filters.scoreBand || filters.score_band || "",
-    auditFocus: filters.auditFocus || "",
-    packageOnly: typeof filters.packageOnly === "boolean" ? filters.packageOnly : false,
-  };
-  state.geographyColorMode = route.color_mode || "tier";
-  if (route.disclosure_level && ["overview", "unit", "evidence"].includes(route.disclosure_level)) {
-    state.disclosureLevel = route.disclosure_level;
-  }
-  if (route.selected_unit_id) {
-    state.selectedUnitId = route.selected_unit_id;
-  }
-  const units = filterMapUnits(state.analysis.mapLayers?.units || []);
-  const question = route.question || card.question || "What does the current filtered map view show?";
-  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "offline AI analysis pack", units);
+  const { route, units, question } = applyAiAnalysisRouteState(card, card.route?.selected_unit_id || "");
   if (action === "map") {
     state.activeTab = "map";
     render();
@@ -10640,6 +10627,68 @@ function applyAiAnalysisPackCard(cardId, action) {
   appendInquiryResultsLog(question, answer, `offline AI analysis pack: ${card.title || card.id}`);
   state.activeTab = "inquiry";
   render();
+}
+
+function applyAiAnalysisRouteState(card, selectedUnitId = "") {
+  const route = card.route || {};
+  const filters = route.filters || {};
+  state.mapFilters = {
+    ...state.mapFilters,
+    state: filters.state || "",
+    topic: filters.topic || "",
+    function: filters.function || "",
+    kind: filters.kind || "",
+    tier: filters.tier || "",
+    scoreField: filters.scoreField || filters.score_field || "",
+    scoreBand: filters.scoreBand || filters.score_band || "",
+    auditFocus: filters.auditFocus || "",
+    packageOnly: typeof filters.packageOnly === "boolean" ? filters.packageOnly : false,
+  };
+  state.geographyColorMode = route.color_mode || "tier";
+  if (route.disclosure_level && ["overview", "unit", "evidence"].includes(route.disclosure_level)) {
+    state.disclosureLevel = route.disclosure_level;
+  }
+  const targetUnitId = selectedUnitId || route.selected_unit_id || "";
+  if (targetUnitId) {
+    state.selectedUnitId = targetUnitId;
+  }
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    counties: true,
+    municipalities: true,
+  };
+  const units = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const question = route.question || card.question || "What does the current filtered map view show?";
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "offline AI analysis pack", units);
+  return { route, units, question };
+}
+
+function applyAiAnalysisRouteMiniMapUnit(cardId, unitId) {
+  const card = aiAnalysisPackCardById(cardId);
+  const unit = (state.analysis.mapLayers?.units || []).find((item) => item.unit_id === unitId);
+  if (!card || !unit) {
+    return;
+  }
+  applyAiAnalysisRouteState(card, unit.unit_id);
+  state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+  state.activeTab = "map";
+  render();
+}
+
+function handleAiRouteMiniMapKeydown(event) {
+  if (!["Enter", " "].includes(event.key)) {
+    return;
+  }
+  const miniMapUnit = event.target.closest("[data-ai-route-mini-unit]");
+  if (!miniMapUnit) {
+    return;
+  }
+  event.preventDefault();
+  applyAiAnalysisRouteMiniMapUnit(
+    miniMapUnit.dataset.aiRouteMiniCard || "",
+    miniMapUnit.dataset.aiRouteMiniUnit || "",
+  );
 }
 
 function renderInquiryContext() {
@@ -16600,6 +16649,15 @@ function bindEvents() {
       );
       return;
     }
+    const miniMapUnit = event.target.closest("[data-ai-route-mini-unit]");
+    if (miniMapUnit) {
+      event.preventDefault();
+      applyAiAnalysisRouteMiniMapUnit(
+        miniMapUnit.dataset.aiRouteMiniCard || "",
+        miniMapUnit.dataset.aiRouteMiniUnit || "",
+      );
+      return;
+    }
     const grokPackButton = event.target.closest("[data-frontdoor-grok-pack-card]");
     if (grokPackButton) {
       event.preventDefault();
@@ -16677,6 +16735,7 @@ function bindEvents() {
     }
     importFrontdoorSavedRoutes(event);
   });
+  $("#frontdoor-visual-path").addEventListener("keydown", handleAiRouteMiniMapKeydown);
   $("#previous-record").addEventListener("click", () => {
     state.currentIndex = Math.max(0, state.currentIndex - 1);
     render();
@@ -16766,6 +16825,15 @@ function bindEvents() {
     render();
   });
   $("#inquiry-panel").addEventListener("click", (event) => {
+    const miniMapUnit = event.target.closest("[data-ai-route-mini-unit]");
+    if (miniMapUnit) {
+      event.preventDefault();
+      applyAiAnalysisRouteMiniMapUnit(
+        miniMapUnit.dataset.aiRouteMiniCard || "",
+        miniMapUnit.dataset.aiRouteMiniUnit || "",
+      );
+      return;
+    }
     const aiAnalysisButton = event.target.closest("[data-ai-analysis-card]");
     if (aiAnalysisButton) {
       event.preventDefault();
@@ -16926,6 +16994,7 @@ function bindEvents() {
       clearInquiryResultsLog();
     }
   });
+  $("#inquiry-panel").addEventListener("keydown", handleAiRouteMiniMapKeydown);
   $("#map-panel").addEventListener("click", (event) => {
     const topicPlaybackButton = event.target.closest("[data-topic-playback-action]");
     if (topicPlaybackButton) {

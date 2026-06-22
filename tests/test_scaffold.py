@@ -402,6 +402,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Offline analysis routes are ready for the county/town map" in js
     assert "County/town route preview" in js
     assert "top matched geographies" in js
+    assert "data-ai-route-mini-unit" in js
+    assert "data-ai-route-mini-card" in js
+    assert "applyAiAnalysisRouteMiniMapUnit" in js
+    assert "handleAiRouteMiniMapKeydown" in js
+    assert "full aggregate map" in js
     assert "data-frontdoor-route-action" in js
     assert "data-frontdoor-route-id" in js
     assert "data-frontdoor-export-routes" in js
@@ -883,6 +888,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ai-route-mini-map" in css
     assert "ai-route-mini-county" in css
     assert "ai-route-mini-town" in css
+    assert "ai-route-mini-county:hover" in css
+    assert "ai-route-mini-town:focus-visible" in css
+    assert "cursor: pointer" in css
     assert "frontdoor-saved-routes" in css
     assert "frontdoor-saved-route" in css
     assert "frontdoor-saved-actions" in css

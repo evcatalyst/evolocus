@@ -128,6 +128,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "browser model calls" in grok_pack_text
             assert "county/town route preview" in grok_pack_text
             assert page.locator(".frontdoor-grok-pack-card .ai-route-mini-map svg").count() > 0
+            page.wait_for_selector(".frontdoor-grok-pack-card [data-ai-route-mini-unit]", timeout=10_000)
+            frontdoor_mini_unit = page.locator(".frontdoor-grok-pack-card [data-ai-route-mini-unit]").first
+            frontdoor_mini_unit_id = frontdoor_mini_unit.get_attribute("data-ai-route-mini-unit")
+            assert frontdoor_mini_unit_id
+            frontdoor_mini_unit.scroll_into_view_if_needed()
+            frontdoor_mini_unit.click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_function("() => document.querySelector('#county-layer-detail')?.innerText.toLowerCase().includes('tier')")
+            frontdoor_mini_detail_text = page.locator("#county-layer-detail").inner_text(timeout=5_000).lower()
+            assert "law" in frontdoor_mini_detail_text
+            assert "tier" in frontdoor_mini_detail_text
 
             page.wait_for_selector("[data-frontdoor-composer] #frontdoor-question-input", timeout=10_000)
             page.locator("#frontdoor-question-input").fill("Where are zoning enforcement laws in cities?")
@@ -236,6 +247,19 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "open the full map" in ai_pack_text
             assert "no ordinance text" in ai_pack_text
             assert page.locator(".ai-analysis-pack .ai-route-mini-map svg").count() > 0
+            page.wait_for_selector(".ai-analysis-pack [data-ai-route-mini-unit]", timeout=10_000)
+            ai_pack_mini_unit = page.locator(".ai-analysis-pack [data-ai-route-mini-unit]").first
+            ai_pack_mini_unit_id = ai_pack_mini_unit.get_attribute("data-ai-route-mini-unit")
+            assert ai_pack_mini_unit_id
+            ai_pack_mini_unit.scroll_into_view_if_needed()
+            ai_pack_mini_unit.click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_function("() => document.querySelector('#county-layer-detail')?.innerText.toLowerCase().includes('tier')")
+            ai_pack_mini_detail_text = page.locator("#county-layer-detail").inner_text(timeout=5_000).lower()
+            assert "law" in ai_pack_mini_detail_text
+            assert "tier" in ai_pack_mini_detail_text
+            page.locator("[data-tab='inquiry']").click()
+            page.wait_for_selector(".ai-analysis-pack [data-ai-analysis-card][data-ai-analysis-action='map']", timeout=10_000)
             page.locator(".ai-analysis-pack [data-ai-analysis-card][data-ai-analysis-action='map']").first.click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
             page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)

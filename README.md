@@ -54,6 +54,7 @@ The Pages app supports:
 - Pages-visible offline Grok refresh run badge with latest Actions run link, artifact counts, commit, and aggregate-only safety boundary;
 - first-screen Grok-refreshed inquiry pack card that previews offline aggregate AI routes into Ask, colored county/town map, and ontology views;
 - county/town mini-map previews inside AI briefing route cards, drawn from matched aggregate county polygons and town points;
+- clickable and keyboard-focusable AI route mini-map counties/towns that open the full aggregate map with that public unit selected;
 - first-screen Visual Route Verified card backed by `visual_smoke.json`, linking to the hosted browser-smoke workflow run;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;

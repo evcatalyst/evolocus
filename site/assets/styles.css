@@ -686,12 +686,14 @@ main {
 .ai-route-mini-county {
   stroke: rgba(23, 32, 51, 0.36);
   stroke-width: 1.2;
+  cursor: pointer;
   vector-effect: non-scaling-stroke;
 }
 
 .ai-route-mini-town {
   stroke: #ffffff;
   stroke-width: 1.8;
+  cursor: pointer;
   vector-effect: non-scaling-stroke;
 }
 
@@ -699,6 +701,15 @@ main {
 .ai-route-mini-town.selected {
   stroke: #111827;
   stroke-width: 3;
+}
+
+.ai-route-mini-county:hover,
+.ai-route-mini-town:hover,
+.ai-route-mini-county:focus-visible,
+.ai-route-mini-town:focus-visible {
+  stroke: #111827;
+  stroke-width: 3;
+  outline: none;
 }
 
 .ai-route-mini-map.empty {
