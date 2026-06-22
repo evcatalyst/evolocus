@@ -66,6 +66,10 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
                 page.goto(f"{SITE_ORIGIN}/", wait_until="networkidle")
 
             page.wait_for_selector("#visual-route-verification .visual-route-verification-card", timeout=10_000)
+            page.wait_for_function(
+                "() => document.querySelector('#visual-route-verification')?.innerText.toLowerCase().includes('visual route verified')",
+                timeout=15_000,
+            )
             verification_text = page.locator("#visual-route-verification").inner_text(timeout=5_000)
             assert "visual route verified" in verification_text.lower()
             assert "Chart -> Map -> Inquiry -> Ontology" in verification_text

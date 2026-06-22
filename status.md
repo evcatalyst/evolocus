@@ -82,7 +82,7 @@ Current coverage stats:
 - Static inquiry briefings: generated from aggregate-only artifacts; optional Grok enrichment is offline-only
 - Tracked inquiry briefing artifact: Grok-enriched aggregate-only artifact persisted from the validated Actions refresh
 - Static AI analysis pack: generated from validated aggregate artifacts and offline briefing/question outputs; route cards open Inquiry, color the map, or graph ontology context without browser model calls
-- Latest Grok-backed refresh: Actions run `27948343807` refreshed and persisted `inquiry_briefings.json`, `question_pack.json`, `ai_analysis_pack.json`, and `refresh_status.json` as aggregate-only artifacts in commit `537c8ef`
+- Latest Grok-backed refresh: Actions run `27952794478` refreshed and persisted `inquiry_briefings.json`, `question_pack.json`, `ai_analysis_pack.json`, and `refresh_status.json` as aggregate-only artifacts in bot commit `6e69e15` from source commit `afa5563`
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
 - Queue records created from real LOCUS data: 0
@@ -198,7 +198,7 @@ Current coverage stats:
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only, with the existing `Grok_api_key` Actions secret accepted as an alias by the refresh workflow
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
 - Persisted refresh path: manual analysis-refresh can commit only validated `inquiry_briefings.json`, `question_pack.json`, `ai_analysis_pack.json`, and `refresh_status.json` aggregate artifacts back to the current branch
-- Latest persisted refresh verification: run `27944446996` used Grok for inquiry briefings, the question pack, and the AI analysis pack source, passed the public artifact guard, and deployed through GitHub Pages
+- Latest persisted refresh verification: run `27952794478` used Grok for inquiry briefings, the question pack, and the AI analysis pack source, passed the public artifact guard, persisted only the allowlisted aggregate JSON artifacts, and deployed through GitHub Pages
 - Pages deploy guard: normal Pages workflow validates public artifacts before upload
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
 - Real LOCUS evaluation: not started

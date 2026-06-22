@@ -166,6 +166,7 @@
         "Add map-to-inquiry route ladders inside saved route comparisons",
         "Add shareable URL routes for aggregate map and ontology views",
         "Add shareable URL routes for Charts filter presets and question chips",
+        "Run persisted Grok-backed aggregate inquiry refresh after shareable chart routes",
         "Add real-data coverage timeline animation",
         "Add timeline-driven map layer playback",
         "Add per-topic map playback presets",
