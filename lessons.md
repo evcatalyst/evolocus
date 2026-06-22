@@ -151,3 +151,4 @@
 - Story packets become more useful when they can be saved into the existing browser-local route gallery; route exports must still strip answer text and keep only aggregate filters, counts, public unit IDs, ontology nodes, and provenance.
 - Question-highlight law-location trails should answer where a query maps by using tier-colored aggregate county/town stops, not row text, source locators, legal coverage findings, or official-law conclusions.
 - Question-result tier summary cards should explain map colors as neutral aggregate model-output bands and keep click actions limited to safe map filters, not rankings or legal conclusions.
+- Question-result score/audit signal cards should route into Score Lens or Audit Lens from aggregate highlighted units while labeling score direction as unverified and audit values as review cues.

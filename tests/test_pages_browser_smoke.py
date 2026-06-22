@@ -106,6 +106,12 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "question result tier summary" in tier_summary_text
             assert "neutral tier bands" in tier_summary_text
             assert "not rankings" in tier_summary_text
+            page.wait_for_selector(".map-question-signal-summary [data-map-highlight-signal='score']", timeout=10_000)
+            page.wait_for_selector(".map-question-signal-summary [data-map-highlight-signal='audit']", timeout=10_000)
+            signal_summary_text = page.locator(".map-question-signal-summary").inner_text(timeout=5_000).lower()
+            assert "question result score and audit signals" in signal_summary_text
+            assert "direction is unverified" in signal_summary_text
+            assert "review cues" in signal_summary_text
             page.wait_for_selector(".map-question-law-location-trail .map-question-law-location-step", timeout=10_000)
             law_location_text = page.locator(".map-question-law-location-trail").inner_text(timeout=5_000).lower()
             assert "county/town law-location route" in law_location_text

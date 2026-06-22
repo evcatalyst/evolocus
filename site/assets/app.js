@@ -3672,6 +3672,7 @@ function renderMapQuestionHighlight(units) {
         ${filterLabels.length ? filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("") : "<span>No inferred filters</span>"}
       </div>
       ${mapQuestionTierSummaryCardsHtml(highlight, visibleHighlightedUnits)}
+      ${mapQuestionSignalSummaryHtml(visibleHighlightedUnits, summary)}
       ${questionOntologyRouteHtml(ontologyRoute, "map")}
       ${mapQuestionHighlightDepthHtml(highlight, visibleHighlightedUnits, summary, ontologyRoute)}
       ${mapQuestionLawLocationTrailHtml(highlight, visibleHighlightedUnits)}
@@ -3682,6 +3683,134 @@ function renderMapQuestionHighlight(units) {
       </p>
     </section>
   `;
+}
+
+function mapQuestionSignalSummaryHtml(units, summary) {
+  const rows = [...mapQuestionScoreSignalRows(units, summary), ...mapQuestionAuditSignalRows(units, summary)];
+  if (!rows.length) {
+    return "";
+  }
+  return `
+    <section class="map-question-signal-summary" aria-label="Question result score and audit signals">
+      <div class="map-question-signal-heading">
+        <div>
+          <strong>Question result score and audit signals</strong>
+          <span>Neutral model-score means and review-priority cues for highlighted units</span>
+        </div>
+        <em>${escapeHtml(formatCount(units.length))} aggregate units</em>
+      </div>
+      <div class="map-question-signal-grid">
+        ${rows.map(mapQuestionSignalCardHtml).join("")}
+      </div>
+      <p>Signals are aggregate model outputs and audit heuristics. Score direction is unverified; audit values are review cues, not legal findings, rankings, source records, or ordinance text.</p>
+    </section>
+  `;
+}
+
+function mapQuestionScoreSignalRows(units, summary) {
+  return SCORE_FIELDS.map((field) => {
+    const values = (units || [])
+      .map((unit) => Number(unit.model_score_means?.[field]))
+      .filter((value) => Number.isFinite(value));
+    const mean = Number(summary?.scoreMeans?.[field]);
+    const value = Number.isFinite(mean)
+      ? mean
+      : values.length
+        ? values.reduce((sum, item) => sum + item, 0) / values.length
+        : null;
+    return {
+      type: "score",
+      action: "score",
+      valueKey: field,
+      label: scoreFieldLabel(field),
+      value: Number.isFinite(value) ? value : 0,
+      scale: Number.isFinite(value) ? Math.min(100, Math.abs(value) * 100) : 0,
+      valueLabel: Number.isFinite(value) ? formatScore(value) : "n/a",
+      detail: `${formatCount(values.length)} units with released score`,
+      note: "neutral mean; direction unverified",
+    };
+  }).filter((row) => row.detail !== "0 units with released score");
+}
+
+function mapQuestionAuditSignalRows(units, summary) {
+  const audits = (units || []).map((unit) => unitAuditQualityFor(unit.unit_id)).filter(Boolean);
+  if (!audits.length) {
+    return [];
+  }
+  const lawCount = Math.max(1, Number(summary?.lawCount || units.reduce((sum, unit) => sum + Number(unit.law_count || 0), 0)));
+  const ocrRows = audits.reduce((sum, row) => sum + Number(row.ocr_review_rows || 0), 0);
+  const duplicateRows = audits.reduce((sum, row) => sum + Number(row.duplicate_text_hash_rows || 0), 0);
+  const attentionScores = audits.map((row) => Number(row.audit_attention_score || 0)).filter((value) => Number.isFinite(value));
+  const maxAttention = attentionScores.length ? Math.max(...attentionScores) : 0;
+  return [
+    {
+      type: "audit",
+      action: "audit",
+      valueKey: "attention",
+      label: "Audit attention",
+      value: maxAttention,
+      scale: maxAttention,
+      valueLabel: `${formatNumber(maxAttention)} / 100`,
+      detail: `${formatCount(audits.length)} units with audit artifact rows`,
+      note: "review-priority heuristic",
+    },
+    {
+      type: "audit",
+      action: "audit",
+      valueKey: "ocr",
+      label: "OCR review rows",
+      value: ocrRows,
+      scale: lawCount ? (ocrRows / lawCount) * 100 : 0,
+      valueLabel: formatCount(ocrRows),
+      detail: `${formatPercent(ocrRows, lawCount)} of highlighted rows`,
+      note: "OCR heuristic cue",
+    },
+    {
+      type: "audit",
+      action: "audit",
+      valueKey: "duplicate",
+      label: "Duplicate text-hash rows",
+      value: duplicateRows,
+      scale: lawCount ? (duplicateRows / lawCount) * 100 : 0,
+      valueLabel: formatCount(duplicateRows),
+      detail: `${formatPercent(duplicateRows, lawCount)} of highlighted rows`,
+      note: "duplicate-content cue",
+    },
+  ];
+}
+
+function mapQuestionSignalCardHtml(row) {
+  const width = Math.max(row.scale ? 6 : 0, Math.min(100, Math.abs(Number(row.scale || 0)))).toFixed(2);
+  return `
+    <button type="button" class="map-question-signal-card ${escapeHtml(row.type)}" data-map-highlight-signal="${escapeHtml(row.action)}" data-map-highlight-signal-value="${escapeHtml(row.valueKey)}">
+      <span>
+        <strong>${escapeHtml(row.label)}</strong>
+        <em>${escapeHtml(row.note)}</em>
+      </span>
+      <b>${escapeHtml(row.valueLabel)}</b>
+      <i aria-hidden="true"><mark style="width:${escapeHtml(width)}%"></mark></i>
+      <small>${escapeHtml(row.detail)}</small>
+    </button>
+  `;
+}
+
+function applyMapQuestionSignalSummary(action, value) {
+  if (action === "score") {
+    const scoreField = SCORE_FIELDS.includes(value) ? value : state.mapFilters.scoreField || SCORE_FIELDS[0];
+    state.mapFilters = { ...state.mapFilters, scoreField, scoreBand: "" };
+    state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+    state.activeTab = "score";
+    render();
+    return;
+  }
+  if (action === "audit") {
+    const auditFocus = ["attention", "ocr", "duplicate"].includes(value) ? value : "attention";
+    state.mapFilters = { ...state.mapFilters, auditFocus };
+    state.geographyColorMode = "audit_attention";
+    state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+    state.activeTab = "audit";
+    render();
+  }
 }
 
 function mapQuestionTierSummaryCardsHtml(highlight, units) {
@@ -16519,6 +16648,15 @@ function bindEvents() {
     if (tierSummaryButton) {
       event.preventDefault();
       applyMapQuestionTierSummary(tierSummaryButton.dataset.mapHighlightTierSummary || "");
+      return;
+    }
+    const signalSummaryButton = event.target.closest("[data-map-highlight-signal]");
+    if (signalSummaryButton) {
+      event.preventDefault();
+      applyMapQuestionSignalSummary(
+        signalSummaryButton.dataset.mapHighlightSignal || "",
+        signalSummaryButton.dataset.mapHighlightSignalValue || "",
+      );
       return;
     }
     const crossFilterButton = event.target.closest("[data-map-cross-filter]");
