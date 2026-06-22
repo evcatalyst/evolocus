@@ -185,6 +185,23 @@
       ]
     },
     {
+      "name": "Askable selected color lens cards",
+      "steps": [
+        "Open a selected county/town detail card from the aggregate map",
+        "Inspect Why this color lens cards for tier, topic, function, neutral score, and audit layers",
+        "Switch a selected color lens and verify the map summary follows the same color mode",
+        "Click the selected color Inquiry action",
+        "Verify the deterministic Inquiry answer preserves the publication boundary"
+      ],
+      "assertions": [
+        "Lens cards explain map color from aggregate counts, public unit IDs, and released model outputs only",
+        "Inquiry actions use deterministic static artifacts and do not call a browser model",
+        "Score lenses remain neutral relative-score views because score direction is unverified",
+        "Topic and function lenses remain model-produced facets, not legal findings",
+        "No ordinance text, source locator, secret, ranking, or legal-control claim is observed"
+      ]
+    },
+    {
       "name": "Per-topic map playback presets",
       "steps": [
         "Open the Law Map topic playback preset card",

@@ -81,6 +81,7 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Saved inquiry route comparison" in verification_text
             assert "Timeline-driven map layer playback" in verification_text
             assert "Map-side layer step animation" in verification_text
+            assert "Askable selected color lens cards" in verification_text
             assert "Per-topic map playback presets" in verification_text
             assert "No rows" in verification_text
             assert "No text" in verification_text

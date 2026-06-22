@@ -179,4 +179,5 @@
 - Saved inquiry route comparison belongs in public proof because it shows browser-local aggregate routes can be compared, laddered back to map color, and replayed into ontology without text, locators, review events, or model calls.
 - Timeline-driven map playback should be public proof only when it visibly changes existing aggregate map controls and states that timeline stages are artifact/provenance views, not legal-change findings.
 - Map-side layer step animation should be public proof because it demonstrates progressive disclosure across the same county/town aggregate units while keeping score direction neutral and model topic/function labels non-adjudicative.
+- Askable selected-color lenses should be public proof because they convert a visible map color into a deterministic aggregate answer while preserving publication boundaries and avoiding browser-side model calls.
 - Per-topic playback should be public proof because it connects released model topic facets to map highlights while preserving that topics are model-produced route labels, not verified legal conclusions.

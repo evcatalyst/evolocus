@@ -1594,6 +1594,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
         "Saved inquiry route comparison",
         "Timeline-driven map layer playback",
         "Map-side layer step animation",
+        "Askable selected color lens cards",
         "Per-topic map playback presets",
     ]
     assert visual_smoke["run_url"].startswith("https://github.com/evcatalyst/evolocus/actions/runs/")
