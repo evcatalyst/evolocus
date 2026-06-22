@@ -722,6 +722,7 @@ def _models_artifact() -> dict[str, Any]:
 
 
 def _visual_smoke_artifact(corpus: LocusCorpus) -> dict[str, Any]:
+    verified_routes = _visual_smoke_verified_routes()
     return {
         "schema_version": VISUAL_SMOKE_SCHEMA_VERSION,
         "generated_at": datetime.now(UTC).isoformat(),
@@ -738,7 +739,26 @@ def _visual_smoke_artifact(corpus: LocusCorpus) -> dict[str, Any]:
         "head_sha": current_commit(),
         "created_at": None,
         "completed_at": None,
-        "verified_route": {
+        "verified_route": verified_routes[0],
+        "verified_routes": verified_routes,
+        "publication_policy": {
+            "raw_rows_included": False,
+            "ordinance_text_included": False,
+            "record_locator_values_included": False,
+            "browser_llm_calls": False,
+            "secrets_included": False,
+            "legal_findings": False,
+        },
+        "interpretation": (
+            "This preview artifact describes the public route-smoke contract. "
+            "Run the Pages browser-smoke workflow to verify a hosted deployment."
+        ),
+    }
+
+
+def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
+    return [
+        {
             "name": "Chart -> Map -> Inquiry -> Ontology",
             "steps": [
                 "Open Charts tab",
@@ -756,16 +776,21 @@ def _visual_smoke_artifact(corpus: LocusCorpus) -> dict[str, Any]:
                 "No page-level JavaScript exception is observed",
             ],
         },
-        "publication_policy": {
-            "raw_rows_included": False,
-            "ordinance_text_included": False,
-            "record_locator_values_included": False,
-            "browser_llm_calls": False,
-            "secrets_included": False,
-            "legal_findings": False,
+        {
+            "name": "Ontology tier drilldown share URLs",
+            "steps": [
+                "Open Ontology from the Charts graph route",
+                "Generate Share tier map URL",
+                "Generate Share tier ask URL",
+                "Open the shared tier map route",
+                "Open the shared tier Inquiry route",
+            ],
+            "assertions": [
+                "Ontology tier drilldown renders aggregate county/town units",
+                "Share URLs contain content-free route metadata only",
+                "Shared map route restores a highlighted county/town map",
+                "Shared Inquiry route restores a deterministic aggregate answer",
+                "No browser model call, row text, source locator, secret, or legal finding is observed",
+            ],
         },
-        "interpretation": (
-            "This preview artifact describes the public route-smoke contract. "
-            "Run the Pages browser-smoke workflow to verify a hosted deployment."
-        ),
-    }
+    ]

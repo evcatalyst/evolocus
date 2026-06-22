@@ -2441,13 +2441,14 @@ function renderVisualRouteVerification() {
     `;
     return;
   }
-  const route = smoke.verified_route || {};
+  const routes = visualSmokeRoutes(smoke);
+  const route = routes[0] || smoke.verified_route || {};
   const policy = smoke.publication_policy || {};
   const passed = smoke.status === "success";
   const runUrl = smoke.run_url || ACTIONS_BROWSER_SMOKE_WORKFLOW_URL;
   const metrics = [
     ["Result", passed ? "passed" : smoke.status || "unknown"],
-    ["Verified route", route.name || "Chart -> Map -> Inquiry -> Ontology"],
+    ["Verified routes", routes.length ? formatCount(routes.length) : route.name || "Chart -> Map -> Inquiry -> Ontology"],
     ["Completed", smoke.completed_at ? `${formatDateTime(smoke.completed_at)} · ${artifactAgeLabel(smoke.completed_at)}` : "not recorded"],
     ["Commit", shortCommit(smoke.head_sha || "")],
   ];
@@ -2466,7 +2467,7 @@ function renderVisualRouteVerification() {
       <div class="visual-route-heading">
         <div>
           <p class="eyebrow">Visual route verified</p>
-          <h2>${escapeHtml(route.name || "Chart -> Map -> Inquiry -> Ontology")}</h2>
+          <h2>${escapeHtml(routes.length > 1 ? `${formatCount(routes.length)} progressive visual routes` : route.name || "Chart -> Map -> Inquiry -> Ontology")}</h2>
           <p>${escapeHtml(smoke.interpretation || "Route verification covers public UI navigation only.")}</p>
         </div>
         <a class="primary-action-link" href="${escapeHtml(runUrl)}" target="_blank" rel="noopener noreferrer">Open smoke run</a>
@@ -2476,6 +2477,9 @@ function renderVisualRouteVerification() {
       </div>
       <div class="visual-route-path" aria-label="Verified visual route steps">
         ${steps.map(visualRouteStepHtml).join("")}
+      </div>
+      <div class="visual-route-coverage" aria-label="Verified visual route coverage">
+        ${routes.map(visualRouteCoverageHtml).join("")}
       </div>
       <div class="visual-route-policy" aria-label="Visual smoke publication policy">
         ${chips.map(visualRoutePolicyChipHtml).join("")}
@@ -2487,6 +2491,25 @@ function renderVisualRouteVerification() {
         </ul>
       </details>
     </article>
+  `;
+}
+
+function visualSmokeRoutes(smoke) {
+  const routes = Array.isArray(smoke?.verified_routes) ? smoke.verified_routes : [];
+  const fallback = smoke?.verified_route ? [smoke.verified_route] : [];
+  return (routes.length ? routes : fallback)
+    .filter((route) => route && route.name)
+    .slice(0, 6);
+}
+
+function visualRouteCoverageHtml(route) {
+  const assertions = Array.isArray(route.assertions) ? route.assertions.length : 0;
+  const steps = Array.isArray(route.steps) ? route.steps.length : 0;
+  return `
+    <span>
+      <strong>${escapeHtml(route.name || "Visual route")}</strong>
+      <em>${escapeHtml(formatCount(steps))} steps · ${escapeHtml(formatCount(assertions))} assertions</em>
+    </span>
   `;
 }
 

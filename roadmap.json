@@ -135,6 +135,7 @@
         "Add optional browser click-smoke for Charts route buttons",
         "Add manual Pages browser-smoke workflow for deployed visual routes",
         "Add visible Pages visual-route verification card",
+        "Add multi-route visual-smoke verification for ontology tier share URLs",
         "Add selected-unit map-to-ontology route trails",
         "Add first-screen deterministic chat-to-map composer",
         "Add front-door Ask-this-map route preview strip",

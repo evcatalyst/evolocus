@@ -1390,11 +1390,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Reusable questions from current aggregate charts." in js
     assert "Question chips are generated from visible aggregate chart rows" in js
     assert "renderVisualRouteVerification" in js
+    assert "visualSmokeRoutes" in js
+    assert "visualRouteCoverageHtml" in js
     assert "visualRouteMetricHtml" in js
     assert "visualRoutePolicyChipHtml" in js
     assert "Visual route verified" in js
+    assert "progressive visual routes" in js
     assert "Open smoke run" in js
     assert "visual-route-verification-card" in css
+    assert "visual-route-coverage" in css
     assert "visual-route-path" in css
     assert "chartRouteTarget" in js
     assert "chartRouteStageHtml" in js
@@ -1573,6 +1577,10 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert visual_smoke["workflow_file"] == "pages-browser-smoke.yml"
     assert visual_smoke["status"] == "success"
     assert visual_smoke["verified_route"]["name"] == "Chart -> Map -> Inquiry -> Ontology"
+    assert [route["name"] for route in visual_smoke["verified_routes"]] == [
+        "Chart -> Map -> Inquiry -> Ontology",
+        "Ontology tier drilldown share URLs",
+    ]
     assert visual_smoke["run_url"].startswith("https://github.com/evcatalyst/evolocus/actions/runs/")
     assert visual_smoke["publication_policy"]["raw_rows_included"] is False
     assert visual_smoke["publication_policy"]["ordinance_text_included"] is False

@@ -170,3 +170,4 @@
 - Ontology tier drilldowns should connect neutral tier concepts back to concrete county/town aggregate units while explicitly rejecting legal-coverage, ranking, source-record, and controlling-law interpretations.
 - Ask-this-map-layer actions should describe exactly the current aggregate color/filter state, not a separately generated model answer, and should preserve the same map highlight for follow-up inspection.
 - Ontology tier share links should reuse the content-free route format so public URLs carry only aggregate filters, neutral tier context, selected public unit IDs, and graph metadata.
+- Public visual proof should name every verified progressive route in `visual_smoke.json`; otherwise the first-screen status can lag behind the actual hosted browser-smoke coverage.

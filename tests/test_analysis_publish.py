@@ -30,6 +30,11 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
     assert visual_smoke["schema_version"] == "evolocus-visual-route-smoke-v1"
     assert visual_smoke["status"] == "not_run"
     assert visual_smoke["real_locus_rows_published"] is False
+    assert visual_smoke["verified_route"]["name"] == "Chart -> Map -> Inquiry -> Ontology"
+    assert [route["name"] for route in visual_smoke["verified_routes"]] == [
+        "Chart -> Map -> Inquiry -> Ontology",
+        "Ontology tier drilldown share URLs",
+    ]
 
 
 def test_publish_inquiry_briefings_are_aggregate_only(tmp_path) -> None:

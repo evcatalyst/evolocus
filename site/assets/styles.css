@@ -2089,6 +2089,12 @@ main {
   gap: 8px;
 }
 
+.visual-route-coverage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .visual-route-path span {
   display: grid;
   align-content: start;
@@ -2102,6 +2108,27 @@ main {
 
 .visual-route-path b {
   color: var(--accent);
+}
+
+.visual-route-coverage span {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(39, 95, 121, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.visual-route-coverage strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.visual-route-coverage em {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 800;
 }
 
 .visual-route-path em {
@@ -12733,6 +12760,7 @@ th {
   .chart-route-heading,
   .chart-route-strip,
   .chart-route-share-card,
+  .visual-route-coverage,
   .ontology-tier-share-card,
   .chart-drilldown-line,
   .ai-analysis-pack-heading,

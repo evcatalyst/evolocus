@@ -195,6 +195,11 @@ def _validate_visual_smoke_policy(payload: dict[str, Any]) -> None:
         raise PublicArtifactValidationError("visual_smoke.json must reference the Pages browser-smoke workflow")
     if payload.get("status") not in {"success", "not_run"}:
         raise PublicArtifactValidationError("visual_smoke.json must record success or not_run route-smoke status")
+    routes = payload.get("verified_routes") or [payload.get("verified_route")]
+    if not any(isinstance(route, dict) and route.get("name") for route in routes):
+        raise PublicArtifactValidationError("visual_smoke.json must describe at least one verified visual route")
+    if _contains_blocked_route_metadata(routes):
+        raise PublicArtifactValidationError("visual_smoke.json route metadata must not contain row text, locators, secrets, or tokens")
     policy = payload.get("publication_policy") or {}
     required_false = [
         "raw_rows_included",
@@ -207,6 +212,21 @@ def _validate_visual_smoke_policy(payload: dict[str, Any]) -> None:
     for key in required_false:
         if policy.get(key) is not False:
             raise PublicArtifactValidationError(f"visual_smoke.json publication_policy.{key} must be false")
+
+
+def _contains_blocked_route_metadata(value: Any) -> bool:
+    serialized = json.dumps(value, sort_keys=True).lower()
+    blocked_terms = [
+        '"content"',
+        '"header"',
+        "source_locator",
+        "record_locator",
+        "api.x.ai",
+        "bearer ",
+        "secret_value",
+        "access_token",
+    ]
+    return any(term in serialized for term in blocked_terms)
 
 
 def _validate_refresh_status_policy(payload: dict[str, Any]) -> None:

@@ -69,6 +69,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderAnalysisJourney" in js
     assert "renderFrontdoorVisualPath" in js
     assert "renderVisualRouteVerification" in js
+    assert "visualSmokeRoutes" in js
+    assert "visualRouteCoverageHtml" in js
+    assert "progressive visual routes" in js
     assert "renderOfflineRefreshFreshness" in js
     assert "renderCoverageTimeline" in js
     assert "coverageTimelineStages" in js
@@ -497,6 +500,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Visual route verified" in js
     assert "Open smoke run" in js
     assert "visual-route-verification-card" in css
+    assert "visual-route-coverage" in css
     assert "chartRouteTarget" in js
     assert "chartRouteStageHtml" in js
     assert "applyChartRouteLegend" in js

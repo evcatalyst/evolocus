@@ -118,7 +118,7 @@ Current coverage stats:
 - Inquiry answer provenance: each GitHub Pages answer displays offline Grok or deterministic artifact mode, map/briefing/question-pack timestamps, dataset revision, and the no-browser-model/no-row-text boundary
 - Inquiry answer map cards: each GitHub Pages answer can explain neutral tier colors, list county/town aggregate targets, and open matching Law Map highlights without row text or legal findings
 - Inquiry answer ontology filter chips: each GitHub Pages answer exposes aggregate topic/function/tier/unit chips that progressively narrow the colored county/town map without row text, source locators, rankings, or browser model calls
-- Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
+- Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted browser-smoke run for Chart -> Map -> Inquiry -> Ontology and ontology tier share URLs
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
 - Peer-link explainer cards: GitHub Pages now explains selected-unit county/town ontology links through aggregate topic, function, tier, geography, unit-type, and scale lenses without legal-authority claims
@@ -143,8 +143,8 @@ Current coverage stats:
 - Charts route legend: GitHub Pages animates Chart -> Map -> Inquiry -> Ontology as an aggregate-only progressive disclosure path with route buttons
 - Ontology tier share links: GitHub Pages ontology tier drilldowns can generate content-free `?route=` links that reopen the neutral county/town tier on the map or in Inquiry using aggregate metadata only
 - Charts route smoke coverage: optional Playwright browser smoke now clicks the Charts route buttons and verifies navigation to Map, Inquiry, and Ontology when `EVOLOCUS_BROWSER_SMOKE=1`
-- Deployed visual smoke workflow: manual GitHub Actions route smoke can click the hosted Pages URL through Chart -> Map -> Inquiry -> Ontology without secrets or write permissions
-- Visual smoke public artifact: `visual_smoke.json` records workflow metadata and no-row/no-text/no-secret policy flags for the verified public route
+- Deployed visual smoke workflow: manual GitHub Actions route smoke can click the hosted Pages URL through Chart -> Map -> Inquiry -> Ontology and ontology tier share URL replay without secrets or write permissions
+- Visual smoke public artifact: `visual_smoke.json` records workflow metadata and no-row/no-text/no-secret policy flags for verified public progressive routes, including ontology tier share URLs
 - Inquiry AI analysis pack: GitHub Pages renders `ai_analysis_pack.json` cards generated from aggregate artifacts and offline Grok-backed briefing/question outputs, with Ask, Color map, and Graph routes only
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Selected-unit query replay: GitHub Pages map detail cards can save a county/town aggregate question route, open the static answer, or replay the selected unit into the ontology graph without text or locator exposure

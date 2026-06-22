@@ -1,6 +1,6 @@
 {
   "schema_version": "evolocus-visual-route-smoke-v1",
-  "generated_at": "2026-06-22T03:36:11Z",
+  "generated_at": "2026-06-22T13:16:23Z",
   "dataset_id": "LocalLaws/LOCUS-v1",
   "dataset_revision": "main",
   "real_locus_rows_published": false,
@@ -8,12 +8,12 @@
   "workflow_file": "pages-browser-smoke.yml",
   "event": "workflow_dispatch",
   "status": "success",
-  "run_id": 27927880106,
-  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27927880106",
+  "run_id": 27955421698,
+  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27955421698",
   "target_url": "https://evcatalyst.github.io/evolocus/",
-  "head_sha": "5e251599dc486235fdf5f9700b909eb191f59402",
-  "created_at": "2026-06-22T03:35:26Z",
-  "completed_at": "2026-06-22T03:36:11Z",
+  "head_sha": "e28c4f47f8908d0bc2dd630eb8192a55e46314e8",
+  "created_at": "2026-06-22T13:14:53Z",
+  "completed_at": "2026-06-22T13:16:23Z",
   "verified_route": {
     "name": "Chart -> Map -> Inquiry -> Ontology",
     "steps": [
@@ -32,6 +32,43 @@
       "No page-level JavaScript exception is observed"
     ]
   },
+  "verified_routes": [
+    {
+      "name": "Chart -> Map -> Inquiry -> Ontology",
+      "steps": [
+        "Open Charts tab",
+        "Click Open map route",
+        "Return to Charts tab",
+        "Click Ask route",
+        "Return to Charts tab",
+        "Click Graph route"
+      ],
+      "assertions": [
+        "Chart route legend renders from public aggregate artifacts",
+        "Map panel becomes active after the map route action",
+        "Inquiry panel becomes active after the ask route action",
+        "Ontology panel becomes active after the graph route action",
+        "No page-level JavaScript exception is observed"
+      ]
+    },
+    {
+      "name": "Ontology tier drilldown share URLs",
+      "steps": [
+        "Open Ontology from the Charts graph route",
+        "Generate Share tier map URL",
+        "Generate Share tier ask URL",
+        "Open the shared tier map route",
+        "Open the shared tier Inquiry route"
+      ],
+      "assertions": [
+        "Ontology tier drilldown renders aggregate county/town units",
+        "Share URLs contain content-free route metadata only",
+        "Shared map route restores a highlighted county/town map",
+        "Shared Inquiry route restores a deterministic aggregate answer",
+        "No browser model call, row text, source locator, secret, or legal finding is observed"
+      ]
+    }
+  ],
   "publication_policy": {
     "raw_rows_included": false,
     "ordinance_text_included": false,
