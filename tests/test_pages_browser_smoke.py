@@ -82,6 +82,7 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Selected-unit ontology answer cards" in verification_text
             assert "Selected-unit map-to-ontology route trails" in verification_text
             assert "Selected-unit ontology query drawer" in verification_text
+            assert "Map-side ontology neighborhood filters" in verification_text
             assert "Saved inquiry route comparison" in verification_text
             assert "Timeline-driven map layer playback" in verification_text
             assert "Map-side layer step animation" in verification_text

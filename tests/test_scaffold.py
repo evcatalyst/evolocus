@@ -1610,6 +1610,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
         "Selected-unit ontology answer cards",
         "Selected-unit map-to-ontology route trails",
         "Selected-unit ontology query drawer",
+        "Map-side ontology neighborhood filters",
         "Saved inquiry route comparison",
         "Timeline-driven map layer playback",
         "Map-side layer step animation",

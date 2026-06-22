@@ -203,6 +203,23 @@
       ]
     },
     {
+      "name": "Map-side ontology neighborhood filters",
+      "steps": [
+        "Open a selected county/town aggregate unit on the Law Map",
+        "Inspect the selected-unit ontology neighborhood",
+        "Apply topic, function, neutral tier, geography, or score-neighborhood filters",
+        "Open a filtered aggregate peer drillback on the colored county/town map",
+        "Verify score and geography filters remain disclosure and provenance cues"
+      ],
+      "assertions": [
+        "Neighborhood filters use public aggregate nodes, counts, released model-output fields, and reviewed map-match metadata only",
+        "Filter buttons pass aggregate filters and public unit IDs only",
+        "Peer drillbacks are navigation aids, not rankings, legal authority, or controlling-law claims",
+        "Score filters remain neutral because score direction is unverified",
+        "No ordinance text, source locator, secret, browser model call, review event, or legal finding is observed"
+      ]
+    },
+    {
       "name": "Saved inquiry route comparison",
       "steps": [
         "Open Inquiry after creating aggregate question routes",
