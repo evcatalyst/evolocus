@@ -111,3 +111,4 @@
 - A browser-generated package demo should be explicitly synthetic, anchored only to already-published aggregate units, and reuse the same localStorage package boundary as real imports.
 - Package-aware inquiry should answer from browser-local package counts and aggregate map matches only, never by listing imported ordinance text, headers, source locator values, or review-event details.
 - Package-to-ontology visuals should join package counts to ontology dimensions and matched aggregate units, not to raw LOCUS text or locator values.
+- Browser route smokes should be optional dev checks so normal artifact validation stays lightweight while real click paths can still be verified before publishing.

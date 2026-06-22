@@ -120,7 +120,8 @@
         "Add Charts-tab aggregate drilldowns back to the county/town map",
         "Add Charts-tab aggregate Ask handoff into deterministic Inquiry",
         "Add Charts-tab aggregate Graph handoff into Ontology",
-        "Add animated Charts route legend for progressive disclosure"
+        "Add animated Charts route legend for progressive disclosure",
+        "Add optional browser click-smoke for Charts route buttons"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

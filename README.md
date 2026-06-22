@@ -186,6 +186,14 @@ pytest
 node --check site/assets/app.js
 ```
 
+Optional browser click-smoke for the GitHub Pages route buttons:
+
+```bash
+pip install -r requirements-dev.txt
+python -m playwright install chromium
+EVOLOCUS_BROWSER_SMOKE=1 pytest tests/test_pages_browser_smoke.py -q
+```
+
 Serve the Pages app locally with any static server, for example:
 
 ```bash

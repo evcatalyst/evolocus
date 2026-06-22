@@ -43,12 +43,14 @@ REQUIRED_PATHS = [
     "src/evolocus/review_package.py",
     "tests/test_scaffold.py",
     "tests/test_locus_ingest.py",
+    "tests/test_pages_browser_smoke.py",
     ".gitignore",
     "AGENTS.md",
     "README.md",
     "docker-compose.yml",
     "lessons.md",
     "requirements.txt",
+    "requirements-dev.txt",
     "roadmap.json",
     "status.md",
 ]
@@ -82,6 +84,14 @@ def test_requirements_include_requested_stack() -> None:
     assert any(req.startswith("huggingface_hub") for req in requirements)
     assert all(not req.startswith("streamlit") for req in requirements)
     assert all(not req.startswith("duckdb") for req in requirements)
+
+
+def test_optional_browser_smoke_dependencies_are_dev_only() -> None:
+    dev_requirements = set(read_text("requirements-dev.txt").splitlines())
+    requirements = set(read_text("requirements.txt").splitlines())
+    assert "-r requirements.txt" in dev_requirements
+    assert any(req.startswith("playwright") for req in dev_requirements)
+    assert all(not req.startswith("playwright") for req in requirements)
 
 
 def test_pages_workflow_uses_pinned_major_versions_and_site_path() -> None:
