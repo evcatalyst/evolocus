@@ -161,3 +161,4 @@
 - Map-side layer step animations should reuse existing aggregate map controls and color modes; each step is progressive disclosure, not new analysis, legal ranking, or browser-side model inference.
 - Selected county/town color explanations are safest when they explain only the active aggregate color lens and let users switch layers without exposing ordinance text, source locators, or controlling-law claims.
 - Askable selected-color lenses should route through deterministic aggregate Inquiry answers and saved route metadata, not browser LLM calls or row-level evidence.
+- Ontology peer-link legends should explain aggregate link reasons as navigation lenses and must explicitly deny legal-authority, ranking, source-record, or controlling-law meaning.

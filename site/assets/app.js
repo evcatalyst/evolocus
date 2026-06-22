@@ -5726,6 +5726,7 @@ function geographyLayerLegendHtml(layers, context) {
           ? geographyLayerLinkRowsHtml(rows)
           : '<p class="muted-note">Turn on Ontology links to connect the selected aggregate unit to visible peers by topic, function, tier, kind, state, and law-count similarity.</p>'
       }
+      ${geographyPeerLinkExplanationHtml(rows, layers)}
       <p class="geo-layer-boundary">Layer controls use public aggregate artifacts only. Ontology links are exploratory review aids, not source-backed legal relationships, rankings, or findings.</p>
     </section>
   `;
@@ -5762,6 +5763,113 @@ function geoLayerLinkRowHtml(row) {
       <span>${row.reasons.length ? row.reasons.map((reason) => `<em>${escapeHtml(reason)}</em>`).join("") : "<em>aggregate peer</em>"}</span>
       <b>peer ${escapeHtml(row.peer.score.toFixed(1))}</b>
     </button>
+  `;
+}
+
+function geographyPeerLinkExplanationHtml(rows, layers) {
+  const selectedUnit = currentSelectedMapUnit();
+  const explanations = geographyPeerLinkExplanationRows(rows, layers, selectedUnit);
+  return `
+    <section class="geo-peer-explainer" aria-label="County and town peer-link explanation">
+      <div class="geo-peer-explainer-heading">
+        <div>
+          <span>Peer link explainer</span>
+          <strong>${escapeHtml(selectedUnit ? displayUnitName(selectedUnit) : "Select a county or town")}</strong>
+        </div>
+        <em>${escapeHtml(layers.ontology ? "Ontology layer on" : "Ontology layer off")}</em>
+      </div>
+      <div class="geo-peer-explainer-grid">
+        ${explanations.map(geographyPeerLinkExplanationCardHtml).join("")}
+      </div>
+      <p class="geo-peer-explainer-boundary">
+        Peer links are aggregate navigation cues from public map metadata. They do not establish legal authority, legal similarity, rankings, evidence, or controlling law.
+      </p>
+    </section>
+  `;
+}
+
+function geographyPeerLinkExplanationRows(rows, layers, selectedUnit) {
+  const reasonCounts = peerLinkReasonCounts(rows);
+  const layerState = !layers.ontology
+    ? "Turn on links"
+    : state.disclosureLevel === "overview"
+      ? "Unit detail required"
+      : rows.length
+        ? `${formatCount(rows.length)} drawn`
+        : "No visible links";
+  const definitions = [
+    {
+      key: "same topic",
+      label: "Topic lens",
+      detail: "same released dominant topic",
+    },
+    {
+      key: "same function",
+      label: "Function lens",
+      detail: "same released dominant function",
+    },
+    {
+      key: "same tier",
+      label: "Tier lens",
+      detail: "same neutral model-output band",
+    },
+    {
+      key: "same state",
+      label: "Geography lens",
+      detail: "same state metadata",
+    },
+    {
+      key: "same city",
+      label: "Unit-type lens",
+      detail: "same normalized unit type",
+      fallbackKeys: ["same county", "same kind"],
+    },
+    {
+      key: "similar count",
+      label: "Scale lens",
+      detail: "similar aggregate law-row count",
+    },
+  ];
+  const cards = definitions.map((definition) => {
+    const count = [definition.key, ...(definition.fallbackKeys || [])].reduce(
+      (total, key) => total + Number(reasonCounts.get(key) || 0),
+      0,
+    );
+    return {
+      ...definition,
+      count,
+      state: count ? "active" : "inactive",
+      value: count ? `${formatCount(count)} links` : "not active",
+    };
+  });
+  cards.unshift({
+    key: "layer",
+    label: "Visible links",
+    detail: selectedUnit ? "selected-unit peer routes" : "select a unit to explain links",
+    count: rows.length,
+    state: rows.length ? "active" : "inactive",
+    value: layerState,
+  });
+  return cards;
+}
+
+function peerLinkReasonCounts(rows) {
+  const counts = new Map();
+  for (const row of rows || []) {
+    for (const reason of row.reasons || []) {
+      counts.set(reason, (counts.get(reason) || 0) + 1);
+    }
+  }
+  return counts;
+}
+
+function geographyPeerLinkExplanationCardHtml(row) {
+  return `
+    <span class="${escapeHtml(row.state)}">
+      <strong>${escapeHtml(row.value)}</strong>
+      <em>${escapeHtml(row.label)}</em>
+      <b>${escapeHtml(row.detail)}</b>
+    </span>
   `;
 }
 

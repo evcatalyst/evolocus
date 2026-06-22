@@ -128,6 +128,15 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "browser model calls" in selected_color_answer_text
             page.locator("[data-tab='map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.get_by_label("Official geography visible layers").get_by_label("Ontology links").check()
+            page.locator("#map-panel .disclosure-control [data-disclosure='unit']").click()
+            page.wait_for_selector(".geo-peer-explainer", timeout=10_000)
+            peer_explainer_text = page.locator(".geo-peer-explainer").inner_text(timeout=5_000).lower()
+            assert "peer link explainer" in peer_explainer_text
+            assert "topic lens" in peer_explainer_text
+            assert "scale lens" in peer_explainer_text
+            assert "aggregate navigation cues" in peer_explainer_text
+            assert "not establish legal authority" in peer_explainer_text
             page.wait_for_selector(".topic-playback-presets-card [data-topic-playback-action='map'][data-topic-playback-topic]", timeout=10_000)
             topic_playback_text = page.locator(".topic-playback-presets-card").inner_text(timeout=5_000).lower()
             assert "topic playback presets" in topic_playback_text

@@ -61,6 +61,7 @@ The Pages app supports:
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
 - official geography layer toggles for county polygons, town points, and progressive aggregate ontology links;
 - progressive official-geography layer legend with selected-unit ontology peer-link explanations;
+- peer-link explainer cards for county/town ontology links, showing topic/function/tier/geography/unit-type/scale lenses as aggregate navigation cues;
 - geography color modes for neutral tier, dominant topic, dominant function, model-substantive share, and law-count intensity;
 - map filters for state, topic, function, tier, and minimum law count;
 - filtered-view insight cards and inquiry answers over the current aggregate map selection;

@@ -604,6 +604,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "geoLayerLegendPillHtml" in js
     assert "geographyLayerLinkRowsHtml" in js
     assert "geoLayerLinkRowHtml" in js
+    assert "geographyPeerLinkExplanationHtml" in js
+    assert "geographyPeerLinkExplanationRows" in js
+    assert "peerLinkReasonCounts" in js
+    assert "geographyPeerLinkExplanationCardHtml" in js
+    assert "Peer link explainer" in js
+    assert "Peer links are aggregate navigation cues from public map metadata" in js
     assert "geographyPositionIndex" in js
     assert "geometryCentroid" in js
     assert "geography_layers" in js
@@ -1001,6 +1007,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "geo-layer-control" in css
     assert "geo-layer-legend-panel" in css
     assert "geo-layer-link-list" in css
+    assert "geo-peer-explainer" in css
+    assert "geo-peer-explainer-grid" in css
     assert "geo-layer-boundary" in css
     assert "geography-ontology-link" in css
     assert "geography-ontology-detail" in css

@@ -119,6 +119,7 @@ Current coverage stats:
 - Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
+- Peer-link explainer cards: GitHub Pages now explains selected-unit county/town ontology links through aggregate topic, function, tier, geography, unit-type, and scale lenses without legal-authority claims
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
 - Map-side tier-color drilldown: GitHub Pages explains each visible neutral tier color with aggregate county/town counts, row shares, top topic/function routes, and safe Map/Ontology actions
 - Map-side cross-filter legend: GitHub Pages summarizes visible topic, function, and neutral-tier aggregate routes with row bars and safe filter drillback

@@ -7320,6 +7320,92 @@ textarea {
   font-size: 0.78rem;
 }
 
+.geo-peer-explainer {
+  border: 1px solid rgba(94, 74, 130, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  margin-top: 10px;
+  padding: 11px;
+}
+
+.geo-peer-explainer-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.geo-peer-explainer-heading span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.geo-peer-explainer-heading strong {
+  color: var(--ink);
+}
+
+.geo-peer-explainer-heading em {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 5px 8px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.geo-peer-explainer-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.geo-peer-explainer-grid span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px;
+}
+
+.geo-peer-explainer-grid span.active {
+  border-color: rgba(94, 74, 130, 0.3);
+  background: #fbf8ff;
+}
+
+.geo-peer-explainer-grid strong,
+.geo-peer-explainer-grid em,
+.geo-peer-explainer-grid b {
+  overflow-wrap: anywhere;
+}
+
+.geo-peer-explainer-grid strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.geo-peer-explainer-grid em,
+.geo-peer-explainer-grid b {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.geo-peer-explainer-boundary {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 .geo-layer-boundary {
   margin: 9px 0 0;
   color: var(--muted);
@@ -12067,6 +12153,7 @@ th {
   .map-cross-filter-grid,
   .map-layer-stepper-grid,
   .selected-color-explanation-grid,
+  .geo-peer-explainer-grid,
   .map-question-tier-summary-grid,
   .map-question-signal-grid,
   .map-question-highlight-metrics,
@@ -12473,6 +12560,7 @@ th {
   .inquiry-log-timeline-row,
   .inquiry-log-entry dl,
   .geo-layer-legend-pills,
+  .geo-peer-explainer-grid,
   .geo-layer-link-list button,
   .selected-route-heading,
   .selected-route-strip,
@@ -12683,6 +12771,7 @@ th {
   .inquiry-route-steps,
   .inquiry-log-entry dl,
   .geo-layer-legend-pills,
+  .geo-peer-explainer-grid,
   .geo-layer-link-list button,
   .selected-route-heading,
   .selected-route-strip,
