@@ -35,6 +35,7 @@ REQUIRED_PUBLIC_ARTIFACTS = [
     "charts.json",
     "inquiry_briefings.json",
     "question_pack.json",
+    "visual_smoke.json",
 ]
 
 
@@ -89,6 +90,7 @@ def validate_public_analysis_artifacts(analysis_dir: Path) -> PublicArtifactVali
     _validate_inquiry_briefings_policy(payloads["inquiry_briefings.json"])
     _validate_question_pack_policy(payloads["question_pack.json"])
     _validate_models_policy(payloads["models.json"])
+    _validate_visual_smoke_policy(payloads["visual_smoke.json"])
 
     return PublicArtifactValidationResult(
         analysis_dir=analysis_dir,
@@ -155,3 +157,24 @@ def _validate_models_policy(payload: dict[str, Any]) -> None:
     forbidden_use = str(grok.get("forbidden_use") or "").lower()
     if "github pages javascript" not in forbidden_use:
         raise PublicArtifactValidationError("models.json must preserve the Grok Pages JavaScript prohibition")
+
+
+def _validate_visual_smoke_policy(payload: dict[str, Any]) -> None:
+    if payload.get("real_locus_rows_published") is not False:
+        raise PublicArtifactValidationError("visual_smoke.json must declare real_locus_rows_published=false")
+    if payload.get("workflow_file") != "pages-browser-smoke.yml":
+        raise PublicArtifactValidationError("visual_smoke.json must reference the Pages browser-smoke workflow")
+    if payload.get("status") not in {"success", "not_run"}:
+        raise PublicArtifactValidationError("visual_smoke.json must record success or not_run route-smoke status")
+    policy = payload.get("publication_policy") or {}
+    required_false = [
+        "raw_rows_included",
+        "ordinance_text_included",
+        "record_locator_values_included",
+        "browser_llm_calls",
+        "secrets_included",
+        "legal_findings",
+    ]
+    for key in required_false:
+        if policy.get(key) is not False:
+            raise PublicArtifactValidationError(f"visual_smoke.json publication_policy.{key} must be false")

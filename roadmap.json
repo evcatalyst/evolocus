@@ -122,7 +122,8 @@
         "Add Charts-tab aggregate Graph handoff into Ontology",
         "Add animated Charts route legend for progressive disclosure",
         "Add optional browser click-smoke for Charts route buttons",
-        "Add manual Pages browser-smoke workflow for deployed visual routes"
+        "Add manual Pages browser-smoke workflow for deployed visual routes",
+        "Add visible Pages visual-route verification card"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

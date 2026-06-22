@@ -703,6 +703,144 @@ main {
   margin: 14px 24px 0;
 }
 
+.visual-route-verification {
+  display: grid;
+  gap: 12px;
+  margin: 14px 24px 0;
+}
+
+.visual-route-verification-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(32, 134, 91, 0.26);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #f6fbf8);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.visual-route-verification-card.loading {
+  border-color: var(--line);
+  background: #ffffff;
+}
+
+.visual-route-verification-card.loading span,
+.visual-route-policy strong {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.visual-route-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.visual-route-heading h2 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  line-height: 1.08;
+}
+
+.visual-route-heading p,
+.visual-route-verification-card.loading p,
+.visual-route-assertions {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.visual-route-grid,
+.visual-route-policy {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.visual-route-grid span,
+.visual-route-policy span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 10px;
+}
+
+.visual-route-grid strong {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.visual-route-grid em,
+.visual-route-policy em {
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.visual-route-path {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.visual-route-path span {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-height: 82px;
+  border: 1px solid rgba(39, 95, 121, 0.22);
+  border-radius: 8px;
+  background: #f4fafc;
+  padding: 10px;
+}
+
+.visual-route-path b {
+  color: var(--accent);
+}
+
+.visual-route-path em {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.visual-route-policy span.ok {
+  border-color: rgba(32, 134, 91, 0.26);
+  background: #edf8f2;
+}
+
+.visual-route-policy span.review {
+  border-color: rgba(181, 116, 34, 0.32);
+  background: #fff8e8;
+}
+
+.visual-route-assertions summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.visual-route-assertions ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.visual-route-assertions li {
+  margin: 5px 0;
+}
+
 .offline-refresh-freshness-card {
   display: grid;
   gap: 14px;
@@ -7096,6 +7234,10 @@ th {
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,
   .frontdoor-disclosure-controls,
+  .visual-route-heading,
+  .visual-route-grid,
+  .visual-route-policy,
+  .visual-route-path,
   .offline-refresh-heading,
   .offline-refresh-grid,
   .import-status-card,
@@ -7227,6 +7369,10 @@ th {
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,
   .frontdoor-disclosure-controls,
+  .visual-route-heading,
+  .visual-route-grid,
+  .visual-route-policy,
+  .visual-route-path,
   .offline-refresh-heading,
   .offline-refresh-grid,
   .import-status-card,

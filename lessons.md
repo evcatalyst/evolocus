@@ -113,3 +113,4 @@
 - Package-to-ontology visuals should join package counts to ontology dimensions and matched aggregate units, not to raw LOCUS text or locator values.
 - Browser route smokes should be optional dev checks so normal artifact validation stays lightweight while real click paths can still be verified before publishing.
 - Deployed Pages smokes should run with read-only permissions and no secrets because they validate public visual routes, not offline model refreshes or data publication.
+- Route-verification status belongs in a small public artifact with explicit no-row/no-text policy flags so users can see UI proof without confusing it for legal evidence.

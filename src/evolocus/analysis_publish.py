@@ -19,6 +19,7 @@ from .locus_source import LocusCorpus, current_commit
 
 ANALYSIS_SCHEMA_VERSION = "evolocus-static-analysis-v1"
 MODEL_REGISTRY_VERSION = "evolocus-model-registry-v1"
+VISUAL_SMOKE_SCHEMA_VERSION = "evolocus-visual-route-smoke-v1"
 DEFAULT_OUTPUT_DIR = Path("site/data/analysis")
 MAP_VIEW_BOX = "0 0 100 86"
 
@@ -192,6 +193,7 @@ def publish_analysis_artifacts(
     chat_index = _chat_index_artifact(units, ontology, status)
     models = _models_artifact()
     map_layers = _map_layers_artifact(corpus, units, synthetic=synthetic)
+    visual_smoke = _visual_smoke_artifact(corpus)
 
     files = {
         "status": output_dir / "status.json",
@@ -200,6 +202,7 @@ def publish_analysis_artifacts(
         "chat_index": output_dir / "chat_index.json",
         "models": output_dir / "models.json",
         "charts": output_dir / "charts.json",
+        "visual_smoke": output_dir / "visual_smoke.json",
     }
     payloads = {
         "status": status,
@@ -208,6 +211,7 @@ def publish_analysis_artifacts(
         "chat_index": chat_index,
         "models": models,
         "charts": charts,
+        "visual_smoke": visual_smoke,
     }
     for key, payload in payloads.items():
         files[key].write_text(json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8")
@@ -714,4 +718,54 @@ def _models_artifact() -> dict[str, Any]:
             "allowed_use": "offline analysis jobs that generate static artifacts",
             "forbidden_use": "embedding the key in GitHub Pages JavaScript",
         },
+    }
+
+
+def _visual_smoke_artifact(corpus: LocusCorpus) -> dict[str, Any]:
+    return {
+        "schema_version": VISUAL_SMOKE_SCHEMA_VERSION,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "dataset_id": DATASET_ID,
+        "dataset_revision": corpus.config.dataset_revision,
+        "real_locus_rows_published": False,
+        "workflow_name": "Browser smoke static Pages visuals",
+        "workflow_file": "pages-browser-smoke.yml",
+        "event": "local_preview",
+        "status": "not_run",
+        "run_id": None,
+        "run_url": None,
+        "target_url": "local_static_preview",
+        "head_sha": current_commit(),
+        "created_at": None,
+        "completed_at": None,
+        "verified_route": {
+            "name": "Chart -> Map -> Inquiry -> Ontology",
+            "steps": [
+                "Open Charts tab",
+                "Click Open map route",
+                "Return to Charts tab",
+                "Click Ask route",
+                "Return to Charts tab",
+                "Click Graph route",
+            ],
+            "assertions": [
+                "Chart route legend renders from public aggregate artifacts",
+                "Map panel becomes active after the map route action",
+                "Inquiry panel becomes active after the ask route action",
+                "Ontology panel becomes active after the graph route action",
+                "No page-level JavaScript exception is observed",
+            ],
+        },
+        "publication_policy": {
+            "raw_rows_included": False,
+            "ordinance_text_included": False,
+            "record_locator_values_included": False,
+            "browser_llm_calls": False,
+            "secrets_included": False,
+            "legal_findings": False,
+        },
+        "interpretation": (
+            "This preview artifact describes the public route-smoke contract. "
+            "Run the Pages browser-smoke workflow to verify a hosted deployment."
+        ),
     }

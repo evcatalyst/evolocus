@@ -1,0 +1,44 @@
+{
+  "schema_version": "evolocus-visual-route-smoke-v1",
+  "generated_at": "2026-06-22T03:36:11Z",
+  "dataset_id": "LocalLaws/LOCUS-v1",
+  "dataset_revision": "main",
+  "real_locus_rows_published": false,
+  "workflow_name": "Browser smoke static Pages visuals",
+  "workflow_file": "pages-browser-smoke.yml",
+  "event": "workflow_dispatch",
+  "status": "success",
+  "run_id": 27927880106,
+  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27927880106",
+  "target_url": "https://evcatalyst.github.io/evolocus/",
+  "head_sha": "5e251599dc486235fdf5f9700b909eb191f59402",
+  "created_at": "2026-06-22T03:35:26Z",
+  "completed_at": "2026-06-22T03:36:11Z",
+  "verified_route": {
+    "name": "Chart -> Map -> Inquiry -> Ontology",
+    "steps": [
+      "Open Charts tab",
+      "Click Open map route",
+      "Return to Charts tab",
+      "Click Ask route",
+      "Return to Charts tab",
+      "Click Graph route"
+    ],
+    "assertions": [
+      "Chart route legend renders from public aggregate artifacts",
+      "Map panel becomes active after the map route action",
+      "Inquiry panel becomes active after the ask route action",
+      "Ontology panel becomes active after the graph route action",
+      "No page-level JavaScript exception is observed"
+    ]
+  },
+  "publication_policy": {
+    "raw_rows_included": false,
+    "ordinance_text_included": false,
+    "record_locator_values_included": false,
+    "browser_llm_calls": false,
+    "secrets_included": false,
+    "legal_findings": false
+  },
+  "interpretation": "This artifact verifies public UI navigation over aggregate visual artifacts only. It is not evidence that any law is current, complete, authoritative, or legally controlling."
+}

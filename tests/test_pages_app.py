@@ -15,6 +15,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "walkthrough-panel" in html
     assert "analysis-journey" in html
     assert "frontdoor-visual-path" in html
+    assert "visual-route-verification" in html
     assert "offline-refresh-freshness" in html
     assert "Aggregate analysis journey" in html
     assert "Score Lens" in html
@@ -62,6 +63,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderImportStatus" in js
     assert "renderAnalysisJourney" in js
     assert "renderFrontdoorVisualPath" in js
+    assert "renderVisualRouteVerification" in js
     assert "renderOfflineRefreshFreshness" in js
     assert "offlineRefreshMetricHtml" in js
     assert "Offline analysis freshness" in js
@@ -94,7 +96,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "snapshotPackageComparisonHtml" in js
     assert "data/analysis/question_pack.json" in js
     assert "data/analysis/artifact_snapshot.json" in js
+    assert "data/analysis/visual_smoke.json" in js
     assert "artifactSnapshot" in js
+    assert "visualSmoke" in js
     assert "currentArtifactSnapshotMetrics" in js
     assert "artifactMetricDelta" in js
     assert "artifactDeltaSummary" in js
@@ -141,6 +145,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "applyChartStateTopicFilter" in js
     assert "chartInquiryCard" in js
     assert "chartRouteLegendCard" in js
+    assert "Visual route verified" in js
+    assert "Open smoke run" in js
+    assert "visual-route-verification-card" in css
     assert "chartRouteTarget" in js
     assert "chartRouteStageHtml" in js
     assert "applyChartRouteLegend" in js

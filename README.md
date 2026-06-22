@@ -39,6 +39,7 @@ The Pages app supports:
 - first-screen Ask -> Map -> Ontology visual path with current aggregate denominators and progressive disclosure controls;
 - one-click front-door example questions that apply aggregate topic/tier filters before opening Inquiry, Map, or Ontology;
 - first-screen offline analysis freshness card for briefing/question-pack age, mode, validation, and Actions-only refresh;
+- first-screen Visual Route Verified card backed by `visual_smoke.json`, linking to the hosted browser-smoke workflow run;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;
 - official geography layer toggles for county polygons, town points, and progressive aggregate ontology links;
@@ -158,6 +159,7 @@ Support tooling:
 - `validate-public-artifacts` for blocking Pages deployment when static analysis JSON contains raw text, source locators, local paths, databases, or secret-shaped values.
 - Browser Queue Plan export for unit-level planning metadata only; it is not a LOCUS text queue and does not create local review records.
 - Browser review-package request export for handing selected aggregate units to local tooling; the request stays aggregate-only.
+- Browser visual-route verification from `visual_smoke.json`; this records workflow status for the public Chart -> Map -> Inquiry -> Ontology route only.
 - Browser package-request preview for inspecting unit mix, record budget, and publication safety gates before download.
 - Browser import-status panel for local package provenance and review readiness after upload; this state remains in localStorage.
 - Browser synthetic package demo for exercising package import, package-to-map overlay, package-only filtering, Results-tab package charts, and review workflow without loading LOCUS row text.

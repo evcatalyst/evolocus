@@ -7,6 +7,7 @@ const STORAGE_IMPORT_STATUS = "evolocus.pages.importStatus.v1";
 const STORAGE_MAP_INQUIRY_HISTORY = "evolocus.pages.mapInquiryHistory.v1";
 const STORAGE_INQUIRY_RESULTS_LOG = "evolocus.pages.aggregateInquiryResultsLog.v1";
 const ACTIONS_REFRESH_WORKFLOW_URL = "https://github.com/evcatalyst/evolocus/actions/workflows/analysis-refresh.yml";
+const ACTIONS_BROWSER_SMOKE_WORKFLOW_URL = "https://github.com/evcatalyst/evolocus/actions/workflows/pages-browser-smoke.yml";
 
 const ANALYSIS_PATHS = {
   status: "data/analysis/status.json",
@@ -22,6 +23,7 @@ const ANALYSIS_PATHS = {
   models: "data/analysis/models.json",
   charts: "data/analysis/charts.json",
   artifactSnapshot: "data/analysis/artifact_snapshot.json",
+  visualSmoke: "data/analysis/visual_smoke.json",
 };
 
 const SCORE_OPTIONS = [
@@ -501,6 +503,7 @@ function render() {
   renderImportStatus();
   renderAnalysisJourney();
   renderFrontdoorVisualPath();
+  renderVisualRouteVerification();
   renderOfflineRefreshFreshness();
   renderArtifactFreshnessBadges();
   renderMap();
@@ -806,6 +809,98 @@ function frontdoorDisclosureLabel(level) {
     return "show selected-unit context";
   }
   return "show aggregate overview";
+}
+
+function renderVisualRouteVerification() {
+  const target = $("#visual-route-verification");
+  if (!target) {
+    return;
+  }
+  const smoke = state.analysis.visualSmoke;
+  if (!smoke) {
+    target.innerHTML = `
+      <article class="visual-route-verification-card loading">
+        <span>Route verification loading</span>
+        <strong>Chart -> Map -> Inquiry -> Ontology</strong>
+        <p>The hosted-route verification card appears after the public smoke artifact loads.</p>
+      </article>
+    `;
+    return;
+  }
+  const route = smoke.verified_route || {};
+  const policy = smoke.publication_policy || {};
+  const passed = smoke.status === "success";
+  const runUrl = smoke.run_url || ACTIONS_BROWSER_SMOKE_WORKFLOW_URL;
+  const metrics = [
+    ["Result", passed ? "passed" : smoke.status || "unknown"],
+    ["Verified route", route.name || "Chart -> Map -> Inquiry -> Ontology"],
+    ["Completed", smoke.completed_at ? `${formatDateTime(smoke.completed_at)} · ${artifactAgeLabel(smoke.completed_at)}` : "not recorded"],
+    ["Commit", shortCommit(smoke.head_sha || "")],
+  ];
+  const chips = [
+    ["No rows", policy.raw_rows_included === false],
+    ["No text", policy.ordinance_text_included === false],
+    ["No locators", policy.record_locator_values_included === false],
+    ["No browser model", policy.browser_llm_calls === false],
+    ["No secrets", policy.secrets_included === false],
+    ["No findings", policy.legal_findings === false],
+  ];
+  const steps = route.steps || [];
+  const assertions = route.assertions || [];
+  target.innerHTML = `
+    <article class="visual-route-verification-card ${passed ? "passed" : "review"}">
+      <div class="visual-route-heading">
+        <div>
+          <p class="eyebrow">Visual route verified</p>
+          <h2>${escapeHtml(route.name || "Chart -> Map -> Inquiry -> Ontology")}</h2>
+          <p>${escapeHtml(smoke.interpretation || "Route verification covers public UI navigation only.")}</p>
+        </div>
+        <a class="primary-action-link" href="${escapeHtml(runUrl)}" target="_blank" rel="noopener noreferrer">Open smoke run</a>
+      </div>
+      <div class="visual-route-grid">
+        ${metrics.map(visualRouteMetricHtml).join("")}
+      </div>
+      <div class="visual-route-path" aria-label="Verified visual route steps">
+        ${steps.map(visualRouteStepHtml).join("")}
+      </div>
+      <div class="visual-route-policy" aria-label="Visual smoke publication policy">
+        ${chips.map(visualRoutePolicyChipHtml).join("")}
+      </div>
+      <details class="visual-route-assertions">
+        <summary>Assertions checked by the browser smoke</summary>
+        <ul>
+          ${assertions.map((assertion) => `<li>${escapeHtml(assertion)}</li>`).join("")}
+        </ul>
+      </details>
+    </article>
+  `;
+}
+
+function visualRouteMetricHtml([label, value]) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(String(value))}</em>
+    </span>
+  `;
+}
+
+function visualRouteStepHtml(step, index) {
+  return `
+    <span>
+      <b>${escapeHtml(String(index + 1).padStart(2, "0"))}</b>
+      <em>${escapeHtml(step)}</em>
+    </span>
+  `;
+}
+
+function visualRoutePolicyChipHtml([label, ok]) {
+  return `
+    <span class="${ok ? "ok" : "review"}">
+      <strong>${escapeHtml(ok ? "ok" : "review")}</strong>
+      <em>${escapeHtml(label)}</em>
+    </span>
+  `;
 }
 
 function applyFrontdoorVisualPathAction(action, question) {
@@ -3039,6 +3134,7 @@ function renderAnalysisStatusPanel() {
   const municipalPoints = state.analysis.municipalPoints;
   const auditStatus = state.analysis.auditStatus;
   const inquiryBriefings = state.analysis.inquiryBriefings;
+  const visualSmoke = state.analysis.visualSmoke;
   const briefingGrok = inquiryBriefings?.grok || {};
   const packageVerification = status?.local_package_verification || null;
   const cardsGrid = $("#status-card-grid");
@@ -3086,6 +3182,11 @@ function renderAnalysisStatusPanel() {
       inquiryBriefings ? (briefingGrok.used ? `Grok (${briefingGrok.model})` : "deterministic") : "not loaded",
       "Static aggregate Q&A artifact; no browser LLM calls",
     ],
+    [
+      "Visual route smoke",
+      visualSmoke ? visualSmoke.status || "unknown" : "not loaded",
+      visualSmoke ? `${visualSmoke.verified_route?.name || "visual route"} · ${formatDateTime(visualSmoke.completed_at)}` : "Hosted route smoke artifact unavailable",
+    ],
   ];
   cardsGrid.innerHTML = statusCards
     .map(
@@ -3111,6 +3212,7 @@ function renderAnalysisStatusPanel() {
     charts: state.analysis.charts,
     models: state.analysis.models,
     artifactSnapshot: state.analysis.artifactSnapshot,
+    visualSmoke,
     packageVerification,
   });
 
@@ -3130,6 +3232,7 @@ function renderAnalysisStatusPanel() {
     ["OCR heuristic review", auditStatus ? auditOcrSummary(auditStatus) : "not loaded"],
     ["Duplicate content hashes", auditStatus ? formatCount(auditStatus.quality_counts?.duplicate_content_hash_count) : "not loaded"],
     ["Inquiry generated", inquiryBriefings ? formatDateTime(inquiryBriefings.generated_at) : "not loaded"],
+    ["Visual route smoke", visualSmoke ? `${visualSmoke.status} · run ${visualSmoke.run_id || "unknown"} · ${formatDateTime(visualSmoke.completed_at)}` : "not loaded"],
     ["Grok enrichment", inquiryBriefings ? (briefingGrok.used ? `offline ${briefingGrok.model}` : `not used${briefingGrok.error ? ` · ${briefingGrok.error}` : ""}`) : "not loaded"],
     ["Grok secret status", "Configured in repository Actions secrets for offline refresh only"],
     ["Grok boundary", "Repository Actions secrets are available only to offline refresh jobs; no API key is embedded in Pages."],
@@ -3511,6 +3614,7 @@ function artifactLineageRows(status, artifacts) {
     ontology,
     charts,
     models,
+    visualSmoke,
     packageVerification,
   } = artifacts;
   const unitCount = status.unit_count || (mapLayers?.units || []).length;
@@ -3552,11 +3656,11 @@ function artifactLineageRows(status, artifacts) {
     {
       surface: "Charts and Score Lens",
       tab: "results",
-      artifacts: ["charts.json", "models.json", "map_layers.json"],
+      artifacts: ["charts.json", "models.json", "map_layers.json", "visual_smoke.json"],
       metric: `${formatCount(chartCount)} chart panels · ${formatCount(modelCount)} model fields`,
-      visual: "State/topic charts, neutral score distributions, state matrix, unit profiles.",
-      detail: "Charts summarize published aggregate units and disclose denominators.",
-      evidence: "No best/worst, burden, freedom, or legal ranking claims are created.",
+      visual: "State/topic charts, route legend, neutral score distributions, state matrix, unit profiles.",
+      detail: "Charts summarize published aggregate units and can route to Map, Inquiry, and Ontology.",
+      evidence: visualSmoke ? `Hosted route smoke ${visualSmoke.status || "unknown"} on ${formatDateTime(visualSmoke.completed_at)}.` : "No hosted route-smoke artifact is loaded.",
     },
     {
       surface: "Audit Lens",
@@ -3579,7 +3683,7 @@ function artifactLineageRows(status, artifacts) {
     {
       surface: "Snapshots and Status",
       tab: "snapshots",
-      artifacts: ["artifact_snapshot.json", "status.json", "map_layers.json"],
+      artifacts: ["artifact_snapshot.json", "status.json", "map_layers.json", "visual_smoke.json"],
       metric: `${formatCount(unitCount)} units compared against stored aggregate snapshot metrics`,
       visual: "Current-view exports, snapshot gallery, freshness badges, refresh timeline.",
       detail: "Snapshots preserve visual context and publication metadata, not row-level evidence.",
@@ -11026,7 +11130,7 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
@@ -11040,8 +11144,9 @@ async function fetchAnalysisArtifacts() {
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
       fetchJson(ANALYSIS_PATHS.artifactSnapshot),
+      fetchJson(ANALYSIS_PATHS.visualSmoke),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }

@@ -29,6 +29,7 @@ Files saved:
 - `site/data/analysis/question_pack.json`
 - `site/data/analysis/models.json`
 - `site/data/analysis/charts.json`
+- `site/data/analysis/visual_smoke.json`
 - `site/data/analysis/county_geometry.json`
 - `site/data/analysis/municipal_points.json`
 - `site/data/analysis/unit_audit_quality.json`
@@ -95,6 +96,7 @@ Current coverage stats:
 - Front-door visual path: GitHub Pages now exposes Ask -> Map -> Ontology actions with current aggregate denominators, suggested deterministic question, and progressive disclosure controls before the map panel
 - Front-door example questions: GitHub Pages derives topic/tier examples from visible aggregate pathway cells and can pre-filter the map before routing to Inquiry, Map, or Ontology
 - Front-door offline freshness: GitHub Pages reports briefing/question-pack age, enrichment mode, validation gate, and Actions-only refresh before users enter map or inquiry flows
+- Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
@@ -111,6 +113,7 @@ Current coverage stats:
 - Charts route legend: GitHub Pages animates Chart -> Map -> Inquiry -> Ontology as an aggregate-only progressive disclosure path with route buttons
 - Charts route smoke coverage: optional Playwright browser smoke now clicks the Charts route buttons and verifies navigation to Map, Inquiry, and Ontology when `EVOLOCUS_BROWSER_SMOKE=1`
 - Deployed visual smoke workflow: manual GitHub Actions route smoke can click the hosted Pages URL through Chart -> Map -> Inquiry -> Ontology without secrets or write permissions
+- Visual smoke public artifact: `visual_smoke.json` records workflow metadata and no-row/no-text/no-secret policy flags for the verified public route
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Map-side route playback: GitHub Pages restores saved aggregate question paths directly from the Law Map, including filters, color mode, selected unit, answer replay, and ontology route
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows

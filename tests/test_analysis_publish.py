@@ -18,6 +18,7 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
     map_layers = json.loads((output_dir / "map_layers.json").read_text(encoding="utf-8"))
     ontology = json.loads((output_dir / "ontology.json").read_text(encoding="utf-8"))
     charts = json.loads((output_dir / "charts.json").read_text(encoding="utf-8"))
+    visual_smoke = json.loads((output_dir / "visual_smoke.json").read_text(encoding="utf-8"))
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
     assert "Grok_api_key" in status["grok_secret_aliases"]
@@ -25,6 +26,9 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
     assert map_layers["units"]
     assert ontology["nodes"]
     assert charts["charts"]["tier_counts"]
+    assert visual_smoke["schema_version"] == "evolocus-visual-route-smoke-v1"
+    assert visual_smoke["status"] == "not_run"
+    assert visual_smoke["real_locus_rows_published"] is False
 
 
 def test_publish_inquiry_briefings_are_aggregate_only(tmp_path) -> None:
@@ -80,6 +84,7 @@ def test_public_artifact_guard_accepts_aggregate_artifacts(tmp_path) -> None:
     assert result.artifact_count >= 6
     assert "inquiry_briefings.json" in result.checked_artifacts
     assert "question_pack.json" in result.checked_artifacts
+    assert "visual_smoke.json" in result.checked_artifacts
 
 
 def test_public_artifact_guard_rejects_raw_text_fields(tmp_path) -> None:

@@ -64,6 +64,13 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
                 page.route(f"{SITE_ORIGIN}/**", fulfill_static_asset)
                 page.goto(f"{SITE_ORIGIN}/", wait_until="networkidle")
 
+            page.wait_for_selector("#visual-route-verification .visual-route-verification-card", timeout=10_000)
+            verification_text = page.locator("#visual-route-verification").inner_text(timeout=5_000)
+            assert "visual route verified" in verification_text.lower()
+            assert "Chart -> Map -> Inquiry -> Ontology" in verification_text
+            assert "No rows" in verification_text
+            assert "No text" in verification_text
+
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='map']", timeout=10_000)
             assert page.locator("#results-panel").evaluate("element => element.classList.contains('active')")

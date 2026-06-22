@@ -28,6 +28,7 @@ REQUIRED_PATHS = [
     "site/data/analysis/models.json",
     "site/data/analysis/charts.json",
     "site/data/analysis/artifact_snapshot.json",
+    "site/data/analysis/visual_smoke.json",
     "site/data/analysis/audit_status.json",
     "site/data/analysis/unit_audit_quality.json",
     "site/data/analysis/county_geometry.json",
@@ -153,6 +154,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "public real-aggregate demo path" in html
     assert "analysis-journey" in html
     assert "frontdoor-visual-path" in html
+    assert "visual-route-verification" in html
     assert "offline-refresh-freshness" in html
     assert "Aggregate analysis journey" in html
     assert "Inquiry" in html
@@ -237,6 +239,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Synthetic package units are highlighted on the map" in js
     assert "data/analysis/charts.json" in js
     assert "data/analysis/artifact_snapshot.json" in js
+    assert "data/analysis/visual_smoke.json" in js
     assert "data/analysis/audit_status.json" in js
     assert "data/analysis/unit_audit_quality.json" in js
     assert "data/analysis/inquiry_briefings.json" in js
@@ -831,6 +834,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "applyChartStateTopicFilter" in js
     assert "chartInquiryCard" in js
     assert "chartRouteLegendCard" in js
+    assert "renderVisualRouteVerification" in js
+    assert "visualRouteMetricHtml" in js
+    assert "visualRoutePolicyChipHtml" in js
+    assert "Visual route verified" in js
+    assert "Open smoke run" in js
+    assert "visual-route-verification-card" in css
+    assert "visual-route-path" in css
     assert "chartRouteTarget" in js
     assert "chartRouteStageHtml" in js
     assert "applyChartRouteLegend" in js
@@ -891,6 +901,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     county_geometry = json.loads(read_text("site/data/analysis/county_geometry.json"))
     municipal_points = json.loads(read_text("site/data/analysis/municipal_points.json"))
     artifact_snapshot = json.loads(read_text("site/data/analysis/artifact_snapshot.json"))
+    visual_smoke = json.loads(read_text("site/data/analysis/visual_smoke.json"))
     assert status["synthetic"] is False
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
@@ -975,6 +986,18 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert artifact_snapshot["publication_policy"]["record_locator_values_included"] is False
     assert artifact_snapshot["metrics"]["unit_count"] == status["unit_count"]
     assert artifact_snapshot["metrics"]["law_count"] == status["law_count"]
+    assert visual_smoke["schema_version"] == "evolocus-visual-route-smoke-v1"
+    assert visual_smoke["real_locus_rows_published"] is False
+    assert visual_smoke["workflow_file"] == "pages-browser-smoke.yml"
+    assert visual_smoke["status"] == "success"
+    assert visual_smoke["verified_route"]["name"] == "Chart -> Map -> Inquiry -> Ontology"
+    assert visual_smoke["run_url"].startswith("https://github.com/evcatalyst/evolocus/actions/runs/")
+    assert visual_smoke["publication_policy"]["raw_rows_included"] is False
+    assert visual_smoke["publication_policy"]["ordinance_text_included"] is False
+    assert visual_smoke["publication_policy"]["record_locator_values_included"] is False
+    assert visual_smoke["publication_policy"]["browser_llm_calls"] is False
+    assert visual_smoke["publication_policy"]["secrets_included"] is False
+    assert visual_smoke["publication_policy"]["legal_findings"] is False
     assert municipal_points["geometry_status"] == "official_census_municipal_points_machine_matched_pending_review"
     assert municipal_points["real_locus_rows_published"] is False
     assert municipal_points["municipal_unit_count"] == 823
@@ -994,6 +1017,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
             "county_geometry": county_geometry,
             "municipal_points": municipal_points,
             "artifact_snapshot": artifact_snapshot,
+            "visual_smoke": visual_smoke,
         }
     )
     assert '"content"' not in serialized
