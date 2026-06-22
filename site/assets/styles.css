@@ -613,6 +613,122 @@ main {
   line-height: 1.35;
 }
 
+.frontdoor-route-preview-strip {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(45, 92, 122, 0.22);
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 10px;
+}
+
+.frontdoor-route-preview-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.frontdoor-route-preview-heading div {
+  display: grid;
+  gap: 2px;
+}
+
+.frontdoor-route-preview-heading strong {
+  color: #17415d;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.frontdoor-route-preview-heading span,
+.frontdoor-route-preview-heading em,
+.frontdoor-route-preview-strip p {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.frontdoor-route-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-route-preview-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  min-width: 0;
+  border: 1px solid rgba(45, 92, 122, 0.16);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 9px;
+  text-align: left;
+}
+
+.frontdoor-route-preview-card:hover,
+.frontdoor-route-preview-card:focus-visible {
+  border-color: rgba(45, 92, 122, 0.36);
+  background: #f7fbfd;
+}
+
+.frontdoor-route-preview-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.frontdoor-route-preview-card > i {
+  display: block;
+  width: 12px;
+  height: 100%;
+  min-height: 54px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 999px;
+}
+
+.frontdoor-route-preview-card span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.frontdoor-route-preview-card strong,
+.frontdoor-route-preview-card b,
+.frontdoor-route-preview-card em,
+.frontdoor-route-preview-card small {
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-route-preview-card strong,
+.frontdoor-route-preview-card small {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.frontdoor-route-preview-card b {
+  color: var(--ink);
+  font-size: 0.8rem;
+}
+
+.frontdoor-route-preview-card em {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  line-height: 1.28;
+}
+
+.frontdoor-route-preview-card small {
+  grid-column: 1 / -1;
+}
+
 .frontdoor-question-reasons ul {
   margin: 6px 0 0;
   padding-left: 18px;
@@ -11562,6 +11678,7 @@ th {
   .frontdoor-imported-story-heading,
   .frontdoor-imported-story-metrics,
   .frontdoor-question-metrics,
+  .frontdoor-route-preview-grid,
   .frontdoor-saved-export-card,
   .frontdoor-route-import,
   .frontdoor-saved-grid,

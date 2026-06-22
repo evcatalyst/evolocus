@@ -152,3 +152,4 @@
 - Question-highlight law-location trails should answer where a query maps by using tier-colored aggregate county/town stops, not row text, source locators, legal coverage findings, or official-law conclusions.
 - Question-result tier summary cards should explain map colors as neutral aggregate model-output bands and keep click actions limited to safe map filters, not rankings or legal conclusions.
 - Question-result score/audit signal cards should route into Score Lens or Audit Lens from aggregate highlighted units while labeling score direction as unverified and audit values as review cues.
+- Front-door Ask-this-map route previews should expose the next possible aggregate surfaces before navigation, while passing only typed filters, public unit IDs, neutral score/audit summaries, and ontology route metadata.

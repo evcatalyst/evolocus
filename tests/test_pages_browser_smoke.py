@@ -130,6 +130,15 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Function: Enforcement" in composer_text
             assert "State IN" not in composer_text
             assert "no ordinance text" in composer_text.lower()
+            page.wait_for_selector(".frontdoor-route-preview-strip [data-frontdoor-route-preview='tier']", timeout=10_000)
+            page.wait_for_selector(".frontdoor-route-preview-strip [data-frontdoor-route-preview='score']", timeout=10_000)
+            page.wait_for_selector(".frontdoor-route-preview-strip [data-frontdoor-route-preview='audit']", timeout=10_000)
+            page.wait_for_selector(".frontdoor-route-preview-strip [data-frontdoor-route-preview='ontology']", timeout=10_000)
+            route_preview_text = page.locator(".frontdoor-route-preview-strip").inner_text(timeout=5_000).lower()
+            assert "ask this map result routes" in route_preview_text
+            assert "score lens" in route_preview_text
+            assert "audit lens" in route_preview_text
+            assert "no ordinance text" in route_preview_text
             page.wait_for_selector(".frontdoor-story-packet [data-frontdoor-story-action='export']", timeout=10_000)
             story_text = page.locator(".frontdoor-story-packet").inner_text(timeout=5_000).lower()
             assert "visual story packet" in story_text

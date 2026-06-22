@@ -38,6 +38,7 @@ The Pages app supports:
 - compact analysis journey strip connecting Map -> Inquiry -> Ontology -> Queue Plan with aggregate-only status;
 - first-screen Ask -> Map -> Ontology visual path with current aggregate denominators and progressive disclosure controls;
 - first-screen deterministic chat-to-map composer that previews aggregate filters from typed questions and routes to Map, Inquiry, or Ontology;
+- front-door Ask-this-map route preview strip for tier, score, audit, and ontology paths from the current typed question;
 - ontology-backed question routes that show topic, function, neutral tier, and county/town unit nodes from static aggregate artifacts;
 - question-result tier summary cards that show how highlighted county/town units distribute across neutral tier color bands;
 - question-result score and audit signal cards that route highlighted aggregate units into Score Lens or Audit Lens without row text;

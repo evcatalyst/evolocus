@@ -1423,6 +1423,7 @@ function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
           ${frontdoorQuestionMetricHtml("Top topic", plan.previewSummary.topTopic.label, `${formatCount(plan.previewSummary.topTopic.value)} rows`)}
           ${frontdoorQuestionMetricHtml("Top unit", topUnit ? displayUnitName(topUnit) : "No matching unit", topUnit ? `${topUnit.state || "NA"} · ${formatCount(topUnit.law_count)} rows` : "adjust the question")}
         </div>
+        ${frontdoorRoutePreviewStripHtml(plan, previewReady)}
         <div class="frontdoor-question-reasons">
           <strong>Route logic</strong>
           <ul>${reasonRows}</ul>
@@ -1431,6 +1432,115 @@ function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
       ${questionOntologyRouteHtml(ontologyRoute, "frontdoor")}
       <p class="frontdoor-question-boundary">Front-door chat is deterministic filter routing over published aggregate artifacts. It makes no browser Grok call, reads no ordinance text, exposes no source locators, and creates no legal finding.</p>
     </section>
+  `;
+}
+
+function frontdoorRoutePreviewStripHtml(plan, previewReady) {
+  const cards = frontdoorRoutePreviewCards(plan);
+  if (!cards.length) {
+    return "";
+  }
+  return `
+    <section class="frontdoor-route-preview-strip" aria-label="Ask this map route previews">
+      <div class="frontdoor-route-preview-heading">
+        <div>
+          <strong>Ask this map result routes</strong>
+          <span>Preview the tier, score, audit, and ontology paths before opening a surface</span>
+        </div>
+        <em>${escapeHtml(formatCount(plan.previewUnits.length))} aggregate units</em>
+      </div>
+      <div class="frontdoor-route-preview-grid">
+        ${cards.map((card) => frontdoorRoutePreviewCardHtml(card, previewReady)).join("")}
+      </div>
+      <p>Route previews use aggregate counts, neutral tiers, released model-score means, audit heuristics, and ontology nodes only. They include no ordinance text, source locators, browser model calls, or legal findings.</p>
+    </section>
+  `;
+}
+
+function frontdoorRoutePreviewCards(plan) {
+  const summary = plan.previewSummary || summarizeUnits(plan.previewUnits || []);
+  const tierCard = frontdoorRoutePreviewTierCard(plan, summary);
+  const scoreCard = frontdoorRoutePreviewScoreCard(summary);
+  const auditCard = frontdoorRoutePreviewAuditCard(plan.previewUnits || [], summary);
+  const ontologyCard = frontdoorRoutePreviewOntologyCard(plan, summary);
+  return [tierCard, scoreCard, auditCard, ontologyCard].filter(Boolean);
+}
+
+function frontdoorRoutePreviewTierCard(plan, summary) {
+  const definitions = state.analysis.mapLayers?.tier_definitions || {};
+  const topTier = topEntry(summary.tierCounts || {});
+  const tierKey = plan.proposedFilters?.tier || (topTier.value ? tierKeyForLabel(topTier.label, definitions) : "");
+  const definition = tierKey ? tierDefinitionForKey(tierKey) : null;
+  return {
+    action: "tier",
+    value: tierKey || "",
+    label: "Tier route",
+    title: definition?.label || topTier.label || "No tier route",
+    detail: `${formatCount(topTier.value || 0)} highlighted units · neutral color band`,
+    meta: "Map filter",
+    color: definition?.color || tierColorForLabel(topTier.label, plan.previewUnits || [], definitions),
+  };
+}
+
+function frontdoorRoutePreviewScoreCard(summary) {
+  const scoreField = topScoreField(summary.scoreMeans || {});
+  if (!scoreField) {
+    return null;
+  }
+  return {
+    action: "score",
+    value: scoreField,
+    label: "Score route",
+    title: scoreFieldLabel(scoreField),
+    detail: `${formatScore(summary.scoreMeans[scoreField])} mean · direction unverified`,
+    meta: "Score Lens",
+    color: "#326f70",
+  };
+}
+
+function frontdoorRoutePreviewAuditCard(units, summary) {
+  const audits = (units || []).map((unit) => unitAuditQualityFor(unit.unit_id)).filter(Boolean);
+  if (!audits.length) {
+    return null;
+  }
+  const maxAttention = audits.reduce((max, row) => Math.max(max, Number(row.audit_attention_score || 0)), 0);
+  const ocrRows = audits.reduce((sum, row) => sum + Number(row.ocr_review_rows || 0), 0);
+  return {
+    action: "audit",
+    value: "attention",
+    label: "Audit route",
+    title: `${formatNumber(maxAttention)} / 100 max attention`,
+    detail: `${formatCount(ocrRows)} OCR-review rows · review cue`,
+    meta: "Audit Lens",
+    color: "#b7892c",
+  };
+}
+
+function frontdoorRoutePreviewOntologyCard(plan, summary) {
+  const route = normalizedQuestionOntologyRoute(plan.ontologyRoute);
+  const nodeCount = route?.nodes?.length || 0;
+  return {
+    action: "ontology",
+    value: "route",
+    label: "Ontology route",
+    title: nodeCount ? `${formatCount(nodeCount)} route nodes` : "No route nodes",
+    detail: `${summary.topTopic.label} · ${summary.topFunction.label}`,
+    meta: "Ontology",
+    color: "#5b5f97",
+  };
+}
+
+function frontdoorRoutePreviewCardHtml(card, previewReady) {
+  return `
+    <button type="button" class="frontdoor-route-preview-card ${escapeHtml(card.action)}" data-frontdoor-route-preview="${escapeHtml(card.action)}" data-frontdoor-route-preview-value="${escapeHtml(card.value || "")}"${previewReady ? "" : " disabled"}>
+      <i style="background:${escapeHtml(card.color || "#d8dee8")}"></i>
+      <span>
+        <strong>${escapeHtml(card.label)}</strong>
+        <b>${escapeHtml(card.title)}</b>
+        <em>${escapeHtml(card.detail)}</em>
+      </span>
+      <small>${escapeHtml(card.meta)}</small>
+    </button>
   `;
 }
 
@@ -1992,6 +2102,48 @@ function applyFrontdoorComposerAction(action, form) {
     render();
     return;
   }
+  state.activeTab = "map";
+  render();
+}
+
+function applyFrontdoorRoutePreviewAction(action, value, form) {
+  const formData = form ? new FormData(form) : null;
+  const question = String(formData?.get("frontdoor_question") || state.frontdoorComposerQuestion || "").trim();
+  state.frontdoorComposerQuestion = question;
+  if (!question) {
+    render();
+    return;
+  }
+  const plan = inquiryMapComposerPlan(question);
+  state.mapFilters = plan.proposedFilters;
+  state.selectedUnitId = plan.previewSummary.topUnit?.unit_id || null;
+  setInquiryMapHighlightFromPlan(plan, "front-door ask-this-map preview strip");
+  if (action === "score") {
+    const scoreField = SCORE_FIELDS.includes(value) ? value : topScoreField(plan.previewSummary.scoreMeans || {});
+    state.mapFilters = { ...state.mapFilters, scoreField, scoreBand: "" };
+    state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+    state.activeTab = "score";
+    render();
+    return;
+  }
+  if (action === "audit") {
+    state.mapFilters = { ...state.mapFilters, auditFocus: ["attention", "ocr", "duplicate"].includes(value) ? value : "attention" };
+    state.geographyColorMode = "audit_attention";
+    state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+    state.activeTab = "audit";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    applyQuestionOntologyRoute(plan.ontologyRoute, { renderNow: false });
+    render();
+    return;
+  }
+  if (action === "tier" && value) {
+    state.mapFilters = { ...state.mapFilters, tier: value };
+    state.ontologyFocusTier = value;
+  }
+  state.geographyColorMode = "tier";
   state.activeTab = "map";
   render();
 }
@@ -16223,6 +16375,16 @@ function bindEvents() {
     if (composerButton) {
       event.preventDefault();
       applyFrontdoorComposerAction(composerButton.dataset.frontdoorComposerAction || "preview", composerButton.closest("form"));
+      return;
+    }
+    const routePreviewButton = event.target.closest("[data-frontdoor-route-preview]");
+    if (routePreviewButton) {
+      event.preventDefault();
+      applyFrontdoorRoutePreviewAction(
+        routePreviewButton.dataset.frontdoorRoutePreview || "map",
+        routePreviewButton.dataset.frontdoorRoutePreviewValue || "",
+        $("#frontdoor-visual-path [data-frontdoor-composer]"),
+      );
       return;
     }
     const storyButton = event.target.closest("[data-frontdoor-story-action]");

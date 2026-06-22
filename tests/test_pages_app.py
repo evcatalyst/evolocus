@@ -120,6 +120,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoorExampleQuestionCardHtml" in js
     assert "frontdoorQuestionComposerHtml" in js
     assert "frontdoorQuestionMetricHtml" in js
+    assert "frontdoorRoutePreviewStripHtml" in js
+    assert "frontdoorRoutePreviewCards" in js
+    assert "frontdoorRoutePreviewCardHtml" in js
+    assert "applyFrontdoorRoutePreviewAction" in js
     assert "frontdoorSavedRoutesHtml" in js
     assert "frontdoorSavedRouteCardHtml" in js
     assert "frontdoorRouteExportPayload" in js
@@ -179,6 +183,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "data-frontdoor-action" in js
     assert "data-frontdoor-composer" in js
     assert "data-frontdoor-composer-action" in js
+    assert "data-frontdoor-route-preview" in js
+    assert "Ask this map result routes" in js
+    assert "Route previews use aggregate counts" in js
     assert "data-frontdoor-route-action" in js
     assert "data-frontdoor-route-id" in js
     assert "data-frontdoor-export-routes" in js
@@ -755,6 +762,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoor-question-composer" in css
     assert "frontdoor-question-actions" in css
     assert "frontdoor-question-metrics" in css
+    assert "frontdoor-route-preview-strip" in css
+    assert "frontdoor-route-preview-card" in css
     assert "frontdoor-saved-routes" in css
     assert "frontdoor-saved-route" in css
     assert "frontdoor-saved-actions" in css
