@@ -4211,6 +4211,7 @@ function activeGeographyLayerLabels() {
 function renderOntology() {
   const ontology = state.analysis.ontology;
   const models = state.analysis.models;
+  const buildStatus = $("#ontology-build-status");
   const queryPresets = $("#ontology-query-presets");
   const tierFocus = $("#ontology-tier-focus");
   const selectedNeighborhood = $("#selected-ontology-neighborhood");
@@ -4224,6 +4225,9 @@ function renderOntology() {
     }
     if (queryPresets) {
       queryPresets.innerHTML = "<p>Map-driven ontology query presets loading.</p>";
+    }
+    if (buildStatus) {
+      buildStatus.innerHTML = "<p>Ontology build status loading.</p>";
     }
     if (tierFocus) {
       tierFocus.innerHTML = "<p>Tier ontology focus loading.</p>";
@@ -4254,6 +4258,9 @@ function renderOntology() {
       `,
     )
     .join("");
+  if (buildStatus) {
+    buildStatus.innerHTML = ontologyBuildStatusHtml(ontology, models);
+  }
   $("#ontology-node-list").innerHTML = (ontology.nodes || [])
     .slice(0, 80)
     .map((node) => `<span>${escapeHtml(node.type)} · ${escapeHtml(node.label)}${node.count ? ` (${escapeHtml(String(node.count))})` : ""}</span>`)
@@ -4285,6 +4292,114 @@ function renderOntology() {
         )
         .join("")
     : "<span>Model registry loading</span>";
+}
+
+function ontologyBuildStatusHtml(ontology, models) {
+  const status = state.analysis.status || {};
+  const mapLayers = state.analysis.mapLayers || {};
+  const snapshot = state.analysis.artifactSnapshot || null;
+  const nodeCounts = countValues((ontology.nodes || []).map((node) => node.type || "unknown"));
+  const edgeCounts = countValues((ontology.edges || []).map((edge) => edge.relationship || "unknown"));
+  const unitNodes = nodeCounts.jurisdiction_unit || nodeCounts.unit || nodeCounts.jurisdiction || 0;
+  const latest = latestIso([ontology.generated_at, models?.generated_at, mapLayers?.generated_at, status.generated_at]);
+  const snapshotAt = snapshot?.artifact_generated_at?.ontology || "";
+  const snapshotDelta = artifactTimestampDeltaLabel(ontology.generated_at, snapshotAt);
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const artifacts = [
+    ["ontology.json", ontology.generated_at, `${formatCount((ontology.nodes || []).length)} nodes · ${formatCount((ontology.edges || []).length)} edges`],
+    ["models.json", models?.generated_at, `${formatCount((models?.models || []).length)} released output fields`],
+    ["map_layers.json", mapLayers.generated_at, `${formatCount((mapLayers.units || []).length)} aggregate map units`],
+    ["artifact_snapshot.json", snapshot?.created_at, snapshot ? `${snapshot.snapshot_label || "stored baseline"}` : "baseline unavailable"],
+  ];
+  const relationshipRows = Object.entries(edgeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
+  return `
+    <section class="ontology-build-status" aria-label="Aggregate ontology build status">
+      <div class="ontology-build-heading">
+        <div>
+          <p class="eyebrow">Ontology build status</p>
+          <h3>Graph freshness and artifact provenance.</h3>
+          <p>The public ontology is generated from aggregate LOCUS model outputs and map-unit summaries. It is a review navigation layer, not a legal ontology of controlling authority.</p>
+        </div>
+        <span>${escapeHtml(latest ? `${formatDateTime(latest)} · ${artifactAgeLabel(latest)}` : "artifact timestamps loading")}</span>
+      </div>
+      <div class="ontology-build-flow" aria-label="Ontology build flow">
+        <span>Local Polars aggregate layer</span>
+        <b aria-hidden="true">&rarr;</b>
+        <span>ontology.json + models.json</span>
+        <b aria-hidden="true">&rarr;</b>
+        <span>Browser graph and drilldowns</span>
+      </div>
+      <div class="ontology-build-grid">
+        ${ontologyBuildCardHtml("Graph size", `${formatCount((ontology.nodes || []).length)} nodes`, `${formatCount((ontology.edges || []).length)} aggregate links · ${formatCount(unitNodes)} unit nodes`)}
+        ${ontologyBuildCardHtml("Node mix", `${formatCount(nodeCounts.topic || 0)} topics · ${formatCount(nodeCounts.function || 0)} functions`, `${formatCount(nodeCounts.tier || 0)} neutral tiers · ${formatCount(nodeCounts.score_dimension || nodeCounts.score || nodeCounts.model || 0)} model/score nodes`)}
+        ${ontologyBuildCardHtml("Model registry", `${formatCount((models?.models || []).length)} output fields`, models?.schema_version || "models artifact loading")}
+        ${ontologyBuildCardHtml("Snapshot delta", snapshotDelta, snapshotAt ? `baseline ${formatDateTime(snapshotAt)}` : "stored ontology baseline unavailable")}
+      </div>
+      ${
+        showUnit
+          ? `<div class="ontology-artifact-strip">
+              ${artifacts
+                .map(
+                  ([name, generatedAt, detail]) => `
+                    <span>
+                      <strong>${escapeHtml(name)}</strong>
+                      <em>${escapeHtml(generatedAt ? formatDateTime(generatedAt) : "not loaded")} · ${escapeHtml(detail)}</em>
+                    </span>
+                  `,
+                )
+                .join("")}
+            </div>
+            <div class="ontology-relationship-strip">
+              ${relationshipRows
+                .map(
+                  ([relationship, count]) => `
+                    <span>
+                      <strong>${escapeHtml(relationship.replaceAll("_", " "))}</strong>
+                      <em>${escapeHtml(formatCount(count))} links</em>
+                    </span>
+                  `,
+                )
+                .join("")}
+            </div>`
+          : `<p class="ontology-build-more">Switch to Unit detail to inspect artifact timestamps and relationship counts.</p>`
+      }
+      ${
+        showEvidence
+          ? `<div class="ontology-build-boundary-grid">
+              <span><strong>Dataset revision</strong><em>${escapeHtml(status.dataset_revision || mapLayers.dataset_revision || "unknown")}</em></span>
+              <span><strong>Schema</strong><em>${escapeHtml(ontology.schema_version || "unknown")} · ${escapeHtml(ontology.ontology_version || "ontology version not recorded")}</em></span>
+              <span><strong>Publication guard</strong><em>No ordinance text, headers, source locators, databases, exports, local paths, or secrets.</em></span>
+              <span><strong>Limitations</strong><em>${escapeHtml((ontology.limitations || ["Aggregate relationships are review context only."]).join(" "))}</em></span>
+            </div>`
+          : ""
+      }
+      <div class="ontology-build-actions">
+        <button type="button" data-ontology-action="open-map">Open Law Map</button>
+        <button type="button" data-ontology-action="open-status">Open Analysis Status</button>
+      </div>
+    </section>
+  `;
+}
+
+function ontologyBuildCardHtml(label, value, detail) {
+  return `
+    <article class="ontology-build-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <em>${escapeHtml(detail)}</em>
+    </article>
+  `;
+}
+
+function countValues(values) {
+  return values.reduce((acc, value) => {
+    const key = value || "unknown";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
 }
 
 function ontologyQueryPresetsHtml() {
@@ -9806,6 +9921,9 @@ function bindEvents() {
       if (actionButton.dataset.ontologyAction === "open-map") {
         state.activeTab = "map";
         render();
+      }
+      if (actionButton.dataset.ontologyAction === "open-status") {
+        openAnalysisStatusTab();
       }
       return;
     }

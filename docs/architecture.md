@@ -130,6 +130,8 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 - `inquiry_briefings.json`: progressive static answer briefings derived from aggregate artifacts.
 - `question_pack.json`: aggregate-only filter-aware question prompts with optional offline Grok note.
 
+The Ontology tab includes a build-status panel that reads those same aggregate artifacts and reports graph freshness, node and edge composition, model registry provenance, snapshot deltas, and publication boundaries. It is a provenance and navigation aid, not a legal ontology of controlling authority.
+
 Map tiers are review-priority bands over available model-score summaries and law counts. They are not rankings of legal burden, legality, freedom, or civic performance.
 
 Audit attention is a review-priority signal from aggregate OCR-risk and duplicate-text-hash rates. It is not a legal ranking, proof of text defects, or a civic finding.

@@ -609,6 +609,18 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "coverageMatrixRows" in js
     assert "renderCountyChoropleth" in js
     assert "municipalPointSvg" in js
+    assert "ontology-build-status" in html
+    assert "ontologyBuildStatusHtml" in js
+    assert "ontologyBuildCardHtml" in js
+    assert "Ontology build status" in js
+    assert "Graph freshness and artifact provenance." in js
+    assert "ontology.json + models.json" in js
+    assert "No ordinance text, headers, source locators, databases, exports, local paths, or secrets." in js
+    assert "data-ontology-action=\"open-status\"" in js
+    assert "ontology-build-status" in css
+    assert "ontology-build-flow" in css
+    assert "ontology-build-grid" in css
+    assert "ontology-build-boundary-grid" in css
     assert "geographyDatumColor" in js
     assert "geographyColorLegend" in js
     assert "modelSubstantiveShare" in js

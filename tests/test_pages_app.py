@@ -192,6 +192,18 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "walkthroughStepHtml" in js
     assert "data-walkthrough-tab" in js
     assert "renderOntology" in js
+    assert "ontology-build-status" in html
+    assert "ontologyBuildStatusHtml" in js
+    assert "ontologyBuildCardHtml" in js
+    assert "Ontology build status" in js
+    assert "Graph freshness and artifact provenance." in js
+    assert "ontology.json + models.json" in js
+    assert "No ordinance text, headers, source locators, databases, exports, local paths, or secrets." in js
+    assert "data-ontology-action=\"open-status\"" in js
+    assert "ontology-build-status" in css
+    assert "ontology-build-flow" in css
+    assert "ontology-build-grid" in css
+    assert "ontology-build-boundary-grid" in css
     assert "package-ontology-bridge" in html
     assert "Package overlay snapshots" in js
     assert "packageOntologyBridgeHtml" in js

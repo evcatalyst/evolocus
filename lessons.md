@@ -83,6 +83,7 @@
 - Snapshot deltas on primary Map and Inquiry surfaces should compare only stored aggregate metrics and must be framed as publication provenance, not proof that the underlying law corpus changed.
 - Artifact refresh timelines should compare only aggregate artifact timestamps and be framed as publication provenance, not evidence that the law changed.
 - Artifact lineage visuals should map public surfaces to aggregate JSON dependencies, not to row-level records or source locators.
+- Ontology build-status visuals should frame graph nodes and edges as aggregate navigation/provenance, not as legal authority relationships.
 - A public refresh control can safely live on GitHub Pages when it opens the GitHub Actions workflow only and never performs browser-side model calls or embeds secret names in JavaScript.
 - Freshness badges belong on primary map and inquiry views, not only status tabs, because users need artifact age and aggregate-only boundaries before trusting a visual or answer.
 - Refresh-source details should distinguish the Polars aggregate build from offline briefing refreshes so the public map does not imply every deployed asset was regenerated in the same workflow.

@@ -68,6 +68,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;
 - browser-local map inquiry history JSON export with sanitized aggregate entries and policy metadata;
 - inquiry-driven county/town comparison strip that changes by prompt and opens aggregate units back on the map;
+- ontology build-status panel for graph freshness, node/edge mix, released model-field provenance, and aggregate-only boundaries;
 - selected-unit ontology drilldown cards for topic/function/tier/score/geometry/package links inside the map panel;
 - selected-unit mini ontology path animation that adds score and geometry nodes as disclosure depth increases;
 - selected-unit progressive visual trail for overview, unit-detail, and evidence disclosure inside the map panel;
