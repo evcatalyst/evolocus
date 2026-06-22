@@ -826,4 +826,20 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
                 "No row text, source locator, ranking, legal authority, or legal-control claim is observed",
             ],
         },
+        {
+            "name": "Selected-unit ontology route comparison",
+            "steps": [
+                "Open the map-side county/town peer comparison drawer",
+                "Open a peer aggregate unit on the map",
+                "Inspect selected unit versus strongest aggregate peer",
+                "Open the peer route back into the ontology tier",
+            ],
+            "assertions": [
+                "Peer comparison rows are aggregate map units only",
+                "The route comparison overlay shows selected unit and peer unit context",
+                "Peer and ontology actions navigate without row-level data",
+                "The overlay rejects rankings, legal findings, source records, and legal authority claims",
+                "No ordinance text, source locator, secret, or browser model call is observed",
+            ],
+        },
     ]
