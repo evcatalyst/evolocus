@@ -34,6 +34,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Question-to-map replay paths" in html
     assert "package-map-summary" in html
     assert "map-reading-guide" in html
+    assert "map-route-replay" in html
     assert "map-inline-inquiry" in html
     assert "map-freshness-badge" in html
     assert "map-refresh-source" in html
@@ -125,6 +126,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map topic/tier matrix" in js
     assert "Topic/tier co-occurrence" in js
     assert "Ask opens a deterministic Inquiry answer for that aggregate cell." in js
+    assert "renderMapRouteReplay" in js
+    assert "mapRouteReplayCardHtml" in js
+    assert "data-map-route-replay-answer" in js
+    assert "data-map-route-replay-map" in js
+    assert "data-map-route-replay-ontology" in js
+    assert "Map route playback restores only aggregate browser state" in js
     assert "renderMapInlineInquiry" in js
     assert "mapInlineInquiryPrompts" in js
     assert "mapInlineComparisonStripHtml" in js
@@ -357,6 +364,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-topic-tier-cell" in css
     assert "map-topic-tier-filter" in css
     assert "map-topic-tier-ask" in css
+    assert "map-route-replay-card" in css
+    assert "map-route-row" in css
+    assert "map-route-scale" in css
+    assert "map-route-actions" in css
     assert "map-inline-inquiry-card" in css
     assert "map-inline-chat-answer" in css
     assert "map-inline-inquiry-history" in css

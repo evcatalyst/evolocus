@@ -788,6 +788,7 @@ function renderMap() {
     $("#map-refresh-source").innerHTML = "";
     $("#tier-legend").innerHTML = "";
     $("#map-reading-guide").innerHTML = "";
+    $("#map-route-replay").innerHTML = "";
     $("#map-inline-inquiry").innerHTML = "";
     $("#law-map").innerHTML = "";
     $("#map-insight-grid").innerHTML = "";
@@ -822,6 +823,7 @@ function renderMap() {
     )
     .join("");
 
+  renderMapRouteReplay();
   renderMapInlineInquiry();
 
   const visibleStates = new Set(units.map((unit) => unit.state).filter(Boolean));
@@ -1247,6 +1249,80 @@ function mapTopicTierQuestion(cell) {
   const topicClause = cell.topic ? `${cell.topic} laws` : "laws without a dominant topic";
   const tierClause = cell.tierLabel || "the selected neutral tier";
   return `What does the current filtered map view show for ${topicClause} in ${tierClause} units?`;
+}
+
+function renderMapRouteReplay() {
+  const panel = $("#map-route-replay");
+  if (!panel) {
+    return;
+  }
+  const entries = state.inquiryResultsLog.slice(0, state.disclosureLevel === "overview" ? 3 : 5);
+  if (!entries.length) {
+    panel.innerHTML = `
+      <section class="map-route-replay-card" aria-label="Map-side question route playback">
+        <div class="map-route-replay-heading">
+          <div>
+            <p class="eyebrow">Question paths</p>
+            <h3>Replay saved aggregate questions on the map.</h3>
+          </div>
+          <span>No saved paths</span>
+        </div>
+        <p class="map-route-empty">Ask or save an aggregate question from the Inquiry panel. Saved routes will appear here with restored filters, map color mode, selected unit, and ontology context.</p>
+      </section>
+    `;
+    return;
+  }
+  const maxRows = Math.max(1, ...entries.map((item) => Number(item.visible_summary?.law_count || 0)));
+  const maxUnits = Math.max(1, ...entries.map((item) => Number(item.visible_summary?.unit_count || 0)));
+  panel.innerHTML = `
+    <section class="map-route-replay-card" aria-label="Map-side question route playback">
+      <div class="map-route-replay-heading">
+        <div>
+          <p class="eyebrow">Question paths</p>
+          <h3>Saved aggregate routes for this map.</h3>
+        </div>
+        <span>${escapeHtml(formatCount(entries.length))} browser-local</span>
+      </div>
+      <div class="map-route-list">
+        ${entries.map((item, index) => mapRouteReplayCardHtml(item, index, maxRows, maxUnits)).join("")}
+      </div>
+      <p class="map-route-boundary">Map route playback restores only aggregate browser state. It does not store or reveal ordinance text, headers, source locators, review events, secrets, or live model calls.</p>
+    </section>
+  `;
+}
+
+function mapRouteReplayCardHtml(item, index, maxRows, maxUnits) {
+  const summary = item.visible_summary || {};
+  const lawCount = Number(summary.law_count || 0);
+  const unitCount = Number(summary.unit_count || 0);
+  const lawWidth = Math.max(lawCount ? 5 : 0, (lawCount / maxRows) * 100).toFixed(2);
+  const unitWidth = Math.max(unitCount ? 5 : 0, (unitCount / maxUnits) * 100).toFixed(2);
+  const filters = item.filter_labels?.length ? item.filter_labels : ["No active filters"];
+  const activeClass = item.id === state.activeInquiryReplayId ? " active" : "";
+  const selectedUnit = item.selected_unit?.name
+    ? `${item.selected_unit.name}${item.selected_unit.state ? `, ${item.selected_unit.state}` : ""}`
+    : "No selected unit";
+  return `
+    <article class="map-route-row${activeClass}">
+      <button type="button" class="map-route-primary" data-map-route-replay-map="${escapeHtml(item.id || "")}">
+        <span>Path ${escapeHtml(String(index + 1))} · ${escapeHtml(formatDateTime(item.created_at))}</span>
+        <strong>${escapeHtml(item.question || item.answer_title || "Aggregate question")}</strong>
+        <em>${escapeHtml(selectedUnit)} · ${escapeHtml(geographyColorLabel(item.geography_color_mode || state.geographyColorMode))}</em>
+      </button>
+      <div class="map-route-scale" aria-label="Saved aggregate route scale">
+        <span><b style="width:${escapeHtml(lawWidth)}%"></b><em>${escapeHtml(formatCount(lawCount))} law rows</em></span>
+        <span><b style="width:${escapeHtml(unitWidth)}%"></b><em>${escapeHtml(formatCount(unitCount))} units</em></span>
+      </div>
+      <div class="map-route-filters" aria-label="Saved aggregate route filters">
+        ${filters.slice(0, 4).map((label) => `<i>${escapeHtml(label)}</i>`).join("")}
+      </div>
+      <div class="map-route-actions">
+        <button type="button" data-map-route-replay-answer="${escapeHtml(item.id || "")}">Replay answer</button>
+        <button type="button" data-map-route-replay-map="${escapeHtml(item.id || "")}">Restore map</button>
+        <button type="button" data-map-route-replay-ontology="${escapeHtml(item.id || "")}">Open ontology</button>
+      </div>
+    </article>
+  `;
 }
 
 function renderMapInlineInquiry() {
@@ -10520,6 +10596,24 @@ function bindEvents() {
     if (packageFilterButton) {
       event.preventDefault();
       applyPackageMapFilter(packageFilterButton.dataset.packageMapFilter);
+      return;
+    }
+    const mapRouteAnswerButton = event.target.closest("[data-map-route-replay-answer]");
+    if (mapRouteAnswerButton) {
+      event.preventDefault();
+      replayInquiryResultLog(mapRouteAnswerButton.dataset.mapRouteReplayAnswer, "inquiry");
+      return;
+    }
+    const mapRouteMapButton = event.target.closest("[data-map-route-replay-map]");
+    if (mapRouteMapButton) {
+      event.preventDefault();
+      replayInquiryResultLog(mapRouteMapButton.dataset.mapRouteReplayMap, "map");
+      return;
+    }
+    const mapRouteOntologyButton = event.target.closest("[data-map-route-replay-ontology]");
+    if (mapRouteOntologyButton) {
+      event.preventDefault();
+      replayInquiryResultLog(mapRouteOntologyButton.dataset.mapRouteReplayOntology, "ontology");
       return;
     }
     const mapInquiryButton = event.target.closest("[data-map-inquiry]");

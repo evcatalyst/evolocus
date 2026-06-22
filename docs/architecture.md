@@ -43,6 +43,7 @@ flowchart LR
 - Saved inquiry results can replay only safe browser state: map filters, disclosure depth, and selected aggregate unit IDs. Replay does not create row-level evidence or call a model.
 - Saved inquiry results also render as a browser-local replay timeline with row/unit sparklines derived from aggregate summaries only.
 - The Inquiry tab renders question-to-map replay paths that visualize each saved aggregate question as prompt, filters, colored map scale, and ontology context before routing back to answer, map, or ontology views.
+- The Law Map renders the same saved aggregate question paths as map-side playback cards, so a user can restore the answer, colored map state, or ontology route from the primary surface without exposing row-level fields.
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
 - The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages. When enabled, it commits only validated aggregate inquiry JSON back to the current branch so refreshed artifacts survive later normal Pages deploys.
 - The Pages Analysis Status tab links to that manual workflow as an Actions-only refresh control; the browser never receives a model secret and never performs a live model call.

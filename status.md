@@ -102,6 +102,7 @@ Current coverage stats:
 - Tier mini-chart drilldowns: GitHub Pages topic, function, and unit-type bars apply browser map filters and return to the county/town map
 - Score-band drilldowns: GitHub Pages neutral score mini-chart rows apply relative model-score band filters and return to the county/town map without directional legal interpretation
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
+- Map-side route playback: GitHub Pages restores saved aggregate question paths directly from the Law Map, including filters, color mode, selected unit, answer replay, and ontology route
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows
 - Map inquiry history export: GitHub Pages exports sanitized aggregate answer history JSON with no text, locators, review events, local paths, or secrets
 - Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
