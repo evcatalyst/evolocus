@@ -1226,6 +1226,86 @@ main {
   overflow-wrap: anywhere;
 }
 
+.grok-refresh-run-badge {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(107, 79, 214, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff 0%, #fbfaff 100%);
+  padding: 12px;
+}
+
+.grok-refresh-run-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.grok-refresh-run-heading span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.grok-refresh-run-heading strong {
+  display: block;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.grok-refresh-run-heading a {
+  border: 1px solid rgba(107, 79, 214, 0.32);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #3b2a91;
+  padding: 7px 9px;
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.grok-refresh-run-heading a:hover,
+.grok-refresh-run-heading a:focus-visible {
+  background: #f4f0ff;
+  outline: 3px solid rgba(107, 79, 214, 0.16);
+}
+
+.grok-refresh-run-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.grok-refresh-run-grid span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.grok-refresh-run-grid strong {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.grok-refresh-run-grid em,
+.grok-refresh-run-badge p {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  line-height: 1.35;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .offline-refresh-boundary {
   display: flex;
   flex-wrap: wrap;
@@ -8900,6 +8980,7 @@ th {
   .visual-route-path,
   .offline-refresh-heading,
   .offline-refresh-grid,
+  .grok-refresh-run-grid,
   .import-status-card,
   .import-status-facts,
   .import-safety-grid,
@@ -9055,6 +9136,7 @@ th {
   .visual-route-path,
   .offline-refresh-heading,
   .offline-refresh-grid,
+  .grok-refresh-run-grid,
   .import-status-card,
   .import-status-facts,
   .import-safety-grid,

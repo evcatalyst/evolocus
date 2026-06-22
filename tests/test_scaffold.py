@@ -29,6 +29,7 @@ REQUIRED_PATHS = [
     "site/data/analysis/charts.json",
     "site/data/analysis/artifact_snapshot.json",
     "site/data/analysis/visual_smoke.json",
+    "site/data/analysis/refresh_status.json",
     "site/data/analysis/audit_status.json",
     "site/data/analysis/unit_audit_quality.json",
     "site/data/analysis/county_geometry.json",
@@ -272,6 +273,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderFrontdoorVisualPath" in js
     assert "renderOfflineRefreshFreshness" in js
     assert "offlineRefreshMetricHtml" in js
+    assert "refreshStatus" in js
+    assert "data/analysis/refresh_status.json" in js
+    assert "grokRefreshRunBadgeHtml" in js
+    assert "safeRefreshRunUrl" in js
+    assert "Latest offline refresh" in js
+    assert "Open run" in js
     assert "Offline analysis freshness" in js
     assert "No browser model calls" in js
     assert "No key in public JavaScript" in js
@@ -973,6 +980,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "actionsBriefingRefreshHtml" in js
     assert "Open refresh workflow" in js
     assert "actions-briefing-refresh" in css
+    assert "grok-refresh-run-badge" in css
+    assert "grok-refresh-run-grid" in css
     assert "primary-action-link" in css
     assert "artifactSnapshot" in js
     assert "currentArtifactSnapshotMetrics" in js
@@ -1062,6 +1071,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     municipal_points = json.loads(read_text("site/data/analysis/municipal_points.json"))
     artifact_snapshot = json.loads(read_text("site/data/analysis/artifact_snapshot.json"))
     visual_smoke = json.loads(read_text("site/data/analysis/visual_smoke.json"))
+    refresh_status = json.loads(read_text("site/data/analysis/refresh_status.json"))
     assert status["synthetic"] is False
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
@@ -1158,6 +1168,18 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert visual_smoke["publication_policy"]["browser_llm_calls"] is False
     assert visual_smoke["publication_policy"]["secrets_included"] is False
     assert visual_smoke["publication_policy"]["legal_findings"] is False
+    assert refresh_status["schema_version"] == "evolocus-actions-refresh-status-v1"
+    assert refresh_status["workflow_file"] == "analysis-refresh.yml"
+    assert refresh_status["run_url"].startswith("https://github.com/evcatalyst/evolocus/actions/runs/")
+    assert refresh_status["conclusion"] in {"success", "success_if_pages_deploys"}
+    assert refresh_status["artifacts"]["inquiry_briefings"]["grok_used"] is True
+    assert refresh_status["artifacts"]["question_pack"]["grok_used"] is True
+    assert refresh_status["publication_policy"]["raw_rows_included"] is False
+    assert refresh_status["publication_policy"]["ordinance_text_included"] is False
+    assert refresh_status["publication_policy"]["record_locator_values_included"] is False
+    assert refresh_status["publication_policy"]["browser_llm_calls"] is False
+    assert refresh_status["publication_policy"]["secrets_included"] is False
+    assert refresh_status["publication_policy"]["legal_findings"] is False
     assert municipal_points["geometry_status"] == "official_census_municipal_points_machine_matched_pending_review"
     assert municipal_points["real_locus_rows_published"] is False
     assert municipal_points["municipal_unit_count"] == 823
@@ -1178,6 +1200,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
             "municipal_points": municipal_points,
             "artifact_snapshot": artifact_snapshot,
             "visual_smoke": visual_smoke,
+            "refresh_status": refresh_status,
         }
     )
     assert '"content"' not in serialized
@@ -1198,10 +1221,13 @@ def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() ->
     assert "publish-inquiry-briefings" in workflow
     assert "publish-question-pack" in workflow
     assert "question_pack.json" in workflow
+    assert "refresh_status.json" in workflow
+    assert "Write public refresh status" in workflow
     assert "validate-public-artifacts" in workflow
-    assert "git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json" in workflow
+    assert "git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json site/data/analysis/refresh_status.json" in workflow
     assert "git diff --cached --name-only" in workflow
     assert "Unexpected staged path" in workflow
+    assert "site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json|site/data/analysis/refresh_status.json" in workflow
     assert "chore: refresh aggregate inquiry artifacts [skip ci]" in workflow
     assert 'git push origin "HEAD:${GITHUB_REF_NAME}"' in workflow
     assert "actions/upload-pages-artifact@v3" in workflow

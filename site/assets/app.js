@@ -24,6 +24,7 @@ const ANALYSIS_PATHS = {
   charts: "data/analysis/charts.json",
   artifactSnapshot: "data/analysis/artifact_snapshot.json",
   visualSmoke: "data/analysis/visual_smoke.json",
+  refreshStatus: "data/analysis/refresh_status.json",
 };
 
 const SCORE_OPTIONS = [
@@ -330,6 +331,8 @@ let state = {
     models: null,
     charts: null,
     artifactSnapshot: null,
+    visualSmoke: null,
+    refreshStatus: null,
     error: null,
   },
 };
@@ -1328,9 +1331,10 @@ function renderOfflineRefreshFreshness() {
   const status = state.analysis.status;
   const inquiryBriefings = state.analysis.inquiryBriefings;
   const questionPack = state.analysis.questionPack;
+  const refreshStatus = state.analysis.refreshStatus;
   const briefingGrok = inquiryBriefings?.grok || {};
   const questionGrok = questionPack?.grok || {};
-  const latestArtifact = latestIso([inquiryBriefings?.generated_at, questionPack?.generated_at, status?.generated_at]);
+  const latestArtifact = latestIso([inquiryBriefings?.generated_at, questionPack?.generated_at, status?.generated_at, refreshStatus?.completed_at, refreshStatus?.generated_at]);
   const briefingMode = inquiryBriefings
     ? briefingGrok.used
       ? `Offline Grok ${briefingGrok.model || "model noted"}`
@@ -1350,6 +1354,7 @@ function renderOfflineRefreshFreshness() {
     ["Briefings", inquiryBriefings ? formatCount((inquiryBriefings.briefings || []).length) : "loading"],
     ["Prompts", questionPack ? formatCount((questionPack.prompts || []).length) : "loading"],
     ["Latest artifact", latestArtifact ? `${formatDateTime(latestArtifact)} · ${artifactAgeLabel(latestArtifact)}` : "loading"],
+    ["Latest Actions run", refreshStatus ? `run ${refreshStatus.run_id || "unknown"} · ${refreshStatus.conclusion || refreshStatus.status || "published"}` : "refresh status loading"],
     ["Validation", validationState],
   ];
   target.innerHTML = `
@@ -1365,6 +1370,7 @@ function renderOfflineRefreshFreshness() {
       <div class="offline-refresh-grid">
         ${metrics.map(offlineRefreshMetricHtml).join("")}
       </div>
+      ${grokRefreshRunBadgeHtml(refreshStatus, inquiryBriefings, questionPack)}
       <div class="offline-refresh-boundary">
         <span>No browser model calls</span>
         <span>No key in public JavaScript</span>
@@ -1372,6 +1378,44 @@ function renderOfflineRefreshFreshness() {
       </div>
     </article>
   `;
+}
+
+function grokRefreshRunBadgeHtml(refreshStatus, inquiryBriefings, questionPack) {
+  const briefingGrok = inquiryBriefings?.grok || {};
+  const questionGrok = questionPack?.grok || {};
+  const runUrl = safeRefreshRunUrl(refreshStatus?.run_url || "");
+  const runLabel = refreshStatus?.run_id ? `Run ${refreshStatus.run_id}` : "Refresh workflow";
+  const conclusion = refreshStatus?.conclusion || refreshStatus?.status || "status loading";
+  const completedAt = refreshStatus?.completed_at || refreshStatus?.generated_at || "";
+  const persistedCommit = shortCommit(refreshStatus?.artifact_commit || refreshStatus?.head_sha || "");
+  const rows = [
+    ["Run status", `${conclusion}${completedAt ? ` · ${formatDateTime(completedAt)}` : ""}`],
+    ["Grok mode", briefingGrok.used || questionGrok.used ? `offline ${briefingGrok.model || questionGrok.model || "model noted"}` : "deterministic static"],
+    ["Published artifacts", `${inquiryBriefings ? `${formatCount((inquiryBriefings.briefings || []).length)} briefings` : "briefings loading"} · ${questionPack ? `${formatCount((questionPack.prompts || []).length)} prompts` : "prompts loading"}`],
+    ["Artifact commit", persistedCommit],
+  ];
+  return `
+    <section class="grok-refresh-run-badge" aria-label="Latest offline Grok refresh run">
+      <div class="grok-refresh-run-heading">
+        <div>
+          <span>Latest offline refresh</span>
+          <strong>${escapeHtml(runLabel)}</strong>
+        </div>
+        <a href="${escapeHtml(runUrl)}" target="_blank" rel="noopener noreferrer">Open run</a>
+      </div>
+      <div class="grok-refresh-run-grid">
+        ${rows.map(offlineRefreshMetricHtml).join("")}
+      </div>
+      <p>Run metadata is public aggregate provenance only. The browser receives no model credentials, raw rows, ordinance text, source locator values, review events, or legal findings.</p>
+    </section>
+  `;
+}
+
+function safeRefreshRunUrl(value) {
+  const url = String(value || "");
+  return url.startsWith("https://github.com/evcatalyst/evolocus/actions/runs/")
+    ? url
+    : ACTIONS_REFRESH_WORKFLOW_URL;
 }
 
 function offlineRefreshMetricHtml([label, value]) {
@@ -4611,8 +4655,9 @@ function latestIso(values) {
 }
 
 function actionsBriefingRefreshHtml(status, inquiryBriefings, briefingGrok) {
+  const refreshStatus = state.analysis.refreshStatus;
   const datasetRevision = status?.dataset_revision || state.analysis.mapLayers?.dataset_revision || "unknown";
-  const generatedAt = inquiryBriefings?.generated_at || status?.generated_at || null;
+  const generatedAt = inquiryBriefings?.generated_at || refreshStatus?.completed_at || status?.generated_at || null;
   const currentMode = inquiryBriefings
     ? briefingGrok.used
       ? `Offline Grok briefing generated ${formatDateTime(inquiryBriefings.generated_at)}`
@@ -4634,6 +4679,10 @@ function actionsBriefingRefreshHtml(status, inquiryBriefings, briefingGrok) {
           <em>${escapeHtml(currentMode)}</em>
         </span>
         <span>
+          <strong>Latest run</strong>
+          <em>${escapeHtml(refreshStatus ? `run ${refreshStatus.run_id || "unknown"} · ${refreshStatus.conclusion || refreshStatus.status || "published"}` : "refresh status not loaded")}</em>
+        </span>
+        <span>
           <strong>Dataset revision</strong>
           <em>${escapeHtml(datasetRevision)}</em>
         </span>
@@ -4646,6 +4695,7 @@ function actionsBriefingRefreshHtml(status, inquiryBriefings, briefingGrok) {
           <em>${escapeHtml(generatedAt ? formatDateTime(generatedAt) : "not loaded")}</em>
         </span>
       </div>
+      ${grokRefreshRunBadgeHtml(refreshStatus, inquiryBriefings, state.analysis.questionPack)}
       <div class="actions-refresh-controls">
         <a class="primary-action-link" href="${ACTIONS_REFRESH_WORKFLOW_URL}" target="_blank" rel="noopener noreferrer">Open refresh workflow</a>
         <span>Choose a manual run with offline enrichment enabled when the repository Actions secret is configured.</span>
@@ -12942,7 +12992,7 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke, refreshStatus] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
@@ -12957,8 +13007,9 @@ async function fetchAnalysisArtifacts() {
       fetchJson(ANALYSIS_PATHS.charts),
       fetchJson(ANALYSIS_PATHS.artifactSnapshot),
       fetchJson(ANALYSIS_PATHS.visualSmoke),
+      fetchJson(ANALYSIS_PATHS.refreshStatus),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke, refreshStatus, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }

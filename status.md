@@ -101,6 +101,7 @@ Current coverage stats:
 - Front-door route import: GitHub Pages imports only sanitized front-door route packets, rejecting raw-text, locator, answer-text, review-event, secret, or token-shaped fields before replay
 - Front-door example questions: GitHub Pages derives topic/tier examples from visible aggregate pathway cells and can pre-filter the map before routing to Inquiry, Map, or Ontology
 - Front-door offline freshness: GitHub Pages reports briefing/question-pack age, enrichment mode, validation gate, and Actions-only refresh before users enter map or inquiry flows
+- Front-door Grok refresh run badge: GitHub Pages shows the latest offline Actions refresh run link, Grok mode, artifact counts, persisted commit, and aggregate-only safety boundary from `refresh_status.json`
 - Inquiry answer provenance: each GitHub Pages answer displays offline Grok or deterministic artifact mode, map/briefing/question-pack timestamps, dataset revision, and the no-browser-model/no-row-text boundary
 - Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
@@ -264,6 +265,7 @@ Evaluator implementation state:
 - Primary evaluator surface: GitHub Pages browser app
 - Primary inquiry/map surface: GitHub Pages browser app reading `site/data/analysis/`
 - Actions refresh surface: GitHub Pages Analysis Status tab exposes an Actions-only refresh control that opens the manual aggregate briefing workflow without browser-side model calls or embedded keys.
+- Actions refresh run status surface: GitHub Pages Analysis Status now reads `refresh_status.json` so the public UI can show the latest offline refresh run URL, artifact mode, and no-secret/no-row-text policy.
 - Freshness surface: Law Map and Inquiry headers show aggregate map, briefing, question-pack, dataset revision, stored-snapshot deltas, and no-row-text publication boundary before users drill into visuals or answers.
 - Latest artifact change surface: Analysis Status now summarizes the current aggregate refresh metadata for map, inquiry, question pack, audit, geometry, ontology, charts, models, and local package verification without row text or historical-diff claims.
 - Inquiry answer ontology mini-map surface: GitHub Pages answers render a compact graph from current aggregate scope to topic/function/tier/top-unit nodes, open an aggregate county/town comparison drawer, and route clicks to Map or Ontology without row text or source locators.

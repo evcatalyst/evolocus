@@ -91,6 +91,8 @@ def validate_public_analysis_artifacts(analysis_dir: Path) -> PublicArtifactVali
     _validate_question_pack_policy(payloads["question_pack.json"])
     _validate_models_policy(payloads["models.json"])
     _validate_visual_smoke_policy(payloads["visual_smoke.json"])
+    if "refresh_status.json" in payloads:
+        _validate_refresh_status_policy(payloads["refresh_status.json"])
 
     return PublicArtifactValidationResult(
         analysis_dir=analysis_dir,
@@ -178,3 +180,27 @@ def _validate_visual_smoke_policy(payload: dict[str, Any]) -> None:
     for key in required_false:
         if policy.get(key) is not False:
             raise PublicArtifactValidationError(f"visual_smoke.json publication_policy.{key} must be false")
+
+
+def _validate_refresh_status_policy(payload: dict[str, Any]) -> None:
+    if payload.get("workflow_file") != "analysis-refresh.yml":
+        raise PublicArtifactValidationError("refresh_status.json must reference the analysis-refresh workflow")
+    run_url = str(payload.get("run_url") or "")
+    if not run_url.startswith("https://github.com/evcatalyst/evolocus/actions/runs/"):
+        raise PublicArtifactValidationError("refresh_status.json must reference a GitHub Actions run URL")
+    policy = payload.get("publication_policy") or {}
+    required_false = [
+        "raw_rows_included",
+        "ordinance_text_included",
+        "record_locator_values_included",
+        "review_events_included",
+        "browser_llm_calls",
+        "secrets_included",
+        "legal_findings",
+    ]
+    for key in required_false:
+        if policy.get(key) is not False:
+            raise PublicArtifactValidationError(f"refresh_status.json publication_policy.{key} must be false")
+    serialized = json.dumps(payload)
+    if "api.x.ai" in serialized or "Bearer " in serialized:
+        raise PublicArtifactValidationError("refresh_status.json must not expose model endpoints or credentials")

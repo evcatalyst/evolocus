@@ -66,6 +66,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderVisualRouteVerification" in js
     assert "renderOfflineRefreshFreshness" in js
     assert "offlineRefreshMetricHtml" in js
+    assert "refreshStatus" in js
+    assert "data/analysis/refresh_status.json" in js
+    assert "grokRefreshRunBadgeHtml" in js
+    assert "safeRefreshRunUrl" in js
+    assert "Latest offline refresh" in js
+    assert "Open run" in js
     assert "Offline analysis freshness" in js
     assert "No browser model calls" in js
     assert "No key in public JavaScript" in js
@@ -709,6 +715,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "actionsBriefingRefreshHtml" in js
     assert "Open refresh workflow" in js
     assert "actions-briefing-refresh" in css
+    assert "grok-refresh-run-badge" in css
+    assert "grok-refresh-run-grid" in css
     assert "primary-action-link" in css
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js

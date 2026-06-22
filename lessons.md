@@ -98,6 +98,7 @@
 - Artifact lineage visuals should map public surfaces to aggregate JSON dependencies, not to row-level records or source locators.
 - Ontology build-status visuals should frame graph nodes and edges as aggregate navigation/provenance, not as legal authority relationships.
 - A public refresh control can safely live on GitHub Pages when it opens the GitHub Actions workflow only and never performs browser-side model calls or embeds secret names in JavaScript.
+- A public Grok refresh badge should display only Actions run metadata, aggregate artifact counts, commit IDs, and policy flags; it must not publish endpoints, secret names, raw rows, or source locators.
 - Freshness badges belong on primary map and inquiry views, not only status tabs, because users need artifact age and aggregate-only boundaries before trusting a visual or answer.
 - Refresh-source details should distinguish the Polars aggregate build from offline briefing refreshes so the public map does not imply every deployed asset was regenerated in the same workflow.
 - The public-to-local handoff should export aggregate unit requests from Pages and materialize text-bearing review packages only through ignored local tooling with an explicit content flag.

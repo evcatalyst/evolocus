@@ -34,6 +34,7 @@ jobs:
       GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
       GROK_API_KEY_ALIAS: ${{ secrets.Grok_api_key }}
       USE_GROK: ${{ inputs.use_grok }}
+      PERSIST_ARTIFACTS: ${{ inputs.persist_artifacts }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -85,12 +86,87 @@ jobs:
               --analysis-dir site/data/analysis \
               --output site/data/analysis/question_pack.json
           fi
+      - name: Write public refresh status
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          analysis_dir = Path("site/data/analysis")
+          briefings = json.loads((analysis_dir / "inquiry_briefings.json").read_text(encoding="utf-8"))
+          question_pack = json.loads((analysis_dir / "question_pack.json").read_text(encoding="utf-8"))
+          run_id = os.environ.get("GITHUB_RUN_ID", "")
+          server_url = os.environ.get("GITHUB_SERVER_URL", "https://github.com").rstrip("/")
+          repository = os.environ.get("GITHUB_REPOSITORY", "evcatalyst/evolocus")
+          generated_at = datetime.now(timezone.utc).isoformat()
+          briefing_grok = briefings.get("grok") or {}
+          question_grok = question_pack.get("grok") or {}
+          payload = {
+              "schema_version": "evolocus-actions-refresh-status-v1",
+              "workflow_file": "analysis-refresh.yml",
+              "workflow_name": os.environ.get("GITHUB_WORKFLOW", "Refresh static analysis artifacts"),
+              "run_id": int(run_id) if run_id.isdigit() else run_id,
+              "run_url": f"{server_url}/{repository}/actions/runs/{run_id}" if run_id else f"{server_url}/{repository}/actions/workflows/analysis-refresh.yml",
+              "status": "completed_if_pages_deploys",
+              "conclusion": "success_if_pages_deploys",
+              "event": os.environ.get("GITHUB_EVENT_NAME", "workflow_dispatch"),
+              "branch": os.environ.get("GITHUB_REF_NAME", "main"),
+              "head_sha": os.environ.get("GITHUB_SHA", ""),
+              "artifact_commit": os.environ.get("GITHUB_SHA", ""),
+              "created_at": generated_at,
+              "started_at": generated_at,
+              "completed_at": generated_at,
+              "generated_at": generated_at,
+              "use_grok_input": os.environ.get("USE_GROK", "false").lower() == "true",
+              "persist_artifacts_input": os.environ.get("PERSIST_ARTIFACTS", "false").lower() == "true",
+              "dataset_revision": briefings.get("dataset_revision") or question_pack.get("dataset_revision") or "unknown",
+              "artifacts": {
+                  "inquiry_briefings": {
+                      "path": "site/data/analysis/inquiry_briefings.json",
+                      "generated_at": briefings.get("generated_at"),
+                      "briefing_count": len(briefings.get("briefings") or []),
+                      "grok_used": bool(briefing_grok.get("used")),
+                      "model": briefing_grok.get("model"),
+                  },
+                  "question_pack": {
+                      "path": "site/data/analysis/question_pack.json",
+                      "generated_at": question_pack.get("generated_at"),
+                      "prompt_count": len(question_pack.get("prompts") or []),
+                      "grok_used": bool(question_grok.get("used")),
+                      "model": question_grok.get("model"),
+                  },
+              },
+              "validation": {
+                  "public_artifact_guard": "required_before_pages_deploy",
+                  "persisted_paths_allowlist": [
+                      "site/data/analysis/inquiry_briefings.json",
+                      "site/data/analysis/question_pack.json",
+                      "site/data/analysis/refresh_status.json",
+                  ],
+                  "pages_deploy_after_validation": True,
+              },
+              "publication_policy": {
+                  "artifact_kind": "aggregate_only_actions_refresh_status",
+                  "raw_rows_included": False,
+                  "ordinance_text_included": False,
+                  "record_locator_values_included": False,
+                  "review_events_included": False,
+                  "browser_llm_calls": False,
+                  "secrets_included": False,
+                  "legal_findings": False,
+              },
+              "browser_boundary": "GitHub Pages displays static run metadata only. Grok calls, if enabled, run offline in GitHub Actions and no model credentials are delivered to browser JavaScript.",
+          }
+          (analysis_dir / "refresh_status.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
       - name: Validate public artifact boundary
         run: PYTHONPATH=src python -m evolocus.cli validate-public-artifacts --analysis-dir site/data/analysis
       - name: Persist aggregate inquiry artifacts
         if: ${{ inputs.persist_artifacts }}
         run: |
-          git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json
+          git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json site/data/analysis/refresh_status.json
           staged="$(git diff --cached --name-only)"
           if [ -z "$staged" ]; then
             echo "No aggregate inquiry artifact changes to persist."
@@ -98,7 +174,7 @@ jobs:
           fi
           for path in $staged; do
             case "$path" in
-              site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json)
+              site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json|site/data/analysis/refresh_status.json)
                 ;;
               *)
                 echo "Unexpected staged path: $path"
@@ -129,6 +205,7 @@ jobs:
               f"- Grok used: `{bool(grok.get('used'))}`",
               f"- Question-pack Grok used: `{bool(question_grok.get('used'))}`",
               f"- Grok model: `{grok.get('model')}`",
+              f"- Refresh run: `{__import__('os').environ.get('GITHUB_RUN_ID')}`",
               "- Publication boundary: aggregate-only, no ordinance text, no raw rows, no browser LLM calls.",
           ]
           Path(__import__("os").environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(summary) + "\n", encoding="utf-8")

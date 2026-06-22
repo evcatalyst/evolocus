@@ -87,6 +87,36 @@ def test_public_artifact_guard_accepts_aggregate_artifacts(tmp_path) -> None:
     assert "visual_smoke.json" in result.checked_artifacts
 
 
+def test_public_artifact_guard_accepts_refresh_status_policy(tmp_path) -> None:
+    output_dir = tmp_path / "analysis"
+    publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
+    publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
+    publish_question_pack(output_dir, output_dir / "question_pack.json")
+    (output_dir / "refresh_status.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "evolocus-actions-refresh-status-v1",
+                "workflow_file": "analysis-refresh.yml",
+                "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/123",
+                "publication_policy": {
+                    "raw_rows_included": False,
+                    "ordinance_text_included": False,
+                    "record_locator_values_included": False,
+                    "review_events_included": False,
+                    "browser_llm_calls": False,
+                    "secrets_included": False,
+                    "legal_findings": False,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_public_analysis_artifacts(output_dir)
+
+    assert "refresh_status.json" in result.checked_artifacts
+
+
 def test_public_artifact_guard_rejects_raw_text_fields(tmp_path) -> None:
     output_dir = tmp_path / "analysis"
     publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)

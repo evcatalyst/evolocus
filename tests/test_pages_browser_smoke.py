@@ -71,6 +71,12 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Chart -> Map -> Inquiry -> Ontology" in verification_text
             assert "No rows" in verification_text
             assert "No text" in verification_text
+            page.wait_for_selector(".grok-refresh-run-badge a[href*='/actions/runs/']", timeout=10_000)
+            refresh_badge_text = page.locator(".grok-refresh-run-badge").first.inner_text(timeout=5_000).lower()
+            assert "latest offline refresh" in refresh_badge_text
+            assert "run " in refresh_badge_text
+            assert "no model credentials" in refresh_badge_text
+            assert "raw rows" in refresh_badge_text
 
             page.wait_for_selector("[data-frontdoor-composer] #frontdoor-question-input", timeout=10_000)
             page.locator("#frontdoor-question-input").fill("Where are zoning enforcement laws in cities?")

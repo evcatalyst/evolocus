@@ -1,0 +1,56 @@
+{
+  "schema_version": "evolocus-actions-refresh-status-v1",
+  "workflow_file": "analysis-refresh.yml",
+  "workflow_name": "Refresh static analysis artifacts",
+  "run_id": 27932650643,
+  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27932650643",
+  "status": "completed",
+  "conclusion": "success",
+  "event": "workflow_dispatch",
+  "branch": "main",
+  "head_sha": "88a70b9b895c7bed7fe4d611beaec141333bdce3",
+  "artifact_commit": "767bd106b7aaf1b125750b9b9e0455ca1e02dcf1",
+  "created_at": "2026-06-22T05:57:27Z",
+  "started_at": "2026-06-22T05:57:27Z",
+  "completed_at": "2026-06-22T05:58:02Z",
+  "generated_at": "2026-06-22T05:58:02Z",
+  "use_grok_input": true,
+  "persist_artifacts_input": true,
+  "dataset_revision": "main",
+  "artifacts": {
+    "inquiry_briefings": {
+      "path": "site/data/analysis/inquiry_briefings.json",
+      "generated_at": "2026-06-22T05:57:43.851254+00:00",
+      "briefing_count": 5,
+      "grok_used": true,
+      "model": "grok-4.3"
+    },
+    "question_pack": {
+      "path": "site/data/analysis/question_pack.json",
+      "generated_at": "2026-06-22T05:57:48.358129+00:00",
+      "prompt_count": 8,
+      "grok_used": true,
+      "model": "grok-4.3"
+    }
+  },
+  "validation": {
+    "public_artifact_guard": "passed_before_pages_deploy",
+    "persisted_paths_allowlist": [
+      "site/data/analysis/inquiry_briefings.json",
+      "site/data/analysis/question_pack.json",
+      "site/data/analysis/refresh_status.json"
+    ],
+    "pages_deploy_after_validation": true
+  },
+  "publication_policy": {
+    "artifact_kind": "aggregate_only_actions_refresh_status",
+    "raw_rows_included": false,
+    "ordinance_text_included": false,
+    "record_locator_values_included": false,
+    "review_events_included": false,
+    "browser_llm_calls": false,
+    "secrets_included": false,
+    "legal_findings": false
+  },
+  "browser_boundary": "GitHub Pages displays static run metadata only. Grok calls, if enabled, run offline in GitHub Actions and no model credentials are delivered to browser JavaScript."
+}
