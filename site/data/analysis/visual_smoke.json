@@ -67,6 +67,22 @@
         "Shared Inquiry route restores a deterministic aggregate answer",
         "No browser model call, row text, source locator, secret, or legal finding is observed"
       ]
+    },
+    {
+      "name": "Latest analysis Ask this map layer",
+      "steps": [
+        "Load the first-screen latest analysis route card",
+        "Click Ask this map layer",
+        "Verify Inquiry opens from the current aggregate map layer",
+        "Return to the colored county/town map route"
+      ],
+      "assertions": [
+        "Latest analysis route renders from offline aggregate AI-pack artifacts",
+        "Ask this map layer opens a deterministic Inquiry answer",
+        "The answer source is latest analysis ask-this-map-layer",
+        "The answer states aggregate metadata only and no browser model call",
+        "No row text, source locator, secret, ranking, legal finding, or legal-control claim is observed"
+      ]
     }
   ],
   "publication_policy": {

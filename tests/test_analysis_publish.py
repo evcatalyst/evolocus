@@ -34,6 +34,7 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
     assert [route["name"] for route in visual_smoke["verified_routes"]] == [
         "Chart -> Map -> Inquiry -> Ontology",
         "Ontology tier drilldown share URLs",
+        "Latest analysis Ask this map layer",
     ]
 
 

@@ -1580,6 +1580,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert [route["name"] for route in visual_smoke["verified_routes"]] == [
         "Chart -> Map -> Inquiry -> Ontology",
         "Ontology tier drilldown share URLs",
+        "Latest analysis Ask this map layer",
     ]
     assert visual_smoke["run_url"].startswith("https://github.com/evcatalyst/evolocus/actions/runs/")
     assert visual_smoke["publication_policy"]["raw_rows_included"] is False
