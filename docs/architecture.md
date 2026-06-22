@@ -65,6 +65,7 @@ flowchart LR
 - Charts-tab Graph actions open the existing Ontology tab with chart-scoped aggregate filters, selected unit IDs, and ontology layer visibility enabled.
 - The Charts-tab route legend animates Chart -> Map -> Inquiry -> Ontology as browser navigation over aggregate artifacts only.
 - Tier chips in the map guide click through to an ontology tier-focus card that summarizes visible units, topic/function links, neutral score means, and filter context.
+- Ontology tier drilldowns can generate content-free share URLs that reopen the same neutral county/town tier on the map or in Inquiry from aggregate route metadata only.
 - The tier-focus ontology card includes mini charts for topic mix, function mix, unit type mix, and neutral score means under the current filters.
 - Topic, function, and unit-type mini-chart bars can drill back into the map by applying aggregate filters; this changes only browser state and does not publish rows.
 - Neutral score mini-chart rows can drill back into relative score-band map filters; score direction remains unverified and no burden, ranking, or legal meaning is inferred.

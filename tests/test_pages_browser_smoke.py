@@ -642,6 +642,23 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "aggregate units" in tier_drilldown_text
             assert "not legal coverage findings" in tier_drilldown_text
             assert "claims that a law controls a place" in tier_drilldown_text
+            page.wait_for_selector(".ontology-tier-drilldown [data-tier-drilldown-action='share-map']", timeout=10_000)
+            page.wait_for_selector(".ontology-tier-drilldown [data-tier-drilldown-action='share-ask']", timeout=10_000)
+            page.locator(".ontology-tier-drilldown [data-tier-drilldown-action='share-map']").click()
+            page.wait_for_selector(".ontology-tier-share-card input", timeout=10_000)
+            tier_share_card_text = page.locator(".ontology-tier-share-card").inner_text(timeout=5_000).lower()
+            assert "shareable tier drilldown route" in tier_share_card_text
+            assert "content-free" in tier_share_card_text
+            tier_share_map_url = page.locator(".ontology-tier-share-card input").input_value(timeout=5_000)
+            assert "?route=" in tier_share_map_url
+            page.locator(".ontology-tier-drilldown [data-tier-drilldown-action='share-ask']").click()
+            page.wait_for_function(
+                "(previous) => document.querySelector('.ontology-tier-share-card input')?.value !== previous",
+                arg=tier_share_map_url,
+            )
+            tier_share_ask_url = page.locator(".ontology-tier-share-card input").input_value(timeout=5_000)
+            assert "?route=" in tier_share_ask_url
+            assert tier_share_ask_url != tier_share_map_url
             page.locator(".ontology-tier-drilldown [data-tier-drilldown-action='ask']").click()
             page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
             tier_drilldown_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
@@ -660,6 +677,19 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "ontology tier neighborhood" in tier_highlight_text
             assert "no browser-side grok call" in tier_highlight_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.goto(tier_share_map_url, wait_until="networkidle")
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            tier_shared_map_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "shareable aggregate route url" in tier_shared_map_text
+            assert "no browser-side grok call" in tier_shared_map_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.goto(tier_share_ask_url, wait_until="networkidle")
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
+            tier_shared_ask_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
+            assert "shareable aggregate route url" in tier_shared_ask_text
+            assert "aggregate metadata only" in tier_shared_ask_text
+            assert "no browser model call" in tier_shared_ask_text
 
             assert errors == []
         finally:

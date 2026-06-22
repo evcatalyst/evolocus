@@ -141,6 +141,7 @@ Current coverage stats:
 - Chart-to-chat question chips: GitHub Pages turns visible aggregate chart rows into reusable Inquiry prompts with deterministic answers, saved browser-local logs, and no row text or browser model calls
 - Charts-tab ontology handoff: GitHub Pages chart Graph buttons route aggregate chart scope into the existing Ontology tab with tier focus, ontology layer visibility, and no row text
 - Charts route legend: GitHub Pages animates Chart -> Map -> Inquiry -> Ontology as an aggregate-only progressive disclosure path with route buttons
+- Ontology tier share links: GitHub Pages ontology tier drilldowns can generate content-free `?route=` links that reopen the neutral county/town tier on the map or in Inquiry using aggregate metadata only
 - Charts route smoke coverage: optional Playwright browser smoke now clicks the Charts route buttons and verifies navigation to Map, Inquiry, and Ontology when `EVOLOCUS_BROWSER_SMOKE=1`
 - Deployed visual smoke workflow: manual GitHub Actions route smoke can click the hosted Pages URL through Chart -> Map -> Inquiry -> Ontology without secrets or write permissions
 - Visual smoke public artifact: `visual_smoke.json` records workflow metadata and no-row/no-text/no-secret policy flags for the verified public route
@@ -313,6 +314,7 @@ Evaluator implementation state:
 - Inquiry route ladder surface: saved route comparisons now show a stage-by-stage question, filter, map-color, selected-unit, ontology, and publication-boundary ladder using aggregate metadata only, with no text, locators, review events, or browser model calls.
 - Shareable route URL surface: GitHub Pages saved aggregate routes can now generate content-free `?route=` links that reopen the colored county/town map or ontology route with aggregate filters, selected public unit ID, color mode, disclosure level, and no row text or locators.
 - Shareable chart/filter route surface: Charts route legends and chart-to-chat question chips can now generate content-free `?route=` links that reopen Map, Inquiry, or Ontology from aggregate preset filters and public ontology route metadata only.
+- Shareable ontology tier route surface: Ontology tier drilldowns can now generate content-free `?route=` links that restore neutral tier filters, selected public unit context, map color, and graph route metadata without row text, source locators, review events, secrets, or browser model calls.
 - Inquiry pathway surface: GitHub Pages groups current aggregate units into topic/tier visual cells with ask and map actions that reuse safe filters and deterministic aggregate answers only.
 - Inquiry pathway peer surface: topic/tier pathway cells compare top aggregate units with row-count bars and map drillback using published unit IDs only.
 - Inquiry replay timeline surface: saved aggregate inquiry entries render as browser-local row/unit sparklines with replay and map actions, excluding text, locators, review events, and browser model calls.

@@ -1032,10 +1032,20 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontologyTierScoreNeighborhoodNodes" in js
     assert "ontologyTierCountyTownDrilldownHtml" in js
     assert "ontologyTierDrilldownUnitRowHtml" in js
+    assert "ontologyTierShareHtml" in js
+    assert "ontologyTierDrilldownRouteItem" in js
+    assert "shareOntologyTierDrilldownRoute" in js
     assert "applyOntologyTierDrilldown" in js
     assert "highlightOntologyTierOnMap" in js
     assert "data-tier-drilldown-action" in js
+    assert 'data-tier-drilldown-action="share-map"' in js
+    assert 'data-tier-drilldown-action="share-ask"' in js
+    assert "data-tier-drilldown-clear-share" in js
     assert "County/town tier drilldown" in js
+    assert "Share tier map" in js
+    assert "Share tier ask" in js
+    assert "Shareable tier drilldown route" in js
+    assert "ontology tier drilldown share" in js
     assert "ontology county/town tier drilldown" in js
     assert "data-tier-neighborhood-filter" in js
     assert "data-tier-neighborhood-score" in js
@@ -1045,6 +1055,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontology tier neighborhood" in js
     assert "ontology-tier-drilldown" in css
     assert "ontology-tier-drilldown-unit" in css
+    assert "ontology-tier-share-card" in css
+    assert "ontology-tier-share-actions" in css
     assert "ontology-tier-neighborhood" in css
     assert "ontology-tier-neighborhood-grid" in css
     assert "ontology-tier-neighborhood-center" in css

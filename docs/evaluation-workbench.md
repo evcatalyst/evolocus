@@ -65,6 +65,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - map-side topic/tier co-occurrence mini matrix with aggregate-unit counts, row bars, and filter drillback;
 - matrix-linked Inquiry prompts that open deterministic aggregate answers for selected topic/tier cells;
 - tier-to-ontology clickthrough from neutral tier chips into a focused ontology context card for visible units, topic/function links, and score summaries;
+- shareable ontology tier drilldown links that reopen the neutral county/town tier on the map or in Inquiry from content-free aggregate route metadata only;
 - tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology card;
 - tier-focus mini-chart drilldowns that return to the map with topic, function, or unit-type filters applied;
 - tier-focus score mini-chart drilldowns that return to the map with neutral relative score-band filters applied;

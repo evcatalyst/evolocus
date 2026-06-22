@@ -135,6 +135,7 @@ The Pages app supports:
 - map-to-inquiry route ladders inside saved route comparisons showing question, filters, map color, selected unit, ontology, and publication boundary stages without text, locators, review events, or browser model calls;
 - shareable `?route=` links for saved aggregate question paths that restore the colored county/town map or ontology route from content-free URL metadata only;
 - shareable chart/filter `?route=` links from Charts route legends and question chips that reopen Map, Inquiry, or Ontology views from aggregate preset metadata only;
+- shareable ontology tier drilldown `?route=` links that reopen a neutral county/town tier on the map or as an Inquiry answer from aggregate metadata only;
 - map-side route playback cards that restore saved aggregate question paths directly from the Law Map;
 - replay timeline sparklines for saved aggregate inquiry answers, scaled by visible law rows and units without row-level data;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, and comparison rows;

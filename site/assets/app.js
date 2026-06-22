@@ -303,6 +303,7 @@ let state = {
   frontdoorRouteImportStatus: null,
   frontdoorRouteShareStatus: null,
   chartRouteShareStatus: null,
+  ontologyTierShareStatus: null,
   frontdoorStoryImportStatus: null,
   frontdoorImportedStory: null,
   pendingShareableRoute: null,
@@ -2015,6 +2016,9 @@ function applyShareableRoute(route) {
   const summary = summarizeUnits(visibleUnits);
   const ontologyRoute = normalizedQuestionOntologyRoute(payload.ontology_route)
     || questionOntologyRouteFromUnits(payload.question, "shareable aggregate route URL", visibleUnits, payload.map_filters, summary);
+  if (ontologyRoute?.focus_tier) {
+    state.ontologyFocusTier = ontologyRoute.focus_tier;
+  }
   state.inquiryMapHighlight = inquiryMapHighlightFromOntologyRoute(payload.question, "shareable aggregate route URL", ontologyRoute, payload.filter_labels)
     || inquiryMapHighlightFromVisibleUnits(payload.question, "shareable aggregate route URL", visibleUnits, summary);
   if (payload.destination === "ontology") {
@@ -10284,8 +10288,11 @@ function ontologyTierCountyTownDrilldownHtml(tierKey, definition, summary, visib
         <div class="ontology-tier-drilldown-actions">
           <button type="button" data-tier-drilldown-action="map" data-tier-drilldown-tier="${escapeHtml(tierKey)}">Open tier map</button>
           <button type="button" data-tier-drilldown-action="ask" data-tier-drilldown-tier="${escapeHtml(tierKey)}">Ask this tier</button>
+          <button type="button" data-tier-drilldown-action="share-map" data-tier-drilldown-tier="${escapeHtml(tierKey)}">Share tier map</button>
+          <button type="button" data-tier-drilldown-action="share-ask" data-tier-drilldown-tier="${escapeHtml(tierKey)}">Share tier ask</button>
         </div>
       </div>
+      ${ontologyTierShareHtml(tierKey)}
       <div class="ontology-tier-drilldown-grid">
         ${
           topUnits.length
@@ -10294,6 +10301,31 @@ function ontologyTierCountyTownDrilldownHtml(tierKey, definition, summary, visib
         }
       </div>
       <p class="ontology-tier-drilldown-boundary">Drilldown rows are public aggregate unit routes from map_layers.json. They show row counts, released model labels, and neutral tier context only; they are not legal coverage findings, rankings, source records, or claims that a law controls a place.</p>
+    </section>
+  `;
+}
+
+function ontologyTierShareHtml(tierKey = "") {
+  const status = state.ontologyTierShareStatus;
+  if (!status || (status.tierKey && tierKey && status.tierKey !== tierKey)) {
+    return "";
+  }
+  return `
+    <section class="ontology-tier-share-card ${escapeHtml(status.status || "ready")}" aria-label="Shareable tier drilldown route">
+      <div>
+        <span>Shareable tier drilldown route</span>
+        <strong>${escapeHtml(status.title || "Content-free tier route is ready.")}</strong>
+        <p>${escapeHtml(status.message || "This content-free link restores aggregate tier filters, map color, selected public unit ID, disclosure level, and ontology route metadata only.")}</p>
+      </div>
+      ${
+        status.url
+          ? `<label><span>URL</span><input type="url" readonly value="${escapeHtml(status.url)}" aria-label="Shareable tier drilldown route URL"></label>`
+          : ""
+      }
+      <div class="ontology-tier-share-actions">
+        ${status.url ? `<a href="${escapeHtml(status.url)}" target="_blank" rel="noopener noreferrer">Open link</a>` : ""}
+        <button type="button" data-tier-drilldown-clear-share>Clear</button>
+      </div>
     </section>
   `;
 }
@@ -10312,6 +10344,10 @@ function ontologyTierDrilldownUnitRowHtml(unit, tierKey, maxRows) {
 
 function applyOntologyTierDrilldown(action, tierKey, unitId = "") {
   if (!tierKey) {
+    return;
+  }
+  if (action === "share-map" || action === "share-ask") {
+    shareOntologyTierDrilldownRoute(tierKey, unitId, action === "share-ask" ? "inquiry" : "map");
     return;
   }
   const definition = tierDefinitionForKey(tierKey);
@@ -10348,6 +10384,80 @@ function applyOntologyTierDrilldown(action, tierKey, unitId = "") {
     return;
   }
   state.activeTab = "map";
+  render();
+}
+
+function ontologyTierDrilldownRouteItem(tierKey, unitId = "") {
+  const mapLayers = state.analysis.mapLayers;
+  const allUnits = mapLayers?.units || [];
+  const definition = tierDefinitionForKey(tierKey);
+  const filters = normalizedLogMapFilters({
+    ...state.mapFilters,
+    tier: tierKey,
+  });
+  const scopedUnits = filterMapUnitsWithFilters(allUnits, filters);
+  const selectedUnit = unitId
+    ? scopedUnits.find((unit) => unit.unit_id === unitId) || allUnits.find((unit) => unit.unit_id === unitId)
+    : null;
+  const routeUnits = selectedUnit ? [selectedUnit] : scopedUnits;
+  const summary = summarizeUnits(routeUnits);
+  const question = selectedUnit
+    ? `What does ${displayUnitName(selectedUnit)} show inside the ${definition.label || tierKey} neutral tier?`
+    : `Which county and town units are in the ${definition.label || tierKey} neutral tier?`;
+  const ontologyRoute = questionOntologyRouteFromUnits(question, "ontology tier drilldown share", routeUnits, filters, summary);
+  const selected = selectedUnit || summary.topUnit || null;
+  return {
+    schema_version: "evolocus-aggregate-inquiry-result-v1",
+    id: `ontology-tier-share-${Date.now()}-${String(tierKey || "tier").replace(/[^a-z0-9_-]/gi, "")}`,
+    created_at: new Date().toISOString(),
+    source: "ontology tier drilldown share",
+    question,
+    answer_title: "Shared ontology tier drilldown",
+    answer_excerpt: "Content-free route metadata generated from the current ontology county/town tier drilldown.",
+    disclosure_level: "unit",
+    geography_color_mode: "tier",
+    map_filters: filters,
+    filter_labels: mapComposerFilterLabels(filters),
+    selected_unit: selected
+      ? {
+          unit_id: selected.unit_id,
+          name: displayUnitName(selected),
+          state: selected.state || null,
+          kind: selected.kind || null,
+          tier_label: selected.tier_label || null,
+        }
+      : null,
+    question_highlight: inquiryMapHighlightFromOntologyRoute(question, "ontology tier drilldown share", ontologyRoute, mapComposerFilterLabels(filters)),
+    ontology_route: ontologyRoute,
+    visible_summary: {
+      unit_count: routeUnits.length,
+      law_count: summary.lawCount,
+      substantive_count: summary.substantiveCount,
+      top_topic: summary.topTopic,
+      top_function: summary.topFunction,
+      tier_counts: summary.tierCounts,
+    },
+    artifact_provenance: {
+      dataset_id: state.analysis.status?.dataset_id || "LocalLaws/LOCUS-v1",
+      dataset_revision: state.analysis.status?.dataset_revision || mapLayers?.dataset_revision || "unknown",
+      map_generated_at: mapLayers?.generated_at || null,
+      ontology_generated_at: state.analysis.ontology?.generated_at || null,
+      browser_model_call: false,
+    },
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
+}
+
+function shareOntologyTierDrilldownRoute(tierKey, unitId = "", destination = "map") {
+  const item = ontologyTierDrilldownRouteItem(tierKey, unitId);
+  const share = frontdoorShareRouteUrl(item, destination);
+  state.ontologyTierShareStatus = {
+    status: "ready",
+    tierKey,
+    title: `${titleCase(share.payload.destination)} tier drilldown link ready.`,
+    message: "This content-free URL restores the ontology tier route with aggregate filters, neutral tier colors, selected public unit ID, disclosure level, and graph metadata only.",
+    url: share.url,
+  };
   render();
 }
 
@@ -18680,6 +18790,13 @@ function bindEvents() {
     const mapPresetButton = event.target.closest("[data-ontology-map-preset]");
     if (mapPresetButton) {
       applyOntologyMapPreset(mapPresetButton.dataset.ontologyMapPreset, mapPresetButton.dataset.ontologyMapPresetAction || "map");
+      return;
+    }
+    const tierShareClear = event.target.closest("[data-tier-drilldown-clear-share]");
+    if (tierShareClear) {
+      event.preventDefault();
+      state.ontologyTierShareStatus = null;
+      render();
       return;
     }
     const tierDrilldownButton = event.target.closest("[data-tier-drilldown-action]");
