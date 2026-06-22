@@ -29,7 +29,7 @@
       "value": 407704
     }
   },
-  "generated_at": "2026-06-22T11:08:56.197870+00:00",
+  "generated_at": "2026-06-22T12:31:37.695006+00:00",
   "generator": "evolocus-static-question-pack",
   "grok": {
     "error": null,
@@ -37,7 +37,7 @@
     "secret_env": "GROK_API_KEY",
     "used": true
   },
-  "grok_note": "This 8-prompt pack (dataset revision main) supports filtered queries via titles such as Current view, CA focus, Audit signals, and Local package. Select filters first to narrow scope. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
+  "grok_note": "This main-revision pack holds 8 filter-aware prompts titled Current view, CA focus, Other topic, Rules function, Tier 1 tier, Audit signals, Selected unit, and Local package. Select filters to scope queries. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
   "license": "CC-BY-NC-4.0",
   "paper": "https://arxiv.org/abs/2606.19334",
   "prompts": [
@@ -259,7 +259,7 @@
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T11:08:50.423613+00:00",
+      "generated_at": "2026-06-22T12:31:33.867041+00:00",
       "id": "inquiry_briefings",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-progressive-inquiry-v1",
