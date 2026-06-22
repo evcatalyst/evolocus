@@ -2441,6 +2441,146 @@ textarea {
   background: var(--green);
 }
 
+.inquiry-answer-ontology-map {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.inquiry-answer-ontology-map.empty {
+  background: #ffffff;
+}
+
+.inquiry-answer-ontology-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.inquiry-answer-ontology-heading span,
+.inquiry-answer-ontology-map.empty > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-answer-ontology-heading strong,
+.inquiry-answer-ontology-map.empty > strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.25;
+}
+
+.inquiry-answer-ontology-heading em,
+.inquiry-answer-ontology-map > p,
+.inquiry-answer-ontology-map.empty > p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.inquiry-answer-ontology-svg {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #edf3f1 58%, #f7f0df);
+}
+
+.inquiry-answer-ontology-edge {
+  stroke: rgba(23, 32, 51, 0.3);
+  stroke-width: 2.2;
+}
+
+.inquiry-answer-ontology-node circle {
+  stroke: rgba(17, 24, 39, 0.72);
+  stroke-width: 1.6;
+}
+
+.inquiry-answer-ontology-node.unit-node circle {
+  stroke-width: 2.4;
+}
+
+.inquiry-answer-ontology-node[data-inquiry-answer-ontology-action] {
+  cursor: pointer;
+}
+
+.inquiry-answer-ontology-node[data-inquiry-answer-ontology-action]:hover circle,
+.inquiry-answer-ontology-node[data-inquiry-answer-ontology-action]:focus-visible circle {
+  stroke: var(--green);
+  stroke-width: 3;
+}
+
+.inquiry-answer-ontology-node text {
+  fill: #111827;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.inquiry-answer-ontology-node .node-label {
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.inquiry-answer-ontology-node .node-sublabel {
+  fill: rgba(17, 24, 39, 0.72);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.inquiry-answer-ontology-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.inquiry-answer-ontology-chip {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 9px;
+  text-align: left;
+}
+
+.inquiry-answer-ontology-chip:hover,
+.inquiry-answer-ontology-chip:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.12);
+}
+
+.inquiry-answer-ontology-chip.disabled {
+  opacity: 0.72;
+}
+
+.inquiry-answer-ontology-chip strong {
+  font-size: 0.78rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-answer-ontology-chip em {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
 .map-inline-inquiry-actions {
   display: flex;
   flex-wrap: wrap;
@@ -5134,6 +5274,7 @@ th {
   .map-refresh-source-card dl,
   .inquiry-context-grid,
   .inquiry-answer-mini-grid,
+  .inquiry-answer-ontology-actions,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
   .review-layout,
@@ -5241,6 +5382,7 @@ th {
   .inquiry-context-grid,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
+  .inquiry-answer-ontology-actions,
   .review-layout,
   .map-layout,
   .county-layer-heading,

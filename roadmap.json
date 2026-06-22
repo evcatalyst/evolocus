@@ -61,6 +61,7 @@
         "Add Score Lens tab for neutral released model-score visuals",
         "Add Inquiry question matrix for filter-aware aggregate answers",
         "Add click-through mini charts inside Inquiry answers",
+        "Add ontology mini-map inside Inquiry answers",
         "Add static filter-aware question pack artifact for Pages inquiry",
         "Add Queue Plan tab for aggregate review batch planning",
         "Add public artifact guard for Grok inquiry briefing refresh",

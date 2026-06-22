@@ -5202,6 +5202,7 @@ function inquiryAnswerHtml(answer) {
     ${answer.grokSummary ? `<aside><strong>Offline Grok summary</strong><p>${escapeHtml(answer.grokSummary)}</p></aside>` : ""}
     ${answer.sections || ""}
     ${inquiryAnswerMiniChartsHtml()}
+    ${inquiryAnswerOntologyMiniMapHtml()}
     ${answer.matches || ""}
   `;
 }
@@ -5337,6 +5338,176 @@ function applyInquiryAnswerChartAction(action, value) {
   state.disclosureLevel = "unit";
   state.activeTab = "map";
   render();
+}
+
+function inquiryAnswerOntologyMiniMapHtml() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return "";
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  if (!units.length) {
+    return `
+      <section class="inquiry-answer-ontology-map empty" aria-label="Answer ontology mini-map">
+        <span>Ontology mini-map</span>
+        <strong>No aggregate units match the current filters.</strong>
+        <p>Adjust the Law Map filters to restore a topic, function, tier, and unit path.</p>
+      </section>
+    `;
+  }
+  const summary = summarizeUnits(units);
+  const tierDefinitions = mapLayers.tier_definitions || {};
+  const topTier = topEntry(summary.tierCounts);
+  const topTierKey = tierKeyForLabel(topTier.label, tierDefinitions);
+  const nodes = inquiryAnswerOntologyNodes(summary, units, topTier, topTierKey, tierDefinitions);
+  const edgeNodes = nodes.filter((node) => node.id !== "scope");
+  const scopeTitle = activeFilterLabels().join(" · ") || "Current aggregate answer scope";
+  return `
+    <section class="inquiry-answer-ontology-map" aria-label="Answer ontology mini-map">
+      <div class="inquiry-answer-ontology-heading">
+        <div>
+          <span>Ontology mini-map</span>
+          <strong>${escapeHtml(formatCount(units.length))} units · ${escapeHtml(formatCount(summary.lawCount))} rows</strong>
+        </div>
+        <em>${escapeHtml(scopeTitle)}</em>
+      </div>
+      <svg class="inquiry-answer-ontology-svg" viewBox="0 0 700 260" role="img" aria-label="Aggregate topic function tier and unit path for this answer">
+        ${edgeNodes
+          .map((node) => `<line x1="350" y1="130" x2="${node.x}" y2="${node.y}" class="inquiry-answer-ontology-edge"></line>`)
+          .join("")}
+        ${nodes.map(inquiryAnswerOntologyNodeSvg).join("")}
+      </svg>
+      <div class="inquiry-answer-ontology-actions" aria-label="Ontology mini-map actions">
+        ${inquiryAnswerOntologyActionButton("topic", summary.topTopic.label, `Topic node: ${summary.topTopic.label}`, `${formatCount(summary.topTopic.value)} rows`, summary.topTopic.value > 0)}
+        ${inquiryAnswerOntologyActionButton("function", summary.topFunction.label, `Function node: ${summary.topFunction.label}`, `${formatCount(summary.topFunction.value)} rows`, summary.topFunction.value > 0)}
+        ${inquiryAnswerOntologyActionButton("tier", topTierKey, `Tier node: ${topTier.label}`, `${formatCount(topTier.value)} units`, topTier.value > 0)}
+        ${
+          summary.topUnit
+            ? inquiryAnswerOntologyActionButton("unit", summary.topUnit.unit_id, `Map unit: ${displayUnitName(summary.topUnit)}`, `${summary.topUnit.state || "NA"} · ${formatCount(summary.topUnit.law_count)} rows`, true)
+            : ""
+        }
+      </div>
+      <p>Mini-map edges summarize aggregate model-output fields from public static artifacts. They are not verified legal relationships and include no ordinance text or source locator values.</p>
+    </section>
+  `;
+}
+
+function inquiryAnswerOntologyNodes(summary, units, topTier, topTierKey, tierDefinitions) {
+  const topUnit = summary.topUnit;
+  return [
+    {
+      id: "scope",
+      label: "Answer scope",
+      sublabel: `${formatCount(units.length)} units`,
+      x: 350,
+      y: 130,
+      r: 50,
+      fill: "#ffffff",
+    },
+    {
+      id: "topic",
+      label: summary.topTopic.label,
+      sublabel: "top topic",
+      x: 132,
+      y: 74,
+      r: 38,
+      fill: TOPIC_COLORS[summary.topTopic.label] || TOPIC_COLORS.Unknown,
+      action: "topic",
+      actionValue: summary.topTopic.value > 0 ? summary.topTopic.label : "",
+    },
+    {
+      id: "function",
+      label: summary.topFunction.label,
+      sublabel: "top function",
+      x: 568,
+      y: 74,
+      r: 38,
+      fill: FUNCTION_COLORS[summary.topFunction.label] || FUNCTION_COLORS.Unknown,
+      action: "function",
+      actionValue: summary.topFunction.value > 0 ? summary.topFunction.label : "",
+    },
+    {
+      id: "tier",
+      label: topTier.label,
+      sublabel: "neutral tier",
+      x: 170,
+      y: 210,
+      r: 38,
+      fill: tierColorForLabel(topTier.label, units, tierDefinitions),
+      action: "tier",
+      actionValue: topTier.value > 0 ? topTierKey : "",
+    },
+    {
+      id: "unit",
+      label: topUnit ? displayUnitName(topUnit) : "No unit",
+      sublabel: topUnit ? `${topUnit.state || "NA"} · top unit` : "top unit",
+      x: 530,
+      y: 210,
+      r: 42,
+      fill: topUnit?.tier_color || tierColorForLabel(topTier.label, units, tierDefinitions),
+      action: "unit",
+      actionValue: topUnit?.unit_id || "",
+      className: "unit-node",
+    },
+  ];
+}
+
+function inquiryAnswerOntologyNodeSvg(node) {
+  const actionAttrs = node.actionValue
+    ? ` data-inquiry-answer-ontology-action="${escapeHtml(node.action)}" data-inquiry-answer-ontology-value="${escapeHtml(node.actionValue)}"`
+    : "";
+  const words = String(node.label || "Unknown").split(/\s+/).slice(0, 3);
+  const labelLines = words.length ? words : ["Unknown"];
+  return `
+    <g class="inquiry-answer-ontology-node ${escapeHtml(node.className || "")}" transform="translate(${node.x} ${node.y})"${actionAttrs}>
+      <circle r="${node.r}" fill="${escapeHtml(node.fill)}"></circle>
+      ${labelLines
+        .map((line, index) => `<text y="${(index - (labelLines.length - 1) / 2) * 13 - 2}" class="node-label">${escapeHtml(line)}</text>`)
+        .join("")}
+      <text y="${node.r - 10}" class="node-sublabel">${escapeHtml(node.sublabel || "")}</text>
+    </g>
+  `;
+}
+
+function inquiryAnswerOntologyActionButton(action, value, label, detail, enabled) {
+  if (!enabled || !value) {
+    return `
+      <span class="inquiry-answer-ontology-chip disabled">
+        <strong>${escapeHtml(label)}</strong>
+        <em>${escapeHtml(detail)}</em>
+      </span>
+    `;
+  }
+  return `
+    <button type="button" class="inquiry-answer-ontology-chip" data-inquiry-answer-ontology-action="${escapeHtml(action)}" data-inquiry-answer-ontology-value="${escapeHtml(value)}">
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(detail)}</em>
+    </button>
+  `;
+}
+
+function applyInquiryAnswerOntologyAction(action, value) {
+  if (action === "unit" && value) {
+    openAuditUnitOnMap(value);
+    return;
+  }
+  if (action === "tier" && value) {
+    state.mapFilters = {
+      ...state.mapFilters,
+      tier: value,
+    };
+    openTierOntology(value);
+    return;
+  }
+  if (action === "topic" || action === "function") {
+    state.mapFilters = {
+      ...state.mapFilters,
+      topic: action === "topic" ? value : state.mapFilters.topic,
+      function: action === "function" ? value : state.mapFilters.function,
+    };
+    state.activeTab = "ontology";
+    render();
+  }
 }
 
 function answerAndLogInquiry(question, source) {
@@ -8976,6 +9147,15 @@ function bindEvents() {
       applyInquiryAnswerChartAction(
         answerChartButton.dataset.inquiryAnswerChartAction || "",
         answerChartButton.dataset.inquiryAnswerChartValue || "",
+      );
+      return;
+    }
+    const answerOntologyButton = event.target.closest("[data-inquiry-answer-ontology-action]");
+    if (answerOntologyButton) {
+      event.preventDefault();
+      applyInquiryAnswerOntologyAction(
+        answerOntologyButton.dataset.inquiryAnswerOntologyAction || "",
+        answerOntologyButton.dataset.inquiryAnswerOntologyValue || "",
       );
       return;
     }

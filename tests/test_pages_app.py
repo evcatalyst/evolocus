@@ -221,6 +221,13 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "filteredAuditAnswer" in js
     assert "filteredScoreAnswer" in js
     assert "inquiryAnswerMiniChartsHtml" in js
+    assert "inquiryAnswerOntologyMiniMapHtml" in js
+    assert "inquiryAnswerOntologyNodes" in js
+    assert "inquiryAnswerOntologyNodeSvg" in js
+    assert "applyInquiryAnswerOntologyAction" in js
+    assert "data-inquiry-answer-ontology-action" in js
+    assert "Ontology mini-map" in js
+    assert "Mini-map edges summarize aggregate model-output fields" in js
     assert "inquiryAnswerCountChart" in js
     assert "inquiryAnswerUnitChart" in js
     assert "applyInquiryAnswerChartAction" in js
@@ -268,6 +275,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-answer-mini-charts" in css
     assert "inquiry-answer-mini-grid" in css
     assert "inquiry-answer-mini-row" in css
+    assert "inquiry-answer-ontology-map" in css
+    assert "inquiry-answer-ontology-svg" in css
+    assert "inquiry-answer-ontology-actions" in css
+    assert "inquiry-answer-ontology-chip" in css
     assert "map-reading-guide-card" in css
     assert "map-topic-tier-matrix" in css
     assert "map-topic-tier-grid" in css

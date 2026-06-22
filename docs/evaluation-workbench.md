@@ -192,6 +192,8 @@ The map-side inquiry card can save and export a bounded local history of aggrega
 
 The Inquiry question matrix reads current browser filter state, `question_pack.json`, and static aggregate artifacts. Question-pack prompts can apply safe map filters and disclosure levels from the browser. They remain deterministic browser logic unless an offline workflow publishes refreshed briefing or question-pack JSON.
 
+Inquiry answers also render an ontology mini-map from the current visible aggregate scope. The graph connects answer scope to top topic, top function, dominant neutral tier, and highest-row county/town unit, then routes buttons back to the Map or Ontology tab without adding row text, source locators, review events, or live browser model calls.
+
 Refresh static progressive inquiry briefings from the current aggregate artifacts:
 
 ```bash
