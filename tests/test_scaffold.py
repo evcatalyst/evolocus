@@ -234,8 +234,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderFrontdoorVisualPath" in js
     assert "frontdoorVisualPathQuestion" in js
     assert "frontdoorVisualPathStepHtml" in js
+    assert "frontdoorExampleQuestionRows" in js
+    assert "frontdoorExampleQuestionsHtml" in js
+    assert "frontdoorExampleQuestionCardHtml" in js
     assert "applyFrontdoorVisualPathAction" in js
+    assert "applyFrontdoorExampleQuestion" in js
     assert "data-frontdoor-action" in js
+    assert "data-frontdoor-example-action" in js
+    assert "data-frontdoor-example-topic" in js
+    assert "front-door topic-tier example" in js
     assert "data-frontdoor-disclosure" in js
     assert "Ask -&gt; Map -&gt; Ontology" in js
     assert "No browser Grok call" in js
@@ -501,6 +508,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "analysis-journey-boundary" in css
     assert "frontdoor-visual-path-card" in css
     assert "frontdoor-step-card" in css
+    assert "frontdoor-example-questions" in css
+    assert "frontdoor-example-card" in css
+    assert "frontdoor-example-actions" in css
     assert "frontdoor-disclosure-button" in css
     assert "frontdoor-visual-path-boundary" in css
     assert "selected-disclosure-step" in css

@@ -652,6 +652,7 @@ function renderFrontdoorVisualPath() {
   const topTier = topEntry(summary.tierCounts);
   const filters = activeFilterLabels();
   const question = frontdoorVisualPathQuestion(summary, visibleUnits);
+  const exampleRows = frontdoorExampleQuestionRows(visibleUnits);
   const selectedLabel = selectedUnit
     ? `${displayUnitName(selectedUnit)}${selectedUnit.state ? `, ${selectedUnit.state}` : ""}`
     : "No selected aggregate unit";
@@ -700,6 +701,7 @@ function renderFrontdoorVisualPath() {
       <div class="frontdoor-visual-path-steps">
         ${cards.map((card) => frontdoorVisualPathStepHtml(card, question)).join("")}
       </div>
+      ${frontdoorExampleQuestionsHtml(exampleRows)}
       <div class="frontdoor-disclosure-controls" role="group" aria-label="Front-door disclosure level">
         ${["overview", "unit", "evidence"].map(frontdoorDisclosureButtonHtml).join("")}
       </div>
@@ -721,6 +723,66 @@ function frontdoorVisualPathStepHtml(card, question) {
       <strong>${escapeHtml(card.value)}</strong>
       <em>${escapeHtml(card.detail)}</em>
       <button type="button" data-frontdoor-action="${escapeHtml(card.key)}" data-frontdoor-question="${escapeHtml(question)}">${escapeHtml(card.button)}</button>
+    </article>
+  `;
+}
+
+function frontdoorExampleQuestionRows(units) {
+  return inquiryPathwayRows(units)
+    .filter((row) => row.topic && row.tierKey && row.unitCount && row.lawCount)
+    .slice(0, 4);
+}
+
+function frontdoorExampleQuestionsHtml(rows) {
+  if (!rows.length) {
+    return `
+      <section class="frontdoor-example-questions empty" aria-label="Example topic and tier questions">
+        <div>
+          <span>Example topic/tier questions</span>
+          <strong>No topic/tier examples match the current filters.</strong>
+          <p>Reset or loosen map filters to generate aggregate example questions from published units.</p>
+        </div>
+      </section>
+    `;
+  }
+  const maxLawCount = Math.max(1, ...rows.map((row) => Number(row.lawCount || 0)));
+  return `
+    <section class="frontdoor-example-questions" aria-label="Example topic and tier questions">
+      <div class="frontdoor-example-heading">
+        <div>
+          <span>Example topic/tier questions</span>
+          <strong>Click once to filter the map and ask.</strong>
+        </div>
+        <em>Aggregate pathways only</em>
+      </div>
+      <div class="frontdoor-example-grid">
+        ${rows.map((row) => frontdoorExampleQuestionCardHtml(row, maxLawCount)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function frontdoorExampleQuestionCardHtml(row, maxLawCount) {
+  const question = inquiryPathwayQuestion(row);
+  const width = inquiryPathwayWidth(row.lawCount, maxLawCount);
+  const topUnit = row.topUnits[0] ? displayUnitName(row.topUnits[0]) : "No unit";
+  return `
+    <article class="frontdoor-example-card">
+      <div class="frontdoor-example-card-heading">
+        <i style="background:${escapeHtml(row.tierColor)}"></i>
+        <span>${escapeHtml(row.topicLabel)}</span>
+        <strong>${escapeHtml(row.tierLabel)}</strong>
+      </div>
+      <p>${escapeHtml(question)}</p>
+      <div class="frontdoor-example-scale" aria-label="Aggregate rows for this example">
+        <b style="width:${escapeHtml(width)}%"></b>
+        <em>${escapeHtml(formatCount(row.lawCount))} rows · ${escapeHtml(formatCount(row.unitCount))} units · ${escapeHtml(topUnit)}</em>
+      </div>
+      <div class="frontdoor-example-actions">
+        <button type="button" data-frontdoor-example-action="ask" data-frontdoor-example-topic="${escapeHtml(row.topic)}" data-frontdoor-example-tier="${escapeHtml(row.tierKey)}" data-frontdoor-example-question="${escapeHtml(question)}">Ask + filter</button>
+        <button type="button" data-frontdoor-example-action="map" data-frontdoor-example-topic="${escapeHtml(row.topic)}" data-frontdoor-example-tier="${escapeHtml(row.tierKey)}" data-frontdoor-example-question="${escapeHtml(question)}">Map</button>
+        <button type="button" data-frontdoor-example-action="ontology" data-frontdoor-example-topic="${escapeHtml(row.topic)}" data-frontdoor-example-tier="${escapeHtml(row.tierKey)}" data-frontdoor-example-question="${escapeHtml(question)}">Ontology</button>
+      </div>
     </article>
   `;
 }
@@ -772,6 +834,39 @@ function applyFrontdoorVisualPathAction(action, question) {
     return;
   }
   state.activeTab = "map";
+  render();
+}
+
+function applyFrontdoorExampleQuestion(action, topic, tier, question) {
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: topic || "",
+    tier: tier || "",
+  };
+  state.selectedUnitId = null;
+  if (action === "map") {
+    state.activeTab = "map";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    if (tier) {
+      state.ontologyFocusTier = tier;
+    }
+    if (state.disclosureLevel === "overview") {
+      state.disclosureLevel = "unit";
+    }
+    state.activeTab = "ontology";
+    render();
+    return;
+  }
+  const prompt = question || "What does this topic and tier pathway show on the public map?";
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = prompt;
+  }
+  answerAndLogInquiry(prompt, "front-door topic-tier example");
+  state.activeTab = "inquiry";
   render();
 }
 
@@ -10505,6 +10600,17 @@ function bindEvents() {
     openAnalysisJourneyStep(stepButton.dataset.journeyTab, stepButton.dataset.journeyDisclosure);
   });
   $("#frontdoor-visual-path").addEventListener("click", (event) => {
+    const exampleButton = event.target.closest("[data-frontdoor-example-action]");
+    if (exampleButton) {
+      event.preventDefault();
+      applyFrontdoorExampleQuestion(
+        exampleButton.dataset.frontdoorExampleAction || "",
+        exampleButton.dataset.frontdoorExampleTopic || "",
+        exampleButton.dataset.frontdoorExampleTier || "",
+        exampleButton.dataset.frontdoorExampleQuestion || "",
+      );
+      return;
+    }
     const actionButton = event.target.closest("[data-frontdoor-action]");
     if (actionButton) {
       event.preventDefault();
