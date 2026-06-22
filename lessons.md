@@ -154,3 +154,4 @@
 - Question-result score/audit signal cards should route into Score Lens or Audit Lens from aggregate highlighted units while labeling score direction as unverified and audit values as review cues.
 - Front-door Ask-this-map route previews should expose the next possible aggregate surfaces before navigation, while passing only typed filters, public unit IDs, neutral score/audit summaries, and ontology route metadata.
 - Front-door Grok-refreshed pack cards should make offline AI analysis visible immediately while routing only aggregate filters, neutral color modes, public unit IDs, and ontology stages to Inquiry, Map, or Ontology.
+- AI route mini maps should draw a bounded preview from matched aggregate county/town geography and clearly hand off to the full map for complete results, rather than implying every route unit is shown in the card.

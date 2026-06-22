@@ -126,6 +126,8 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "county/town map" in grok_pack_text
             assert "no row text" in grok_pack_text
             assert "browser model calls" in grok_pack_text
+            assert "county/town route preview" in grok_pack_text
+            assert page.locator(".frontdoor-grok-pack-card .ai-route-mini-map svg").count() > 0
 
             page.wait_for_selector("[data-frontdoor-composer] #frontdoor-question-input", timeout=10_000)
             page.locator("#frontdoor-question-input").fill("Where are zoning enforcement laws in cities?")
@@ -230,7 +232,10 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             ai_pack_text = page.locator(".ai-analysis-pack").inner_text(timeout=5_000).lower()
             assert "offline ai analysis pack" in ai_pack_text
             assert "ask, color, and graph the current aggregate analysis" in ai_pack_text
+            assert "county/town route preview" in ai_pack_text
+            assert "open the full map" in ai_pack_text
             assert "no ordinance text" in ai_pack_text
+            assert page.locator(".ai-analysis-pack .ai-route-mini-map svg").count() > 0
             page.locator(".ai-analysis-pack [data-ai-analysis-card][data-ai-analysis-action='map']").first.click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
             page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)

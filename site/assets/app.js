@@ -801,6 +801,7 @@ function frontdoorGrokPackRouteHtml(card) {
       <span>${escapeHtml(card.label || "Aggregate route")}</span>
       <strong>${escapeHtml(card.title || card.question || "Aggregate inquiry route")}</strong>
       <em>${escapeHtml(card.question || card.detail || "Open a safe aggregate route")}</em>
+      ${aiAnalysisRouteMiniMapHtml(card, "frontdoor")}
       <div>
         <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="ask">Ask</button>
         <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="${escapeHtml(secondaryAction)}">${secondaryAction === "ontology" ? "Graph" : secondaryAction === "map" ? "Color map" : "Open route"}</button>
@@ -10405,6 +10406,7 @@ function aiAnalysisPackCardHtml(card) {
       <div class="ai-analysis-card-facts">
         ${facts.map(aiAnalysisPackFactHtml).join("")}
       </div>
+      ${aiAnalysisRouteMiniMapHtml(card, "inquiry")}
       <small>${escapeHtml(card.detail || "Aggregate route")}</small>
       <div class="ai-analysis-card-actions">
         <button type="button" data-ai-analysis-card="${escapeHtml(card.id || "")}" data-ai-analysis-action="ask">Ask</button>
@@ -10422,6 +10424,143 @@ function aiAnalysisPackFactHtml(fact) {
       <strong>${escapeHtml(String(fact.value ?? "n/a"))}</strong>
       <em>${escapeHtml(fact.label || "Aggregate fact")}</em>
     </span>
+  `;
+}
+
+function aiAnalysisRouteMiniMapHtml(card, variant = "inquiry") {
+  const context = aiAnalysisRouteMiniMapContext(card, variant);
+  if (!context) {
+    return "";
+  }
+  if (!context.previewFeatures.length && !context.previewPoints.length) {
+    return `
+      <figure class="ai-route-mini-map empty ${escapeHtml(variant)}" aria-label="County/town route preview">
+        <figcaption>
+          <span>County/town route preview</span>
+          <strong>No matched public geometry in preview</strong>
+          <em>${escapeHtml(context.filterLabel)}</em>
+        </figcaption>
+        <p>Open the full map route to inspect aggregate units. Missing official geography is left unfilled rather than guessed.</p>
+      </figure>
+    `;
+  }
+  return `
+    <figure class="ai-route-mini-map ${escapeHtml(variant)}" aria-label="County/town route preview">
+      <figcaption>
+        <span>County/town route preview</span>
+        <strong>${escapeHtml(formatCount(context.previewFeatures.length))} counties · ${escapeHtml(formatCount(context.previewPoints.length))} towns</strong>
+        <em>${escapeHtml(context.filterLabel)}</em>
+      </figcaption>
+      <svg viewBox="0 0 960 560" role="img" aria-label="${escapeHtml(context.ariaLabel)}">
+        ${context.previewFeatures.map((feature) => aiAnalysisRouteCountySvg(feature, context)).join("")}
+        ${context.previewPoints.map((point) => aiAnalysisRoutePointSvg(point, context)).join("")}
+      </svg>
+      <p>${escapeHtml(formatCount(context.routeUnitCount))} aggregate units match this route; ${escapeHtml(formatCount(context.matchedCount))} have matched public geography. This preview draws top matched geographies from the leading ${escapeHtml(formatCount(context.previewUnitCount))} units by row count. Open the full map for the complete route.</p>
+    </figure>
+  `;
+}
+
+function aiAnalysisRouteMiniMapContext(card, variant) {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return null;
+  }
+  const route = card.route || {};
+  const filters = normalizedLogMapFilters(route.filters || {});
+  const routeUnits = filterMapUnitsWithFilters(mapLayers.units || [], filters)
+    .slice()
+    .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0));
+  if (route.selected_unit_id) {
+    const selected = (mapLayers.units || []).find((unit) => unit.unit_id === route.selected_unit_id);
+    if (selected && !routeUnits.some((unit) => unit.unit_id === selected.unit_id)) {
+      routeUnits.unshift(selected);
+    }
+  }
+  const limit = variant === "frontdoor" ? 18 : 28;
+  const previewIds = new Set(routeUnits.slice(0, limit).map((unit) => unit.unit_id));
+  if (route.selected_unit_id) {
+    previewIds.add(route.selected_unit_id);
+  }
+  const allIds = new Set(routeUnits.map((unit) => unit.unit_id));
+  const allFeatures = state.analysis.countyGeometry?.feature_collection?.features || [];
+  const allPoints = state.analysis.municipalPoints?.points || [];
+  const previewFeatures = allFeatures.filter((feature) => previewIds.has(feature.properties?.unit_id));
+  const previewPoints = allPoints.filter((point) => previewIds.has(point.unit_id));
+  const matchedCount = allFeatures.filter((feature) => allIds.has(feature.properties?.unit_id)).length + allPoints.filter((point) => allIds.has(point.unit_id)).length;
+  const bounds = geoBounds(previewFeatures, previewPoints);
+  const colorContext = {
+    ...geographyColorContext(previewFeatures, previewPoints),
+    mode: route.color_mode || state.geographyColorMode || "tier",
+  };
+  return {
+    card,
+    route,
+    filters,
+    bounds,
+    colorContext,
+    previewFeatures,
+    previewPoints,
+    previewUnitCount: previewFeatures.length + previewPoints.length,
+    routeUnitCount: routeUnits.length,
+    matchedCount,
+    selectedUnitId: route.selected_unit_id || "",
+    filterLabel: aiAnalysisRouteFilterLabel(filters, route),
+    ariaLabel: `${card.title || card.label || "AI route"} county and town aggregate map preview`,
+  };
+}
+
+function aiAnalysisRouteFilterLabel(filters, route) {
+  const labels = [];
+  if (filters.state) {
+    labels.push(`state ${filters.state}`);
+  }
+  if (filters.topic) {
+    labels.push(`topic ${filters.topic}`);
+  }
+  if (filters.function) {
+    labels.push(`function ${filters.function}`);
+  }
+  if (filters.kind) {
+    labels.push(`unit type ${filters.kind}`);
+  }
+  if (filters.tier) {
+    labels.push(`tier ${tierDefinitionForKey(filters.tier).label || filters.tier}`);
+  }
+  if (route.selected_unit_id) {
+    labels.push("selected unit highlighted");
+  }
+  labels.push(`color ${geographyColorLabel(route.color_mode || state.geographyColorMode || "tier")}`);
+  return labels.join(" · ");
+}
+
+function aiAnalysisRouteCountySvg(feature, context) {
+  const properties = feature.properties || {};
+  const selected = properties.unit_id === context.selectedUnitId ? " selected" : "";
+  return `
+    <path
+      class="ai-route-mini-county${selected}"
+      d="${geometryPath(feature.geometry, context.bounds)}"
+      fill="${escapeHtml(geographyDatumColor(properties, context.colorContext))}"
+    >
+      <title>${escapeHtml(properties.census_name || properties.unit_name || "County")} · ${escapeHtml(formatCount(properties.law_count || 0))} aggregate rows · route preview only</title>
+    </path>
+  `;
+}
+
+function aiAnalysisRoutePointSvg(point, context) {
+  const [x, y] = projectLonLat(point.lon, point.lat, context.bounds);
+  const selected = point.unit_id === context.selectedUnitId ? " selected" : "";
+  const radius = 4 + Math.min(5, Math.log10(Number(point.law_count || 0) + 1));
+  return `
+    <circle
+      class="ai-route-mini-town${selected}"
+      cx="${x.toFixed(2)}"
+      cy="${y.toFixed(2)}"
+      r="${radius.toFixed(2)}"
+      fill="${escapeHtml(geographyDatumColor(point, context.colorContext))}"
+    >
+      <title>${escapeHtml(point.census_name || point.unit_name || "Town")} · ${escapeHtml(formatCount(point.law_count || 0))} aggregate rows · route preview only</title>
+    </circle>
   `;
 }
 
