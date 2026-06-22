@@ -1,17 +1,17 @@
 {
   "analysis_status": {
-    "briefing_generated_at": "2026-06-22T12:31:33.867041+00:00",
+    "briefing_generated_at": "2026-06-22T15:06:01.793242+00:00",
     "law_count": 1517672,
     "map_generated_at": "2026-06-21T15:37:25.346485+00:00",
-    "question_pack_generated_at": "2026-06-22T12:31:37.695006+00:00",
-    "refresh_run_id": 27948343807,
-    "refresh_run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27948343807",
+    "question_pack_generated_at": "2026-06-22T15:06:05.990026+00:00",
+    "refresh_run_id": 27952794478,
+    "refresh_run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27952794478",
     "state": "local_aggregate_ready",
     "unit_count": 1000
   },
   "cards": [
     {
-      "answer": "The EvoLOCUS aggregate covers 1,517,672 laws from 1,000 units (823 cities, 177 counties) across 50 states, with 815 municipal and 177 county matches. The ontology contains 1,018 nodes and 3,000 edges; top function is Rules and top topic is Other. Raw ordinance text is not published. Model-produced scores remain neutral unless direction is verified. Dataset revision: main.",
+      "answer": "The EvoLOCUS aggregate covers 50 states and 1,000 units (823 cities, 177 counties) containing 1,517,672 laws. Ontology holds 1,018 nodes and 3,000 edges; raw ordinance text is not published. Tier scores are model-produced and remain neutral unless direction is verified. Dataset revision: main. Top function: Rules; top topic: Other. Analysis state: local_aggregate_ready.",
       "detail": "Open the high-level answer before drilling into unit or evidence views.",
       "id": "aggregate-summary",
       "label": "Grok summary",
@@ -46,7 +46,7 @@
       "title": "Offline aggregate synthesis"
     },
     {
-      "answer": "This main-revision pack holds 8 filter-aware prompts titled Current view, CA focus, Other topic, Rules function, Tier 1 tier, Audit signals, Selected unit, and Local package. Select filters to scope queries. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
+      "answer": "This filter-aware question pack holds 8 prompts on dataset main with titles Current view through Local package. Apply matching filters to surface aggregates. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
       "detail": "Use the generated question to color the map before opening the answer.",
       "id": "question-router",
       "label": "Askable pack",
@@ -198,7 +198,7 @@
   "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
   "dataset_id": "LocalLaws/LOCUS-v1",
   "dataset_revision": "main",
-  "generated_at": "2026-06-22T12:31:42.427070+00:00",
+  "generated_at": "2026-06-22T15:06:11.700137+00:00",
   "generator": "evolocus-ai-analysis-pack",
   "grok": {
     "browser_policy": "Model calls run only in local tooling or GitHub Actions. Pages receives sanitized aggregate JSON.",
@@ -255,21 +255,21 @@
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T12:31:33.867041+00:00",
+      "generated_at": "2026-06-22T15:06:01.793242+00:00",
       "id": "inquiry_briefings",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-progressive-inquiry-v1",
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T12:31:37.695006+00:00",
+      "generated_at": "2026-06-22T15:06:05.990026+00:00",
       "id": "question_pack",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-filter-aware-question-pack-v1",
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T11:09:01.368427+00:00",
+      "generated_at": "2026-06-22T12:31:42.494235+00:00",
       "id": "refresh_status",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-actions-refresh-status-v1",
