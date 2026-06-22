@@ -448,6 +448,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Color tier map" in js
     assert "Step route" in js
     assert "data-frontdoor-grok-pack-card" in js
+    assert "frontdoorLatestAnalysisRouteCardHtml" in js
+    assert "frontdoorLatestAnalysisCard" in js
+    assert "frontdoorLatestAnalysisFilterChips" in js
+    assert "Latest analysis route" in js
+    assert "data-frontdoor-latest-analysis-action" in js
+    assert "Color county/town map" in js
+    assert "Graph ontology route" in js
     assert "Grok-refreshed inquiry pack" in js
     assert "Offline analysis routes are ready for the county/town map" in js
     assert "County/town route preview" in js
@@ -952,6 +959,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoor-route-preview-strip" in css
     assert "frontdoor-route-preview-card" in css
     assert "frontdoor-grok-pack-card" in css
+    assert "frontdoor-latest-analysis-card" in css
+    assert "frontdoor-latest-analysis-actions" in css
     assert "frontdoor-grok-pack-route" in css
     assert "ai-route-mini-map" in css
     assert "ai-route-mini-county" in css

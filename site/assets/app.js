@@ -725,6 +725,7 @@ function renderFrontdoorVisualPath() {
         <strong>${escapeHtml(question)}</strong>
         <em>${escapeHtml(filters.length ? filters.slice(0, 4).join(" · ") : "No active map filters")}</em>
       </div>
+      ${frontdoorLatestAnalysisRouteCardHtml(summary)}
       ${frontdoorTierConcentrationRouteHtml(visibleUnits, summary)}
       ${frontdoorGrokInquiryPackCardHtml(summary)}
       ${frontdoorQuestionComposerHtml(composerPlan, question)}
@@ -740,6 +741,101 @@ function renderFrontdoorVisualPath() {
       <p class="frontdoor-visual-path-boundary">Actions pass only aggregate filters, disclosure level, selected published unit IDs, and deterministic answers. No browser Grok call, API key, source locator, review event, or LOCUS ordinance text is exposed.</p>
     </article>
   `;
+}
+
+function frontdoorLatestAnalysisRouteCardHtml(summary) {
+  const pack = state.analysis.aiAnalysisPack;
+  const refreshStatus = state.analysis.refreshStatus || {};
+  const cards = Array.isArray(pack?.cards) ? pack.cards : [];
+  const card = frontdoorLatestAnalysisCard(cards);
+  if (!pack || !card) {
+    return "";
+  }
+  const route = card.route || {};
+  const policy = card.publication_policy || pack.publication_policy || {};
+  const latest = latestIso([pack.generated_at, refreshStatus.completed_at, refreshStatus.generated_at]);
+  const runUrl = safeRefreshRunUrl(refreshStatus.run_url || pack.analysis_status?.refresh_run_url || "");
+  const rows = [
+    ["Refreshed", latest ? artifactAgeLabel(latest) : "time loading"],
+    ["Route color", geographyColorLabel(route.color_mode || "tier")],
+    ["Visible rows", formatCount(summary.lawCount || 0)],
+    ["AI cards", formatCount(cards.length)],
+    ["Run", refreshStatus.run_id ? `Actions ${refreshStatus.run_id}` : "run loading"],
+  ];
+  const filterChips = frontdoorLatestAnalysisFilterChips(route);
+  return `
+    <section class="frontdoor-latest-analysis-card" aria-label="Latest offline aggregate analysis route">
+      <div class="frontdoor-latest-analysis-heading">
+        <div>
+          <p class="eyebrow">Latest analysis route</p>
+          <strong>${escapeHtml(card.title || "Offline aggregate synthesis")}</strong>
+          <span>${escapeHtml(card.question || "What does the current aggregate layer cover?")}</span>
+        </div>
+        <a href="${escapeHtml(runUrl)}" target="_blank" rel="noopener noreferrer">Refresh run</a>
+      </div>
+      <p class="frontdoor-latest-analysis-answer">${escapeHtml(card.answer || "Aggregate analysis route is ready.")}</p>
+      <div class="frontdoor-latest-analysis-metrics">
+        ${rows.map(frontdoorLatestAnalysisMetricHtml).join("")}
+      </div>
+      <div class="frontdoor-latest-analysis-route">
+        <div class="frontdoor-latest-analysis-filters" aria-label="Latest analysis route filters">
+          ${filterChips}
+        </div>
+        ${aiAnalysisRouteMiniMapHtml(card, "frontdoor")}
+      </div>
+      <div class="frontdoor-latest-analysis-actions">
+        <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="ask" data-frontdoor-latest-analysis-action="ask">Ask latest route</button>
+        <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="map" data-frontdoor-latest-analysis-action="map">Color county/town map</button>
+        <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="ontology" data-frontdoor-latest-analysis-action="ontology">Graph ontology route</button>
+      </div>
+      <p class="frontdoor-latest-analysis-boundary">${escapeHtml(policy.browser_llm_calls === false ? "Offline Actions-only analysis. " : "")}Route buttons pass aggregate filters, neutral color mode, public unit IDs, and ontology stages only: no ordinance text, source locators, review events, secrets, browser model calls, rankings, legal findings, or claims that law controls a place.</p>
+    </section>
+  `;
+}
+
+function frontdoorLatestAnalysisCard(cards) {
+  return (
+    cards.find((card) => card.id === "aggregate-summary") ||
+    cards.find((card) => card.route?.selected_unit_id) ||
+    cards.find((card) => Object.keys(card.route?.filters || {}).length) ||
+    cards[0] ||
+    null
+  );
+}
+
+function frontdoorLatestAnalysisMetricHtml([label, value]) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(String(value))}</em>
+    </span>
+  `;
+}
+
+function frontdoorLatestAnalysisFilterChips(route) {
+  const filters = normalizedLogMapFilters(route.filters || {});
+  const chips = [];
+  if (filters.state) {
+    chips.push(`State ${filters.state}`);
+  }
+  if (filters.topic) {
+    chips.push(`Topic ${filters.topic}`);
+  }
+  if (filters.function) {
+    chips.push(`Function ${filters.function}`);
+  }
+  if (filters.kind) {
+    chips.push(`Unit type ${filters.kind}`);
+  }
+  if (filters.tier) {
+    chips.push(`Tier ${tierDefinitionForKey(filters.tier).label || filters.tier}`);
+  }
+  if (route.selected_unit_id) {
+    chips.push("Selected public unit");
+  }
+  chips.push(`Color ${geographyColorLabel(route.color_mode || "tier")}`);
+  chips.push(route.ontology_stage ? `Ontology ${titleCase(route.ontology_stage)}` : "Ontology overview");
+  return chips.slice(0, 8).map((chip) => `<span>${escapeHtml(chip)}</span>`).join("");
 }
 
 function frontdoorGrokInquiryPackCardHtml(summary) {

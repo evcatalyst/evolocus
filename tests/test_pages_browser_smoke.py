@@ -86,6 +86,22 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "real-data coverage timeline" in coverage_timeline_text
             assert "aggregate artifact metadata only" in coverage_timeline_text
             assert "no ordinance text" in coverage_timeline_text
+            page.wait_for_selector(".frontdoor-latest-analysis-card [data-frontdoor-latest-analysis-action='map']", timeout=10_000)
+            latest_route_text = page.locator(".frontdoor-latest-analysis-card").inner_text(timeout=5_000).lower()
+            assert "latest analysis route" in latest_route_text
+            assert "offline actions-only analysis" in latest_route_text
+            assert "color county/town map" in latest_route_text
+            assert "graph ontology route" in latest_route_text
+            assert "no ordinance text" in latest_route_text
+            assert "browser model calls" in latest_route_text
+            assert page.locator(".frontdoor-latest-analysis-card .ai-route-mini-map svg").count() > 0
+            page.locator(".frontdoor-latest-analysis-card [data-frontdoor-latest-analysis-action='map']").click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            latest_route_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "offline ai analysis pack" in latest_route_highlight_text
+            assert "no browser-side grok call" in latest_route_highlight_text
+            page.wait_for_selector("#coverage-timeline [data-coverage-timeline-action='status']", timeout=10_000)
             assert "map layer playback" in coverage_timeline_text
             assert "playback changes aggregate layer controls only" in coverage_timeline_text
             page.locator("#coverage-timeline [data-coverage-playback-stage='audit']").click()

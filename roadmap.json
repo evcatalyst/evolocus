@@ -167,6 +167,7 @@
         "Add shareable URL routes for aggregate map and ontology views",
         "Add shareable URL routes for Charts filter presets and question chips",
         "Run persisted Grok-backed aggregate inquiry refresh after shareable chart routes",
+        "Add first-screen latest analysis route card from refreshed AI pack",
         "Add real-data coverage timeline animation",
         "Add timeline-driven map layer playback",
         "Add per-topic map playback presets",

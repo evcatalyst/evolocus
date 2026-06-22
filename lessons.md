@@ -166,3 +166,4 @@
 - Shareable route URLs should encode only bounded aggregate route state and reconstruct current visuals from public artifacts, not embed ordinance text, source locators, review events, local paths, or model outputs.
 - Chart/filter share links should turn visual presets into reproducible aggregate routes while making the source visible in Inquiry answers and keeping all row text, locators, and review state out of the URL.
 - Hosted visual smokes should wait for the final verified route text, not merely for the placeholder verification card, because public artifact fetches may complete after the first static render.
+- A first-screen latest-analysis card should reuse the same offline AI pack route actions as deeper cards so the entry point does not create another pathway for row text, locators, secrets, or browser-side model calls.

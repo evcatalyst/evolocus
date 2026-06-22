@@ -706,6 +706,120 @@ main {
   padding: 12px;
 }
 
+.frontdoor-latest-analysis-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(45, 92, 122, 0.24);
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 12px;
+}
+
+.frontdoor-latest-analysis-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.frontdoor-latest-analysis-heading div {
+  display: grid;
+  gap: 3px;
+}
+
+.frontdoor-latest-analysis-heading strong {
+  color: #143a4f;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-latest-analysis-heading span,
+.frontdoor-latest-analysis-answer,
+.frontdoor-latest-analysis-boundary {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.42;
+}
+
+.frontdoor-latest-analysis-heading a {
+  border: 1px solid rgba(45, 92, 122, 0.24);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #143a4f;
+  padding: 8px 10px;
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.frontdoor-latest-analysis-heading a:hover,
+.frontdoor-latest-analysis-heading a:focus-visible {
+  border-color: #2d5c7a;
+  background: #2d5c7a;
+  color: #ffffff;
+}
+
+.frontdoor-latest-analysis-answer {
+  margin: 0;
+}
+
+.frontdoor-latest-analysis-metrics,
+.frontdoor-latest-analysis-actions,
+.frontdoor-latest-analysis-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.frontdoor-latest-analysis-metrics span,
+.frontdoor-latest-analysis-filters span {
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(45, 92, 122, 0.16);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 8px 10px;
+}
+
+.frontdoor-latest-analysis-metrics strong {
+  color: var(--muted);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+}
+
+.frontdoor-latest-analysis-metrics em,
+.frontdoor-latest-analysis-filters span {
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.frontdoor-latest-analysis-route {
+  display: grid;
+  gap: 8px;
+}
+
+.frontdoor-latest-analysis-actions button {
+  border-color: rgba(45, 92, 122, 0.24);
+  background: #ffffff;
+  color: #143a4f;
+  padding: 8px 10px;
+}
+
+.frontdoor-latest-analysis-actions button:first-child,
+.frontdoor-latest-analysis-actions button:hover,
+.frontdoor-latest-analysis-actions button:focus-visible {
+  border-color: #2d5c7a;
+  background: #2d5c7a;
+  color: #ffffff;
+}
+
+.frontdoor-latest-analysis-boundary {
+  margin: 0;
+}
+
 .frontdoor-grok-pack-heading {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -12710,6 +12824,7 @@ th {
   .toolbar,
   .analysis-journey-steps,
   .frontdoor-visual-path-heading,
+  .frontdoor-latest-analysis-heading,
   .frontdoor-tier-route-heading,
   .frontdoor-tier-route-focus,
   .frontdoor-tier-route-bars,
