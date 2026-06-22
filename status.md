@@ -125,6 +125,7 @@ Current coverage stats:
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows
 - Map inquiry history export: GitHub Pages exports sanitized aggregate answer history JSON with no text, locators, review events, local paths, or secrets
 - Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
+- Chat-to-map highlighting: GitHub Pages turns Inquiry and landing question routes into highlighted county/town map units using aggregate unit IDs, counts, filters, and no-content policy flags only
 - Ontology build-status surface: GitHub Pages shows graph freshness, node/edge mix, model registry provenance, snapshot deltas, and aggregate-only boundaries
 - Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
 - Map-side ontology neighborhood filters: GitHub Pages filters selected-unit neighborhood nodes and aggregate peer drillbacks by topic, function, neutral tier, geography, and relative model-score lenses without exposing row text or source locators

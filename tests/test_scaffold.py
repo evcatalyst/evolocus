@@ -434,6 +434,23 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-map-route-replay-ontology" in js
     assert "Map route playback restores only aggregate browser state" in js
     assert "renderMapInlineInquiry" in js
+    assert "map-question-highlight" in html
+    assert "inquiryMapHighlight" in js
+    assert "renderMapQuestionHighlight" in js
+    assert "inquiryMapHighlightFromPlan" in js
+    assert "inquiryMapHighlightFromVisibleUnits" in js
+    assert "setInquiryMapHighlightFromPlan" in js
+    assert "normalizedInquiryMapHighlight" in js
+    assert "question_highlight" in js
+    assert "evolocus-question-map-highlight-v1" in js
+    assert "data-clear-inquiry-map-highlight" in js
+    assert "Chat-to-map highlight" in js
+    assert "browser-side Grok call" in js
+    assert "browser_model_call: false" in js
+    assert "map-question-highlight-card" in css
+    assert "map-question-highlight-metrics" in css
+    assert "map-unit.inquiry-hit" in css
+    assert "map-unit.inquiry-muted" in css
     assert "mapInlineInquiryPrompts" in js
     assert "mapInlineComparisonStripHtml" in js
     assert "mapInlineComparisonRows" in js

@@ -287,6 +287,7 @@ let state = {
   geographyColorMode: "tier",
   geographyLayers: defaultGeographyLayers(),
   mapInlineInquiry: "view",
+  inquiryMapHighlight: null,
   ontologyFocusTier: "",
   ontologyPathStage: "auto",
   selectedOntologyNeighborFilter: "all",
@@ -1201,9 +1202,10 @@ function visualRoutePolicyChipHtml([label, ok]) {
 }
 
 function applyFrontdoorVisualPathAction(action, question) {
+  const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const prompt = question || frontdoorVisualPathQuestion(summarizeUnits(visibleUnits), visibleUnits);
   if (action === "ask") {
-    const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
-    const prompt = question || frontdoorVisualPathQuestion(summarizeUnits(visibleUnits), visibleUnits);
+    state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(prompt, "front-door visual path", visibleUnits);
     const input = $("#inquiry-form input[name='question']");
     if (input) {
       input.value = prompt;
@@ -1212,6 +1214,9 @@ function applyFrontdoorVisualPathAction(action, question) {
     state.activeTab = "inquiry";
     render();
     return;
+  }
+  if (action === "map") {
+    state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(prompt, "front-door visual path", visibleUnits);
   }
   if (action === "ontology") {
     const selectedUnit = currentSelectedMapUnit();
@@ -1237,6 +1242,8 @@ function applyFrontdoorExampleQuestion(action, topic, tier, question) {
     tier: tier || "",
   };
   state.selectedUnitId = null;
+  const prompt = question || "What does this topic and tier pathway show on the public map?";
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(prompt, "front-door topic-tier example", filterMapUnits(state.analysis.mapLayers?.units || []));
   if (action === "map") {
     state.activeTab = "map";
     render();
@@ -1253,7 +1260,6 @@ function applyFrontdoorExampleQuestion(action, topic, tier, question) {
     render();
     return;
   }
-  const prompt = question || "What does this topic and tier pathway show on the public map?";
   const input = $("#inquiry-form input[name='question']");
   if (input) {
     input.value = prompt;
@@ -1274,6 +1280,7 @@ function applyFrontdoorComposerAction(action, form) {
   }
   state.mapFilters = plan.proposedFilters;
   state.selectedUnitId = plan.previewSummary.topUnit?.unit_id || null;
+  setInquiryMapHighlightFromPlan(plan, "front-door question composer");
   const inquiryInput = $("#inquiry-form input[name='question']");
   if (inquiryInput) {
     inquiryInput.value = question;
@@ -1544,6 +1551,7 @@ function renderMap() {
     $("#map-reading-guide").innerHTML = "";
     $("#map-route-replay").innerHTML = "";
     $("#map-inline-inquiry").innerHTML = "";
+    $("#map-question-highlight").innerHTML = "";
     $("#law-map").innerHTML = "";
     $("#map-insight-grid").innerHTML = "";
     $("#map-comparison-grid").innerHTML = "";
@@ -1566,6 +1574,7 @@ function renderMap() {
   renderCountyChoropleth(units, packageStats);
   renderMapReadingGuide(units, allUnits, mapLayers, packageStats);
   renderMapRefreshSource(status, mapLayers);
+  renderMapQuestionHighlight(units);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
   $("#map-geometry-status").textContent = mapLayers.geometry_status || "geometry status unavailable";
   $("#map-note").textContent = mapLayers.notice || "Tiers are neutral analysis bands, not legal rankings.";
@@ -2077,6 +2086,144 @@ function mapRouteReplayCardHtml(item, index, maxRows, maxUnits) {
       </div>
     </article>
   `;
+}
+
+function renderMapQuestionHighlight(units) {
+  const panel = $("#map-question-highlight");
+  if (!panel) {
+    return;
+  }
+  const highlight = normalizedInquiryMapHighlight(state.inquiryMapHighlight);
+  if (!highlight) {
+    panel.innerHTML = `
+      <section class="map-question-highlight-card empty" aria-label="Question-driven map highlight">
+        <div>
+          <p class="eyebrow">Question highlight</p>
+          <h3>No active chat-to-map highlight.</h3>
+          <p>Use the Inquiry or landing question composer to infer aggregate filters, then apply them to the map.</p>
+        </div>
+        <span>No row text, locators, or browser model call</span>
+      </section>
+    `;
+    return;
+  }
+  const highlightedIds = new Set(highlight.unit_ids || []);
+  const visibleHighlightedUnits = (units || []).filter((unit) => highlightedIds.has(unit.unit_id));
+  const hiddenCount = Math.max(0, highlightedIds.size - visibleHighlightedUnits.length);
+  const summary = summarizeUnits(visibleHighlightedUnits);
+  const topUnits = visibleHighlightedUnits.slice(0, state.disclosureLevel === "overview" ? 3 : 6);
+  const filterLabels = highlight.filter_labels?.length ? highlight.filter_labels : mapComposerFilterLabels(highlight.map_filters || {});
+  panel.innerHTML = `
+    <section class="map-question-highlight-card" aria-label="Question-driven map highlight">
+      <div class="map-question-highlight-heading">
+        <div>
+          <p class="eyebrow">Chat-to-map highlight</p>
+          <h3>${escapeHtml(highlight.question || "Aggregate question route")}</h3>
+        </div>
+        <button type="button" data-clear-inquiry-map-highlight>Clear highlight</button>
+      </div>
+      <div class="map-question-highlight-metrics">
+        ${mapQuestionHighlightMetricHtml("Highlighted units", formatCount(visibleHighlightedUnits.length), hiddenCount ? `${formatCount(hiddenCount)} hidden by current filters` : "all highlighted units visible")}
+        ${mapQuestionHighlightMetricHtml("Highlighted rows", formatCount(summary.lawCount), "aggregate law rows only")}
+        ${mapQuestionHighlightMetricHtml("Top topic", summary.topTopic.label, `${formatCount(summary.topTopic.value)} highlighted rows`)}
+        ${mapQuestionHighlightMetricHtml("Source", highlight.source || "question composer", "browser route state")}
+      </div>
+      <div class="map-question-highlight-chips" aria-label="Question-inferred aggregate filters">
+        ${filterLabels.length ? filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("") : "<span>No inferred filters</span>"}
+      </div>
+      ${topUnits.length ? `<div class="map-question-highlight-units">${topUnits.map((unit) => mapQuestionHighlightUnitHtml(unit)).join("")}</div>` : ""}
+      <p class="map-question-highlight-boundary">
+        Highlighting uses public aggregate unit IDs and counts from static artifacts. It exposes no ordinance text, source locators, review events, rankings, legal conclusions, and makes no browser-side Grok call.
+      </p>
+    </section>
+  `;
+}
+
+function mapQuestionHighlightMetricHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(value)}</b>
+      <em>${escapeHtml(detail)}</em>
+    </span>
+  `;
+}
+
+function mapQuestionHighlightUnitHtml(unit) {
+  return `
+    <button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">
+      <strong>${escapeHtml(displayUnitName(unit))}</strong>
+      <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</em>
+    </button>
+  `;
+}
+
+function normalizedInquiryMapHighlight(highlight) {
+  if (!highlight || highlight.schema_version !== "evolocus-question-map-highlight-v1") {
+    return null;
+  }
+  return {
+    ...highlight,
+    map_filters: normalizedLogMapFilters(highlight.map_filters || {}),
+    unit_ids: Array.isArray(highlight.unit_ids) ? highlight.unit_ids.filter(Boolean) : [],
+    filter_labels: Array.isArray(highlight.filter_labels) ? highlight.filter_labels.filter(Boolean) : [],
+    reasons: Array.isArray(highlight.reasons) ? highlight.reasons.filter(Boolean) : [],
+  };
+}
+
+function inquiryMapHighlightFromPlan(plan, source = "question composer") {
+  const unitIds = (plan.previewUnits || []).map((unit) => unit.unit_id).filter(Boolean).slice(0, 1000);
+  return {
+    schema_version: "evolocus-question-map-highlight-v1",
+    question: String(plan.question || "").trim(),
+    source,
+    map_filters: normalizedLogMapFilters(plan.proposedFilters || {}),
+    filter_labels: plan.filterLabels || [],
+    reasons: plan.reasons || [],
+    unit_ids: unitIds,
+    unit_count: unitIds.length,
+    law_count: Number(plan.previewSummary?.lawCount || 0),
+    top_unit_ids: (plan.previewUnits || []).slice(0, 8).map((unit) => unit.unit_id).filter(Boolean),
+    publication_policy: {
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      record_locator_values_included: false,
+      review_events_included: false,
+      browser_model_call: false,
+    },
+  };
+}
+
+function inquiryMapHighlightFromVisibleUnits(question, source, units, summary = summarizeUnits(units)) {
+  const unitIds = (units || []).map((unit) => unit.unit_id).filter(Boolean).slice(0, 1000);
+  return {
+    schema_version: "evolocus-question-map-highlight-v1",
+    question: String(question || "").trim(),
+    source: source || "aggregate inquiry",
+    map_filters: mapFiltersSnapshot(),
+    filter_labels: activeFilterLabels(),
+    reasons: ["Saved route -> current aggregate map filter state"],
+    unit_ids: unitIds,
+    unit_count: unitIds.length,
+    law_count: Number(summary?.lawCount || 0),
+    top_unit_ids: (units || []).slice(0, 8).map((unit) => unit.unit_id).filter(Boolean),
+    publication_policy: {
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      record_locator_values_included: false,
+      review_events_included: false,
+      browser_model_call: false,
+    },
+  };
+}
+
+function setInquiryMapHighlightFromPlan(plan, source) {
+  state.inquiryMapHighlight = inquiryMapHighlightFromPlan(plan, source);
+}
+
+function inquiryMapHighlightHasUnit(unitId) {
+  const highlight = normalizedInquiryMapHighlight(state.inquiryMapHighlight);
+  return Boolean(highlight && highlight.unit_ids.includes(unitId));
 }
 
 function renderMapInlineInquiry() {
@@ -4755,8 +4902,9 @@ function unitSvg(unit, packageStats = importedPackageMapStats()) {
   const selected = state.selectedUnitId === unit.unit_id ? " selected" : "";
   const packageHit = packageStats.units.get(unit.unit_id);
   const packageClass = packageHit ? " package-hit" : "";
+  const inquiryClass = state.inquiryMapHighlight ? (inquiryMapHighlightHasUnit(unit.unit_id) ? " inquiry-hit" : " inquiry-muted") : "";
   const title = `${displayUnitName(unit)}: ${unit.tier_label}${packageHit ? ` · ${formatCount(packageHit.recordCount)} local package records` : ""}`;
-  const common = `data-unit-id="${escapeHtml(unit.unit_id)}" class="map-unit${selected}${packageClass}" fill="${escapeHtml(fill)}" tabindex="0"`;
+  const common = `data-unit-id="${escapeHtml(unit.unit_id)}" class="map-unit${selected}${packageClass}${inquiryClass}" fill="${escapeHtml(fill)}" tabindex="0"`;
   if (layout.type === "point") {
     return `<circle ${common} cx="${Number(layout.x || 0)}" cy="${Number(layout.y || 0)}" r="${Number(layout.r || 3.5)}"><title>${escapeHtml(title)}</title></circle>`;
   }
@@ -7903,6 +8051,7 @@ function inquiryResultLogEntry(question, answer, source) {
     geography_color_mode: state.geographyColorMode,
     map_filters: mapFiltersSnapshot(),
     filter_labels: activeFilterLabels(),
+    question_highlight: inquiryMapHighlightFromVisibleUnits(question, source, visibleUnits, summary),
     selected_unit: selectedUnit
       ? {
           unit_id: selectedUnit.unit_id,
@@ -8236,6 +8385,7 @@ function replayInquiryResultLog(entryId, destination) {
   state.selectedUnitId = item.selected_unit?.unit_id || null;
   state.disclosureLevel = ["overview", "unit", "evidence"].includes(item.disclosure_level) ? item.disclosure_level : state.disclosureLevel;
   state.activeInquiryReplayId = item.id;
+  state.inquiryMapHighlight = normalizedInquiryMapHighlight(item.question_highlight) || null;
   const question = String(item.question || "");
   const input = $("#inquiry-form input[name='question']");
   if (input) {
@@ -10953,6 +11103,7 @@ function applyMapFilters(event) {
     packageOnly: form.get("package_only") === "1",
   };
   state.selectedUnitId = null;
+  state.inquiryMapHighlight = null;
   renderMap();
 }
 
@@ -10963,6 +11114,11 @@ function applyMapTopicTierMatrix(topic, tier) {
     tier: tier || "",
   };
   state.selectedUnitId = null;
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    mapTopicTierQuestion({ topic, tierLabel: tierDefinitionForKey(tier).label || tier, tierKey: tier }),
+    "map topic/tier matrix",
+    filterMapUnits(state.analysis.mapLayers?.units || []),
+  );
   renderMap();
 }
 
@@ -10974,6 +11130,7 @@ function askMapTopicTierMatrix(topic, tier, question) {
   };
   state.selectedUnitId = null;
   const prompt = question || "What does the current filtered map view show?";
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(prompt, "map topic/tier matrix", filterMapUnits(state.analysis.mapLayers?.units || []));
   const input = $("#inquiry-form input[name='question']");
   if (input) {
     input.value = prompt;
@@ -10998,6 +11155,7 @@ function applyInquiryMapComposerAction(action) {
   }
   state.mapFilters = plan.proposedFilters;
   state.selectedUnitId = null;
+  setInquiryMapHighlightFromPlan(plan, "inquiry question composer");
   if (action === "apply-map") {
     state.activeTab = "map";
     render();
@@ -11025,6 +11183,7 @@ function openInquiryMapComposerUnit(unitId) {
 function resetMapFilters() {
   state.mapFilters = defaultMapFilters();
   state.selectedUnitId = null;
+  state.inquiryMapHighlight = null;
   renderMap();
 }
 
@@ -12403,6 +12562,13 @@ function bindEvents() {
         selectedQueryButton.dataset.selectedQueryRoute || "inquiry",
         selectedQueryButton.dataset.selectedQueryUnit || "",
       );
+      return;
+    }
+    const clearInquiryMapHighlightButton = event.target.closest("[data-clear-inquiry-map-highlight]");
+    if (clearInquiryMapHighlightButton) {
+      event.preventDefault();
+      state.inquiryMapHighlight = null;
+      renderMap();
       return;
     }
     const selectedNeighborFilterButton = event.target.closest("[data-selected-neighbor-filter]");

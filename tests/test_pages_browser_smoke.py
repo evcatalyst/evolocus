@@ -159,6 +159,21 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "grok-refreshed offline" in normalized_answer_text
             assert "no browser model call" in normalized_answer_text
             assert "no ordinance text" in normalized_answer_text
+            page.locator("#inquiry-form input[name='question']").fill("Show zoning units on the map")
+            page.locator("[data-inquiry-map-composer-action='apply-map']").click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "chat-to-map highlight" in highlight_text
+            assert "highlighted units" in highlight_text
+            assert "no browser-side grok call" in highlight_text
+            assert "ordinance text" in highlight_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.locator("[data-clear-inquiry-map-highlight]").click()
+            cleared_highlight_text = page.locator(".map-question-highlight-card.empty").inner_text(timeout=5_000).lower()
+            assert "no active chat-to-map highlight" in cleared_highlight_text
+            page.locator("[data-tab='inquiry']").click()
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
             page.wait_for_selector(".inquiry-route-comparison-card [data-open-inquiry-log-ontology]", timeout=10_000)
             comparison_text = page.locator(".inquiry-route-comparison").inner_text(timeout=5_000)
             assert "route comparison" in comparison_text.lower()
