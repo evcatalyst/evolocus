@@ -128,3 +128,4 @@
 - Chart brushes should reuse the existing chat-to-map highlight panel so chart exploration visibly lands on counties/towns without creating row-level evidence, source locators, or browser-side model calls.
 - Question-to-ontology routes can make typed questions feel connected to the graph, but the route object must remain aggregate-only node IDs, filters, counts, and policy flags rather than legal conclusions or row evidence.
 - Map-side cross-filter legends should summarize only the currently visible aggregate units and route through the same safe filters/highlights as other Pages visuals.
+- Selected-unit ontology query drawers should turn county/town map selections into aggregate topic, function, tier, score, provenance, and peer routes while avoiding row text, source locators, live browser models, or legal findings.

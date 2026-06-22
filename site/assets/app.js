@@ -5263,6 +5263,7 @@ function renderSelectedUnit() {
     ${selectedUnitQueryReplayHtml(unit, auditQuality, packageHit)}
     ${selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit)}
     ${selectedUnitMapOntologyRouteHtml(unit, auditQuality, packageHit)}
+    ${selectedUnitOntologyQueryDrawerHtml(unit, auditQuality, packageHit)}
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
       <dt>Substantive</dt><dd>${escapeHtml(String(unit.substantive_count))}</dd>
@@ -5348,6 +5349,214 @@ function selectedUnitQueryReplayStepHtml(step, index) {
 
 function selectedUnitRouteQuestion(unit) {
   return `What does the selected unit ${displayUnitName(unit)} show?`;
+}
+
+function selectedUnitOntologyQueryDrawerHtml(unit, auditQuality, packageHit) {
+  const geometry = geometryMatchForUnit(unit.unit_id);
+  const nodes = selectedUnitOntologyQueryNodes(unit, geometry, auditQuality, packageHit);
+  const peers = selectedUnitPeers(unit).slice(0, state.disclosureLevel === "overview" ? 3 : 5);
+  return `
+    <section class="selected-ontology-query-drawer" aria-label="County and town ontology query drawer">
+      <div class="selected-ontology-query-heading">
+        <div>
+          <p class="eyebrow">County/town ontology query drawer</p>
+          <h4>Turn this selected map unit into graph questions</h4>
+        </div>
+        <span>${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.state))}</span>
+      </div>
+      <div class="selected-ontology-query-nodes" aria-label="Selected aggregate ontology nodes">
+        ${nodes.map(selectedUnitOntologyQueryNodeHtml).join("")}
+      </div>
+      <div class="selected-ontology-query-peers" aria-label="Connected county and town aggregate peers">
+        <div>
+          <strong>${escapeHtml(formatCount(peers.length))} connected aggregate peers</strong>
+          <em>${escapeHtml(state.disclosureLevel === "overview" ? "Overview shows a short peer list" : "Unit detail shows expanded peer routes")}</em>
+        </div>
+        ${peers.length ? peers.map(selectedUnitOntologyQueryPeerHtml).join("") : '<p class="muted-note">No aggregate peers are available for this selected unit under the current artifact.</p>'}
+      </div>
+      <p class="selected-ontology-query-boundary">Node filters update the colored county/town map from aggregate counts only. The drawer publishes no ordinance text, source locators, review events, secrets, live model calls, or legal findings.</p>
+    </section>
+  `;
+}
+
+function selectedUnitOntologyQueryNodes(unit, geometry, auditQuality, packageHit) {
+  const tierKey = unit.tier || tierKeyForLabel(unit.tier_label, state.analysis.mapLayers?.tier_definitions || {});
+  const topicRows = Number(unit.topic_counts?.[unit.dominant_topic] || 0);
+  const functionRows = Number(unit.function_counts?.[unit.dominant_function] || 0);
+  const peerCount = selectedUnitPeers(unit).length;
+  return [
+    {
+      action: "ask",
+      label: "Ask",
+      value: "Selected-unit answer",
+      detail: `${formatCount(unit.law_count)} aggregate rows`,
+      color: "#6b4fd6",
+      disabled: false,
+    },
+    {
+      action: "topic",
+      label: "Topic node",
+      value: text(unit.dominant_topic),
+      routeValue: unit.dominant_topic || "",
+      detail: `${formatCount(topicRows)} rows in this unit`,
+      color: TOPIC_COLORS[unit.dominant_topic] || TOPIC_COLORS.Unknown,
+      disabled: !unit.dominant_topic || !topicRows,
+    },
+    {
+      action: "function",
+      label: "Function node",
+      value: text(unit.dominant_function),
+      routeValue: unit.dominant_function || "",
+      detail: `${formatCount(functionRows)} rows in this unit`,
+      color: FUNCTION_COLORS[unit.dominant_function] || FUNCTION_COLORS.Unknown,
+      disabled: !unit.dominant_function || !functionRows,
+    },
+    {
+      action: "tier",
+      label: "Neutral tier",
+      value: text(unit.tier_label),
+      routeValue: tierKey || "",
+      detail: "color band and ontology focus",
+      color: unit.tier_color || "#d8dee8",
+      disabled: !tierKey,
+    },
+    {
+      action: "peers",
+      label: "Peer graph",
+      value: `${formatCount(peerCount)} routes`,
+      detail: "topic, function, tier, geography",
+      color: "#326f70",
+      disabled: peerCount === 0,
+    },
+    {
+      action: "scores",
+      label: "Score nodes",
+      value: scoreSnapshot(unit.model_score_means || {}),
+      detail: "relative model means; direction unverified",
+      color: "#8d6aa8",
+      disabled: !Object.keys(unit.model_score_means || {}).length,
+    },
+    {
+      action: "evidence",
+      label: "Provenance gate",
+      value: geometry.matchStatus,
+      detail: packageHit
+        ? `${formatCount(packageHit.recordCount)} browser-local package records`
+        : auditQuality
+          ? `audit attention ${formatNumber(auditQuality.audit_attention_score)} / 100`
+          : geometry.source,
+      color: "#b7892c",
+      disabled: false,
+    },
+  ];
+}
+
+function selectedUnitOntologyQueryNodeHtml(node) {
+  const routeValue = node.routeValue || node.value || "";
+  return `
+    <button type="button" class="selected-ontology-query-node${node.disabled ? " disabled" : ""}" data-selected-ontology-query="${escapeHtml(node.action)}" data-selected-ontology-query-value="${escapeHtml(routeValue)}" style="--query-node-color:${escapeHtml(node.color || "#d8dee8")}"${node.disabled ? " disabled" : ""}>
+      <span>${escapeHtml(node.label)}</span>
+      <strong>${escapeHtml(node.value)}</strong>
+      <em>${escapeHtml(node.detail)}</em>
+    </button>
+  `;
+}
+
+function selectedUnitOntologyQueryPeerHtml(peer) {
+  const unit = peer.unit;
+  const reasons = peer.reasons.slice(0, 3).join(" + ") || "aggregate similarity";
+  return `
+    <button type="button" class="selected-ontology-query-peer" data-selected-ontology-query="peer" data-selected-ontology-query-value="${escapeHtml(unit.unit_id)}">
+      <strong>${escapeHtml(displayUnitName(unit))}</strong>
+      <span>${escapeHtml(text(unit.state))} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</span>
+      <em>${escapeHtml(reasons)}</em>
+    </button>
+  `;
+}
+
+function applySelectedUnitOntologyQuery(action, value = "") {
+  const unit = currentSelectedMapUnit();
+  if (!unit && action !== "peer") {
+    return;
+  }
+  if (action === "ask" && unit) {
+    const question = selectedUnitRouteQuestion(unit);
+    const input = $("#inquiry-form input[name='question']");
+    if (input) {
+      input.value = question;
+    }
+    answerAndLogInquiry(question, "selected-unit ontology query drawer");
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  if (action === "peer" && value) {
+    const units = state.analysis.mapLayers ? state.analysis.mapLayers.units || [] : [];
+    const peerUnit = units.find((item) => item.unit_id === value);
+    if (!peerUnit) {
+      return;
+    }
+    state.selectedUnitId = peerUnit.unit_id;
+    state.disclosureLevel = "unit";
+    state.activeTab = "map";
+    state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+      "Open aggregate peer from the selected-unit ontology query drawer",
+      "selected-unit ontology query drawer",
+      [peerUnit],
+    );
+    render();
+    return;
+  }
+  if ((action === "topic" || action === "function" || action === "tier") && value) {
+    state.mapFilters = {
+      ...state.mapFilters,
+      topic: action === "topic" ? value : state.mapFilters.topic,
+      function: action === "function" ? value : state.mapFilters.function,
+      tier: action === "tier" ? value : state.mapFilters.tier,
+    };
+    state.geographyColorMode = action;
+    state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+    const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
+    state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+      `Show ${value} aggregate ${action} route from the selected-unit ontology query drawer`,
+      "selected-unit ontology query drawer",
+      visibleUnits,
+    );
+    state.activeTab = "map";
+    render();
+    return;
+  }
+  if (action === "peers") {
+    state.selectedOntologyNeighborFilter = "all";
+    state.ontologyPathStage = "unit";
+    state.geographyLayers = {
+      ...defaultGeographyLayers(),
+      ...state.geographyLayers,
+      ontology: true,
+    };
+    state.disclosureLevel = "unit";
+    state.activeTab = "ontology";
+    render();
+    return;
+  }
+  if (action === "scores") {
+    state.ontologyPathStage = "scores";
+    state.disclosureLevel = "unit";
+    state.activeTab = "ontology";
+    render();
+    return;
+  }
+  if (action === "evidence") {
+    state.ontologyPathStage = "geometry";
+    state.disclosureLevel = "evidence";
+    state.geographyLayers = {
+      ...defaultGeographyLayers(),
+      ...state.geographyLayers,
+      ontology: true,
+    };
+    state.activeTab = "map";
+    render();
+  }
 }
 
 function selectedUnitOntologyDrilldownHtml(unit, auditQuality, packageHit) {
@@ -13122,6 +13331,15 @@ function bindEvents() {
       applySelectedUnitQueryRoute(
         selectedQueryButton.dataset.selectedQueryRoute || "inquiry",
         selectedQueryButton.dataset.selectedQueryUnit || "",
+      );
+      return;
+    }
+    const selectedOntologyQueryButton = event.target.closest("[data-selected-ontology-query]");
+    if (selectedOntologyQueryButton) {
+      event.preventDefault();
+      applySelectedUnitOntologyQuery(
+        selectedOntologyQueryButton.dataset.selectedOntologyQuery || "",
+        selectedOntologyQueryButton.dataset.selectedOntologyQueryValue || "",
       );
       return;
     }

@@ -337,6 +337,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Selected-unit query replay" in js
     assert "Ask -> answer -> ontology for this county/town" in js
     assert "Route stores only aggregate filters" in js
+    assert "selectedUnitOntologyQueryDrawerHtml" in js
+    assert "selectedUnitOntologyQueryNodes" in js
+    assert "selectedUnitOntologyQueryNodeHtml" in js
+    assert "selectedUnitOntologyQueryPeerHtml" in js
+    assert "applySelectedUnitOntologyQuery" in js
+    assert "data-selected-ontology-query" in js
+    assert "County/town ontology query drawer" in js
+    assert "Turn this selected map unit into graph questions" in js
+    assert "Node filters update the colored county/town map from aggregate counts only" in js
     assert "selectedUnitDisclosureStepHtml" in js
     assert "selectedUnitMapOntologyRouteHtml" in js
     assert "selectedUnitMapOntologyRouteStages" in js
@@ -657,6 +666,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selected-query-replay" in css
     assert "selected-query-steps" in css
     assert "selected-query-actions" in css
+    assert "selected-ontology-query-drawer" in css
+    assert "selected-ontology-query-nodes" in css
+    assert "selected-ontology-query-peer" in css
     assert "selected-route-stage" in css
     assert "selected-route-boundary" in css
     assert "analysis-journey" in css

@@ -127,6 +127,7 @@ The Pages app supports:
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - selected-unit query replay cards that save a county/town aggregate question route and replay it into Inquiry or Ontology;
 - selected-unit map-to-ontology route trail with stage buttons that open Ontology at the matching progressive disclosure depth;
+- selected-unit county/town ontology query drawer that turns topic, function, tier, score, provenance, and peer nodes into safe aggregate map or inquiry routes;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
 - aggregate chart rows can open the Law Map with safe browser-only filters or published aggregate unit IDs;
 - aggregate chart map actions now brush matching county/town units in the existing chat-to-map highlight panel;

@@ -146,6 +146,15 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Selected-unit query replay" in js
     assert "Ask -> answer -> ontology for this county/town" in js
     assert "Route stores only aggregate filters" in js
+    assert "selectedUnitOntologyQueryDrawerHtml" in js
+    assert "selectedUnitOntologyQueryNodes" in js
+    assert "selectedUnitOntologyQueryNodeHtml" in js
+    assert "selectedUnitOntologyQueryPeerHtml" in js
+    assert "applySelectedUnitOntologyQuery" in js
+    assert "data-selected-ontology-query" in js
+    assert "County/town ontology query drawer" in js
+    assert "Turn this selected map unit into graph questions" in js
+    assert "Node filters update the colored county/town map from aggregate counts only" in js
     assert "selectedUnitMapOntologyRouteHtml" in js
     assert "selectedUnitMapOntologyRouteStages" in js
     assert "selectedUnitMapOntologyRouteStageHtml" in js
@@ -527,6 +536,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selected-map-ontology-route" in css
     assert "selected-query-replay" in css
     assert "selected-query-steps" in css
+    assert "selected-ontology-query-drawer" in css
+    assert "selected-ontology-query-nodes" in css
+    assert "selected-ontology-query-peer" in css
     assert "selected-neighbor-filter-controls" in css
     assert "selected-neighbor-peer-strip" in css
     assert "selected-neighbor-peer-row" in css
