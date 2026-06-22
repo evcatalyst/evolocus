@@ -130,3 +130,4 @@
 - Question-to-ontology routes can make typed questions feel connected to the graph, but the route object must remain aggregate-only node IDs, filters, counts, and policy flags rather than legal conclusions or row evidence.
 - Map-side cross-filter legends should summarize only the currently visible aggregate units and route through the same safe filters/highlights as other Pages visuals.
 - Selected-unit ontology query drawers should turn county/town map selections into aggregate topic, function, tier, score, provenance, and peer routes while avoiding row text, source locators, live browser models, or legal findings.
+- Selected-unit peer drawers should compare county/town aggregate units with shared-lens reasons and map drillback, but must say they are not rankings, legal findings, or row-level evidence.

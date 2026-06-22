@@ -7374,39 +7374,48 @@ function showScorePeerReason(selectedUnit, peerUnit) {
 }
 
 function selectedUnitPeerComparisonHtml(unit) {
+  return selectedUnitPeerComparisonDrawerHtml(unit);
+}
+
+function selectedUnitPeerComparisonDrawerHtml(unit) {
   const peers = selectedUnitPeers(unit);
   const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
   const showEvidence = state.disclosureLevel === "evidence";
   if (!peers.length) {
     return `
-      <section class="selected-peer-card">
-        <h4>Aggregate peers</h4>
+      <section class="selected-peer-card selected-peer-comparison-drawer" aria-label="County/town peer comparison drawer">
+        <div class="selected-peer-comparison-heading">
+          <span>Compare selected unit to aggregate ontology peers</span>
+          <h4>County/town peer comparison drawer</h4>
+        </div>
         <p class="muted-note">No peer units are available in the current published aggregate layer.</p>
+        <p class="selected-peer-comparison-boundary"><strong>Rows compare aggregate map units only.</strong> No ordinance text, source locators, browser model calls, rankings, or legal findings.</p>
       </section>
     `;
   }
   const maxLaws = Math.max(1, Number(unit.law_count || 0), ...peers.map((peer) => Number(peer.unit.law_count || 0)));
+  const peerKinds = selectedPeerKindSummary(unit, peers);
+  const sharedLens = selectedPeerLensSummary(peers);
   return `
-    <section class="selected-peer-card" aria-label="Selected unit peer comparison">
-      <div class="selected-peer-heading">
-        <h4>Aggregate peer comparison</h4>
-        <span>${escapeHtml(formatCount(peers.length))} similar published units</span>
+    <section class="selected-peer-card selected-peer-comparison-drawer" aria-label="County/town peer comparison drawer">
+      <div class="selected-peer-comparison-heading">
+        <div>
+          <span>Compare selected unit to aggregate ontology peers</span>
+          <h4>County/town peer comparison drawer</h4>
+        </div>
+        <button type="button" data-selected-ontology-query="peer">Ask with peers</button>
       </div>
       <p>Peers are selected by shared aggregate fields and law-count proximity. This is a review aid, not a ranking.</p>
-      <div class="peer-row selected">
-        <button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">${escapeHtml(displayUnitName(unit))}</button>
-        <div class="peer-bar"><i style="width:${peerLawWidth(unit, maxLaws)}%"></i></div>
-        <strong>${escapeHtml(formatCount(unit.law_count))}</strong>
-        <span>Selected unit</span>
+      <div class="selected-peer-comparison-metrics">
+        ${selectedUnitPeerComparisonMetricHtml("Peer units", formatCount(peers.length), "published aggregate peers")}
+        ${selectedUnitPeerComparisonMetricHtml("County/town mix", peerKinds, "from current public map layer")}
+        ${selectedUnitPeerComparisonMetricHtml("Shared lens", sharedLens, "state, kind, topic, function, tier, or count")}
       </div>
-      <div class="peer-list">
-        ${peers.map((peer) => peerRowHtml(peer, unit, maxLaws, showUnit, showEvidence)).join("")}
+      <p class="selected-peer-comparison-boundary"><strong>Rows compare aggregate map units only.</strong> No ordinance text, source locators, browser model calls, rankings, or legal findings.</p>
+      <div class="selected-peer-comparison-list" role="list">
+        ${selectedUnitPeerComparisonRows(unit, peers, maxLaws, showUnit, showEvidence)}
       </div>
-      ${
-        !showUnit
-          ? `<p class="muted-note">Switch to Unit detail for score deltas and topic/function mix.</p>`
-          : ""
-      }
+      ${!showUnit ? `<p class="muted-note">Switch to Unit detail for neutral score deltas and topic/function mix.</p>` : ""}
       ${
         showEvidence
           ? `<p class="muted-note">Peer method: same state, jurisdiction kind, topic, function, tier, and log-scaled law-count proximity over the published top-1,000 aggregate units in map_layers.json.</p>`
@@ -7414,6 +7423,77 @@ function selectedUnitPeerComparisonHtml(unit) {
       }
     </section>
   `;
+}
+
+function selectedUnitPeerComparisonMetricHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(String(value || "n/a"))}</strong>
+      <em>${escapeHtml(label)}</em>
+      <small>${escapeHtml(detail)}</small>
+    </span>
+  `;
+}
+
+function selectedUnitPeerComparisonRows(unit, peers, maxLaws, showUnit, showEvidence) {
+  const selectedPeer = { unit, score: null, lawDelta: 0, reasons: ["selected aggregate unit"] };
+  return [
+    selectedUnitPeerComparisonRowHtml(selectedPeer, unit, maxLaws, showUnit, showEvidence, true),
+    ...peers.map((peer) => selectedUnitPeerComparisonRowHtml(peer, unit, maxLaws, showUnit, showEvidence, false)),
+  ].join("");
+}
+
+function selectedUnitPeerComparisonRowHtml(peer, selectedUnit, maxLaws, showUnit, showEvidence, selected = false) {
+  const unit = peer.unit;
+  const width = peerLawWidth(unit, maxLaws);
+  const name = displayUnitName(unit);
+  const button = selected
+    ? `<button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">${escapeHtml(name)}</button>`
+    : `<button type="button" data-map-compare-unit="${escapeHtml(unit.unit_id)}">${escapeHtml(name)}</button>`;
+  const scoreLabel = selected ? "Selected unit" : `Peer score ${peer.score.toFixed(1)}`;
+  const reasonTags = (selected ? ["selected map unit"] : peer.reasons).map((reason) => `<em>${escapeHtml(reason)}</em>`).join("");
+  return `
+    <article class="selected-peer-comparison-row${selected ? " selected" : ""}" role="listitem" style="--peer-row-width:${width}%">
+      <div class="selected-peer-comparison-main">
+        ${button}
+        <span>${escapeHtml(text(unit.state))} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</span>
+      </div>
+      <div class="selected-peer-comparison-bar" aria-hidden="true"><i></i></div>
+      <strong>${escapeHtml(formatCount(unit.law_count))}</strong>
+      <small>${escapeHtml(scoreLabel)}</small>
+      <div class="selected-peer-comparison-tags">${reasonTags}</div>
+      ${
+        showUnit
+          ? `<p>${escapeHtml(text(unit.dominant_topic))} / ${escapeHtml(text(unit.dominant_function))} · neutral score delta ${escapeHtml(selected ? "selected baseline" : scoreDeltaSummary(selectedUnit, unit))}</p>`
+          : ""
+      }
+      ${
+        showEvidence && !selected
+          ? `<p class="muted-note">Law-count delta ${escapeHtml(formatCount(peer.lawDelta))}; source map_layers.json.</p>`
+          : ""
+      }
+    </article>
+  `;
+}
+
+function selectedPeerKindSummary(unit, peers) {
+  const kinds = [unit, ...peers.map((peer) => peer.unit)]
+    .map((peerUnit) => text(peerUnit.kind).toLowerCase())
+    .filter(Boolean);
+  const uniqueKinds = [...new Set(kinds)];
+  if (!uniqueKinds.length) {
+    return "aggregate units";
+  }
+  return uniqueKinds.map((kind) => (kind === "city" ? "town/city" : kind)).join(" + ");
+}
+
+function selectedPeerLensSummary(peers) {
+  const counts = new Map();
+  peers.forEach((peer) => {
+    peer.reasons.forEach((reason) => counts.set(reason, (counts.get(reason) || 0) + 1));
+  });
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 2);
+  return top.length ? top.map(([reason]) => reason).join(" + ") : "aggregate similarity";
 }
 
 function selectedUnitPeers(unit) {
@@ -7483,26 +7563,7 @@ function peerComparison(unit, candidate) {
 }
 
 function peerRowHtml(peer, selectedUnit, maxLaws, showUnit, showEvidence) {
-  const unit = peer.unit;
-  return `
-    <article class="peer-row">
-      <button type="button" data-unit-id="${escapeHtml(unit.unit_id)}">${escapeHtml(displayUnitName(unit))}</button>
-      <div class="peer-bar"><i style="width:${peerLawWidth(unit, maxLaws)}%"></i></div>
-      <strong>${escapeHtml(formatCount(unit.law_count))}</strong>
-      <span>${escapeHtml(text(unit.state))} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</span>
-      <div class="peer-tags">${peer.reasons.map((reason) => `<em>${escapeHtml(reason)}</em>`).join("")}</div>
-      ${
-        showUnit
-          ? `<p>${escapeHtml(text(unit.dominant_topic))} / ${escapeHtml(text(unit.dominant_function))} · score delta ${escapeHtml(scoreDeltaSummary(selectedUnit, unit))}</p>`
-          : ""
-      }
-      ${
-        showEvidence
-          ? `<p class="muted-note">Peer score ${escapeHtml(peer.score.toFixed(1))}; law-count delta ${escapeHtml(formatCount(peer.lawDelta))}; source map_layers.json.</p>`
-          : ""
-      }
-    </article>
-  `;
+  return selectedUnitPeerComparisonRowHtml(peer, selectedUnit, maxLaws, showUnit, showEvidence, false);
 }
 
 function peerLawWidth(unit, maxLaws) {

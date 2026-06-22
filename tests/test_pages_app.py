@@ -675,6 +675,17 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontologyPathSweep" in css
     assert "ontologyNodeSvg" in js
     assert "selectedUnitPeerComparisonHtml" in js
+    assert "selectedUnitPeerComparisonDrawerHtml" in js
+    assert "selectedUnitPeerComparisonRows" in js
+    assert "selectedUnitPeerComparisonRowHtml" in js
+    assert "selectedUnitPeerComparisonMetricHtml" in js
+    assert "County/town peer comparison drawer" in js
+    assert "Compare selected unit to aggregate ontology peers" in js
+    assert "Rows compare aggregate map units only." in js
+    assert "No ordinance text, source locators, browser model calls, rankings, or legal findings." in js
+    assert "selected-peer-comparison-drawer" in css
+    assert "selected-peer-comparison-row" in css
+    assert "selected-peer-comparison-boundary" in css
     assert "scoreDeltaSummary" in js
     assert "modelSubstantiveShare" in js
     assert "substantiveShareColor" in js

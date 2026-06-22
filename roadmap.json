@@ -134,6 +134,7 @@
         "Add ontology-backed question routes from typed aggregate questions",
         "Add map-side cross-filter legend for topic function and tier routes",
         "Add selected-unit county town ontology query drawer",
+        "Add selected-unit county town peer comparison drawer",
         "Add first-screen saved visual route cards",
         "Add content-free landing route export packet",
         "Add content-free landing route import replay",

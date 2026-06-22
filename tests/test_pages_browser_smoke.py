@@ -160,6 +160,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "selected-unit ontology query drawer" in query_drawer_highlight_text
             assert "no browser-side grok call" in query_drawer_highlight_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.wait_for_selector(".selected-peer-comparison-drawer [data-map-compare-unit]", timeout=10_000)
+            peer_drawer_text = page.locator(".selected-peer-comparison-drawer").first.inner_text(timeout=5_000).lower()
+            assert "county/town peer comparison drawer" in peer_drawer_text
+            assert "rows compare aggregate map units only" in peer_drawer_text
+            assert "no ordinance text" in peer_drawer_text
+            assert "legal findings" in peer_drawer_text
+            page.locator(".selected-peer-comparison-drawer [data-map-compare-unit]").first.click()
+            page.wait_for_selector(".selected-query-replay", timeout=10_000)
+            peer_drawer_after_click = page.locator(".selected-peer-comparison-drawer").first.inner_text(timeout=5_000).lower()
+            assert "county/town peer comparison drawer" in peer_drawer_after_click
+            assert "aggregate ontology peers" in peer_drawer_after_click
             page.wait_for_selector(".selected-map-ontology-route [data-selected-route-open='topic']", timeout=10_000)
             page.wait_for_selector(".selected-query-replay [data-selected-query-route='save']", timeout=10_000)
             selected_query_text = page.locator(".selected-query-replay").inner_text(timeout=5_000)

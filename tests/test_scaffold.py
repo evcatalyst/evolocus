@@ -518,6 +518,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "safeCountMap" in js
     assert "data-map-inquiry" in js
     assert "data-map-compare-unit" in js
+    assert "selectedUnitPeerComparisonDrawerHtml" in js
+    assert "County/town peer comparison drawer" in js
+    assert "Rows compare aggregate map units only." in js
     assert "tierColorForLabel" in js
     assert "tierKeyForLabel" in js
     assert "openTierOntology" in js
@@ -772,9 +775,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-hit-badge" in css
     assert "selected-package-card" in css
     assert "selectedUnitPeerComparisonHtml" in js
+    assert "selectedUnitPeerComparisonRows" in js
+    assert "selectedUnitPeerComparisonMetricHtml" in js
     assert "selectedUnitPeers" in js
     assert "scoreDeltaSummary" in js
     assert "selected-peer-card" in css
+    assert "selected-peer-comparison-drawer" in css
+    assert "selected-peer-comparison-row" in css
+    assert "selected-peer-comparison-boundary" in css
     assert "unitAuditQualityFor" in js
     assert "auditAttentionColor" in js
     assert "selectedUnitAuditQualityHtml" in js

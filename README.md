@@ -114,6 +114,7 @@ The Pages app supports:
 - selected-unit ontology drilldown cards for map-side topic/function/tier/score/geometry/package links;
 - selected-unit progressive visual trail that switches overview, unit-detail, and evidence depth from the map panel;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
+- selected-unit county/town peer comparison drawer with aggregate row bars, shared-lens reasons, and map drillback without rankings or legal findings;
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;

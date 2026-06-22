@@ -140,6 +140,7 @@ Current coverage stats:
 - Selected-unit progressive trail: GitHub Pages map panel walks from aggregate overview to unit-detail model outputs to evidence/provenance boundaries with disclosure buttons
 - Selected-unit ontology drilldowns: GitHub Pages map panel shows topic/function/tier/score/geometry/package cards that route to ontology context, evidence depth, or package focus without raw text
 - Selected-unit ontology query drawer: GitHub Pages map panel turns the selected county/town's topic, function, tier, score, provenance, and aggregate peer nodes into safe map or inquiry routes without row text, source locators, browser model calls, or legal findings
+- Selected-unit peer comparison drawer: GitHub Pages map panel compares the selected county/town aggregate unit with similar published aggregate peers using row bars, shared-lens reasons, and map drillback while explicitly excluding ordinance text, source locators, rankings, and legal findings
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, package overlay, topic, function, audit, score, and selected-unit answers
 - Static question-pack surface: GitHub Pages reads `question_pack.json` prompts that can apply aggregate map filters and disclosure levels without live browser model calls
 - Inquiry answer mini-chart surface: GitHub Pages answers now include click-through topic, function, tier, and top-unit aggregate mini charts that route back to safe map filters or published unit IDs only
@@ -282,3 +283,4 @@ Evaluator implementation state:
 - Ontology-backed question route surface: GitHub Pages typed questions now show and replay aggregate topic/function/tier/unit graph nodes with explicit no-text/no-locator/no-browser-model boundaries.
 - Map cross-filter legend surface: GitHub Pages Law Map now shows visible topic, function, and neutral-tier rows that apply aggregate-only filters and map highlights without row text or legal findings.
 - County/town ontology query drawer surface: GitHub Pages Law Map now exposes selected-unit graph-question nodes that filter the colored county/town map, open selected-unit answers, or move to aggregate peer units without publishing ordinance text or locators.
+- County/town peer comparison drawer surface: GitHub Pages Law Map now compares selected aggregate units to peer county/town units with row bars, shared aggregate reasons, and map drillback while avoiding rankings, legal findings, source locators, and browser model calls.

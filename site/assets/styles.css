@@ -6862,6 +6862,166 @@ button.ontology-tier-mini-bar:focus-visible {
   font-weight: 750;
 }
 
+.selected-peer-comparison-drawer {
+  display: grid;
+  gap: 12px;
+}
+
+.selected-peer-comparison-heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.selected-peer-comparison-heading span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.selected-peer-comparison-heading button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #eef7f2;
+  color: var(--ink);
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.selected-peer-comparison-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.selected-peer-comparison-metrics span {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 9px;
+}
+
+.selected-peer-comparison-metrics strong {
+  font-size: 1.05rem;
+  line-height: 1.1;
+}
+
+.selected-peer-comparison-metrics em,
+.selected-peer-comparison-metrics small,
+.selected-peer-comparison-boundary {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.selected-peer-comparison-boundary {
+  border: 1px solid rgba(183, 137, 44, 0.35);
+  border-radius: 8px;
+  background: #fffaf0;
+  margin: 0;
+  padding: 9px;
+}
+
+.selected-peer-comparison-boundary strong {
+  display: block;
+  color: var(--ink);
+}
+
+.selected-peer-comparison-list {
+  display: grid;
+  gap: 8px;
+}
+
+.selected-peer-comparison-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.2fr) minmax(90px, 0.9fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.selected-peer-comparison-row.selected {
+  background: #f4f8f9;
+  border-color: rgba(50, 111, 112, 0.38);
+}
+
+.selected-peer-comparison-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.selected-peer-comparison-main button {
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--ink);
+  font-weight: 850;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selected-peer-comparison-main span,
+.selected-peer-comparison-row small,
+.selected-peer-comparison-row p {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.selected-peer-comparison-bar {
+  height: 11px;
+  border-radius: 999px;
+  background: #e5e9ef;
+  overflow: hidden;
+}
+
+.selected-peer-comparison-bar i {
+  display: block;
+  width: var(--peer-row-width);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+
+.selected-peer-comparison-row strong {
+  white-space: nowrap;
+}
+
+.selected-peer-comparison-tags {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.selected-peer-comparison-tags em {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 4px 7px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.selected-peer-comparison-row p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
 .peer-list {
   display: grid;
   gap: 8px;
@@ -9082,6 +9242,9 @@ th {
   .selected-ontology-query-heading,
   .selected-ontology-query-nodes,
   .selected-ontology-query-peer,
+  .selected-peer-comparison-heading,
+  .selected-peer-comparison-metrics,
+  .selected-peer-comparison-row,
   .selected-disclosure-steps,
   .selected-ontology-drilldown-grid,
   .ontology-path-strip,
@@ -9243,6 +9406,9 @@ th {
   .selected-ontology-query-heading,
   .selected-ontology-query-nodes,
   .selected-ontology-query-peer,
+  .selected-peer-comparison-heading,
+  .selected-peer-comparison-metrics,
+  .selected-peer-comparison-row,
   .selected-ontology-drilldown-heading,
   .selected-ontology-drilldown-grid,
   .inquiry-form,
