@@ -163,3 +163,4 @@
 - Askable selected-color lenses should route through deterministic aggregate Inquiry answers and saved route metadata, not browser LLM calls or row-level evidence.
 - Ontology peer-link legends should explain aggregate link reasons as navigation lenses and must explicitly deny legal-authority, ranking, source-record, or controlling-law meaning.
 - Saved route ladders should show the map-to-inquiry journey as aggregate metadata stages: question, filters, map color, selected unit, ontology, and publication boundary, never as law text, source locators, review events, or live model calls.
+- Shareable route URLs should encode only bounded aggregate route state and reconstruct current visuals from public artifacts, not embed ordinance text, source locators, review events, local paths, or model outputs.

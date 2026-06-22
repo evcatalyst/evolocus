@@ -265,6 +265,30 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             saved_route_text = page.locator(".frontdoor-saved-routes").inner_text(timeout=5_000)
             assert "saved visual routes" in saved_route_text.lower()
             assert "no ordinance text" in saved_route_text.lower()
+            page.locator(".frontdoor-saved-route [data-frontdoor-route-action='share-map']").first.click()
+            page.wait_for_selector(".frontdoor-route-share-card input", timeout=10_000)
+            share_card_text = page.locator(".frontdoor-route-share-card").inner_text(timeout=5_000).lower()
+            assert "shareable route link" in share_card_text
+            assert "content-free" in share_card_text
+            share_map_url = page.locator(".frontdoor-route-share-card input").input_value(timeout=5_000)
+            assert "?route=" in share_map_url
+            page.goto(share_map_url, wait_until="networkidle")
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            shared_map_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "shareable aggregate route url" in shared_map_text
+            assert "no browser-side grok call" in shared_map_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.locator(".frontdoor-saved-route [data-frontdoor-route-action='share-ontology']").first.click()
+            page.wait_for_selector(".frontdoor-route-share-card input", timeout=10_000)
+            share_ontology_url = page.locator(".frontdoor-route-share-card input").input_value(timeout=5_000)
+            assert "?route=" in share_ontology_url
+            page.goto(share_ontology_url, wait_until="networkidle")
+            page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
+            page.wait_for_selector("#ontology-panel .question-ontology-route", timeout=10_000)
+            shared_ontology_text = page.locator("#ontology-panel .question-ontology-route").first.inner_text(timeout=5_000).lower()
+            assert "ontology-backed route" in shared_ontology_text
+            assert "no row text" in shared_ontology_text
             with page.expect_download() as download_info:
                 page.locator("[data-frontdoor-export-routes]").click()
             download = download_info.value

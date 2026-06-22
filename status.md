@@ -308,6 +308,7 @@ Evaluator implementation state:
 - Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.
 - Inquiry route comparison surface: saved aggregate question paths compare browser-local row/unit counts, selected units, filters, topic/function/tier context, and artifact provenance without legal rankings or row text.
 - Inquiry route ladder surface: saved route comparisons now show a stage-by-stage question, filter, map-color, selected-unit, ontology, and publication-boundary ladder using aggregate metadata only, with no text, locators, review events, or browser model calls.
+- Shareable route URL surface: GitHub Pages saved aggregate routes can now generate content-free `?route=` links that reopen the colored county/town map or ontology route with aggregate filters, selected public unit ID, color mode, disclosure level, and no row text or locators.
 - Inquiry pathway surface: GitHub Pages groups current aggregate units into topic/tier visual cells with ask and map actions that reuse safe filters and deterministic aggregate answers only.
 - Inquiry pathway peer surface: topic/tier pathway cells compare top aggregate units with row-count bars and map drillback using published unit IDs only.
 - Inquiry replay timeline surface: saved aggregate inquiry entries render as browser-local row/unit sparklines with replay and map actions, excluding text, locators, review events, and browser model calls.

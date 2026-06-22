@@ -1476,6 +1476,90 @@ main {
   font-style: normal;
 }
 
+.frontdoor-route-share-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 1.4fr) auto;
+  gap: 10px;
+  align-items: end;
+  border: 1px solid rgba(50, 111, 112, 0.22);
+  border-radius: 8px;
+  background: #f8fbfa;
+  padding: 10px;
+}
+
+.frontdoor-route-share-card.error {
+  border-color: rgba(164, 73, 63, 0.3);
+  background: #fff8f7;
+}
+
+.frontdoor-route-share-card div,
+.frontdoor-route-share-card label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.frontdoor-route-share-card span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.frontdoor-route-share-card strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-route-share-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.frontdoor-route-share-card input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 7px 8px;
+  font-size: 0.78rem;
+}
+
+.frontdoor-route-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.frontdoor-route-share-actions a,
+.frontdoor-route-share-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border: 1px solid rgba(50, 111, 112, 0.28);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--green);
+  padding: 7px 9px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.frontdoor-route-share-actions a:hover,
+.frontdoor-route-share-actions a:focus-visible,
+.frontdoor-route-share-actions button:hover,
+.frontdoor-route-share-actions button:focus-visible {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.1);
+}
+
 .frontdoor-route-import {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
@@ -12528,6 +12612,7 @@ th {
   .frontdoor-question-metrics,
   .frontdoor-route-preview-grid,
   .frontdoor-saved-export-card,
+  .frontdoor-route-share-card,
   .frontdoor-route-import,
   .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,
@@ -12734,6 +12819,7 @@ th {
   .frontdoor-imported-story-metrics,
   .frontdoor-question-metrics,
   .frontdoor-saved-export-card,
+  .frontdoor-route-share-card,
   .frontdoor-route-import,
   .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,

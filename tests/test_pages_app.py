@@ -168,6 +168,20 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoorRouteExportPayload" in js
     assert "frontdoorRouteExportItem" in js
     assert "exportFrontdoorSavedRoutes" in js
+    assert "frontdoorRouteShareHtml" in js
+    assert "frontdoorShareRoutePayload" in js
+    assert "frontdoorShareRouteUrl" in js
+    assert "encodeShareableRoutePayload" in js
+    assert "decodeShareableRoutePayload" in js
+    assert "readShareableRouteFromLocation" in js
+    assert "applyPendingShareableRouteFromUrl" in js
+    assert "applyShareableRoute" in js
+    assert "shareFrontdoorSavedRoute" in js
+    assert "evolocus-shareable-route-v1" in js
+    assert "Share map link" in js
+    assert "Share ontology link" in js
+    assert "Loaded shared aggregate route" in js
+    assert "restores only aggregate filters" in js
     assert "frontdoorVisualStoryPacketHtml" in js
     assert "frontdoorVisualStoryPacketPayload" in js
     assert "exportFrontdoorVisualStoryPacket" in js
@@ -849,6 +863,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoor-saved-route" in css
     assert "frontdoor-saved-actions" in css
     assert "frontdoor-saved-export-card" in css
+    assert "frontdoor-route-share-card" in css
+    assert "frontdoor-route-share-actions" in css
     assert "frontdoor-route-import" in css
     assert "frontdoor-story-packet" in css
     assert "frontdoor-story-metrics" in css

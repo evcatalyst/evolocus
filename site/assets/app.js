@@ -41,6 +41,7 @@ const SCORE_OPTIONS = [
 const TOPICS = ["Buildings", "Business", "Nuisance", "Zoning", "Other"];
 const FUNCTIONS = ["Context", "Rules", "Process", "Enforcement"];
 const SCORE_FIELDS = ["enforcement_discretion", "opacity", "paternalism", "problem_salience"];
+const GEOGRAPHY_COLOR_MODES = ["tier", "topic", "function", "score", "substantive_share", "audit_attention", "law_count"];
 const STATE_NAME_TO_CODE = {
   alabama: "AL",
   alaska: "AK",
@@ -300,8 +301,10 @@ let state = {
   inquiryMapComposerQuestion: "",
   frontdoorComposerQuestion: "",
   frontdoorRouteImportStatus: null,
+  frontdoorRouteShareStatus: null,
   frontdoorStoryImportStatus: null,
   frontdoorImportedStory: null,
+  pendingShareableRoute: null,
   mapFilters: {
     state: "",
     topic: "",
@@ -1630,6 +1633,7 @@ function frontdoorSavedRoutesHtml(entries) {
           <strong>No browser-local routes yet.</strong>
           <p>Use Save route or Ask + save to keep aggregate question routes on this landing surface.</p>
         </div>
+        ${frontdoorRouteShareHtml()}
         ${frontdoorRouteImportHtml()}
       </section>
     `;
@@ -1649,12 +1653,39 @@ function frontdoorSavedRoutesHtml(entries) {
         <span><strong>JSON</strong><em>content-free packet</em></span>
         <span><strong>0</strong><em>text rows or locators</em></span>
       </div>
+      ${frontdoorRouteShareHtml()}
       ${frontdoorRouteImportHtml()}
       <div class="frontdoor-saved-grid">
         ${routes.map((item, index) => frontdoorSavedRouteCardHtml(item, index, maxRows)).join("")}
       </div>
       <p class="frontdoor-saved-boundary">Saved route cards restore aggregate filters, selected public unit IDs, and deterministic answers only. No ordinance text, source locators, review events, secrets, or live model output is stored or published.</p>
     </section>
+  `;
+}
+
+function frontdoorRouteShareHtml() {
+  const status = state.frontdoorRouteShareStatus;
+  if (!status) {
+    return "";
+  }
+  const ok = status.status === "ready" || status.status === "loaded";
+  return `
+    <div class="frontdoor-route-share-card ${escapeHtml(status.status || "ready")}" aria-label="Shareable aggregate route link">
+      <div>
+        <span>${escapeHtml(ok ? "Shareable route link" : "Route link status")}</span>
+        <strong>${escapeHtml(status.title || (ok ? "Content-free URL route is ready." : "Route link unavailable."))}</strong>
+        <p>${escapeHtml(status.message || "Links contain aggregate filters, map color, selected public unit ID, disclosure level, and ontology route metadata only.")}</p>
+      </div>
+      ${
+        status.url
+          ? `<label><span>URL</span><input type="url" readonly value="${escapeHtml(status.url)}" aria-label="Shareable aggregate route URL"></label>`
+          : ""
+      }
+      <div class="frontdoor-route-share-actions">
+        ${status.url ? `<a href="${escapeHtml(status.url)}" target="_blank" rel="noopener noreferrer">Open link</a>` : ""}
+        <button type="button" data-frontdoor-clear-share>Clear</button>
+      </div>
+    </div>
   `;
 }
 
@@ -1724,6 +1755,180 @@ function frontdoorRouteExportItem(item) {
     artifact_provenance: item.artifact_provenance || {},
     publication_policy: aggregateInquiryLogPolicy(),
   };
+}
+
+function frontdoorShareRoutePayload(item, destination = "map") {
+  const route = frontdoorRouteExportItem(item);
+  const ontologyRoute = normalizedQuestionOntologyRoute(route.ontology_route);
+  return {
+    schema_version: "evolocus-shareable-route-v1",
+    generated_at: new Date().toISOString(),
+    destination: ["map", "ontology", "inquiry"].includes(destination) ? destination : "map",
+    question: String(route.question || "Aggregate visual route").slice(0, 240),
+    source: "shareable aggregate route URL",
+    disclosure_level: ["overview", "unit", "evidence"].includes(route.disclosure_level) ? route.disclosure_level : "overview",
+    geography_color_mode: validGeographyColorMode(route.geography_color_mode),
+    map_filters: normalizedLogMapFilters(route.map_filters),
+    filter_labels: Array.isArray(route.filter_labels) ? route.filter_labels.slice(0, 8).map((label) => String(label).slice(0, 80)) : [],
+    selected_unit_id: route.selected_unit?.unit_id || ontologyRoute?.focus_unit_id || "",
+    ontology_route: ontologyRoute
+      ? {
+          schema_version: ontologyRoute.schema_version,
+          source: "shareable aggregate route URL",
+          question: String(ontologyRoute.question || route.question || "").slice(0, 240),
+          map_filters: normalizedLogMapFilters(ontologyRoute.map_filters || route.map_filters),
+          focus_tier: String(ontologyRoute.focus_tier || "").slice(0, 80),
+          focus_topic: String(ontologyRoute.focus_topic || "").slice(0, 80),
+          focus_function: String(ontologyRoute.focus_function || "").slice(0, 80),
+          focus_unit_id: String(ontologyRoute.focus_unit_id || "").slice(0, 180),
+          unit_ids: (ontologyRoute.unit_ids || []).slice(0, 80).map((unitId) => String(unitId).slice(0, 180)),
+          unit_count: Number(ontologyRoute.unit_count || 0),
+          law_count: Number(ontologyRoute.law_count || 0),
+          nodes: (ontologyRoute.nodes || []).slice(0, 6),
+          edge_count: Number(ontologyRoute.edge_count || 0),
+          publication_policy: questionOntologyRoutePolicy(),
+        }
+      : null,
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
+}
+
+function validGeographyColorMode(mode) {
+  return GEOGRAPHY_COLOR_MODES.includes(mode) ? mode : "tier";
+}
+
+function frontdoorShareRouteUrl(item, destination = "map") {
+  const payload = frontdoorShareRoutePayload(item, destination);
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("route", encodeShareableRoutePayload(payload));
+  return { url: url.toString(), payload };
+}
+
+function encodeShareableRoutePayload(payload) {
+  const json = JSON.stringify(payload);
+  const bytes = new TextEncoder().encode(json);
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function decodeShareableRoutePayload(encoded) {
+  const value = String(encoded || "").trim();
+  if (!value) {
+    return null;
+  }
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function readShareableRouteFromLocation() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const payload = decodeShareableRoutePayload(params.get("route"));
+    return payload ? sanitizedShareableRoutePayload(payload) : null;
+  } catch (error) {
+    return {
+      error: `Shared route could not be loaded: ${error.message}`,
+    };
+  }
+}
+
+function sanitizedShareableRoutePayload(payload) {
+  if (!payload || payload.schema_version !== "evolocus-shareable-route-v1") {
+    throw new Error("Shared route must use schema evolocus-shareable-route-v1.");
+  }
+  if (containsBlockedRoutePacketKeys(payload)) {
+    throw new Error("Shared route contains blocked row-text, locator, review-event, or secret-shaped fields.");
+  }
+  const ontologyRoute = normalizedQuestionOntologyRoute(payload.ontology_route);
+  const filters = normalizedLogMapFilters(payload.map_filters || ontologyRoute?.map_filters || {});
+  return {
+    schema_version: "evolocus-shareable-route-v1",
+    generated_at: payload.generated_at || null,
+    destination: ["map", "ontology", "inquiry"].includes(payload.destination) ? payload.destination : "map",
+    question: String(payload.question || ontologyRoute?.question || "Shared aggregate visual route").slice(0, 240),
+    source: "shareable aggregate route URL",
+    disclosure_level: ["overview", "unit", "evidence"].includes(payload.disclosure_level) ? payload.disclosure_level : "overview",
+    geography_color_mode: validGeographyColorMode(payload.geography_color_mode),
+    map_filters: filters,
+    filter_labels: Array.isArray(payload.filter_labels) ? payload.filter_labels.slice(0, 8).map((label) => String(label).slice(0, 80)) : mapComposerFilterLabels(filters),
+    selected_unit_id: String(payload.selected_unit_id || ontologyRoute?.focus_unit_id || "").slice(0, 180),
+    ontology_route: ontologyRoute,
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
+}
+
+function applyPendingShareableRouteFromUrl() {
+  const route = state.pendingShareableRoute;
+  if (!route) {
+    return false;
+  }
+  state.pendingShareableRoute = null;
+  if (route.error) {
+    state.frontdoorRouteShareStatus = {
+      status: "error",
+      title: "Shared route was rejected.",
+      message: route.error,
+    };
+    return false;
+  }
+  applyShareableRoute(route);
+  return true;
+}
+
+function applyShareableRoute(route) {
+  const payload = sanitizedShareableRoutePayload(route);
+  state.mapFilters = payload.map_filters;
+  state.geographyColorMode = payload.geography_color_mode;
+  state.disclosureLevel = payload.disclosure_level;
+  state.selectedUnitId = payload.selected_unit_id || null;
+  const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const summary = summarizeUnits(visibleUnits);
+  const ontologyRoute = normalizedQuestionOntologyRoute(payload.ontology_route)
+    || questionOntologyRouteFromUnits(payload.question, "shareable aggregate route URL", visibleUnits, payload.map_filters, summary);
+  state.inquiryMapHighlight = inquiryMapHighlightFromOntologyRoute(payload.question, "shareable aggregate route URL", ontologyRoute, payload.filter_labels)
+    || inquiryMapHighlightFromVisibleUnits(payload.question, "shareable aggregate route URL", visibleUnits, summary);
+  if (payload.destination === "ontology") {
+    applyQuestionOntologyRoute(ontologyRoute, { renderNow: false });
+  } else if (payload.destination === "inquiry") {
+    state.inquiryAnswer = answerWithRouteMetadata(payload.question, "shareable aggregate route URL", answerQuestion(payload.question));
+    state.activeTab = "inquiry";
+  } else {
+    state.activeTab = "map";
+  }
+  state.frontdoorRouteShareStatus = {
+    status: "loaded",
+    title: "Loaded shared aggregate route.",
+    message: "The URL restored aggregate filters, map color, selected public unit, disclosure level, and ontology context only.",
+  };
+}
+
+function shareFrontdoorSavedRoute(routeId, destination = "map") {
+  const item = state.inquiryResultsLog.find((entry) => entry.id === routeId);
+  if (!item) {
+    state.frontdoorRouteShareStatus = {
+      status: "error",
+      title: "Route link unavailable.",
+      message: "The selected browser-local aggregate route was not found.",
+    };
+    render();
+    return;
+  }
+  const share = frontdoorShareRouteUrl(item, destination);
+  state.frontdoorRouteShareStatus = {
+    status: "ready",
+    title: `${titleCase(share.payload.destination)} link ready.`,
+    message: "This content-free URL restores only aggregate filters, map color, selected public unit ID, disclosure level, and ontology route metadata.",
+    url: share.url,
+  };
+  render();
 }
 
 function exportFrontdoorSavedRoutes() {
@@ -1874,6 +2079,8 @@ function frontdoorSavedRouteCardHtml(item, index, maxRows) {
         <button type="button" data-frontdoor-route-action="answer" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Replay answer</button>
         <button type="button" data-frontdoor-route-action="map" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Map route</button>
         <button type="button" data-frontdoor-route-action="ontology" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Ontology route</button>
+        <button type="button" data-frontdoor-route-action="share-map" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Share map link</button>
+        <button type="button" data-frontdoor-route-action="share-ontology" data-frontdoor-route-id="${escapeHtml(item.id || "")}">Share ontology link</button>
       </div>
     </article>
   `;
@@ -2381,6 +2588,10 @@ function applyFrontdoorRoutePreviewAction(action, value, form) {
 
 function applyFrontdoorSavedRoute(action, routeId) {
   if (!routeId) {
+    return;
+  }
+  if (action === "share-map" || action === "share-ontology") {
+    shareFrontdoorSavedRoute(routeId, action === "share-ontology" ? "ontology" : "map");
     return;
   }
   const destination = action === "map" || action === "ontology" ? action : "inquiry";
@@ -17262,6 +17473,7 @@ async function fetchAnalysisArtifacts() {
       fetchJson(ANALYSIS_PATHS.refreshStatus),
     ]);
     state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, aiAnalysisPack, models, charts, artifactSnapshot, visualSmoke, refreshStatus, error: null };
+    applyPendingShareableRouteFromUrl();
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }
@@ -17389,6 +17601,13 @@ function bindEvents() {
     if (exportRoutesButton) {
       event.preventDefault();
       exportFrontdoorSavedRoutes();
+      return;
+    }
+    const clearShareButton = event.target.closest("[data-frontdoor-clear-share]");
+    if (clearShareButton) {
+      event.preventDefault();
+      state.frontdoorRouteShareStatus = null;
+      render();
       return;
     }
     const savedRouteButton = event.target.closest("[data-frontdoor-route-action]");
@@ -18189,5 +18408,6 @@ function bindEvents() {
 
 initializeScoreSelects();
 bindEvents();
+state.pendingShareableRoute = readShareableRouteFromLocation();
 render();
 fetchAnalysisArtifacts();
