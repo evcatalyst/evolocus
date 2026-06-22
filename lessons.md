@@ -158,3 +158,4 @@
 - AI route mini maps should draw a bounded preview from matched aggregate county/town geography and clearly hand off to the full map for complete results, rather than implying every route unit is shown in the card.
 - AI route mini-map clickthroughs should pass only public aggregate unit IDs and route filters into the full Law Map selected-unit detail; never pass ordinance text, source locators, review events, API keys, or browser model calls.
 - After Grok-backed artifact refreshes, status should record the new Actions run and bot commit so Pages users can trace stale-vs-current aggregate analysis without exposing credentials or row-level data.
+- Map-side layer step animations should reuse existing aggregate map controls and color modes; each step is progressive disclosure, not new analysis, legal ranking, or browser-side model inference.

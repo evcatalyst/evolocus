@@ -2655,6 +2655,7 @@ function renderMap() {
     $("#map-route-replay").innerHTML = "";
     $("#map-inline-inquiry").innerHTML = "";
     $("#map-question-highlight").innerHTML = "";
+    $("#map-layer-stepper").innerHTML = "";
     $("#law-map").innerHTML = "";
     $("#map-insight-grid").innerHTML = "";
     $("#map-comparison-grid").innerHTML = "";
@@ -2676,6 +2677,7 @@ function renderMap() {
   }
   renderCountyChoropleth(units, packageStats);
   renderMapReadingGuide(units, allUnits, mapLayers, packageStats);
+  renderMapLayerStepper(units);
   renderTopicPlaybackPresets(units, allUnits);
   renderMapRefreshSource(status, mapLayers);
   renderMapQuestionHighlight(units);
@@ -3561,6 +3563,120 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
       </p>
     </section>
   `;
+}
+
+function renderMapLayerStepper(units) {
+  const target = $("#map-layer-stepper");
+  if (!target) {
+    return;
+  }
+  const rows = mapLayerStepRows(units || []);
+  target.innerHTML = `
+    <section class="map-layer-stepper-card" aria-label="Layer step animation">
+      <div class="map-layer-stepper-heading">
+        <div>
+          <p class="eyebrow">Layer step animation</p>
+          <h3>Tier -> Topic -> Function -> Score -> Audit</h3>
+          <p>Step the same county/town geography through aggregate law tiers, ontology labels, neutral model-score summaries, and review signals.</p>
+        </div>
+        <span>${escapeHtml(geographyColorLabel(state.geographyColorMode))}</span>
+      </div>
+      <div class="map-layer-stepper-grid" role="list">
+        ${rows.map(mapLayerStepButtonHtml).join("")}
+      </div>
+      <p class="map-layer-stepper-boundary">
+        No ordinance text, source locators, browser model calls, API keys, rankings, or legal findings are exposed. Steps change aggregate browser map controls only.
+      </p>
+    </section>
+  `;
+}
+
+function mapLayerStepRows(units) {
+  const summary = summarizeUnits(units || []);
+  const scoreField = state.mapFilters.scoreField || topScoreField(summary.scoreMeans) || SCORE_FIELDS[0];
+  const auditSummary = inquiryAuditSummary(units || []);
+  const auditRows = (units || [])
+    .map((unit) => unitAuditQualityFor(unit.unit_id))
+    .filter(Boolean);
+  const maxAudit = auditRows.reduce((max, row) => Math.max(max, Number(row.audit_attention_score || 0)), 0);
+  const topTier = topEntry(summary.tierCounts);
+  const scoreMean = Number(summary.scoreMeans?.[scoreField]);
+  const colorMode = state.geographyColorMode || "tier";
+  return [
+    {
+      step: "tier",
+      label: "Tier",
+      value: topTier.value ? topTier.label : "No visible tier",
+      detail: `${formatCount(topTier.value)} visible units in the lead neutral band`,
+      active: colorMode === "tier",
+    },
+    {
+      step: "topic",
+      label: "Topic",
+      value: summary.topTopic.value ? summary.topTopic.label : "No visible topic",
+      detail: `${formatCount(summary.topTopic.value)} aggregate rows in the lead released topic`,
+      active: colorMode === "topic",
+    },
+    {
+      step: "function",
+      label: "Function",
+      value: summary.topFunction.value ? summary.topFunction.label : "No visible function",
+      detail: `${formatCount(summary.topFunction.value)} aggregate rows in the lead released function`,
+      active: colorMode === "function",
+    },
+    {
+      step: "score",
+      label: "Score",
+      value: scoreField ? scoreFieldLabel(scoreField) : "No score field",
+      detail: Number.isFinite(scoreMean)
+        ? `${formatNumber(scoreMean)} visible mean; direction unverified`
+        : "neutral model-score layer pending",
+      active: colorMode === "score",
+    },
+    {
+      step: "audit",
+      label: "Audit",
+      value: maxAudit ? `${formatNumber(maxAudit)} / 100 max` : "No audit signal",
+      detail: `${formatCount(auditSummary.reviewRows)} OCR-review rows · ${formatCount(auditSummary.duplicateRows)} duplicate-hash rows`,
+      active: colorMode === "audit_attention",
+    },
+  ];
+}
+
+function mapLayerStepButtonHtml(row) {
+  return `
+    <button type="button" class="map-layer-step-button${row.active ? " active" : ""}" data-map-layer-step="${escapeHtml(row.step)}" role="listitem">
+      <span>${escapeHtml(row.label)}</span>
+      <strong>${escapeHtml(row.value)}</strong>
+      <em>${escapeHtml(row.detail)}</em>
+    </button>
+  `;
+}
+
+function applyMapLayerStep(step) {
+  const units = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const summary = summarizeUnits(units);
+  if (step === "topic") {
+    state.geographyColorMode = "topic";
+  } else if (step === "function") {
+    state.geographyColorMode = "function";
+  } else if (step === "score") {
+    const scoreField = state.mapFilters.scoreField || topScoreField(summary.scoreMeans) || SCORE_FIELDS[0];
+    state.mapFilters = { ...state.mapFilters, scoreField, scoreBand: "" };
+    state.geographyColorMode = "score";
+    if (state.disclosureLevel === "overview") {
+      state.disclosureLevel = "unit";
+    }
+  } else if (step === "audit") {
+    state.geographyColorMode = "audit_attention";
+    if (state.disclosureLevel === "overview") {
+      state.disclosureLevel = "unit";
+    }
+  } else {
+    state.geographyColorMode = "tier";
+  }
+  state.activeTab = "map";
+  render();
 }
 
 function mapTierLegendDrilldownHtml(units, summary, tierDefinitions) {
@@ -5865,6 +5981,11 @@ function geographyColorContext(features, municipalPoints) {
     ...features.map((feature) => feature.properties || {}),
     ...municipalPoints,
   ];
+  const scoreSummary = summarizeUnits(data);
+  const scoreField = state.mapFilters.scoreField || topScoreField(scoreSummary.scoreMeans) || SCORE_FIELDS[0];
+  const scoreValues = data
+    .map((item) => Number(item.model_score_means?.[scoreField]))
+    .filter((value) => Number.isFinite(value));
   const maxLawCount = Math.max(1, ...data.map((item) => Number(item.law_count || 0)));
   const auditScores = data
     .map((item) => unitAuditQualityFor(item.unit_id)?.audit_attention_score)
@@ -5880,6 +6001,9 @@ function geographyColorContext(features, municipalPoints) {
     maxAuditAttention: Math.max(1, ...auditScores),
     minSubstantiveShare: Math.min(1, ...substantiveShares),
     maxSubstantiveShare: Math.max(0, ...substantiveShares),
+    scoreField,
+    minScore: scoreValues.length ? Math.min(...scoreValues) : null,
+    maxScore: scoreValues.length ? Math.max(...scoreValues) : null,
     tierDefinitions: state.analysis.mapLayers?.tier_definitions || {},
   };
 }
@@ -5899,6 +6023,9 @@ function geographyDatumColor(datum, context) {
   }
   if (context.mode === "substantive_share") {
     return substantiveShareColor(modelSubstantiveShare(datum), context);
+  }
+  if (context.mode === "score") {
+    return scoreColor(datum, context);
   }
   return datum.tier_color || context.tierDefinitions?.[datum.tier]?.color || "#d8dee8";
 }
@@ -5948,6 +6075,14 @@ function geographyColorLegend(context) {
       <span>Point size also scales by law count</span>
     `;
   }
+  if (context.mode === "score") {
+    const fieldLabel = scoreFieldLabel(context.scoreField || SCORE_FIELDS[0]);
+    return `
+      <span class="geo-gradient score-gradient"><i></i>Lower to higher visible relative score</span>
+      <span>${escapeHtml(fieldLabel)} range: ${escapeHtml(formatScoreRange(context.minScore, context.maxScore))}</span>
+      <span>Neutral model-output layer; score direction remains unverified</span>
+    `;
+  }
   const rows = geographyLegendRows(context);
   return rows
     .map(
@@ -5986,6 +6121,9 @@ function geographyLegendLabel(item, mode) {
   if (mode === "audit_attention") {
     return "Audit attention";
   }
+  if (mode === "score") {
+    return "Neutral model score";
+  }
   return item.tier_label || item.tier || "No tier";
 }
 
@@ -6009,6 +6147,7 @@ function geographyColorLabel(mode) {
     tier: "neutral tier",
     topic: "dominant topic",
     function: "dominant function",
+    score: state.mapFilters.scoreField ? `neutral ${scoreFieldLabel(state.mapFilters.scoreField)} score` : "neutral model score",
     substantive_share: "model-substantive share",
     audit_attention: "audit attention",
     law_count: "law-count intensity",
@@ -6046,6 +6185,25 @@ function auditAttentionColor(quality, context) {
 function lawCountColor(value, maxValue) {
   const ratio = Math.log10(Number(value || 0) + 1) / Math.log10(Number(maxValue || 1) + 1);
   return interpolateColor("#f3ead2", "#2f756b", Math.max(0, Math.min(1, ratio)));
+}
+
+function scoreColor(datum, context) {
+  const value = Number(datum?.model_score_means?.[context.scoreField]);
+  if (!Number.isFinite(value)) {
+    return "#d8dee8";
+  }
+  const low = Number.isFinite(context.minScore) ? context.minScore : value;
+  const high = Number.isFinite(context.maxScore) ? context.maxScore : value;
+  const range = Math.max(0.000001, high - low);
+  const ratio = (value - low) / range;
+  return interpolateColor("#eef4d8", "#326b77", Math.max(0, Math.min(1, ratio)));
+}
+
+function formatScoreRange(low, high) {
+  if (!Number.isFinite(low) || !Number.isFinite(high)) {
+    return "not available";
+  }
+  return `${formatNumber(low)} to ${formatNumber(high)}`;
 }
 
 function interpolateColor(start, end, ratio) {
@@ -17261,6 +17419,12 @@ function bindEvents() {
     if (depthStageButton) {
       event.preventDefault();
       applyMapQuestionHighlightDepthStage(depthStageButton.dataset.mapHighlightDepthStage || "");
+      return;
+    }
+    const mapLayerStepButton = event.target.closest("[data-map-layer-step]");
+    if (mapLayerStepButton) {
+      event.preventDefault();
+      applyMapLayerStep(mapLayerStepButton.dataset.mapLayerStep || "tier");
       return;
     }
     const tierSummaryButton = event.target.closest("[data-map-highlight-tier-summary]");

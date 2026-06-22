@@ -187,6 +187,7 @@ Current coverage stats:
 - Artifact refresh timeline surface: GitHub Pages Analysis Status compares current aggregate artifact timestamps with the stored public snapshot baseline as publication provenance only
 - Law Map real-data coverage timeline: GitHub Pages animates LOCUS aggregate scan, map, audit, ontology/model, inquiry refresh, and hosted smoke milestones from public metadata only
 - Timeline-driven map playback: GitHub Pages stages law-count, neutral tier, audit-attention, ontology-link, inquiry-topic, and hosted-smoke views by changing only public aggregate map controls
+- Map-side layer step animation: GitHub Pages steps the same county/town geography through neutral tier, released topic, released function, neutral score, and audit-signal colors without row text, browser model calls, API keys, rankings, or legal findings
 - Per-topic playback presets: GitHub Pages cycles released LOCUS topics across county/town aggregate units, highlights matching map units, and routes the same aggregate scope to Inquiry or Ontology without row text, source locators, secrets, or browser-side model calls
 - Artifact lineage surface: GitHub Pages Analysis Status maps each public visual surface to aggregate JSON dependencies and disclosure boundaries
 - Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots

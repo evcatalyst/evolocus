@@ -201,6 +201,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert 'data-geo-layer="municipalities"' in html
     assert 'data-geo-layer="ontology"' in html
     assert "geo-layer-legend" in html
+    assert "map-layer-stepper" in html
     assert "package-map-summary" in html
     assert "Export Current View JSON" in html
     assert "Save to Snapshots" in html
@@ -305,6 +306,16 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-coverage-playback-stage" in js
     assert "Coverage animation uses aggregate artifact metadata only" in js
     assert "No ordinance text, source locators, review events, secrets, or legal findings" in js
+    assert "renderMapLayerStepper" in js
+    assert "mapLayerStepRows" in js
+    assert "mapLayerStepButtonHtml" in js
+    assert "applyMapLayerStep" in js
+    assert "data-map-layer-step" in js
+    assert "Layer step animation" in js
+    assert "Tier -> Topic -> Function -> Score -> Audit" in js
+    assert "scoreColor" in js
+    assert "Neutral model-output layer; score direction remains unverified" in js
+    assert "No ordinance text, source locators, browser model calls, API keys, rankings, or legal findings" in js
     assert "LOCUS aggregate scan" in js
     assert "Map layer published" in js
     assert "Ontology/model layer" in js
@@ -1220,6 +1231,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "audit-risk-bars" in css
     assert "geo-layer-control" in css
     assert "geo-layer-legend-panel" in css
+    assert "map-layer-stepper-grid" in css
+    assert "map-layer-step-button" in css
+    assert "score-gradient" in css
     assert "geo-layer-link-list" in css
     assert "geo-layer-boundary" in css
     assert "geography-ontology-link" in css

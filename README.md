@@ -79,6 +79,7 @@ The Pages app supports:
 - Law Map last-refresh source detail showing tracked Polars artifact source, analysis commit, briefing source, deploy guard, and publication boundary;
 - Real-data coverage timeline animation on the Law Map that shows aggregate artifact milestones, Actions refresh state, and no-row/no-secret boundaries;
 - timeline-driven map layer playback that steps through law-count, neutral tier, audit-attention, ontology-link, inquiry-topic, and hosted-smoke aggregate views;
+- map-side layer step animation that switches the same county/town geography through neutral tier, topic, function, neutral score, and audit review-signal colors;
 - per-topic playback presets that cycle released LOCUS topics across the county/town map and route the same aggregate scope into Inquiry or Ontology;
 - latest-artifact refresh panel and timestamp timeline showing current aggregate metadata contributions without row text or law-change claims;
 - artifact lineage visual showing which aggregate JSON files power the map, inquiry, ontology, charts, audit lens, queue plan, and snapshot surfaces;
