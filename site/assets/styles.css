@@ -5004,6 +5004,62 @@ textarea {
   white-space: nowrap;
 }
 
+.selected-neighbor-filter-controls {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  margin: 8px 0 10px;
+  padding: 9px;
+}
+
+.selected-neighbor-filter-controls p,
+.selected-neighbor-filter-controls span {
+  margin: 0;
+}
+
+.selected-neighbor-filter-controls > div:first-child span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.selected-neighbor-filter-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 7px;
+}
+
+.selected-neighbor-filter-button {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--ink);
+  padding: 7px 8px;
+  text-align: left;
+}
+
+.selected-neighbor-filter-button strong {
+  font-size: 0.78rem;
+  line-height: 1.15;
+}
+
+.selected-neighbor-filter-button span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.selected-neighbor-filter-button.active {
+  border-color: rgba(50, 111, 112, 0.5);
+  background: #edf3f1;
+  box-shadow: 0 0 0 2px rgba(50, 111, 112, 0.12);
+}
+
 .ontology-neighborhood-svg {
   width: 100%;
   min-height: 220px;
@@ -5182,6 +5238,11 @@ textarea {
   stroke-width: 2.4;
 }
 
+.ontology-node.gated-node circle {
+  stroke-dasharray: 5 4;
+  opacity: 0.72;
+}
+
 .ontology-node text {
   fill: #111827;
   text-anchor: middle;
@@ -5217,6 +5278,90 @@ textarea {
 
 .ontology-neighborhood-facts strong {
   color: var(--ink);
+}
+
+.selected-neighbor-peer-strip {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.selected-neighbor-peer-heading {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selected-neighbor-peer-heading strong {
+  color: var(--ink);
+  font-size: 0.86rem;
+}
+
+.selected-neighbor-peer-heading span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.selected-neighbor-peer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(54px, 0.55fr) minmax(86px, 0.75fr);
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.selected-neighbor-peer-row span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.selected-neighbor-peer-row strong,
+.selected-neighbor-peer-row b,
+.selected-neighbor-peer-row small,
+.selected-neighbor-peer-row u {
+  overflow-wrap: anywhere;
+}
+
+.selected-neighbor-peer-row strong {
+  font-size: 0.8rem;
+  line-height: 1.15;
+}
+
+.selected-neighbor-peer-row em,
+.selected-neighbor-peer-row small,
+.selected-neighbor-peer-row u,
+.selected-neighbor-peer-row b {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.selected-neighbor-peer-row i {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(50, 111, 112, 0.9) var(--neighbor-peer-width, 0%), rgba(210, 218, 226, 0.86) var(--neighbor-peer-width, 0%));
+}
+
+.selected-neighbor-peer-row b,
+.selected-neighbor-peer-row u {
+  grid-column: 1 / -1;
+  text-decoration: none;
 }
 
 .selected-ontology-drilldown {
@@ -7797,6 +7942,7 @@ th {
   .chart-route-heading,
   .chart-route-strip,
   .chart-drilldown-line,
+  .selected-neighbor-peer-row,
   .top-unit-list-row {
     grid-template-columns: 1fr;
   }
@@ -7815,6 +7961,10 @@ th {
 
   .chart-ontology-chip.compact span {
     display: block;
+  }
+
+  .selected-neighbor-peer-heading {
+    display: grid;
   }
 }
 

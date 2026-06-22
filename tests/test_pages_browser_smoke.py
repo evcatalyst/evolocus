@@ -131,6 +131,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
             page.locator("[data-tab='map']").click()
             page.wait_for_selector(".selected-map-ontology-route [data-selected-route-open='topic']", timeout=10_000)
+            page.wait_for_selector(".selected-neighbor-filter-controls [data-selected-neighbor-filter='topic']", timeout=10_000)
+            neighbor_text = page.locator(".ontology-neighborhood").first.inner_text(timeout=5_000)
+            assert "map-side ontology neighborhood filters" in neighbor_text.lower()
+            assert "no ordinance text" in neighbor_text.lower()
+            page.locator(".selected-neighbor-filter-controls [data-selected-neighbor-filter='topic']").first.click()
+            filtered_neighbor_text = page.locator(".ontology-neighborhood").first.inner_text(timeout=5_000).lower()
+            assert "topic lens" in filtered_neighbor_text
+            assert "no ordinance text" in filtered_neighbor_text
+            if page.locator(".selected-neighbor-peer-row").count():
+                page.locator(".selected-neighbor-peer-row").first.click()
+                page.wait_for_selector(".selected-query-replay", timeout=10_000)
             selected_route_text = page.locator(".selected-map-ontology-route").inner_text(timeout=5_000)
             assert "map-to-ontology route" in selected_route_text.lower()
             assert "No ordinance text" in selected_route_text

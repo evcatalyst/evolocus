@@ -127,6 +127,7 @@ Current coverage stats:
 - Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
 - Ontology build-status surface: GitHub Pages shows graph freshness, node/edge mix, model registry provenance, snapshot deltas, and aggregate-only boundaries
 - Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
+- Map-side ontology neighborhood filters: GitHub Pages filters selected-unit neighborhood nodes and aggregate peer drillbacks by topic, function, neutral tier, geography, and relative model-score lenses without exposing row text or source locators
 - Map-to-ontology controls: GitHub Pages lets users focus selected-unit path stages and raises disclosure depth for score or geometry stages without exposing row text
 - Selected-unit map route trail: GitHub Pages shows a compact Law Map route from selected map color to topic, function, tier, score, and geometry ontology stages, with stage buttons that open Ontology
 - Selected-unit progressive trail: GitHub Pages map panel walks from aggregate overview to unit-detail model outputs to evidence/provenance boundaries with disclosure buttons

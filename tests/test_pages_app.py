@@ -463,13 +463,22 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontologyPathControlStages" in js
     assert "ontologyPathControlStageHtml" in js
     assert "applyOntologyPathStage" in js
+    assert "selectedOntologyNeighborFilter" in js
+    assert "selectedUnitOntologyNeighborFilterControlsHtml" in js
+    assert "selectedUnitFilteredPeers" in js
+    assert "applySelectedNeighborFilter" in js
     assert "data-ontology-path-stage" in js
+    assert "data-selected-neighbor-filter" in js
     assert "Map-to-ontology animation controls" in js
+    assert "Map-side ontology neighborhood filters" in js
     assert "Controls focus aggregate map-to-ontology stages only" in js
     assert "selected-disclosure-trail" in css
     assert "selected-map-ontology-route" in css
     assert "selected-query-replay" in css
     assert "selected-query-steps" in css
+    assert "selected-neighbor-filter-controls" in css
+    assert "selected-neighbor-peer-strip" in css
+    assert "selected-neighbor-peer-row" in css
     assert "selected-query-actions" in css
     assert "selected-route-strip" in css
     assert "analysis-journey" in css

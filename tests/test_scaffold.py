@@ -581,8 +581,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontologyPathControlStages" in js
     assert "ontologyPathControlStageHtml" in js
     assert "applyOntologyPathStage" in js
+    assert "selectedOntologyNeighborFilter" in js
+    assert "selectedUnitOntologyNeighborFilterControlsHtml" in js
+    assert "selectedUnitFilteredPeers" in js
+    assert "applySelectedNeighborFilter" in js
     assert "data-ontology-path-stage" in js
+    assert "data-selected-neighbor-filter" in js
     assert "Map-to-ontology animation controls" in js
+    assert "Map-side ontology neighborhood filters" in js
     assert "Controls focus aggregate map-to-ontology stages only" in js
     assert "ontologyPathStepHtml" in js
     assert "selectedUnitOntologyNodes" in js
@@ -592,6 +598,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontology-path-control" in css
     assert "ontology-path-control.active" in css
     assert "ontology-path-strip.controlled" in css
+    assert "selected-neighbor-filter-controls" in css
+    assert "selected-neighbor-peer-strip" in css
+    assert "selected-neighbor-peer-row" in css
     assert "ontology-path-step.active" in css
     assert "ontology-path-boundary" in css
     assert "ontology-path-strip" in css

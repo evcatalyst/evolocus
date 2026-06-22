@@ -289,6 +289,7 @@ let state = {
   mapInlineInquiry: "view",
   ontologyFocusTier: "",
   ontologyPathStage: "auto",
+  selectedOntologyNeighborFilter: "all",
   inquiryMapComposerQuestion: "",
   frontdoorComposerQuestion: "",
   frontdoorRouteImportStatus: null,
@@ -6123,7 +6124,9 @@ function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
   const geometry = geometryMatchForUnit(unit.unit_id);
   const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
   const showEvidence = state.disclosureLevel === "evidence";
-  const nodes = selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence);
+  const neighborFilter = selectedOntologyNeighborFilter();
+  const nodes = selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence, neighborFilter);
+  const peers = selectedUnitFilteredPeers(unit, neighborFilter);
   return `
     <section class="ontology-neighborhood${compact ? " compact" : ""}" aria-label="Selected unit ontology neighborhood">
       <div class="ontology-neighborhood-heading">
@@ -6133,6 +6136,7 @@ function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
         </div>
         <span>${escapeHtml(formatCount(unit.law_count))} law records</span>
       </div>
+      ${selectedUnitOntologyNeighborFilterControlsHtml(neighborFilter)}
       <svg class="ontology-neighborhood-svg" viewBox="0 0 640 300" role="img" aria-label="Aggregate ontology neighborhood for selected unit">
         ${nodes
           .filter((node) => node.id !== "unit")
@@ -6156,8 +6160,49 @@ function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
             : ""
         }
       </div>
+      ${selectedUnitNeighborPeerStripHtml(unit, peers, neighborFilter, showUnit, showEvidence)}
       <p class="muted-note">Neighborhood edges summarize released LOCUS aggregate fields and machine-match artifacts. They are not verified legal relationships.</p>
     </section>
+  `;
+}
+
+function selectedOntologyNeighborFilters() {
+  return [
+    ["all", "All", "topic, function, tier"],
+    ["topic", "Topic lens", "same model topic"],
+    ["function", "Function lens", "same model function"],
+    ["tier", "Tier lens", "same neutral tier"],
+    ["geography", "Geography lens", "state and unit type"],
+    ["scores", "Scores lens", "relative model means"],
+  ];
+}
+
+function selectedOntologyNeighborFilter() {
+  const allowed = new Set(selectedOntologyNeighborFilters().map(([key]) => key));
+  return allowed.has(state.selectedOntologyNeighborFilter) ? state.selectedOntologyNeighborFilter : "all";
+}
+
+function selectedUnitOntologyNeighborFilterControlsHtml(activeFilter) {
+  return `
+    <div class="selected-neighbor-filter-controls" aria-label="Map-side ontology neighborhood filters">
+      <div>
+        <p class="eyebrow">Map-side ontology neighborhood filters</p>
+        <span>Aggregate lenses only. No ordinance text, source locators, or legal conclusions are shown.</span>
+      </div>
+      <div class="selected-neighbor-filter-buttons">
+        ${selectedOntologyNeighborFilters()
+          .map(([key, label, detail]) => {
+            const active = key === activeFilter;
+            return `
+              <button class="selected-neighbor-filter-button${active ? " active" : ""}" type="button" data-selected-neighbor-filter="${escapeHtml(key)}" aria-pressed="${active ? "true" : "false"}">
+                <strong>${escapeHtml(label)}</strong>
+                <span>${escapeHtml(detail)}</span>
+              </button>
+            `;
+          })
+          .join("")}
+      </div>
+    </div>
   `;
 }
 
@@ -6264,19 +6309,29 @@ function applyOntologyPathStage(stage) {
   render();
 }
 
-function selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence) {
-  const nodes = [
-    {
-      id: "unit",
-      label: displayUnitName(unit),
-      sublabel: `${text(unit.state)} · ${text(unit.kind)}`,
-      x: 320,
-      y: 150,
-      r: 54,
-      fill: unit.tier_color || "#d8dee8",
-      className: "unit-node",
-    },
-    {
+function applySelectedNeighborFilter(filter) {
+  const allowed = new Set(selectedOntologyNeighborFilters().map(([key]) => key));
+  state.selectedOntologyNeighborFilter = allowed.has(filter) ? filter : "all";
+  if (state.selectedOntologyNeighborFilter === "scores" && state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  render();
+}
+
+function selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence, neighborFilter = selectedOntologyNeighborFilter()) {
+  const unitNode = {
+    id: "unit",
+    label: displayUnitName(unit),
+    sublabel: `${text(unit.state)} · ${text(unit.kind)}`,
+    x: 320,
+    y: 150,
+    r: 54,
+    fill: unit.tier_color || "#d8dee8",
+    className: "unit-node",
+  };
+  const nodeById = {
+    unit: unitNode,
+    topic: {
       id: "topic",
       label: text(unit.dominant_topic),
       sublabel: "dominant topic",
@@ -6285,7 +6340,7 @@ function selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence) {
       r: 42,
       fill: TOPIC_COLORS[unit.dominant_topic] || TOPIC_COLORS.Unknown,
     },
-    {
+    function: {
       id: "function",
       label: text(unit.dominant_function),
       sublabel: "dominant function",
@@ -6294,7 +6349,7 @@ function selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence) {
       r: 42,
       fill: FUNCTION_COLORS[unit.dominant_function] || FUNCTION_COLORS.Unknown,
     },
-    {
+    tier: {
       id: "tier",
       label: text(unit.tier_label),
       sublabel: "neutral tier",
@@ -6303,30 +6358,55 @@ function selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence) {
       r: 42,
       fill: unit.tier_color || "#d8dee8",
     },
-  ];
-  if (showUnit) {
-    nodes.push({
+    scores: {
       id: "scores",
       label: "Scores",
-      sublabel: "neutral means",
+      sublabel: showUnit ? "neutral means" : "unit detail gated",
       x: 502,
       y: 228,
       r: 42,
       fill: "#8d6aa8",
-    });
-  }
-  if (showEvidence) {
-    nodes.push({
+      className: showUnit ? "" : "gated-node",
+    },
+    state: {
+      id: "state",
+      label: text(unit.state),
+      sublabel: "state field",
+      x: 138,
+      y: 112,
+      r: 40,
+      fill: "#326f70",
+    },
+    kind: {
+      id: "kind",
+      label: text(unit.kind),
+      sublabel: "unit type",
+      x: 502,
+      y: 112,
+      r: 40,
+      fill: "#4f6f91",
+    },
+    geometry: {
       id: "geometry",
       label: "Geometry",
-      sublabel: geometry.source,
+      sublabel: showEvidence ? geometry.source : "evidence gated",
       x: 320,
-      y: 262,
-      r: 36,
+      y: 250,
+      r: 38,
       fill: "#b7892c",
-    });
-  }
-  return nodes;
+      className: showEvidence ? "" : "gated-node",
+    },
+  };
+  const layouts = {
+    all: ["unit", "topic", "function", "tier", ...(showUnit ? ["scores"] : []), ...(showEvidence ? ["geometry"] : [])],
+    topic: ["unit", "topic"],
+    function: ["unit", "function"],
+    tier: ["unit", "tier"],
+    geography: ["unit", "state", "kind", "geometry"],
+    scores: ["unit", "scores"],
+  };
+  const ids = layouts[neighborFilter] || layouts.all;
+  return ids.map((id) => nodeById[id]).filter(Boolean);
 }
 
 function ontologyNodeSvg(node) {
@@ -6341,6 +6421,98 @@ function ontologyNodeSvg(node) {
       <text y="${node.r - 12}" class="node-sublabel">${escapeHtml(node.sublabel || "")}</text>
     </g>
   `;
+}
+
+function selectedUnitNeighborPeerStripHtml(unit, peers, neighborFilter, showUnit, showEvidence) {
+  const filterMeta = selectedOntologyNeighborFilters().find(([key]) => key === neighborFilter) || selectedOntologyNeighborFilters()[0];
+  const lensName = filterMeta[1];
+  if (!peers.length) {
+    return `
+      <div class="selected-neighbor-peer-strip" aria-label="Filtered aggregate ontology peers">
+        <div class="selected-neighbor-peer-heading">
+          <strong>${escapeHtml(lensName)} peers</strong>
+          <span>0 aggregate units</span>
+        </div>
+        <p class="muted-note">No aggregate peer units match this lens in the published map layer. No ordinance text or source locators are shown.</p>
+      </div>
+    `;
+  }
+  const maxScore = Math.max(1, ...peers.map((peer) => peer.score));
+  return `
+    <div class="selected-neighbor-peer-strip" aria-label="Filtered aggregate ontology peers">
+      <div class="selected-neighbor-peer-heading">
+        <strong>${escapeHtml(lensName)} peers</strong>
+        <span>${escapeHtml(formatCount(peers.length))} aggregate units</span>
+      </div>
+      ${peers.map((peer) => selectedNeighborPeerRowHtml(peer, unit, neighborFilter, maxScore, showUnit, showEvidence)).join("")}
+      <p class="muted-note">Peer links move the map to another aggregate unit. They do not publish ordinance text, source locators, rankings, or legal conclusions.</p>
+    </div>
+  `;
+}
+
+function selectedNeighborPeerRowHtml(peer, selectedUnit, neighborFilter, maxScore, showUnit, showEvidence) {
+  const unit = peer.unit;
+  const width = Math.max(6, (Number(peer.score || 0) / maxScore) * 100).toFixed(2);
+  const reason = selectedNeighborPeerLensReason(peer, selectedUnit, neighborFilter);
+  return `
+    <button class="selected-neighbor-peer-row" type="button" data-map-compare-unit="${escapeHtml(unit.unit_id)}" style="--neighbor-peer-width:${width}%">
+      <span>
+        <strong>${escapeHtml(displayUnitName(unit))}</strong>
+        <em>${escapeHtml(text(unit.state))} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</em>
+      </span>
+      <i aria-hidden="true"></i>
+      <small>${escapeHtml(reason)}</small>
+      ${
+        showUnit
+          ? `<b>${escapeHtml(text(unit.dominant_topic))} / ${escapeHtml(text(unit.dominant_function))}</b>`
+          : ""
+      }
+      ${
+        showEvidence
+          ? `<u>aggregate peer score ${escapeHtml(peer.score.toFixed(1))}; source map_layers.json</u>`
+          : ""
+      }
+    </button>
+  `;
+}
+
+function selectedNeighborPeerLensReason(peer, selectedUnit, neighborFilter) {
+  if (neighborFilter === "topic") {
+    return peer.unit.dominant_topic === selectedUnit.dominant_topic ? "same model topic" : "nearest aggregate topic peer";
+  }
+  if (neighborFilter === "function") {
+    return peer.unit.dominant_function === selectedUnit.dominant_function ? "same model function" : "nearest aggregate function peer";
+  }
+  if (neighborFilter === "tier") {
+    return peer.unit.tier === selectedUnit.tier ? "same neutral tier" : "nearest neutral-tier peer";
+  }
+  if (neighborFilter === "geography") {
+    const parts = [];
+    if (peer.unit.state === selectedUnit.state) {
+      parts.push("same state");
+    }
+    if (peer.unit.kind === selectedUnit.kind) {
+      parts.push("same unit type");
+    }
+    return parts.length ? parts.join(" + ") : "nearest geography peer";
+  }
+  if (neighborFilter === "scores") {
+    return showScorePeerReason(selectedUnit, peer.unit);
+  }
+  return peer.reasons.slice(0, 3).join(" + ") || "aggregate similarity";
+}
+
+function showScorePeerReason(selectedUnit, peerUnit) {
+  const selectedScores = selectedUnit.model_score_means || {};
+  const peerScores = peerUnit.model_score_means || {};
+  const shared = Object.keys(selectedScores).filter((field) => Number.isFinite(Number(selectedScores[field])) && Number.isFinite(Number(peerScores[field])));
+  if (!shared.length) {
+    return "score means unavailable";
+  }
+  const closest = shared
+    .map((field) => [field, Math.abs(Number(peerScores[field]) - Number(selectedScores[field]))])
+    .sort((a, b) => a[1] - b[1])[0];
+  return `${closest[0]} delta ${closest[1].toFixed(3)}`;
 }
 
 function selectedUnitPeerComparisonHtml(unit) {
@@ -6394,6 +6566,28 @@ function selectedUnitPeers(unit) {
     .filter((peer) => peer.score > 0)
     .sort((a, b) => b.score - a.score || a.lawDelta - b.lawDelta || displayUnitName(a.unit).localeCompare(displayUnitName(b.unit)))
     .slice(0, 6);
+}
+
+function selectedUnitFilteredPeers(unit, neighborFilter = selectedOntologyNeighborFilter()) {
+  const peers = selectedUnitPeers(unit);
+  if (neighborFilter === "all") {
+    return peers.slice(0, 4);
+  }
+  const filters = {
+    topic: (peer) => peer.unit.dominant_topic === unit.dominant_topic,
+    function: (peer) => peer.unit.dominant_function === unit.dominant_function,
+    tier: (peer) => peer.unit.tier === unit.tier,
+    geography: (peer) => peer.unit.state === unit.state || peer.unit.kind === unit.kind,
+    scores: (peer) => hasComparableScoreMeans(unit, peer.unit),
+  };
+  const filtered = peers.filter(filters[neighborFilter] || (() => true));
+  return (filtered.length ? filtered : peers).slice(0, 4);
+}
+
+function hasComparableScoreMeans(unit, peerUnit) {
+  const selectedScores = unit.model_score_means || {};
+  const peerScores = peerUnit.model_score_means || {};
+  return Object.keys(selectedScores).some((field) => Number.isFinite(Number(selectedScores[field])) && Number.isFinite(Number(peerScores[field])));
 }
 
 function peerComparison(unit, candidate) {
@@ -12209,6 +12403,12 @@ function bindEvents() {
         selectedQueryButton.dataset.selectedQueryRoute || "inquiry",
         selectedQueryButton.dataset.selectedQueryUnit || "",
       );
+      return;
+    }
+    const selectedNeighborFilterButton = event.target.closest("[data-selected-neighbor-filter]");
+    if (selectedNeighborFilterButton) {
+      event.preventDefault();
+      applySelectedNeighborFilter(selectedNeighborFilterButton.dataset.selectedNeighborFilter || "all");
       return;
     }
     const ontologyPathButton = event.target.closest("[data-ontology-path-stage]");

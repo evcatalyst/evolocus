@@ -83,6 +83,7 @@ The Pages app supports:
 - ontology-to-map visual presets that preview county/town color routes for tiers, topics, functions, audit signals, law-count intensity, and score bands before opening the map;
 - package-to-ontology bridge that connects browser-local package counts to topic, function, tier, and matched map-unit nodes without exposing row text;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;
+- map-side ontology neighborhood filters for topic, function, neutral tier, geography, and score lenses with aggregate peer drillback only;
 - selected-unit mini ontology path animation over aggregate topic/function/tier/score/geometry steps;
 - map-to-ontology animation controls for focusing selected-unit path stages with disclosure-gated score and geometry steps;
 - map-side law-location tier guide with active filters, county/town counts, neutral tier mix, and publication boundary;
