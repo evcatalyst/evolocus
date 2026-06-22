@@ -91,6 +91,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.wait_for_function("() => document.querySelector('#status-panel')?.classList.contains('active')")
             page.locator("[data-tab='map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".topic-playback-presets-card [data-topic-playback-action='map'][data-topic-playback-topic]", timeout=10_000)
+            topic_playback_text = page.locator(".topic-playback-presets-card").inner_text(timeout=5_000).lower()
+            assert "topic playback presets" in topic_playback_text
+            assert "released locus topic" in topic_playback_text
+            assert "no ordinance text" in topic_playback_text
+            page.locator(".topic-playback-presets-card [data-topic-playback-action='map'][data-topic-playback-topic]").first.click()
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            topic_playback_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "topic playback preset" in topic_playback_highlight_text
+            assert "no browser-side grok call" in topic_playback_highlight_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
 
             page.wait_for_selector("[data-frontdoor-composer] #frontdoor-question-input", timeout=10_000)
             page.locator("#frontdoor-question-input").fill("Where are zoning enforcement laws in cities?")

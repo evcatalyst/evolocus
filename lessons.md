@@ -145,3 +145,4 @@
 - Timeline playback should drive existing map controls instead of duplicating data; stage changes are visual disclosure states, not new analysis or legal findings.
 - Selected-unit answer cards should show the answer preview before navigation, then reuse the same aggregate lens for Inquiry, Map, and Ontology so question answering and colored geography stay connected.
 - Offline model output is safest on Pages when repackaged into explicit aggregate route cards with filters, facts, policy flags, and no endpoint, key, row text, or source-locator fields.
+- Topic playback presets should remain browser-state routes over published aggregate topic counts, not regenerated analysis, row-level evidence, or browser-side model calls.

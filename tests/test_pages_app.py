@@ -78,6 +78,15 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "startCoverageTimelinePlayback" in js
     assert "stopCoverageTimelinePlayback" in js
     assert "applyCoverageTimelinePlayback" in js
+    assert "renderTopicPlaybackPresets" in js
+    assert "topicPlaybackPresetRows" in js
+    assert "handleTopicPlaybackAction" in js
+    assert "applyTopicPlaybackPreset" in js
+    assert "data-topic-playback-action" in js
+    assert "data-topic-playback-topic" in js
+    assert "Topic playback presets" in js
+    assert "Play or click a released LOCUS topic" in js
+    assert "topic playback preset" in js
     assert "coverageTimelinePolicyHtml" in js
     assert "applyCoverageTimelineAction" in js
     assert "Real-data coverage timeline" in js
@@ -333,6 +342,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-cross-filter-legend" in css
     assert "map-cross-filter-grid" in css
     assert "map-cross-filter-row" in css
+    assert "topic-playback-presets-card" in css
+    assert "topic-playback-grid" in css
+    assert "topic-playback-row" in css
     assert "chartMapFilterEnabled" in js
     assert "applyChartMapFilter" in js
     assert "applyChartStateTopicFilter" in js

@@ -290,6 +290,8 @@ let state = {
   geographyLayers: defaultGeographyLayers(),
   coveragePlaybackStage: "scan",
   coveragePlaybackPlaying: false,
+  topicPlaybackPlaying: false,
+  topicPlaybackTopic: "",
   mapInlineInquiry: "view",
   inquiryMapHighlight: null,
   ontologyFocusTier: "",
@@ -341,6 +343,7 @@ let state = {
   },
 };
 let coveragePlaybackTimer = null;
+let topicPlaybackTimer = null;
 
 function $(selector) {
   return document.querySelector(selector);
@@ -1593,6 +1596,7 @@ function renderMap() {
     $("#map-refresh-source").innerHTML = "";
     $("#tier-legend").innerHTML = "";
     $("#map-reading-guide").innerHTML = "";
+    $("#topic-playback-presets").innerHTML = "";
     $("#map-route-replay").innerHTML = "";
     $("#map-inline-inquiry").innerHTML = "";
     $("#map-question-highlight").innerHTML = "";
@@ -1617,6 +1621,7 @@ function renderMap() {
   }
   renderCountyChoropleth(units, packageStats);
   renderMapReadingGuide(units, allUnits, mapLayers, packageStats);
+  renderTopicPlaybackPresets(units, allUnits);
   renderMapRefreshSource(status, mapLayers);
   renderMapQuestionHighlight(units);
   $("#map-generated").textContent = `Generated ${new Date(mapLayers.generated_at).toLocaleString()}`;
@@ -1961,6 +1966,7 @@ function startCoverageTimelinePlayback() {
   if (!stages.length) {
     return;
   }
+  stopTopicPlayback({ renderNow: false });
   clearCoveragePlaybackTimer();
   let index = Math.max(0, stages.findIndex((stage) => stage.id === coverageTimelineActiveStageId(stages)));
   state.coveragePlaybackPlaying = true;
@@ -2007,6 +2013,234 @@ function applyCoverageTimelinePlayback(stageId) {
     state.selectedUnitId = firstUnit?.unit_id || state.selectedUnitId;
   }
   render();
+}
+
+function renderTopicPlaybackPresets(visibleUnits, allUnits) {
+  const target = $("#topic-playback-presets");
+  if (!target) {
+    return;
+  }
+  const rows = topicPlaybackPresetRows(allUnits || []);
+  if (!rows.length) {
+    target.innerHTML = `
+      <section class="topic-playback-presets-card empty" aria-label="Topic playback presets">
+        <div>
+          <span>Topic playback presets</span>
+          <strong>No topic aggregate rows are available.</strong>
+          <p>Topic playback appears after the aggregate map and chart artifacts load.</p>
+        </div>
+      </section>
+    `;
+    return;
+  }
+  const activeTopic = topicPlaybackActiveTopic(rows);
+  const activeRow = rows.find((row) => row.topic === activeTopic) || rows[0];
+  const visibleTopicUnits = visibleUnits.filter((unit) => Number(unit.topic_counts?.[activeRow.topic] || 0) > 0 || unit.dominant_topic === activeRow.topic);
+  target.innerHTML = `
+    <section class="topic-playback-presets-card" aria-label="Topic playback presets">
+      <div class="topic-playback-heading">
+        <div>
+          <span>Topic playback presets</span>
+          <strong>${escapeHtml(activeRow.topic)} route across county/town units</strong>
+          <p>Play or click a released LOCUS topic to color the map, highlight matching aggregate units, and replay the same route into Inquiry or Ontology.</p>
+        </div>
+        <div class="topic-playback-controls">
+          <button type="button" data-topic-playback-action="play">${escapeHtml(state.topicPlaybackPlaying ? "Playing topics" : "Play topics")}</button>
+          <button type="button" data-topic-playback-action="pause"${state.topicPlaybackPlaying ? "" : " disabled"}>Pause</button>
+          <button type="button" data-topic-playback-action="reset">Reset</button>
+        </div>
+      </div>
+      <div class="topic-playback-summary">
+        ${topicPlaybackSummaryHtml("Active topic rows", formatCount(activeRow.rowCount), "topic_counts aggregate rows")}
+        ${topicPlaybackSummaryHtml("Matched units", formatCount(activeRow.unitCount), `${formatCount(visibleTopicUnits.length)} visible now`)}
+        ${topicPlaybackSummaryHtml("Top unit", activeRow.topUnit ? displayUnitName(activeRow.topUnit) : "n/a", activeRow.topUnit ? `${activeRow.topUnit.state || "NA"} · ${formatCount(activeRow.topUnit.law_count)} rows` : "no unit")}
+        ${topicPlaybackSummaryHtml("Boundary", "aggregate route", "no text, locators, rankings, or legal findings")}
+      </div>
+      <div class="topic-playback-grid">
+        ${rows.map((row, index) => topicPlaybackPresetRowHtml(row, index, activeTopic)).join("")}
+      </div>
+      <p class="topic-playback-boundary">Playback changes browser map filters, color mode, selected aggregate unit, and ontology disclosure only. It uses published counts and unit IDs from aggregate artifacts; it publishes no ordinance text, source locators, review events, secrets, browser model calls, rankings, or legal findings.</p>
+    </section>
+  `;
+}
+
+function topicPlaybackSummaryHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(String(value))}</em>
+      <small>${escapeHtml(detail)}</small>
+    </span>
+  `;
+}
+
+function topicPlaybackPresetRows(allUnits) {
+  const chartRows = state.analysis.charts?.charts?.topic_counts || [];
+  const chartCounts = Object.fromEntries(chartRows.map((row) => [row.label || row.id, Number(row.value || 0)]));
+  const topics = TOPICS.filter((topic) => chartCounts[topic] || allUnits.some((unit) => Number(unit.topic_counts?.[topic] || 0) > 0));
+  return topics
+    .map((topic) => {
+      const topicUnits = allUnits.filter((unit) => Number(unit.topic_counts?.[topic] || 0) > 0 || unit.dominant_topic === topic);
+      const rowCount = chartCounts[topic] || topicUnits.reduce((total, unit) => total + Number(unit.topic_counts?.[topic] || 0), 0);
+      const topUnit = topicUnits
+        .slice()
+        .sort((a, b) => Number(b.topic_counts?.[topic] || 0) - Number(a.topic_counts?.[topic] || 0) || Number(b.law_count || 0) - Number(a.law_count || 0))[0];
+      const tierCounts = {};
+      for (const unit of topicUnits) {
+        const tier = unit.tier_label || unit.tier || "Unknown";
+        tierCounts[tier] = (tierCounts[tier] || 0) + Number(unit.topic_counts?.[topic] || 0);
+      }
+      return {
+        topic,
+        rowCount,
+        unitCount: topicUnits.length,
+        topUnit,
+        topTier: topEntry(tierCounts),
+        color: TOPIC_COLORS[topic] || TOPIC_COLORS.Unknown,
+      };
+    })
+    .filter((row) => row.rowCount > 0 || row.unitCount > 0)
+    .sort((a, b) => b.rowCount - a.rowCount || a.topic.localeCompare(b.topic));
+}
+
+function topicPlaybackActiveTopic(rows) {
+  if (state.mapFilters.topic && rows.some((row) => row.topic === state.mapFilters.topic)) {
+    return state.mapFilters.topic;
+  }
+  if (state.topicPlaybackTopic && rows.some((row) => row.topic === state.topicPlaybackTopic)) {
+    return state.topicPlaybackTopic;
+  }
+  return rows[0]?.topic || "";
+}
+
+function topicPlaybackPresetRowHtml(row, index, activeTopic) {
+  const active = row.topic === activeTopic;
+  const topUnitLabel = row.topUnit ? displayUnitName(row.topUnit) : "No top unit";
+  return `
+    <article class="topic-playback-row${active ? " active" : ""}" style="--topic-color:${escapeHtml(row.color)}">
+      <button type="button" class="topic-playback-main" data-topic-playback-action="map" data-topic-playback-topic="${escapeHtml(row.topic)}">
+        <span>${escapeHtml(String(index + 1))}</span>
+        <strong>${escapeHtml(row.topic)}</strong>
+        <em>${escapeHtml(formatCount(row.rowCount))} aggregate rows · ${escapeHtml(formatCount(row.unitCount))} units</em>
+        <small>${escapeHtml(topUnitLabel)} · ${escapeHtml(row.topTier.label || "tier mix n/a")}</small>
+      </button>
+      <div class="topic-playback-actions">
+        <button type="button" data-topic-playback-action="ask" data-topic-playback-topic="${escapeHtml(row.topic)}">Ask</button>
+        <button type="button" data-topic-playback-action="ontology" data-topic-playback-topic="${escapeHtml(row.topic)}">Graph</button>
+      </div>
+    </article>
+  `;
+}
+
+function handleTopicPlaybackAction(action, topic) {
+  if (action === "play") {
+    startTopicPlayback();
+    return;
+  }
+  if (action === "pause") {
+    stopTopicPlayback();
+    return;
+  }
+  if (action === "reset") {
+    stopTopicPlayback({ renderNow: false });
+    state.mapFilters = {
+      ...state.mapFilters,
+      topic: "",
+    };
+    state.topicPlaybackTopic = "";
+    state.geographyColorMode = "tier";
+    state.inquiryMapHighlight = null;
+    state.activeTab = "map";
+    render();
+    return;
+  }
+  stopTopicPlayback({ renderNow: false });
+  applyTopicPlaybackPreset(topic, action || "map");
+}
+
+function startTopicPlayback() {
+  const rows = topicPlaybackPresetRows(state.analysis.mapLayers?.units || []);
+  if (!rows.length) {
+    return;
+  }
+  stopCoverageTimelinePlayback({ renderNow: false });
+  clearTopicPlaybackTimer();
+  let index = Math.max(0, rows.findIndex((row) => row.topic === topicPlaybackActiveTopic(rows)));
+  state.topicPlaybackPlaying = true;
+  applyTopicPlaybackPreset(rows[index].topic, "map", { renderNow: true, keepPlaying: true });
+  topicPlaybackTimer = window.setInterval(() => {
+    const currentRows = topicPlaybackPresetRows(state.analysis.mapLayers?.units || []);
+    index += 1;
+    if (index >= currentRows.length) {
+      stopTopicPlayback();
+      return;
+    }
+    applyTopicPlaybackPreset(currentRows[index].topic, "map", { renderNow: true, keepPlaying: true });
+  }, 1900);
+}
+
+function stopTopicPlayback(options = {}) {
+  clearTopicPlaybackTimer();
+  state.topicPlaybackPlaying = false;
+  if (options.renderNow !== false) {
+    render();
+  }
+}
+
+function clearTopicPlaybackTimer() {
+  if (topicPlaybackTimer !== null) {
+    window.clearInterval(topicPlaybackTimer);
+    topicPlaybackTimer = null;
+  }
+}
+
+function applyTopicPlaybackPreset(topic, action = "map", options = {}) {
+  const rows = topicPlaybackPresetRows(state.analysis.mapLayers?.units || []);
+  const row = rows.find((item) => item.topic === topic);
+  if (!row) {
+    return;
+  }
+  if (!options.keepPlaying) {
+    state.topicPlaybackPlaying = false;
+  }
+  state.topicPlaybackTopic = row.topic;
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: row.topic,
+  };
+  state.selectedUnitId = row.topUnit?.unit_id || null;
+  state.geographyColorMode = "topic";
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    counties: true,
+    municipalities: true,
+    ontology: action === "ontology" || state.geographyLayers.ontology,
+  };
+  state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+  state.ontologyPathStage = "topic";
+  const units = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const question = topicPlaybackQuestion(row);
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "topic playback preset", units);
+  if (action === "ask") {
+    const input = $("#inquiry-form input[name='question']");
+    if (input) {
+      input.value = question;
+    }
+    answerAndLogInquiry(question, "topic playback preset");
+    state.activeTab = "inquiry";
+  } else if (action === "ontology") {
+    state.activeTab = "ontology";
+  } else {
+    state.activeTab = "map";
+  }
+  if (options.renderNow !== false) {
+    render();
+  }
+}
+
+function topicPlaybackQuestion(row) {
+  return `Where do ${row.topic} laws appear across the county/town map?`;
 }
 
 function coverageTimelineMetricHtml([label, value]) {
@@ -15351,6 +15585,15 @@ function bindEvents() {
     }
   });
   $("#map-panel").addEventListener("click", (event) => {
+    const topicPlaybackButton = event.target.closest("[data-topic-playback-action]");
+    if (topicPlaybackButton) {
+      event.preventDefault();
+      handleTopicPlaybackAction(
+        topicPlaybackButton.dataset.topicPlaybackAction || "map",
+        topicPlaybackButton.dataset.topicPlaybackTopic || "",
+      );
+      return;
+    }
     const playbackButton = event.target.closest("[data-coverage-playback-action]");
     if (playbackButton) {
       event.preventDefault();
