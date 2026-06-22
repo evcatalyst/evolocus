@@ -128,6 +128,13 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='ask']", timeout=10_000)
             page.locator("[data-chart-route-action='ask']").click()
             page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
+            page.wait_for_selector("#inquiry-answer .inquiry-answer-freshness", timeout=10_000)
+            inquiry_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000)
+            normalized_answer_text = inquiry_answer_text.lower()
+            assert "answer provenance" in normalized_answer_text
+            assert "grok-refreshed offline" in normalized_answer_text
+            assert "no browser model call" in normalized_answer_text
+            assert "no ordinance text" in normalized_answer_text
 
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='graph']", timeout=10_000)

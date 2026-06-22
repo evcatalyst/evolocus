@@ -381,6 +381,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "filteredAuditAnswer" in js
     assert "filteredScoreAnswer" in js
     assert "inquiryAnswerMiniChartsHtml" in js
+    assert "inquiryAnswerFreshnessHtml" in js
+    assert "inquiryAnswerFreshnessBadgeHtml" in js
+    assert "Answer provenance" in js
+    assert "Grok-refreshed offline" in js
+    assert "No browser model call. No ordinance text, headers, source locators, review events, or secrets" in js
     assert "inquiryAnswerOntologyMiniMapHtml" in js
     assert "inquiryAnswerOntologyNodes" in js
     assert "inquiryAnswerOntologyNodeSvg" in js
@@ -470,6 +475,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "offline-refresh-freshness-card" in css
     assert "offline-refresh-grid" in css
     assert "offline-refresh-boundary" in css
+    assert "inquiry-answer-freshness" in css
+    assert "inquiry-answer-freshness-heading" in css
+    assert "inquiry-answer-freshness-grid" in css
     assert "selected-ontology-drilldown" in css
     assert "ontology-query-presets" in css
     assert "ontology-query-grid" in css

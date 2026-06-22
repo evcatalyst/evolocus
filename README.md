@@ -60,6 +60,7 @@ The Pages app supports:
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - map and inquiry artifact freshness badges with aggregate layer, briefing, question-pack, dataset revision, snapshot deltas, and no-row-text boundary;
+- answer-level Inquiry provenance badges showing offline Grok refresh mode, artifact timestamps, dataset revision, and the no-browser-model/no-row-text boundary beside each answer;
 - Law Map last-refresh source detail showing tracked Polars artifact source, analysis commit, briefing source, deploy guard, and publication boundary;
 - latest-artifact refresh panel and timestamp timeline showing current aggregate metadata contributions without row text or law-change claims;
 - artifact lineage visual showing which aggregate JSON files power the map, inquiry, ontology, charts, audit lens, queue plan, and snapshot surfaces;

@@ -6829,6 +6829,72 @@ legend {
   margin-top: 0;
 }
 
+.inquiry-answer-freshness {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(31, 111, 139, 0.18);
+  border-radius: 8px;
+  background: #f8fafc;
+  margin: 10px 0 14px;
+  padding: 12px;
+}
+
+.inquiry-answer-freshness-heading {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.6fr) minmax(0, 1fr) minmax(160px, 0.8fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.inquiry-answer-freshness-heading span,
+.inquiry-answer-freshness-grid strong {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.inquiry-answer-freshness-heading strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.inquiry-answer-freshness-heading em,
+.inquiry-answer-freshness-grid em,
+.inquiry-answer-freshness p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.inquiry-answer-freshness-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.inquiry-answer-freshness-grid span {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.inquiry-answer-freshness-grid b {
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-answer-freshness p {
+  margin: 0;
+}
+
 .inquiry-answer aside {
   border-left: 4px solid var(--blue);
   background: #f8fafc;
@@ -7710,6 +7776,8 @@ th {
   .map-refresh-source-card dl,
   .inquiry-context-grid,
   .inquiry-map-composer-metrics,
+  .inquiry-answer-freshness-heading,
+  .inquiry-answer-freshness-grid,
   .inquiry-answer-mini-grid,
   .inquiry-answer-ontology-actions,
   .inquiry-answer-ontology-drawer-row,
@@ -7853,6 +7921,8 @@ th {
   .map-refresh-source-card dl,
   .inquiry-context-grid,
   .inquiry-map-composer-metrics,
+  .inquiry-answer-freshness-heading,
+  .inquiry-answer-freshness-grid,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
   .inquiry-answer-ontology-actions,

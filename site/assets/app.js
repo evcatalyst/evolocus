@@ -7095,12 +7095,59 @@ function inquiryAuditSummary(units) {
 function inquiryAnswerHtml(answer) {
   return `
     <h3>${escapeHtml(answer.title)}</h3>
+    ${inquiryAnswerFreshnessHtml()}
     <p>${escapeHtml(answer.answer)}</p>
     ${answer.grokSummary ? `<aside><strong>Offline Grok summary</strong><p>${escapeHtml(answer.grokSummary)}</p></aside>` : ""}
     ${answer.sections || ""}
     ${inquiryAnswerMiniChartsHtml()}
     ${inquiryAnswerOntologyMiniMapHtml()}
     ${answer.matches || ""}
+  `;
+}
+
+function inquiryAnswerFreshnessHtml() {
+  const status = state.analysis.status || {};
+  const mapLayers = state.analysis.mapLayers || {};
+  const briefings = state.analysis.inquiryBriefings || {};
+  const questionPack = state.analysis.questionPack || {};
+  const briefingGrok = briefings.grok || {};
+  const questionGrok = questionPack.grok || {};
+  const grokUsed = Boolean(briefingGrok.used || questionGrok.used);
+  const latestInquiryAt = latestIso([briefings.generated_at, questionPack.generated_at]);
+  const mode = grokUsed
+    ? `Grok-refreshed offline${briefingGrok.model || questionGrok.model ? ` · ${briefingGrok.model || questionGrok.model}` : ""}`
+    : briefings.generated_at || questionPack.generated_at
+      ? "Deterministic static artifacts"
+      : "Artifacts loading";
+  const latestLabel = latestInquiryAt
+    ? `${formatDateTime(latestInquiryAt)} · ${artifactAgeLabel(latestInquiryAt)}`
+    : "inquiry artifacts loading";
+  const datasetRevision = status.dataset_revision || mapLayers.dataset_revision || briefings.dataset_revision || "unknown";
+  return `
+    <section class="inquiry-answer-freshness" aria-label="Inquiry answer artifact freshness">
+      <div class="inquiry-answer-freshness-heading">
+        <span>Answer provenance</span>
+        <strong>${escapeHtml(mode)}</strong>
+        <em>${escapeHtml(latestLabel)}</em>
+      </div>
+      <div class="inquiry-answer-freshness-grid">
+        ${inquiryAnswerFreshnessBadgeHtml("Dataset", datasetRevision, status.dataset_id || briefings.dataset_id || "LocalLaws/LOCUS-v1")}
+        ${inquiryAnswerFreshnessBadgeHtml("Map layer", mapLayers.generated_at ? `${formatDateTime(mapLayers.generated_at)} · ${artifactAgeLabel(mapLayers.generated_at)}` : "loading", "aggregate map artifacts")}
+        ${inquiryAnswerFreshnessBadgeHtml("Briefing", briefings.generated_at ? `${formatDateTime(briefings.generated_at)} · ${artifactAgeLabel(briefings.generated_at)}` : "loading", briefingGrok.used ? "offline Grok artifact" : "static artifact")}
+        ${inquiryAnswerFreshnessBadgeHtml("Question pack", questionPack.generated_at ? `${formatDateTime(questionPack.generated_at)} · ${artifactAgeLabel(questionPack.generated_at)}` : "loading", questionGrok.used ? "offline Grok notes" : "static prompts")}
+      </div>
+      <p>No browser model call. No ordinance text, headers, source locators, review events, or secrets are sent or displayed.</p>
+    </section>
+  `;
+}
+
+function inquiryAnswerFreshnessBadgeHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(value || "unknown")}</b>
+      <em>${escapeHtml(detail || "aggregate artifact")}</em>
+    </span>
   `;
 }
 

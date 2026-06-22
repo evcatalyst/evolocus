@@ -100,6 +100,7 @@ Current coverage stats:
 - Front-door route import: GitHub Pages imports only sanitized front-door route packets, rejecting raw-text, locator, answer-text, review-event, secret, or token-shaped fields before replay
 - Front-door example questions: GitHub Pages derives topic/tier examples from visible aggregate pathway cells and can pre-filter the map before routing to Inquiry, Map, or Ontology
 - Front-door offline freshness: GitHub Pages reports briefing/question-pack age, enrichment mode, validation gate, and Actions-only refresh before users enter map or inquiry flows
+- Inquiry answer provenance: each GitHub Pages answer displays offline Grok or deterministic artifact mode, map/briefing/question-pack timestamps, dataset revision, and the no-browser-model/no-row-text boundary
 - Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
