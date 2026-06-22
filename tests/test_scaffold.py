@@ -385,6 +385,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiryAnswerMiniChartsHtml" in js
     assert "inquiryAnswerFreshnessHtml" in js
     assert "inquiryAnswerFreshnessBadgeHtml" in js
+    assert "inquiryAnswerQuestionMapCardsHtml" in js
+    assert "inquiryAnswerTierColorRows" in js
+    assert "applyInquiryAnswerMapAction" in js
+    assert "openInquiryAnswerMapUnit" in js
+    assert "Question-to-map answer cards" in js
+    assert "Color counties and towns from this answer." in js
+    assert "Tier color explanation" in js
+    assert "data-inquiry-answer-map-action" in js
+    assert "data-inquiry-answer-map-unit" in js
     assert "Answer provenance" in js
     assert "Grok-refreshed offline" in js
     assert "No browser model call. No ordinance text, headers, source locators, review events, or secrets" in js
@@ -591,6 +600,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-map-composer-preview" in css
     assert "inquiry-map-composer-metrics" in css
     assert "inquiry-map-composer-chips" in css
+    assert "inquiry-answer-map-cards" in css
+    assert "inquiry-answer-tier-row" in css
+    assert "inquiry-answer-map-unit-row" in css
     assert "inquiryResultLogEntry" in js
     assert "mapFiltersSnapshot" in js
     assert "normalizedLogMapFilters" in js

@@ -103,6 +103,7 @@ Current coverage stats:
 - Front-door offline freshness: GitHub Pages reports briefing/question-pack age, enrichment mode, validation gate, and Actions-only refresh before users enter map or inquiry flows
 - Front-door Grok refresh run badge: GitHub Pages shows the latest offline Actions refresh run link, Grok mode, artifact counts, persisted commit, and aggregate-only safety boundary from `refresh_status.json`
 - Inquiry answer provenance: each GitHub Pages answer displays offline Grok or deterministic artifact mode, map/briefing/question-pack timestamps, dataset revision, and the no-browser-model/no-row-text boundary
+- Inquiry answer map cards: each GitHub Pages answer can explain neutral tier colors, list county/town aggregate targets, and open matching Law Map highlights without row text or legal findings
 - Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
@@ -284,3 +285,4 @@ Evaluator implementation state:
 - Map cross-filter legend surface: GitHub Pages Law Map now shows visible topic, function, and neutral-tier rows that apply aggregate-only filters and map highlights without row text or legal findings.
 - County/town ontology query drawer surface: GitHub Pages Law Map now exposes selected-unit graph-question nodes that filter the colored county/town map, open selected-unit answers, or move to aggregate peer units without publishing ordinance text or locators.
 - County/town peer comparison drawer surface: GitHub Pages Law Map now compares selected aggregate units to peer county/town units with row bars, shared aggregate reasons, and map drillback while avoiding rankings, legal findings, source locators, and browser model calls.
+- Answer-level question-to-map card surface: GitHub Pages Inquiry answers now include tier-color explanations and buttons that open aggregate county/town map highlights from the answer context without browser model calls or row-level evidence.

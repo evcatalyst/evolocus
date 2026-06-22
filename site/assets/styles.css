@@ -3902,6 +3902,176 @@ textarea {
   background: var(--green);
 }
 
+.inquiry-answer-map-cards {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0;
+  border: 1px solid rgba(45, 92, 122, 0.22);
+  border-radius: 8px;
+  background: #f7fbfd;
+  padding: 12px;
+}
+
+.inquiry-answer-map-cards.empty {
+  background: #f8fafc;
+}
+
+.inquiry-answer-map-heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.inquiry-answer-map-heading div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.inquiry-answer-map-heading span,
+.inquiry-answer-map-cards.empty span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.inquiry-answer-map-heading strong,
+.inquiry-answer-map-cards.empty strong {
+  color: var(--ink);
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.inquiry-answer-map-heading em,
+.inquiry-answer-map-actions span,
+.inquiry-answer-map-cards.empty p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.inquiry-answer-map-heading button,
+.inquiry-answer-map-actions button {
+  border-color: #204f54;
+  background: var(--green);
+  color: #ffffff;
+}
+
+.inquiry-answer-map-metrics,
+.inquiry-answer-map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.inquiry-answer-map-grid {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+}
+
+.inquiry-answer-map-metrics span,
+.inquiry-answer-map-tier-card,
+.inquiry-answer-map-unit-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.inquiry-answer-map-metrics strong {
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.inquiry-answer-map-metrics b {
+  overflow-wrap: anywhere;
+}
+
+.inquiry-answer-map-metrics em {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+}
+
+.inquiry-answer-map-tier-card h4,
+.inquiry-answer-map-unit-card h4 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.inquiry-answer-tier-row,
+.inquiry-answer-map-unit-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.inquiry-answer-tier-row:hover,
+.inquiry-answer-tier-row:focus-visible,
+.inquiry-answer-map-unit-row:hover,
+.inquiry-answer-map-unit-row:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.12);
+}
+
+.inquiry-answer-tier-row i,
+.inquiry-answer-map-unit-row i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(17, 24, 39, 0.16);
+  border-radius: 999px;
+}
+
+.inquiry-answer-tier-row span,
+.inquiry-answer-map-unit-row span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.inquiry-answer-tier-row strong,
+.inquiry-answer-map-unit-row strong {
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+
+.inquiry-answer-tier-row em,
+.inquiry-answer-map-unit-row em {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-style: normal;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-answer-tier-row b,
+.inquiry-answer-map-unit-row b {
+  white-space: nowrap;
+}
+
+.inquiry-answer-map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
 .inquiry-answer-ontology-map {
   display: grid;
   gap: 12px;
@@ -9164,6 +9334,9 @@ th {
   .inquiry-map-composer-metrics,
   .inquiry-answer-freshness-heading,
   .inquiry-answer-freshness-grid,
+  .inquiry-answer-map-heading,
+  .inquiry-answer-map-metrics,
+  .inquiry-answer-map-grid,
   .inquiry-answer-mini-grid,
   .inquiry-answer-ontology-actions,
   .inquiry-answer-ontology-drawer-row,
@@ -9322,6 +9495,9 @@ th {
   .inquiry-map-composer-metrics,
   .inquiry-answer-freshness-heading,
   .inquiry-answer-freshness-grid,
+  .inquiry-answer-map-heading,
+  .inquiry-answer-map-metrics,
+  .inquiry-answer-map-grid,
   .selected-query-heading,
   .selected-query-steps,
   .inquiry-pathway-grid,

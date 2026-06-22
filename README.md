@@ -64,6 +64,7 @@ The Pages app supports:
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - map and inquiry artifact freshness badges with aggregate layer, briefing, question-pack, dataset revision, snapshot deltas, and no-row-text boundary;
 - answer-level Inquiry provenance badges showing offline Grok refresh mode, artifact timestamps, dataset revision, and the no-browser-model/no-row-text boundary beside each answer;
+- answer-level question-to-map cards explaining neutral tier colors and linking aggregate answers directly to colored county/town highlights;
 - Law Map last-refresh source detail showing tracked Polars artifact source, analysis commit, briefing source, deploy guard, and publication boundary;
 - latest-artifact refresh panel and timestamp timeline showing current aggregate metadata contributions without row text or law-change claims;
 - artifact lineage visual showing which aggregate JSON files power the map, inquiry, ontology, charts, audit lens, queue plan, and snapshot surfaces;
@@ -118,6 +119,7 @@ The Pages app supports:
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;
+- answer-level question-to-map cards that explain neutral tier color swatches and open matching county/town aggregate map highlights;
 - Inquiry question matrix with filter-aware prompts for map, package overlay, topic, function, audit, score, and selected-unit questions;
 - inquiry-to-map question composer that previews deterministic aggregate map filters before applying them;
 - click-through mini charts inside Inquiry answers for topic, function, tier, and top-unit aggregate drillbacks;

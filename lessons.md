@@ -131,3 +131,4 @@
 - Map-side cross-filter legends should summarize only the currently visible aggregate units and route through the same safe filters/highlights as other Pages visuals.
 - Selected-unit ontology query drawers should turn county/town map selections into aggregate topic, function, tier, score, provenance, and peer routes while avoiding row text, source locators, live browser models, or legal findings.
 - Selected-unit peer drawers should compare county/town aggregate units with shared-lens reasons and map drillback, but must say they are not rankings, legal findings, or row-level evidence.
+- Answer-level map cards should explain tier colors as neutral review bands and open aggregate highlights only; they must not turn colors into legal rankings or publish row evidence.

@@ -213,6 +213,21 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "grok-refreshed offline" in normalized_answer_text
             assert "no browser model call" in normalized_answer_text
             assert "no ordinance text" in normalized_answer_text
+            page.wait_for_selector("#inquiry-answer .inquiry-answer-map-cards [data-inquiry-answer-map-action='highlight']", timeout=10_000)
+            answer_map_text = page.locator("#inquiry-answer .inquiry-answer-map-cards").first.inner_text(timeout=5_000).lower()
+            assert "question-to-map answer cards" in answer_map_text
+            assert "color counties and towns from this answer" in answer_map_text
+            assert "tier color explanation" in answer_map_text
+            assert "no row text" in answer_map_text
+            page.locator("#inquiry-answer .inquiry-answer-map-cards [data-inquiry-answer-map-action='highlight']").first.click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            answer_card_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "question-to-map answer card" in answer_card_highlight_text
+            assert "no browser-side grok call" in answer_card_highlight_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
+            page.locator("[data-tab='inquiry']").click()
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
             page.locator("#inquiry-form input[name='question']").fill("Show zoning units on the map")
             page.locator("[data-inquiry-map-composer-action='apply-map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")

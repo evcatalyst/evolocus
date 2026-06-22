@@ -8276,12 +8276,179 @@ function inquiryAnswerHtml(answer) {
     <h3>${escapeHtml(answer.title)}</h3>
     ${inquiryAnswerFreshnessHtml()}
     <p>${escapeHtml(answer.answer)}</p>
+    ${inquiryAnswerQuestionMapCardsHtml(answer)}
     ${answer.grokSummary ? `<aside><strong>Offline Grok summary</strong><p>${escapeHtml(answer.grokSummary)}</p></aside>` : ""}
     ${answer.sections || ""}
     ${inquiryAnswerMiniChartsHtml()}
     ${inquiryAnswerOntologyMiniMapHtml()}
     ${answer.matches || ""}
   `;
+}
+
+function inquiryAnswerQuestionMapCardsHtml(answer) {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return "";
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  if (!units.length) {
+    return `
+      <section class="inquiry-answer-map-cards empty" aria-label="Question-to-map answer cards">
+        <div>
+          <span>Question-to-map answer cards</span>
+          <strong>No aggregate county/town units match the current answer filters.</strong>
+        </div>
+        <p>Adjust the Law Map filters to restore colored aggregate unit cards.</p>
+      </section>
+    `;
+  }
+  const summary = summarizeUnits(units);
+  const question = inquiryAnswerQuestion(answer);
+  const tierDefinitions = mapLayers.tier_definitions || {};
+  const topTier = topEntry(summary.tierCounts);
+  const tierRows = inquiryAnswerTierColorRows(summary, units, tierDefinitions);
+  const unitRows = units
+    .slice()
+    .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0) || displayUnitName(a).localeCompare(displayUnitName(b)))
+    .slice(0, state.disclosureLevel === "evidence" ? 6 : state.disclosureLevel === "unit" ? 4 : 3);
+  return `
+    <section class="inquiry-answer-map-cards" aria-label="Question-to-map answer cards">
+      <div class="inquiry-answer-map-heading">
+        <div>
+          <span>Question-to-map answer cards</span>
+          <strong>Color counties and towns from this answer.</strong>
+          <em>${escapeHtml(question)}</em>
+        </div>
+        <button type="button" data-inquiry-answer-map-action="highlight">Highlight answer on map</button>
+      </div>
+      <div class="inquiry-answer-map-metrics">
+        ${inquiryAnswerMapMetricHtml("Visible units", formatCount(units.length), "current aggregate scope")}
+        ${inquiryAnswerMapMetricHtml("Visible rows", formatCount(summary.lawCount), "aggregate law rows only")}
+        ${inquiryAnswerMapMetricHtml("Top tier", topTier.label || "No tier", "neutral review band")}
+      </div>
+      <div class="inquiry-answer-map-grid">
+        <article class="inquiry-answer-map-tier-card">
+          <h4>Tier color explanation</h4>
+          ${tierRows.map(inquiryAnswerTierColorRowHtml).join("")}
+        </article>
+        <article class="inquiry-answer-map-unit-card">
+          <h4>County/town map targets</h4>
+          ${unitRows.map(inquiryAnswerMapUnitRowHtml).join("")}
+        </article>
+      </div>
+      <div class="inquiry-answer-map-actions">
+        <button type="button" data-inquiry-answer-map-action="map">Open colored Law Map</button>
+        <button type="button" data-inquiry-answer-map-action="ontology">Open ontology route</button>
+        <span>No row text, source locators, rankings, legal findings, or browser model calls.</span>
+      </div>
+    </section>
+  `;
+}
+
+function inquiryAnswerQuestion(answer) {
+  const storedQuestion = String(answer?.question || "").trim();
+  if (storedQuestion) {
+    return storedQuestion;
+  }
+  return String($("#inquiry-form input[name='question']")?.value || state.inquiryMapComposerQuestion || "Current aggregate answer").trim();
+}
+
+function inquiryAnswerMapMetricHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(value)}</b>
+      <em>${escapeHtml(detail)}</em>
+    </span>
+  `;
+}
+
+function inquiryAnswerTierColorRows(summary, units, tierDefinitions) {
+  const rows = Object.entries(summary.tierCounts || {})
+    .filter(([, value]) => Number(value || 0) > 0)
+    .sort((a, b) => Number(b[1] || 0) - Number(a[1] || 0) || a[0].localeCompare(b[0]))
+    .slice(0, 4);
+  return rows.map(([label, value]) => {
+    const key = tierKeyForLabel(label, tierDefinitions);
+    const definition = tierDefinitions[key] || tierDefinitionForKey(key);
+    return {
+      key,
+      label,
+      value: Number(value || 0),
+      color: definition.color || tierColorForLabel(label, units, tierDefinitions),
+      detail: definition.description || "Neutral model-output review band.",
+    };
+  });
+}
+
+function inquiryAnswerTierColorRowHtml(row) {
+  return `
+    <button type="button" class="inquiry-answer-tier-row" data-inquiry-answer-map-action="tier" data-inquiry-answer-map-value="${escapeHtml(row.key)}">
+      <i style="background:${escapeHtml(row.color)}"></i>
+      <span>
+        <strong>${escapeHtml(row.label)}</strong>
+        <em>${escapeHtml(row.detail)}</em>
+      </span>
+      <b>${escapeHtml(formatCount(row.value))}</b>
+    </button>
+  `;
+}
+
+function inquiryAnswerMapUnitRowHtml(unit) {
+  return `
+    <button type="button" class="inquiry-answer-map-unit-row" data-inquiry-answer-map-unit="${escapeHtml(unit.unit_id)}">
+      <i style="background:${escapeHtml(unit.tier_color || "#d8dee8")}"></i>
+      <span>
+        <strong>${escapeHtml(displayUnitName(unit))}</strong>
+        <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</em>
+      </span>
+      <b>${escapeHtml(formatCount(unit.law_count))}</b>
+    </button>
+  `;
+}
+
+function applyInquiryAnswerMapAction(action, value = "") {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return;
+  }
+  const question = inquiryAnswerQuestion(state.inquiryAnswer || {});
+  if (action === "tier" && value) {
+    state.mapFilters = {
+      ...state.mapFilters,
+      tier: value,
+    };
+    state.selectedUnitId = null;
+  }
+  const visibleUnits = filterMapUnits(mapLayers.units || []);
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    question || "Question-to-map answer card",
+    "question-to-map answer card",
+    visibleUnits,
+  );
+  state.geographyColorMode = "tier";
+  state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+  if (action === "ontology") {
+    applyQuestionOntologyRoute(questionOntologyRouteFromUnits(question, "question-to-map answer card", visibleUnits, state.mapFilters, summarizeUnits(visibleUnits)), { renderNow: false });
+    state.activeTab = "ontology";
+  } else {
+    state.activeTab = "map";
+  }
+  render();
+}
+
+function openInquiryAnswerMapUnit(unitId) {
+  const unit = (state.analysis.mapLayers?.units || []).find((item) => item.unit_id === unitId);
+  if (!unit) {
+    return;
+  }
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    inquiryAnswerQuestion(state.inquiryAnswer || {}),
+    "question-to-map answer card",
+    [unit],
+    summarizeUnits([unit]),
+  );
+  openAuditUnitOnMap(unit.unit_id);
 }
 
 function inquiryAnswerFreshnessHtml() {
@@ -8795,11 +8962,19 @@ function applyInquiryOntologyDrawerOpen(action, value) {
 }
 
 function answerAndLogInquiry(question, source) {
-  const answer = answerQuestion(String(question));
+  const answer = answerWithRouteMetadata(String(question), source, answerQuestion(String(question)));
   state.inquiryOntologyDrawer = null;
   state.inquiryAnswer = answer;
   appendInquiryResultsLog(String(question), answer, source);
   return answer;
+}
+
+function answerWithRouteMetadata(question, source, answer) {
+  return {
+    ...answer,
+    question: String(question || "").trim(),
+    source: String(source || "aggregate inquiry"),
+  };
 }
 
 function appendInquiryResultsLog(question, answer, source) {
@@ -9177,7 +9352,7 @@ function replayInquiryResultLog(entryId, destination) {
   if (input) {
     input.value = question;
   }
-  state.inquiryAnswer = answerQuestion(question);
+  state.inquiryAnswer = answerWithRouteMetadata(question, item.source || "saved aggregate route", answerQuestion(question));
   state.activeTab = ["map", "ontology"].includes(destination) ? destination : "inquiry";
   render();
 }
@@ -12667,7 +12842,7 @@ function applySelectedUnitQueryRoute(action, unitId) {
   }
   state.selectedUnitId = unit.unit_id;
   const question = selectedUnitRouteQuestion(unit);
-  const answer = selectedUnitAnswer(unit);
+  const answer = answerWithRouteMetadata(question, "selected-unit query replay", selectedUnitAnswer(unit));
   const input = $("#inquiry-form input[name='question']");
   if (input) {
     input.value = question;
@@ -13325,6 +13500,21 @@ function bindEvents() {
         answerOntologyButton.dataset.inquiryAnswerOntologyAction || "",
         answerOntologyButton.dataset.inquiryAnswerOntologyValue || "",
       );
+      return;
+    }
+    const answerMapButton = event.target.closest("[data-inquiry-answer-map-action]");
+    if (answerMapButton) {
+      event.preventDefault();
+      applyInquiryAnswerMapAction(
+        answerMapButton.dataset.inquiryAnswerMapAction || "highlight",
+        answerMapButton.dataset.inquiryAnswerMapValue || "",
+      );
+      return;
+    }
+    const answerMapUnitButton = event.target.closest("[data-inquiry-answer-map-unit]");
+    if (answerMapUnitButton) {
+      event.preventDefault();
+      openInquiryAnswerMapUnit(answerMapUnitButton.dataset.inquiryAnswerMapUnit || "");
       return;
     }
     const drawerUnitButton = event.target.closest("[data-inquiry-drawer-unit]");

@@ -457,6 +457,18 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiryAnswerMiniChartsHtml" in js
     assert "inquiryAnswerFreshnessHtml" in js
     assert "inquiryAnswerFreshnessBadgeHtml" in js
+    assert "inquiryAnswerQuestionMapCardsHtml" in js
+    assert "inquiryAnswerTierColorRows" in js
+    assert "applyInquiryAnswerMapAction" in js
+    assert "openInquiryAnswerMapUnit" in js
+    assert "Question-to-map answer cards" in js
+    assert "Color counties and towns from this answer." in js
+    assert "Tier color explanation" in js
+    assert "data-inquiry-answer-map-action" in js
+    assert "data-inquiry-answer-map-unit" in js
+    assert "inquiry-answer-map-cards" in css
+    assert "inquiry-answer-tier-row" in css
+    assert "inquiry-answer-map-unit-row" in css
     assert "Answer provenance" in js
     assert "Grok-refreshed offline" in js
     assert "No browser model call. No ordinance text, headers, source locators, review events, or secrets" in js
