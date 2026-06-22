@@ -118,3 +118,4 @@
 - A landing chat composer should preview deterministic aggregate filters before routing, because GitHub Pages cannot safely make live model calls or expose row-level evidence.
 - Landing route history should reuse the sanitized aggregate inquiry log so replay cards stay browser-local and do not create a second storage path for sensitive material.
 - Landing route exports should omit answer text by default; aggregate filters, counts, unit IDs, provenance, and policy flags are enough for shareable visual context.
+- Landing route imports must reject raw-row-shaped keys before replay so shared JSON cannot smuggle ordinance text, source locators, review events, secrets, or answer text into the public workflow.

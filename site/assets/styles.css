@@ -704,6 +704,43 @@ main {
   font-style: normal;
 }
 
+.frontdoor-route-import {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px dashed rgba(107, 79, 214, 0.32);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.frontdoor-route-import label {
+  display: grid;
+  gap: 5px;
+}
+
+.frontdoor-route-import span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.frontdoor-route-import input {
+  width: 100%;
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.frontdoor-route-import p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .frontdoor-saved-route {
   display: grid;
   gap: 8px;
@@ -7642,6 +7679,7 @@ th {
   .frontdoor-question-composer form,
   .frontdoor-question-metrics,
   .frontdoor-saved-export-card,
+  .frontdoor-route-import,
   .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,
@@ -7785,6 +7823,7 @@ th {
   .frontdoor-question-actions,
   .frontdoor-question-metrics,
   .frontdoor-saved-export-card,
+  .frontdoor-route-import,
   .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,

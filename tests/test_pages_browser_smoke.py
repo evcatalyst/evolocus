@@ -96,6 +96,18 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert export_payload["publication_policy"]["source_locators_included"] is False
             assert export_payload["publication_policy"]["review_events_included"] is False
             assert "answer_excerpt" not in export_payload["routes"][0]
+            page.evaluate("localStorage.removeItem('evolocus.pages.aggregateInquiryResultsLog.v1')")
+            page.reload(wait_until="networkidle")
+            page.wait_for_selector("[data-frontdoor-import-routes]", timeout=10_000)
+            page.once("dialog", lambda dialog: dialog.accept())
+            page.locator("[data-frontdoor-import-routes]").set_input_files(download.path())
+            page.wait_for_selector(".frontdoor-saved-route [data-frontdoor-route-action='map']", timeout=10_000)
+            imported_route_text = page.locator(".frontdoor-saved-routes").inner_text(timeout=5_000)
+            assert "imported" in imported_route_text.lower()
+            assert "no ordinance text" in imported_route_text.lower()
+            page.locator(".frontdoor-saved-route [data-frontdoor-route-action='map']").first.click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.locator("[data-tab='map']").click()
             page.locator(".frontdoor-saved-route [data-frontdoor-route-action='ontology']").first.click()
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
 

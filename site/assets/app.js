@@ -291,6 +291,7 @@ let state = {
   ontologyPathStage: "auto",
   inquiryMapComposerQuestion: "",
   frontdoorComposerQuestion: "",
+  frontdoorRouteImportStatus: null,
   mapFilters: {
     state: "",
     topic: "",
@@ -773,6 +774,7 @@ function frontdoorSavedRoutesHtml(entries) {
           <strong>No browser-local routes yet.</strong>
           <p>Use Save route or Ask + save to keep aggregate question routes on this landing surface.</p>
         </div>
+        ${frontdoorRouteImportHtml()}
       </section>
     `;
   }
@@ -791,11 +793,25 @@ function frontdoorSavedRoutesHtml(entries) {
         <span><strong>JSON</strong><em>content-free packet</em></span>
         <span><strong>0</strong><em>text rows or locators</em></span>
       </div>
+      ${frontdoorRouteImportHtml()}
       <div class="frontdoor-saved-grid">
         ${routes.map((item, index) => frontdoorSavedRouteCardHtml(item, index, maxRows)).join("")}
       </div>
       <p class="frontdoor-saved-boundary">Saved route cards restore aggregate filters, selected public unit IDs, and deterministic answers only. No ordinance text, source locators, review events, secrets, or live model output is stored or published.</p>
     </section>
+  `;
+}
+
+function frontdoorRouteImportHtml() {
+  const status = state.frontdoorRouteImportStatus;
+  return `
+    <div class="frontdoor-route-import" aria-label="Import a content-free route packet">
+      <label>
+        <span>Import route packet</span>
+        <input id="frontdoor-route-import" type="file" accept="application/json,.json" data-frontdoor-import-routes>
+      </label>
+      <p>${escapeHtml(status ? `${status.imported} imported · ${status.skipped} skipped · ${status.filename}` : "Imports only EvoLOCUS front-door route exports. Raw text, locators, review events, and answer text are rejected.")}</p>
+    </div>
   `;
 }
 
@@ -855,6 +871,103 @@ function frontdoorRouteExportItem(item) {
 
 function exportFrontdoorSavedRoutes() {
   download("evolocus-frontdoor-routes.json", JSON.stringify(frontdoorRouteExportPayload(), null, 2), "application/json");
+}
+
+function importFrontdoorSavedRoutes(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const payload = JSON.parse(String(reader.result || "{}"));
+      const importedRoutes = frontdoorRouteImportEntries(payload, file);
+      saveInquiryResultsLog([...importedRoutes, ...state.inquiryResultsLog].slice(0, 12));
+      state.frontdoorRouteImportStatus = {
+        filename: file.name || "route packet",
+        imported: importedRoutes.length,
+        skipped: Math.max(0, Number(payload.route_count || (payload.routes || []).length || 0) - importedRoutes.length),
+      };
+      state.activeInquiryReplayId = importedRoutes[0]?.id || state.activeInquiryReplayId;
+      alert(`Imported ${importedRoutes.length} content-free aggregate route${importedRoutes.length === 1 ? "" : "s"} into browser-local history.`);
+      event.target.value = "";
+      render();
+    } catch (error) {
+      event.target.value = "";
+      alert(`Route packet import failed: ${error.message}`);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function frontdoorRouteImportEntries(payload, file) {
+  if (!payload || payload.schema_version !== "evolocus-frontdoor-route-export-v1") {
+    throw new Error("Route packet must use schema evolocus-frontdoor-route-export-v1.");
+  }
+  if (containsBlockedRoutePacketKeys(payload)) {
+    throw new Error("Route packet contains blocked row-text, locator, answer-text, review-event, or secret-shaped fields.");
+  }
+  const routes = Array.isArray(payload.routes) ? payload.routes : [];
+  if (!routes.length) {
+    throw new Error("Route packet has no routes.");
+  }
+  if (routes.length > 12) {
+    throw new Error("Route packet imports are bounded to 12 routes.");
+  }
+  return routes.map((route, index) => frontdoorRouteImportEntry(route, payload, file, index));
+}
+
+function containsBlockedRoutePacketKeys(value) {
+  const blockedKeys = new Set(["content", "header", "source_locator", "source_locators", "answer_excerpt", "review_events", "secret", "token"]);
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  if (Array.isArray(value)) {
+    return value.some(containsBlockedRoutePacketKeys);
+  }
+  return Object.entries(value).some(([key, child]) => blockedKeys.has(key) || containsBlockedRoutePacketKeys(child));
+}
+
+function frontdoorRouteImportEntry(route, payload, file, index) {
+  const routeId = String(route.route_id || `route-${index}`).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) || `route-${index}`;
+  const question = String(route.question || "Imported aggregate route").slice(0, 240);
+  return {
+    schema_version: "evolocus-aggregate-inquiry-result-v1",
+    id: `frontdoor-import-${Date.now()}-${index}-${routeId}`,
+    created_at: new Date().toISOString(),
+    source: `front-door route import: ${file.name || "route packet"}`,
+    question,
+    answer_title: "Imported aggregate route",
+    answer_excerpt: "Imported route packet restored aggregate filters, counts, selected public unit metadata, and provenance only.",
+    disclosure_level: ["overview", "unit", "evidence"].includes(route.disclosure_level) ? route.disclosure_level : "overview",
+    geography_color_mode: route.geography_color_mode || "tier",
+    map_filters: normalizedLogMapFilters(route.map_filters),
+    filter_labels: Array.isArray(route.filter_labels) ? route.filter_labels.slice(0, 8).map((label) => String(label).slice(0, 80)) : [],
+    selected_unit: route.selected_unit
+      ? {
+          unit_id: route.selected_unit.unit_id || null,
+          name: route.selected_unit.name || null,
+          state: route.selected_unit.state || null,
+          kind: route.selected_unit.kind || null,
+          tier_label: route.selected_unit.tier_label || null,
+        }
+      : null,
+    visible_summary: {
+      unit_count: Number(route.visible_summary?.unit_count || 0),
+      law_count: Number(route.visible_summary?.law_count || 0),
+      substantive_count: Number(route.visible_summary?.substantive_count || 0),
+      top_topic: route.visible_summary?.top_topic || null,
+      top_function: route.visible_summary?.top_function || null,
+      tier_counts: route.visible_summary?.tier_counts || {},
+    },
+    artifact_provenance: {
+      ...(route.artifact_provenance || {}),
+      imported_from: payload.schema_version,
+      imported_at: new Date().toISOString(),
+    },
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
 }
 
 function frontdoorSavedRouteCardHtml(item, index, maxRows) {
@@ -11606,6 +11719,13 @@ function bindEvents() {
     }
     event.preventDefault();
     applyFrontdoorComposerAction("preview", form);
+  });
+  $("#frontdoor-visual-path").addEventListener("change", (event) => {
+    const importInput = event.target.closest("[data-frontdoor-import-routes]");
+    if (!importInput) {
+      return;
+    }
+    importFrontdoorSavedRoutes(event);
   });
   $("#previous-record").addEventListener("click", () => {
     state.currentIndex = Math.max(0, state.currentIndex - 1);

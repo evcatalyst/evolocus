@@ -40,6 +40,7 @@ The Pages app supports:
 - first-screen deterministic chat-to-map composer that previews aggregate filters from typed questions and routes to Map, Inquiry, or Ontology;
 - first-screen saved visual route cards that replay browser-local aggregate questions back to answers, map filters, and ontology context;
 - content-free landing route export packet for sharing saved aggregate visual routes without answer text, ordinance text, locators, review events, or secrets;
+- content-free landing route import that rejects row-text or locator-shaped fields before replaying shared aggregate routes;
 - one-click front-door example questions that apply aggregate topic/tier filters before opening Inquiry, Map, or Ontology;
 - first-screen offline analysis freshness card for briefing/question-pack age, mode, validation, and Actions-only refresh;
 - first-screen Visual Route Verified card backed by `visual_smoke.json`, linking to the hosted browser-smoke workflow run;

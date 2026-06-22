@@ -97,6 +97,7 @@ Current coverage stats:
 - Front-door question composer: GitHub Pages lets users type a question, preview deterministic aggregate filters, and route the result to Map, Inquiry, or Ontology without browser model calls
 - Front-door saved route cards: GitHub Pages shows recent browser-local aggregate question routes on the landing page with answer, map, and ontology replay buttons
 - Front-door route export: GitHub Pages downloads a content-free `evolocus-frontdoor-routes.json` packet with aggregate route filters, counts, provenance, and policy flags only
+- Front-door route import: GitHub Pages imports only sanitized front-door route packets, rejecting raw-text, locator, answer-text, review-event, secret, or token-shaped fields before replay
 - Front-door example questions: GitHub Pages derives topic/tier examples from visible aggregate pathway cells and can pre-filter the map before routing to Inquiry, Map, or Ontology
 - Front-door offline freshness: GitHub Pages reports briefing/question-pack age, enrichment mode, validation gate, and Actions-only refresh before users enter map or inquiry flows
 - Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
