@@ -213,6 +213,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "grok-refreshed offline" in normalized_answer_text
             assert "no browser model call" in normalized_answer_text
             assert "no ordinance text" in normalized_answer_text
+            page.wait_for_selector("#inquiry-answer .inquiry-answer-filter-chip", timeout=10_000)
+            normalized_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
+            assert "answer ontology filter chips" in normalized_answer_text
+            assert "progressively narrow the county/town map" in normalized_answer_text
+            assert "chips apply aggregate topic/function/tier/unit context" in normalized_answer_text
             page.wait_for_selector("#inquiry-answer .inquiry-answer-map-cards [data-inquiry-answer-map-action='highlight']", timeout=10_000)
             answer_map_text = page.locator("#inquiry-answer .inquiry-answer-map-cards").first.inner_text(timeout=5_000).lower()
             assert "question-to-map answer cards" in answer_map_text

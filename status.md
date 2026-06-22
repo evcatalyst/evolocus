@@ -105,6 +105,7 @@ Current coverage stats:
 - Front-door Grok refresh run badge: GitHub Pages shows the latest offline Actions refresh run link, Grok mode, artifact counts, persisted commit, and aggregate-only safety boundary from `refresh_status.json`
 - Inquiry answer provenance: each GitHub Pages answer displays offline Grok or deterministic artifact mode, map/briefing/question-pack timestamps, dataset revision, and the no-browser-model/no-row-text boundary
 - Inquiry answer map cards: each GitHub Pages answer can explain neutral tier colors, list county/town aggregate targets, and open matching Law Map highlights without row text or legal findings
+- Inquiry answer ontology filter chips: each GitHub Pages answer exposes aggregate topic/function/tier/unit chips that progressively narrow the colored county/town map without row text, source locators, rankings, or browser model calls
 - Visual route verification: GitHub Pages displays `visual_smoke.json` as a first-screen card linking to the successful hosted Chart -> Map -> Inquiry -> Ontology browser-smoke run
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries

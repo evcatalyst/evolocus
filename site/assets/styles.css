@@ -4072,6 +4072,103 @@ textarea {
   align-items: center;
 }
 
+.inquiry-answer-filter-chips {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+  border: 1px solid rgba(50, 111, 112, 0.2);
+  border-radius: 8px;
+  background: #f6fbf8;
+  padding: 12px;
+}
+
+.inquiry-answer-filter-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.inquiry-answer-filter-heading span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.inquiry-answer-filter-heading strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.inquiry-answer-filter-heading em,
+.inquiry-answer-filter-chips > p {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.inquiry-answer-filter-chip-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.inquiry-answer-filter-chip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid rgba(50, 111, 112, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.inquiry-answer-filter-chip:hover,
+.inquiry-answer-filter-chip:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.12);
+  outline: none;
+}
+
+.inquiry-answer-filter-chip i {
+  display: block;
+  width: 17px;
+  height: 17px;
+  border: 1px solid rgba(17, 24, 39, 0.16);
+  border-radius: 999px;
+}
+
+.inquiry-answer-filter-chip span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.inquiry-answer-filter-chip strong,
+.inquiry-answer-filter-chip em {
+  overflow-wrap: anywhere;
+}
+
+.inquiry-answer-filter-chip strong {
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.inquiry-answer-filter-chip em {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
 .inquiry-answer-ontology-map {
   display: grid;
   gap: 12px;
@@ -9530,6 +9627,7 @@ th {
   .inquiry-answer-map-heading,
   .inquiry-answer-map-metrics,
   .inquiry-answer-map-grid,
+  .inquiry-answer-filter-chip-row,
   .inquiry-answer-mini-grid,
   .inquiry-answer-ontology-actions,
   .inquiry-answer-ontology-drawer-row,
@@ -9691,6 +9789,7 @@ th {
   .inquiry-answer-map-heading,
   .inquiry-answer-map-metrics,
   .inquiry-answer-map-grid,
+  .inquiry-answer-filter-chip-row,
   .selected-query-heading,
   .selected-query-steps,
   .inquiry-pathway-grid,

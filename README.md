@@ -121,6 +121,7 @@ The Pages app supports:
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;
 - answer-level question-to-map cards that explain neutral tier color swatches and open matching county/town aggregate map highlights;
+- answer-level ontology filter chips that progressively narrow the colored county/town map by aggregate topic, function, tier, or unit context;
 - map-side highlighted-unit detail cards showing topic/function/tier match reasons and aggregate denominators for the current question;
 - highlighted-unit ontology traces that show the aggregate route from topic/function/tier nodes to the colored county/town card without row text or legal authority claims;
 - Inquiry question matrix with filter-aware prompts for map, package overlay, topic, function, audit, score, and selected-unit questions;

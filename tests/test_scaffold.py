@@ -389,9 +389,18 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiryAnswerTierColorRows" in js
     assert "applyInquiryAnswerMapAction" in js
     assert "openInquiryAnswerMapUnit" in js
+    assert "inquiryAnswerFilterChipsHtml" in js
+    assert "inquiryAnswerFilterChipRows" in js
+    assert "inquiryAnswerFilterChipHtml" in js
+    assert "applyInquiryAnswerFilterChip" in js
+    assert "Answer ontology filter chips" in js
+    assert "Progressively narrow the county/town map." in js
+    assert "Chips apply aggregate topic/function/tier/unit context" in js
+    assert "answer ontology filter chip" in js
     assert "Question-to-map answer cards" in js
     assert "Color counties and towns from this answer." in js
     assert "Tier color explanation" in js
+    assert "data-inquiry-answer-filter-chip" in js
     assert "data-inquiry-answer-map-action" in js
     assert "data-inquiry-answer-map-unit" in js
     assert "Answer provenance" in js
@@ -615,6 +624,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-map-composer-preview" in css
     assert "inquiry-map-composer-metrics" in css
     assert "inquiry-map-composer-chips" in css
+    assert "inquiry-answer-filter-chips" in css
+    assert "inquiry-answer-filter-chip" in css
     assert "inquiry-answer-map-cards" in css
     assert "inquiry-answer-tier-row" in css
     assert "inquiry-answer-map-unit-row" in css

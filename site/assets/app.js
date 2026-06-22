@@ -8435,6 +8435,7 @@ function inquiryAnswerHtml(answer) {
     ${inquiryAnswerFreshnessHtml()}
     <p>${escapeHtml(answer.answer)}</p>
     ${inquiryAnswerQuestionMapCardsHtml(answer)}
+    ${inquiryAnswerFilterChipsHtml(answer)}
     ${answer.grokSummary ? `<aside><strong>Offline Grok summary</strong><p>${escapeHtml(answer.grokSummary)}</p></aside>` : ""}
     ${answer.sections || ""}
     ${inquiryAnswerMiniChartsHtml()}
@@ -8501,6 +8502,125 @@ function inquiryAnswerQuestionMapCardsHtml(answer) {
       </div>
     </section>
   `;
+}
+
+function inquiryAnswerFilterChipsHtml(answer) {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return "";
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  if (!units.length) {
+    return "";
+  }
+  const summary = summarizeUnits(units);
+  const chips = inquiryAnswerFilterChipRows(summary, units, mapLayers.tier_definitions || {});
+  if (!chips.length) {
+    return "";
+  }
+  const question = inquiryAnswerQuestion(answer);
+  return `
+    <section class="inquiry-answer-filter-chips" aria-label="Answer ontology filter chips">
+      <div class="inquiry-answer-filter-heading">
+        <span>Answer ontology filter chips</span>
+        <strong>Progressively narrow the county/town map.</strong>
+        <em>${escapeHtml(question || "Current aggregate answer scope")}</em>
+      </div>
+      <div class="inquiry-answer-filter-chip-row">
+        ${chips.map(inquiryAnswerFilterChipHtml).join("")}
+      </div>
+      <p>Chips apply aggregate topic/function/tier/unit context to the colored county/town map. They expose no row text, source locators, rankings, legal findings, or browser model calls.</p>
+    </section>
+  `;
+}
+
+function inquiryAnswerFilterChipRows(summary, units, tierDefinitions) {
+  const topTier = topEntry(summary.tierCounts || {});
+  const topTierKey = topTier.value ? tierKeyForLabel(topTier.label, tierDefinitions) : "";
+  const topUnit = summary.topUnit;
+  const chips = [];
+  if (summary.topTopic.value > 0) {
+    chips.push({
+      action: "topic",
+      value: summary.topTopic.label,
+      label: `Topic: ${summary.topTopic.label}`,
+      detail: `${formatCount(summary.topTopic.value)} aggregate rows`,
+      color: TOPIC_COLORS[summary.topTopic.label] || TOPIC_COLORS.Unknown,
+    });
+  }
+  if (summary.topFunction.value > 0) {
+    chips.push({
+      action: "function",
+      value: summary.topFunction.label,
+      label: `Function: ${summary.topFunction.label}`,
+      detail: `${formatCount(summary.topFunction.value)} aggregate rows`,
+      color: FUNCTION_COLORS[summary.topFunction.label] || FUNCTION_COLORS.Unknown,
+    });
+  }
+  if (topTier.value > 0 && topTierKey) {
+    chips.push({
+      action: "tier",
+      value: topTierKey,
+      label: `Tier: ${topTier.label}`,
+      detail: "neutral county/town color band",
+      color: tierColorForLabel(topTier.label, units, tierDefinitions),
+    });
+  }
+  if (topUnit) {
+    chips.push({
+      action: "unit",
+      value: topUnit.unit_id,
+      label: `Unit: ${displayUnitName(topUnit)}`,
+      detail: `${topUnit.state || "NA"} · ${text(topUnit.kind)} · ${formatCount(topUnit.law_count)} rows`,
+      color: topUnit.tier_color || tierColorForLabel(topTier.label, units, tierDefinitions),
+    });
+  }
+  return chips.slice(0, 4);
+}
+
+function inquiryAnswerFilterChipHtml(chip) {
+  return `
+    <button type="button" class="inquiry-answer-filter-chip" data-inquiry-answer-filter-chip="${escapeHtml(chip.action)}" data-inquiry-answer-filter-value="${escapeHtml(chip.value)}">
+      <i style="background:${escapeHtml(chip.color || "#d8dee8")}"></i>
+      <span>
+        <strong>${escapeHtml(chip.label)}</strong>
+        <em>${escapeHtml(chip.detail)}</em>
+      </span>
+    </button>
+  `;
+}
+
+function applyInquiryAnswerFilterChip(action, value) {
+  if (!action || !value) {
+    return;
+  }
+  if (action === "unit") {
+    openInquiryAnswerMapUnit(value);
+    return;
+  }
+  if (!["topic", "function", "tier"].includes(action)) {
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: action === "topic" ? value : state.mapFilters.topic,
+    function: action === "function" ? value : state.mapFilters.function,
+    tier: action === "tier" ? value : state.mapFilters.tier,
+  };
+  state.selectedUnitId = null;
+  const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const label = action === "tier" ? tierDefinitionForKey(value).label || value : value;
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    `${titleCase(action)} chip: ${label}`,
+    "answer ontology filter chip",
+    visibleUnits,
+  );
+  if (action === "tier") {
+    state.geographyColorMode = "tier";
+  }
+  state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+  state.activeTab = "map";
+  render();
 }
 
 function inquiryAnswerQuestion(answer) {
@@ -13657,6 +13777,15 @@ function bindEvents() {
       applyInquiryAnswerOntologyAction(
         answerOntologyButton.dataset.inquiryAnswerOntologyAction || "",
         answerOntologyButton.dataset.inquiryAnswerOntologyValue || "",
+      );
+      return;
+    }
+    const answerFilterChip = event.target.closest("[data-inquiry-answer-filter-chip]");
+    if (answerFilterChip) {
+      event.preventDefault();
+      applyInquiryAnswerFilterChip(
+        answerFilterChip.dataset.inquiryAnswerFilterChip || "",
+        answerFilterChip.dataset.inquiryAnswerFilterValue || "",
       );
       return;
     }
