@@ -784,11 +784,12 @@ function frontdoorLatestAnalysisRouteCardHtml(summary) {
         ${aiAnalysisRouteMiniMapHtml(card, "frontdoor")}
       </div>
       <div class="frontdoor-latest-analysis-actions">
+        <button type="button" data-frontdoor-latest-analysis-action="ask-layer">Ask this map layer</button>
         <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="ask" data-frontdoor-latest-analysis-action="ask">Ask latest route</button>
         <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="map" data-frontdoor-latest-analysis-action="map">Color county/town map</button>
         <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="ontology" data-frontdoor-latest-analysis-action="ontology">Graph ontology route</button>
       </div>
-      <p class="frontdoor-latest-analysis-boundary">${escapeHtml(policy.browser_llm_calls === false ? "Offline Actions-only analysis. " : "")}Route buttons pass aggregate filters, neutral color mode, public unit IDs, and ontology stages only: no ordinance text, source locators, review events, secrets, browser model calls, rankings, legal findings, or claims that law controls a place.</p>
+      <p class="frontdoor-latest-analysis-boundary">${escapeHtml(policy.browser_llm_calls === false ? "Offline Actions-only analysis. " : "")}Route buttons pass aggregate filters, current map-layer color, neutral color mode, public unit IDs, and ontology stages only: no ordinance text, source locators, review events, secrets, browser model calls, rankings, legal findings, or claims that law controls a place.</p>
     </section>
   `;
 }
@@ -836,6 +837,30 @@ function frontdoorLatestAnalysisFilterChips(route) {
   chips.push(`Color ${geographyColorLabel(route.color_mode || "tier")}`);
   chips.push(route.ontology_stage ? `Ontology ${titleCase(route.ontology_stage)}` : "Ontology overview");
   return chips.slice(0, 8).map((chip) => `<span>${escapeHtml(chip)}</span>`).join("");
+}
+
+function applyFrontdoorLatestAnalysisAction(action) {
+  if (action !== "ask-layer") {
+    return false;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return true;
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  const summary = summarizeUnits(units);
+  const colorLabel = geographyColorLabel(state.geographyColorMode || "tier");
+  const filters = activeFilterLabels();
+  const question = `What does the current ${colorLabel} map layer show${filters.length ? ` for ${filters.join(", ")}` : ""}?`;
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "latest analysis ask-this-map-layer", units, summary);
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  answerAndLogInquiry(question, "latest analysis ask-this-map-layer");
+  state.activeTab = "inquiry";
+  render();
+  return true;
 }
 
 function frontdoorGrokInquiryPackCardHtml(summary) {
@@ -17884,6 +17909,11 @@ function bindEvents() {
         miniMapUnit.dataset.aiRouteMiniCard || "",
         miniMapUnit.dataset.aiRouteMiniUnit || "",
       );
+      return;
+    }
+    const latestAnalysisButton = event.target.closest("[data-frontdoor-latest-analysis-action]");
+    if (latestAnalysisButton && applyFrontdoorLatestAnalysisAction(latestAnalysisButton.dataset.frontdoorLatestAnalysisAction || "")) {
+      event.preventDefault();
       return;
     }
     const grokPackButton = event.target.closest("[data-frontdoor-grok-pack-card]");

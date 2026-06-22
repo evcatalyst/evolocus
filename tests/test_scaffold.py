@@ -453,6 +453,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoorLatestAnalysisFilterChips" in js
     assert "Latest analysis route" in js
     assert "data-frontdoor-latest-analysis-action" in js
+    assert "applyFrontdoorLatestAnalysisAction" in js
+    assert "Ask this map layer" in js
+    assert "latest analysis ask-this-map-layer" in js
     assert "Color county/town map" in js
     assert "Graph ontology route" in js
     assert "Grok-refreshed inquiry pack" in js

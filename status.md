@@ -112,6 +112,7 @@ Current coverage stats:
 - Front-door Grok refresh run badge: GitHub Pages shows the latest offline Actions refresh run link, Grok mode, artifact counts, persisted commit, and aggregate-only safety boundary from `refresh_status.json`
 - Front-door Grok inquiry pack: GitHub Pages previews Grok-refreshed aggregate AI route cards on the first screen and routes them into Inquiry, the county/town map, or Ontology without browser model calls or row text
 - Front-door latest analysis route: GitHub Pages lifts the newest offline AI pack route onto the first screen with Ask, colored county/town map, and ontology actions while passing aggregate metadata only
+- Front-door Ask-this-map-layer route: GitHub Pages turns the current colored aggregate map layer into a deterministic Inquiry answer and map highlight without browser model calls or row text
 - AI route mini maps: GitHub Pages draws bounded county/town mini-map previews inside Grok-refreshed route cards from matched aggregate county polygons and municipal points, then routes users to the full map for complete results
 - AI route mini-map clickthrough: preview counties and towns are clickable and keyboard-focusable aggregate controls that apply the route filters, select the public unit, and open the full Law Map detail panel without row text or browser Grok calls
 - Inquiry answer provenance: each GitHub Pages answer displays offline Grok or deterministic artifact mode, map/briefing/question-pack timestamps, dataset revision, and the no-browser-model/no-row-text boundary

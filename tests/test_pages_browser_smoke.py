@@ -95,6 +95,13 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "no ordinance text" in latest_route_text
             assert "browser model calls" in latest_route_text
             assert page.locator(".frontdoor-latest-analysis-card .ai-route-mini-map svg").count() > 0
+            page.locator(".frontdoor-latest-analysis-card [data-frontdoor-latest-analysis-action='ask-layer']").click()
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
+            latest_layer_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
+            assert "latest analysis ask-this-map-layer" in latest_layer_answer_text
+            assert "aggregate metadata only" in latest_layer_answer_text
+            assert "no browser model call" in latest_layer_answer_text
+            page.locator("[data-tab='map']").click()
             page.locator(".frontdoor-latest-analysis-card [data-frontdoor-latest-analysis-action='map']").click()
             page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
             page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
