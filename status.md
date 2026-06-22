@@ -93,6 +93,7 @@ Current coverage stats:
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Front-door visual path: GitHub Pages now exposes Ask -> Map -> Ontology actions with current aggregate denominators, suggested deterministic question, and progressive disclosure controls before the map panel
 - Front-door example questions: GitHub Pages derives topic/tier examples from visible aggregate pathway cells and can pre-filter the map before routing to Inquiry, Map, or Ontology
+- Front-door offline freshness: GitHub Pages reports briefing/question-pack age, enrichment mode, validation gate, and Actions-only refresh before users enter map or inquiry flows
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card

@@ -36,6 +36,7 @@ flowchart LR
 - The persistent analysis journey strip connects Map, Inquiry, Ontology, and Queue Plan steps using only filters, disclosure level, aggregate counts, and published unit IDs.
 - The first-screen visual path lets users ask the current aggregate scope, open the colored county/town map, and inspect ontology context from one surface while passing only aggregate browser state.
 - Front-door example questions are derived from aggregate topic/tier pathway cells and can pre-filter the browser map before routing to Inquiry, Map, or Ontology.
+- A first-screen offline-refresh freshness card reports briefing and question-pack age, enrichment mode, validation state, and an Actions-only refresh link without exposing model credentials.
 - Map selections can open aggregate-only selected-unit inquiry answers; the browser still reads only bounded static JSON artifacts.
 - Inquiry prompt cards use current map filters and static artifacts to answer map, package overlay, topic, function, audit, score, and selected-unit questions without live model calls.
 - Inquiry pathway cells group current aggregate map units by dominant topic and neutral tier, then apply safe filters or deterministic aggregate questions without exposing rows.

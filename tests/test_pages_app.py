@@ -15,6 +15,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "walkthrough-panel" in html
     assert "analysis-journey" in html
     assert "frontdoor-visual-path" in html
+    assert "offline-refresh-freshness" in html
     assert "Aggregate analysis journey" in html
     assert "Score Lens" in html
     assert "Audit Lens" in html
@@ -61,6 +62,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderImportStatus" in js
     assert "renderAnalysisJourney" in js
     assert "renderFrontdoorVisualPath" in js
+    assert "renderOfflineRefreshFreshness" in js
+    assert "offlineRefreshMetricHtml" in js
+    assert "Offline analysis freshness" in js
+    assert "No browser model calls" in js
+    assert "No key in public JavaScript" in js
     assert "frontdoorVisualPathQuestion" in js
     assert "frontdoorVisualPathStepHtml" in js
     assert "frontdoorExampleQuestionRows" in js
@@ -364,6 +370,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoor-example-actions" in css
     assert "frontdoor-disclosure-button" in css
     assert "frontdoor-visual-path-boundary" in css
+    assert "offline-refresh-freshness-card" in css
+    assert "offline-refresh-grid" in css
+    assert "offline-refresh-boundary" in css
     assert "selected-ontology-drilldown" in css
     assert "ontology-query-presets" in css
     assert "ontology-query-grid" in css
