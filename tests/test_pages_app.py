@@ -166,6 +166,15 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitMapOntologyRouteStageHtml" in js
     assert "openSelectedUnitOntologyRoute" in js
     assert "data-selected-route-open" in js
+    assert "selectedUnitOntologyRouteComparisonOverlayHtml" in js
+    assert "selectedUnitOntologyRouteComparisonRows" in js
+    assert "selectedUnitOntologyRouteComparisonRowHtml" in js
+    assert "selectedUnitRouteComparisonProvenance" in js
+    assert "data-route-comparison-peer" in js
+    assert "data-route-comparison-ontology" in js
+    assert "Ontology route comparison overlay" in js
+    assert "Selected unit vs strongest aggregate peer" in js
+    assert "not a ranking, legal finding, source record" in js
     assert "Map-to-ontology route" in js
     assert "How this selected color reaches the graph" in js
     assert "Route stages pass only aggregate unit IDs" in js
@@ -611,6 +620,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selected-neighbor-peer-row" in css
     assert "selected-query-actions" in css
     assert "selected-route-strip" in css
+    assert "selected-route-comparison-overlay" in css
+    assert "selected-route-comparison-row" in css
+    assert "selected-route-comparison-actions" in css
+    assert "selected-route-comparison-boundary" in css
     assert "analysis-journey" in css
     assert "analysis-journey-step" in css
     assert "analysis-journey-boundary" in css

@@ -6156,6 +6156,98 @@ textarea {
   margin: 9px 0 0;
 }
 
+.selected-route-comparison-overlay {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(107, 79, 214, 0.2);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #f8f7ff);
+  margin: 12px 0 14px;
+  padding: 12px;
+}
+
+.selected-route-comparison-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.selected-route-comparison-heading h4,
+.selected-route-comparison-heading p,
+.selected-route-comparison-overlay p {
+  margin: 0;
+}
+
+.selected-route-comparison-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.selected-route-comparison-actions button {
+  border: 1px solid rgba(107, 79, 214, 0.28);
+  border-radius: 8px;
+  background: #f0edff;
+  color: #4f3ca8;
+  padding: 7px 9px;
+  font-weight: 850;
+}
+
+.selected-route-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.selected-route-comparison-row {
+  position: relative;
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+  box-shadow: inset 4px 0 0 #d8dee8;
+}
+
+.selected-route-comparison-row.shared {
+  border-color: rgba(50, 111, 112, 0.28);
+  box-shadow: inset 4px 0 0 var(--green);
+}
+
+.selected-route-comparison-row > span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.selected-route-comparison-row div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.selected-route-comparison-row em,
+.selected-route-comparison-row small,
+.selected-route-comparison-boundary {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.selected-route-comparison-row strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
 .ontology-neighborhood {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -9944,6 +10036,8 @@ th {
   .geo-layer-link-list button,
   .selected-route-heading,
   .selected-route-strip,
+  .selected-route-comparison-heading,
+  .selected-route-comparison-grid,
   .selected-query-heading,
   .selected-query-steps,
   .selected-ontology-query-heading,
@@ -10113,6 +10207,8 @@ th {
   .geo-layer-link-list button,
   .selected-route-heading,
   .selected-route-strip,
+  .selected-route-comparison-heading,
+  .selected-route-comparison-grid,
   .selected-disclosure-heading,
   .selected-disclosure-steps,
   .selected-ontology-query-heading,

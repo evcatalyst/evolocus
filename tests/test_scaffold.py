@@ -359,6 +359,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitMapOntologyRouteStageHtml" in js
     assert "openSelectedUnitOntologyRoute" in js
     assert "data-selected-route-open" in js
+    assert "selectedUnitOntologyRouteComparisonOverlayHtml" in js
+    assert "selectedUnitOntologyRouteComparisonRows" in js
+    assert "selectedUnitOntologyRouteComparisonRowHtml" in js
+    assert "selectedUnitRouteComparisonProvenance" in js
+    assert "data-route-comparison-peer" in js
+    assert "data-route-comparison-ontology" in js
+    assert "Ontology route comparison overlay" in js
+    assert "Selected unit vs strongest aggregate peer" in js
+    assert "not a ranking, legal finding, source record" in js
     assert "Map-to-ontology route" in js
     assert "How this selected color reaches the graph" in js
     assert "Route stages pass only aggregate unit IDs" in js
@@ -731,6 +740,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selected-ontology-query-peer" in css
     assert "selected-route-stage" in css
     assert "selected-route-boundary" in css
+    assert "selected-route-comparison-overlay" in css
+    assert "selected-route-comparison-row" in css
+    assert "selected-route-comparison-actions" in css
+    assert "selected-route-comparison-boundary" in css
     assert "analysis-journey" in css
     assert "analysis-journey-step" in css
     assert "analysis-journey-boundary" in css
@@ -832,6 +845,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "selectedUnitPeerComparisonMetricHtml" in js
     assert "selectedUnitPeers" in js
     assert "scoreDeltaSummary" in js
+    assert "selectedUnitOntologyRouteComparisonOverlayHtml" in js
+    assert "selectedUnitRouteComparisonRow" in js
+    assert "selectedUnitRouteComparisonProvenance" in js
     assert "selected-peer-card" in css
     assert "selected-peer-comparison-drawer" in css
     assert "selected-peer-comparison-row" in css

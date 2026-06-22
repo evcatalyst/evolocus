@@ -181,6 +181,21 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             peer_drawer_after_click = page.locator(".selected-peer-comparison-drawer").first.inner_text(timeout=5_000).lower()
             assert "county/town peer comparison drawer" in peer_drawer_after_click
             assert "aggregate ontology peers" in peer_drawer_after_click
+            page.wait_for_selector(".selected-route-comparison-overlay [data-route-comparison-peer]", timeout=10_000)
+            route_comparison_text = page.locator(".selected-route-comparison-overlay").first.inner_text(timeout=5_000).lower()
+            assert "ontology route comparison overlay" in route_comparison_text
+            assert "selected unit" in route_comparison_text
+            assert "peer unit" in route_comparison_text
+            assert "not a ranking" in route_comparison_text
+            assert "no ordinance text" in route_comparison_text
+            assert "source locators" in route_comparison_text
+            page.locator(".selected-route-comparison-overlay [data-route-comparison-peer]").first.click()
+            page.wait_for_selector(".selected-query-replay", timeout=10_000)
+            route_comparison_after_click = page.locator(".selected-route-comparison-overlay").first.inner_text(timeout=5_000).lower()
+            assert "strongest aggregate peer" in route_comparison_after_click
+            page.locator(".selected-route-comparison-overlay [data-route-comparison-ontology]").first.click()
+            page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
+            page.locator("[data-tab='map']").click()
             page.wait_for_selector(".selected-map-ontology-route [data-selected-route-open='topic']", timeout=10_000)
             page.wait_for_selector(".selected-query-replay [data-selected-query-route='save']", timeout=10_000)
             selected_query_text = page.locator(".selected-query-replay").inner_text(timeout=5_000)

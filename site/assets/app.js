@@ -5556,7 +5556,8 @@ function renderSelectedUnit() {
   const showEvidence = state.disclosureLevel === "evidence";
   const substantiveShare = modelSubstantiveShare(unit);
   const auditQuality = unitAuditQualityFor(unit.unit_id);
-  const packageHit = importedPackageMapStats(state.analysis.mapLayers?.units || []).units.get(unit.unit_id);
+  const packageStats = importedPackageMapStats(state.analysis.mapLayers?.units || []);
+  const packageHit = packageStats.units.get(unit.unit_id);
   const samples = showEvidence
     ? (unit.samples || [])
         .map(
@@ -5577,6 +5578,7 @@ function renderSelectedUnit() {
     ${selectedUnitQueryReplayHtml(unit, auditQuality, packageHit)}
     ${selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit)}
     ${selectedUnitMapOntologyRouteHtml(unit, auditQuality, packageHit)}
+    ${selectedUnitOntologyRouteComparisonOverlayHtml(unit, auditQuality, packageHit, packageStats)}
     ${selectedUnitOntologyQueryDrawerHtml(unit, auditQuality, packageHit)}
     <dl class="metadata-grid compact-metadata">
       <dt>Laws</dt><dd>${escapeHtml(String(unit.law_count))}</dd>
@@ -6064,6 +6066,123 @@ function selectedUnitMapOntologyRouteStageHtml(stage, index, activeStage) {
       <strong>${escapeHtml(stage.value)}</strong>
       <em>${escapeHtml(stage.detail)}</em>
     </button>
+  `;
+}
+
+function selectedUnitOntologyRouteComparisonOverlayHtml(unit, auditQuality, packageHit, packageStats) {
+  const peer = selectedUnitPeers(unit)[0];
+  if (!peer) {
+    return `
+      <section class="selected-route-comparison-overlay" aria-label="Ontology route comparison overlay">
+        <div class="selected-route-comparison-heading">
+          <div>
+            <p class="eyebrow">Ontology route comparison overlay</p>
+            <h4>Selected route has no aggregate peer</h4>
+          </div>
+        </div>
+        <p class="selected-route-comparison-boundary">Overlay compares aggregate map routes only. It is not a ranking, legal finding, source record, legal authority, or evidence that a law controls a place. No ordinance text, source locators, browser model calls, or secrets are published.</p>
+      </section>
+    `;
+  }
+  const peerUnit = peer.unit;
+  const peerAuditQuality = unitAuditQualityFor(peerUnit.unit_id);
+  const peerPackageHit = packageStats?.units?.get(peerUnit.unit_id);
+  const comparisonRows = selectedUnitOntologyRouteComparisonRows(
+    unit,
+    peerUnit,
+    auditQuality,
+    peerAuditQuality,
+    packageHit,
+    peerPackageHit,
+  );
+  const tierKey = unit.tier || peerUnit.tier || tierKeyForLabel(unit.tier_label || peerUnit.tier_label || "", state.analysis.mapLayers?.tier_definitions || "");
+  return `
+    <section class="selected-route-comparison-overlay" aria-label="Ontology route comparison overlay">
+      <div class="selected-route-comparison-heading">
+        <div>
+          <p class="eyebrow">Ontology route comparison overlay</p>
+          <h4>Selected unit vs strongest aggregate peer</h4>
+        </div>
+        <div class="selected-route-comparison-actions">
+          <button type="button" data-route-comparison-peer="${escapeHtml(peerUnit.unit_id)}">Open peer on map</button>
+          <button type="button" data-route-comparison-ontology="${escapeHtml(tierKey)}">Open ontology tier</button>
+        </div>
+      </div>
+      <p>Peer match uses shared aggregate fields and law-count proximity. It is a navigation overlay for the colored county/town map and ontology graph, not a legal ranking.</p>
+      <div class="selected-route-comparison-grid" role="list">
+        ${comparisonRows.map((row, index) => selectedUnitOntologyRouteComparisonRowHtml(row, index)).join("")}
+      </div>
+      <p class="selected-route-comparison-boundary">Overlay compares aggregate map routes only. It is not a ranking, legal finding, source record, legal authority, or evidence that a law controls a place. No ordinance text, source locators, browser model calls, or secrets are published.</p>
+    </section>
+  `;
+}
+
+function selectedUnitOntologyRouteComparisonRows(unit, peerUnit, auditQuality, peerAuditQuality, packageHit, peerPackageHit) {
+  const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  const selectedGeometry = geometryMatchForUnit(unit.unit_id);
+  const peerGeometry = geometryMatchForUnit(peerUnit.unit_id);
+  const selectedProvenance = selectedUnitRouteComparisonProvenance(unit, selectedGeometry, auditQuality, packageHit, showEvidence);
+  const peerProvenance = selectedUnitRouteComparisonProvenance(peerUnit, peerGeometry, peerAuditQuality, peerPackageHit, showEvidence);
+  const scoreSelected = showUnit ? scoreSnapshot(unit.model_score_means || {}) : "Unit detail gated";
+  const scorePeer = showUnit ? scoreSnapshot(peerUnit.model_score_means || {}) : "Unit detail gated";
+  return [
+    selectedUnitRouteComparisonRow("Map color", text(unit.tier_label), text(peerUnit.tier_label), "neutral tier color, not a ranking"),
+    selectedUnitRouteComparisonRow("Topic", text(unit.dominant_topic), text(peerUnit.dominant_topic), "released LOCUS model-output label"),
+    selectedUnitRouteComparisonRow("Function", text(unit.dominant_function), text(peerUnit.dominant_function), "released LOCUS model-output label"),
+    selectedUnitRouteComparisonRow(
+      "Rows",
+      `${formatCount(unit.law_count)} aggregate rows`,
+      `${formatCount(peerUnit.law_count)} aggregate rows`,
+      "published aggregate counts, not a completeness finding",
+      false,
+    ),
+    selectedUnitRouteComparisonRow("Score profile", scoreSelected, scorePeer, "relative numeric outputs; score direction unverified"),
+    selectedUnitRouteComparisonRow("Geometry and audit", selectedProvenance, peerProvenance, "match status and audit metadata only"),
+  ];
+}
+
+function selectedUnitRouteComparisonRow(stage, selectedValue, peerValue, detail, compareValues = true) {
+  const normalizedSelected = String(selectedValue || "").trim().toLowerCase();
+  const normalizedPeer = String(peerValue || "").trim().toLowerCase();
+  const shared = compareValues && normalizedSelected && normalizedSelected === normalizedPeer;
+  return {
+    stage,
+    selectedValue,
+    peerValue,
+    detail,
+    shared,
+    relationship: shared ? "shared aggregate route" : "different aggregate route",
+  };
+}
+
+function selectedUnitRouteComparisonProvenance(unit, geometry, auditQuality, packageHit, showEvidence) {
+  if (!showEvidence) {
+    return "Evidence gated";
+  }
+  if (packageHit) {
+    return `${geometry.matchStatus}; ${formatCount(packageHit.recordCount)} package records`;
+  }
+  if (auditQuality) {
+    return `${geometry.matchStatus}; audit ${formatNumber(auditQuality.audit_attention_score)} / 100`;
+  }
+  return `${geometry.matchStatus}; no local package`;
+}
+
+function selectedUnitOntologyRouteComparisonRowHtml(row, index) {
+  return `
+    <article class="selected-route-comparison-row${row.shared ? " shared" : ""}" role="listitem" style="--route-index:${index}">
+      <span>${escapeHtml(row.stage)}</span>
+      <div>
+        <em>Selected unit</em>
+        <strong>${escapeHtml(row.selectedValue)}</strong>
+      </div>
+      <div>
+        <em>Peer unit</em>
+        <strong>${escapeHtml(row.peerValue)}</strong>
+      </div>
+      <small>${escapeHtml(row.relationship)} · ${escapeHtml(row.detail)}</small>
+    </article>
   `;
 }
 
@@ -14146,6 +14265,18 @@ function bindEvents() {
     if (selectedRouteButton) {
       event.preventDefault();
       openSelectedUnitOntologyRoute(selectedRouteButton.dataset.selectedRouteOpen || "auto");
+      return;
+    }
+    const routeComparisonPeerButton = event.target.closest("[data-route-comparison-peer]");
+    if (routeComparisonPeerButton) {
+      event.preventDefault();
+      openAuditUnitOnMap(routeComparisonPeerButton.dataset.routeComparisonPeer || "");
+      return;
+    }
+    const routeComparisonOntologyButton = event.target.closest("[data-route-comparison-ontology]");
+    if (routeComparisonOntologyButton) {
+      event.preventDefault();
+      openTierOntology(routeComparisonOntologyButton.dataset.routeComparisonOntology || "");
       return;
     }
     const selectedQueryButton = event.target.closest("[data-selected-query-route]");
