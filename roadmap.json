@@ -129,7 +129,8 @@
         "Add first-screen saved visual route cards",
         "Add content-free landing route export packet",
         "Add content-free landing route import replay",
-        "Add answer-level Inquiry provenance and Grok refresh badges"
+        "Add answer-level Inquiry provenance and Grok refresh badges",
+        "Add selected-unit query replay from map to Inquiry and Ontology"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

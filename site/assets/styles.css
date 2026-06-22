@@ -4642,6 +4642,138 @@ textarea {
   margin: 0 0 12px;
 }
 
+.selected-query-replay {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(107, 79, 214, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #fbfaff);
+  margin: 12px 0 14px;
+  padding: 12px;
+}
+
+.selected-query-heading {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.selected-query-heading h4,
+.selected-query-heading p,
+.selected-query-question,
+.selected-query-boundary {
+  margin: 0;
+}
+
+.selected-query-heading span {
+  border: 1px solid rgba(107, 79, 214, 0.24);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #3b2a91;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.selected-query-question {
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.selected-query-steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.selected-query-steps::before {
+  position: absolute;
+  top: 15px;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(107, 79, 214, 0.64), rgba(50, 111, 112, 0.68), rgba(183, 137, 44, 0.64));
+  content: "";
+}
+
+.selected-query-steps span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 26px 9px 9px;
+}
+
+.selected-query-steps span::before {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #6b4fd6;
+  box-shadow: 0 0 0 0 rgba(107, 79, 214, 0.2);
+  content: "";
+  animation: ontologyNodePulse 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--query-index, 0) * 0.18s);
+}
+
+.selected-query-steps strong {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.selected-query-steps b {
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.selected-query-steps em,
+.selected-query-boundary {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.selected-query-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-query-actions button {
+  border: 1px solid rgba(107, 79, 214, 0.32);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #3b2a91;
+  padding: 7px 9px;
+  font-weight: 850;
+}
+
+.selected-query-actions button:hover,
+.selected-query-actions button:focus-visible {
+  border-color: rgba(107, 79, 214, 0.58);
+  background: #f4f0ff;
+  outline: none;
+}
+
 .selected-disclosure-trail {
   border: 1px solid rgba(39, 95, 121, 0.22);
   border-radius: 8px;
@@ -7849,6 +7981,8 @@ th {
   .geo-layer-link-list button,
   .selected-route-heading,
   .selected-route-strip,
+  .selected-query-heading,
+  .selected-query-steps,
   .selected-disclosure-steps,
   .selected-ontology-drilldown-grid,
   .ontology-path-strip,
@@ -7860,6 +7994,7 @@ th {
 
 @media (prefers-reduced-motion: reduce) {
   .chart-route-stage,
+  .selected-query-steps span::before,
   .selected-route-stage::before,
   .ontology-path-strip::before,
   .ontology-path-step::before {
@@ -7923,6 +8058,8 @@ th {
   .inquiry-map-composer-metrics,
   .inquiry-answer-freshness-heading,
   .inquiry-answer-freshness-grid,
+  .selected-query-heading,
+  .selected-query-steps,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
   .inquiry-answer-ontology-actions,

@@ -4794,6 +4794,7 @@ function renderSelectedUnit() {
     <h3>${escapeHtml(displayUnitName(unit))}</h3>
     <p>${escapeHtml(text(unit.state))} ${escapeHtml(text(unit.kind))} · ${escapeHtml(unit.tier_label)}</p>
     <button class="ask-unit-button" type="button" data-ask-unit-id="${escapeHtml(unit.unit_id)}">Ask about this unit</button>
+    ${selectedUnitQueryReplayHtml(unit, auditQuality, packageHit)}
     ${selectedUnitProgressiveTrailHtml(unit, auditQuality, packageHit)}
     ${selectedUnitMapOntologyRouteHtml(unit, auditQuality, packageHit)}
     <dl class="metadata-grid compact-metadata">
@@ -4821,6 +4822,66 @@ function renderSelectedUnit() {
         : `<p class="muted-note">Switch to Evidence trail to reveal source locators and public samples when allowed.</p>`
     }
   `;
+}
+
+function selectedUnitQueryReplayHtml(unit, auditQuality, packageHit) {
+  const question = selectedUnitRouteQuestion(unit);
+  const steps = [
+    {
+      label: "Map mark",
+      value: displayUnitName(unit),
+      detail: `${text(unit.state)} · ${text(unit.kind)} · ${text(unit.tier_label)}`,
+    },
+    {
+      label: "Static answer",
+      value: "Selected-unit inquiry",
+      detail: `${formatCount(unit.law_count)} aggregate rows · ${text(unit.dominant_topic)} / ${text(unit.dominant_function)}`,
+    },
+    {
+      label: "Ontology replay",
+      value: "Topic, function, tier",
+      detail: packageHit
+        ? `${formatCount(packageHit.recordCount)} browser-local package records can overlay the route`
+        : auditQuality
+          ? `audit attention ${formatNumber(auditQuality.audit_attention_score)} / 100`
+          : "aggregate graph path",
+    },
+  ];
+  return `
+    <section class="selected-query-replay" aria-label="Selected unit query replay route">
+      <div class="selected-query-heading">
+        <div>
+          <p class="eyebrow">Selected-unit query replay</p>
+          <h4>Ask -> answer -> ontology for this county/town</h4>
+        </div>
+        <span>${escapeHtml(formatCount(unit.law_count))} aggregate rows</span>
+      </div>
+      <p class="selected-query-question">${escapeHtml(question)}</p>
+      <div class="selected-query-steps">
+        ${steps.map((step, index) => selectedUnitQueryReplayStepHtml(step, index)).join("")}
+      </div>
+      <div class="selected-query-actions">
+        <button type="button" data-selected-query-route="inquiry" data-selected-query-unit="${escapeHtml(unit.unit_id)}">Open answer</button>
+        <button type="button" data-selected-query-route="ontology" data-selected-query-unit="${escapeHtml(unit.unit_id)}">Replay graph</button>
+        <button type="button" data-selected-query-route="save" data-selected-query-unit="${escapeHtml(unit.unit_id)}">Save route</button>
+      </div>
+      <p class="selected-query-boundary">Route stores only aggregate filters, selected unit ID, answer summary, artifact timestamps, and publication-policy flags. No ordinance text, source locators, review events, secrets, or browser model calls.</p>
+    </section>
+  `;
+}
+
+function selectedUnitQueryReplayStepHtml(step, index) {
+  return `
+    <span style="--query-index:${index}">
+      <strong>${escapeHtml(step.label)}</strong>
+      <b>${escapeHtml(step.value)}</b>
+      <em>${escapeHtml(step.detail)}</em>
+    </span>
+  `;
+}
+
+function selectedUnitRouteQuestion(unit) {
+  return `What does the selected unit ${displayUnitName(unit)} show?`;
 }
 
 function selectedUnitOntologyDrilldownHtml(unit, auditQuality, packageHit) {
@@ -11269,13 +11330,47 @@ function askAboutMapUnit(unitId) {
     return;
   }
   state.selectedUnitId = unit.unit_id;
-  const question = `What does the selected unit ${displayUnitName(unit)} show?`;
+  const question = selectedUnitRouteQuestion(unit);
   const input = $("#inquiry-form input[name='question']");
   if (input) {
     input.value = question;
   }
-  state.inquiryAnswer = selectedUnitAnswer(unit);
+  answerAndLogInquiry(question, "selected-unit map query");
   state.activeTab = "inquiry";
+  render();
+}
+
+function applySelectedUnitQueryRoute(action, unitId) {
+  const units = state.analysis.mapLayers ? state.analysis.mapLayers.units || [] : [];
+  const unit = units.find((item) => item.unit_id === unitId);
+  if (!unit) {
+    return;
+  }
+  state.selectedUnitId = unit.unit_id;
+  const question = selectedUnitRouteQuestion(unit);
+  const answer = selectedUnitAnswer(unit);
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  if (action === "save") {
+    state.inquiryAnswer = answer;
+    appendInquiryResultsLog(question, answer, "selected-unit query replay");
+    renderMap();
+    return;
+  }
+  answerAndLogInquiry(question, "selected-unit query replay");
+  if (action === "ontology") {
+    state.ontologyPathStage = "unit";
+    state.geographyLayers = {
+      ...defaultGeographyLayers(),
+      ...state.geographyLayers,
+      ontology: true,
+    };
+    state.activeTab = "ontology";
+  } else {
+    state.activeTab = "inquiry";
+  }
   render();
 }
 
@@ -12001,6 +12096,15 @@ function bindEvents() {
     if (selectedRouteButton) {
       event.preventDefault();
       openSelectedUnitOntologyRoute(selectedRouteButton.dataset.selectedRouteOpen || "auto");
+      return;
+    }
+    const selectedQueryButton = event.target.closest("[data-selected-query-route]");
+    if (selectedQueryButton) {
+      event.preventDefault();
+      applySelectedUnitQueryRoute(
+        selectedQueryButton.dataset.selectedQueryRoute || "inquiry",
+        selectedQueryButton.dataset.selectedQueryUnit || "",
+      );
       return;
     }
     const ontologyPathButton = event.target.closest("[data-ontology-path-stage]");

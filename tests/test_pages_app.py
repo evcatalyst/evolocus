@@ -138,6 +138,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js
     assert "selectedUnitProgressiveTrailHtml" in js
+    assert "selectedUnitQueryReplayHtml" in js
+    assert "selectedUnitQueryReplayStepHtml" in js
+    assert "selectedUnitRouteQuestion" in js
+    assert "applySelectedUnitQueryRoute" in js
+    assert "data-selected-query-route" in js
+    assert "Selected-unit query replay" in js
+    assert "Ask -> answer -> ontology for this county/town" in js
+    assert "Route stores only aggregate filters" in js
     assert "selectedUnitMapOntologyRouteHtml" in js
     assert "selectedUnitMapOntologyRouteStages" in js
     assert "selectedUnitMapOntologyRouteStageHtml" in js
@@ -453,6 +461,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Controls focus aggregate map-to-ontology stages only" in js
     assert "selected-disclosure-trail" in css
     assert "selected-map-ontology-route" in css
+    assert "selected-query-replay" in css
+    assert "selected-query-steps" in css
+    assert "selected-query-actions" in css
     assert "selected-route-strip" in css
     assert "analysis-journey" in css
     assert "analysis-journey-step" in css

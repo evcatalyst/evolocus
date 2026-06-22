@@ -329,6 +329,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "matchPackageRecordUnit" in js
     assert "selectedUnitPackageCoverageHtml" in js
     assert "selectedUnitProgressiveTrailHtml" in js
+    assert "selectedUnitQueryReplayHtml" in js
+    assert "selectedUnitQueryReplayStepHtml" in js
+    assert "selectedUnitRouteQuestion" in js
+    assert "applySelectedUnitQueryRoute" in js
+    assert "data-selected-query-route" in js
+    assert "Selected-unit query replay" in js
+    assert "Ask -> answer -> ontology for this county/town" in js
+    assert "Route stores only aggregate filters" in js
     assert "selectedUnitDisclosureStepHtml" in js
     assert "selectedUnitMapOntologyRouteHtml" in js
     assert "selectedUnitMapOntologyRouteStages" in js
@@ -587,6 +595,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "package-ontology-bars" in css
     assert "selected-disclosure-trail" in css
     assert "selected-map-ontology-route" in css
+    assert "selected-query-replay" in css
+    assert "selected-query-steps" in css
+    assert "selected-query-actions" in css
     assert "selected-route-stage" in css
     assert "selected-route-boundary" in css
     assert "analysis-journey" in css

@@ -120,3 +120,4 @@
 - Landing route exports should omit answer text by default; aggregate filters, counts, unit IDs, provenance, and policy flags are enough for shareable visual context.
 - Landing route imports must reject raw-row-shaped keys before replay so shared JSON cannot smuggle ordinance text, source locators, review events, secrets, or answer text into the public workflow.
 - Inquiry answers should carry artifact freshness and offline-enrichment mode beside the answer itself, because a separate status page is too far away from the user's interpretation moment.
+- Selected map units need their own query replay controls so users can move from a county/town color mark to an answer and ontology graph without treating the map itself as a legal conclusion.
