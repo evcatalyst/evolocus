@@ -48,6 +48,7 @@ The Pages app supports:
 - filtered-view insight cards and inquiry answers over the current aggregate map selection;
 - filtered-vs-full comparison panels for topic, tier, function, jurisdiction kind, and neutral score means;
 - state/topic small-multiple charts in the Charts tab from the same aggregate map layer;
+- chart-to-map drilldowns from aggregate tier, topic, function, jurisdiction kind, state/topic, and top-unit chart rows;
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
 - map and inquiry artifact freshness badges with aggregate layer, briefing, question-pack, dataset revision, snapshot deltas, and no-row-text boundary;
@@ -107,6 +108,7 @@ The Pages app supports:
 - package-aware inquiry answer that summarizes browser-local package coverage, map matches, workflow progress, and text/source-locator boundaries without listing record text;
 - selected county/town inquiry drilldowns from the map into aggregate-only Q&A;
 - aggregate charts for tier, topic, function, jurisdiction kind, score means, and top units;
+- aggregate chart rows can open the Law Map with safe browser-only filters or published aggregate unit IDs;
 - current-view snapshot export for filtered map/inquiry context, with aggregate metadata only;
 - browser-local snapshot gallery for comparing saved aggregate map/inquiry views;
 - progressive disclosure from overview to unit detail to evidence trail;

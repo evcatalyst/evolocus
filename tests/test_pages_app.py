@@ -136,6 +136,17 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "artifact-freshness-grid span.snapshot-delta" in css
     assert "artifact-freshness-grid .snapshot-delta em" in css
     assert "renderMapReadingGuide" in js
+    assert "chartMapFilterEnabled" in js
+    assert "applyChartMapFilter" in js
+    assert "applyChartStateTopicFilter" in js
+    assert "data-chart-map-filter" in js
+    assert "data-chart-map-value" in js
+    assert "data-chart-map-unit" in js
+    assert "data-chart-state-map" in js
+    assert "data-chart-topic-map" in js
+    assert "data-chart-state-topic-map" in js
+    assert "Click a row to filter the Law Map. This changes browser state only." in js
+    assert "Topic bars and state cards can route back to the Law Map using aggregate filters only." in js
     assert "mapTopicTierMatrixHtml" in js
     assert "topicTierMatrixRows" in js
     assert "mapTopicTierQuestion" in js
@@ -430,6 +441,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontology-tier-mini-charts" in css
     assert "ontology-tier-mini-bar" in css
     assert "button.ontology-tier-mini-bar" in css
+    assert "chart-drilldown-row" in css
+    assert "chart-drilldown-row.disabled" in css
+    assert "chart-drilldown-note" in css
+    assert "top-unit-list button" in css
+    assert "state-topic-actions" in css
+    assert "topic-strip-row:hover" in css
     assert "ontology-path-controls" in css
     assert "ontology-path-control" in css
     assert "ontology-path-control.active" in css

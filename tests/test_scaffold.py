@@ -556,6 +556,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "ontology-tier-mini-charts" in css
     assert "ontology-tier-mini-bar" in css
     assert "button.ontology-tier-mini-bar" in css
+    assert "chart-drilldown-row" in css
+    assert "chart-drilldown-row.disabled" in css
+    assert "chart-drilldown-note" in css
+    assert "top-unit-list button" in css
+    assert "state-topic-actions" in css
+    assert "topic-strip-row:hover" in css
     assert "package-map-actions" in css
     assert "checkbox-filter" in css
     assert "package-hit-badge" in css
@@ -775,6 +781,17 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "snapshot baseline unavailable" in js
     assert "artifact-change-row small" in css
     assert "stateSummaries" in js
+    assert "chartMapFilterEnabled" in js
+    assert "applyChartMapFilter" in js
+    assert "applyChartStateTopicFilter" in js
+    assert "data-chart-map-filter" in js
+    assert "data-chart-map-value" in js
+    assert "data-chart-map-unit" in js
+    assert "data-chart-state-map" in js
+    assert "data-chart-topic-map" in js
+    assert "data-chart-state-topic-map" in js
+    assert "Click a row to filter the Law Map. This changes browser state only." in js
+    assert "Topic bars and state cards can route back to the Law Map using aggregate filters only." in js
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js
     assert "Grok_api_key" not in js

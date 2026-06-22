@@ -52,6 +52,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - Inquiry question matrix for filter-aware map, package overlay, topic, function, audit, score, and selected-unit prompts;
 - inquiry-to-map question composer that previews deterministic aggregate map filters from typed questions before changing the map;
 - click-through mini charts inside Inquiry answers for topic, function, tier, and top-unit aggregate drillbacks;
+- chart-to-map drilldowns from Charts-tab tier, topic, function, jurisdiction kind, state/topic, and top-unit aggregate rows;
 - Inquiry topic/tier pathway chart that groups current aggregate units into visual question cells and safe map actions;
 - pathway-cell mini peer comparison bars for top aggregate units with map drillback and no row text;
 - map-linked ontology chips inside pathway cells for aggregate topic, neutral tier, and top-unit drillback;

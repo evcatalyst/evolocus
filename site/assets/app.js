@@ -9073,33 +9073,36 @@ function renderAnalysisCharts() {
     return;
   }
   grid.innerHTML = [
-    chartCard("Tier distribution", charts.tier_counts || []),
-    chartCard("Topic distribution", charts.topic_counts || []),
-    chartCard("Function distribution", charts.function_counts || []),
-    chartCard("Jurisdiction kind", charts.kind_counts || []),
+    chartCard("Tier distribution", charts.tier_counts || [], "tier"),
+    chartCard("Topic distribution", charts.topic_counts || [], "topic"),
+    chartCard("Function distribution", charts.function_counts || [], "function"),
+    chartCard("Jurisdiction kind", charts.kind_counts || [], "kind"),
     scoreCard("Neutral score means", charts.score_means || []),
     topUnitsCard(charts.top_units || []),
   ].join("");
 }
 
-function chartCard(title, rows) {
+function chartCard(title, rows, action = "") {
   const max = Math.max(1, ...rows.map((row) => Number(row.value || 0)));
   return `
     <article class="chart-card">
       <h3>${escapeHtml(title)}</h3>
       <div class="bar-list">
         ${rows
-          .map(
-            (row) => `
-              <div class="bar-row">
+          .map((row) => {
+            const value = row.id || row.label;
+            const enabled = chartMapFilterEnabled(action, value);
+            return `
+              <button type="button" class="bar-row chart-drilldown-row${enabled ? "" : " disabled"}" ${enabled ? "" : "disabled"} data-chart-map-filter="${escapeHtml(enabled ? action : "")}" data-chart-map-value="${escapeHtml(enabled ? value : "")}">
                 <span>${escapeHtml(row.label)}</span>
                 <div><i style="width:${Math.max(3, (Number(row.value || 0) / max) * 100)}%"></i></div>
                 <strong>${escapeHtml(String(row.value))}</strong>
-              </div>
-            `,
-          )
+              </button>
+            `;
+          })
           .join("") || "<p>No aggregate rows.</p>"}
       </div>
+      <p class="chart-drilldown-note">Click a row to filter the Law Map. This changes browser state only.</p>
     </article>
   `;
 }
@@ -9139,9 +9142,17 @@ function topUnitsCard(rows) {
       <ol class="top-unit-list">
         ${rows
           .slice(0, 8)
-          .map((row) => `<li>${escapeHtml(displayUnitName(row.name))} <span>${escapeHtml(row.state)} · ${escapeHtml(String(row.law_count))} laws · ${escapeHtml(row.tier_label)}</span></li>`)
+          .map((row) => `
+            <li>
+              <button type="button" data-chart-map-unit="${escapeHtml(row.unit_id || "")}">
+                <strong>${escapeHtml(displayUnitName(row.name))}</strong>
+                <span>${escapeHtml(row.state)} · ${escapeHtml(String(row.law_count))} laws · ${escapeHtml(row.tier_label)}</span>
+              </button>
+            </li>
+          `)
           .join("")}
       </ol>
+      <p class="chart-drilldown-note">Click a unit to open it on the Law Map with unit-level disclosure.</p>
     </article>
   `;
 }
@@ -9166,6 +9177,7 @@ function renderStateTopicCharts() {
         <span>${escapeHtml(formatPercent(summarizeUnits(units).lawCount, allSummary.lawCount))} of published aggregate layer</span>
       </div>
       <div class="topic-strip">${topicStrip(summarizeUnits(units).topicCounts, allSummary.topicCounts)}</div>
+      <p class="chart-drilldown-note">Topic bars and state cards can route back to the Law Map using aggregate filters only.</p>
     </article>
     ${
       summaries.length
@@ -9317,13 +9329,17 @@ function stateTopicCard(summary) {
         <span>${escapeHtml(formatCount(summary.lawCount))} laws · ${escapeHtml(formatCount(summary.units))} units</span>
       </div>
       <p>Top topic: ${escapeHtml(topTopic.label)} (${escapeHtml(formatCount(topTopic.value))})</p>
-      <div class="topic-strip">${topicStrip(summary.topicCounts)}</div>
+      <div class="topic-strip">${topicStrip(summary.topicCounts, null, summary.state)}</div>
       <div class="tier-strip">${tierStrip(summary.tierCounts)}</div>
+      <div class="state-topic-actions">
+        <button type="button" data-chart-state-map="${escapeHtml(summary.state)}">Open state on map</button>
+        <button type="button" data-chart-state-topic-map="${escapeHtml(summary.state)}" data-chart-topic-map="${escapeHtml(topTopic.label)}">Map top topic</button>
+      </div>
     </article>
   `;
 }
 
-function topicStrip(topicCounts, baselineCounts = null) {
+function topicStrip(topicCounts, baselineCounts = null, stateCode = "") {
   const rows = Object.entries(topicCounts)
     .filter(([label, value]) => label !== "Not_applicable" && Number(value || 0) > 0)
     .sort((a, b) => b[1] - a[1])
@@ -9337,14 +9353,14 @@ function topicStrip(topicCounts, baselineCounts = null) {
       const share = total ? Number(value || 0) / total : 0;
       const baselineShare = baselineCounts ? Number(baselineCounts[label] || 0) / Math.max(1, Object.values(baselineCounts).reduce((sum, item) => sum + Number(item || 0), 0)) : null;
       return `
-        <div class="topic-strip-row">
+        <button type="button" class="topic-strip-row" data-chart-topic-map="${escapeHtml(label)}" data-chart-state-map="${escapeHtml(stateCode)}">
           <span>${escapeHtml(label)}</span>
           <div>
             <i style="width:${Math.max(2, share * 100)}%"></i>
             ${baselineShare === null ? "" : `<b style="width:${Math.max(2, baselineShare * 100)}%"></b>`}
           </div>
           <strong>${escapeHtml(formatPercent(share, 1))}</strong>
-        </div>
+        </button>
       `;
     })
     .join("");
@@ -9360,6 +9376,43 @@ function tierStrip(tierCounts) {
         .join("")}
     </div>
   `;
+}
+
+function chartMapFilterEnabled(action, value) {
+  if (!action || !value) {
+    return false;
+  }
+  if (action === "topic") {
+    return value !== "Not_applicable";
+  }
+  return ["tier", "function", "kind"].includes(action);
+}
+
+function applyChartMapFilter(action, value) {
+  if (!chartMapFilterEnabled(action, value)) {
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: action === "topic" ? value : state.mapFilters.topic,
+    function: action === "function" ? value : state.mapFilters.function,
+    kind: action === "kind" ? normalizePackageKind(value) : state.mapFilters.kind,
+    tier: action === "tier" ? value : state.mapFilters.tier,
+  };
+  state.selectedUnitId = null;
+  state.activeTab = "map";
+  render();
+}
+
+function applyChartStateTopicFilter(stateCode, topic) {
+  state.mapFilters = {
+    ...state.mapFilters,
+    state: stateCode || state.mapFilters.state,
+    topic: topic && topic !== "No matching rows" ? topic : state.mapFilters.topic,
+  };
+  state.selectedUnitId = null;
+  state.activeTab = "map";
+  render();
 }
 
 function agreementMetrics(events) {
@@ -11027,6 +11080,37 @@ function bindEvents() {
     event.preventDefault();
     state.activeTab = lineageButton.dataset.artifactLineageTab;
     render();
+  });
+  $("#results-panel").addEventListener("click", (event) => {
+    const unitButton = event.target.closest("[data-chart-map-unit]");
+    if (unitButton) {
+      event.preventDefault();
+      openAuditUnitOnMap(unitButton.dataset.chartMapUnit || "");
+      return;
+    }
+    const stateTopicButton = event.target.closest("[data-chart-state-topic-map]");
+    if (stateTopicButton) {
+      event.preventDefault();
+      applyChartStateTopicFilter(stateTopicButton.dataset.chartStateTopicMap || "", stateTopicButton.dataset.chartTopicMap || "");
+      return;
+    }
+    const topicButton = event.target.closest("[data-chart-topic-map]");
+    if (topicButton) {
+      event.preventDefault();
+      applyChartStateTopicFilter(topicButton.dataset.chartStateMap || "", topicButton.dataset.chartTopicMap || "");
+      return;
+    }
+    const stateButton = event.target.closest("[data-chart-state-map]");
+    if (stateButton) {
+      event.preventDefault();
+      applyChartStateTopicFilter(stateButton.dataset.chartStateMap || "", "");
+      return;
+    }
+    const chartFilterButton = event.target.closest("[data-chart-map-filter]");
+    if (chartFilterButton) {
+      event.preventDefault();
+      applyChartMapFilter(chartFilterButton.dataset.chartMapFilter || "", chartFilterButton.dataset.chartMapValue || "");
+    }
   });
   $("#audit-panel").addEventListener("click", (event) => {
     const button = event.target.closest("[data-open-audit-unit]");

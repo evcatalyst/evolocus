@@ -104,6 +104,7 @@ Current coverage stats:
 - Tier-focus mini charts: GitHub Pages ontology focus cards show aggregate topic mix, function mix, unit type mix, and neutral score means for the active tier
 - Tier mini-chart drilldowns: GitHub Pages topic, function, and unit-type bars apply browser map filters and return to the county/town map
 - Score-band drilldowns: GitHub Pages neutral score mini-chart rows apply relative model-score band filters and return to the county/town map without directional legal interpretation
+- Charts-tab drilldowns: GitHub Pages aggregate tier, topic, function, jurisdiction-kind, state/topic, and top-unit chart rows open the county/town map with browser-only filters or published aggregate unit IDs
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Map-side route playback: GitHub Pages restores saved aggregate question paths directly from the Law Map, including filters, color mode, selected unit, answer replay, and ontology route
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows

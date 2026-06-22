@@ -116,7 +116,8 @@
         "Add map-linked ontology chips for Inquiry pathway cells",
         "Add persistent analysis journey strip",
         "Add pathway-cell mini peer comparison visual",
-        "Add county/town comparison drawer from Inquiry ontology mini-map nodes"
+        "Add county/town comparison drawer from Inquiry ontology mini-map nodes",
+        "Add Charts-tab aggregate drilldowns back to the county/town map"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

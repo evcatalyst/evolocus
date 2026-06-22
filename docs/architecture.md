@@ -59,6 +59,7 @@ flowchart LR
 - The map guide includes a topic/tier co-occurrence mini matrix that filters the public map by aggregate dominant topic and neutral tier only.
 - Matrix cells can open deterministic Inquiry prompts for the selected aggregate topic/tier cell without browser-side model calls or row-level publication.
 - Inquiry answers render mini charts from the current aggregate map scope and drill back to map filters or published aggregate units only.
+- Charts-tab aggregate rows for tier, topic, function, jurisdiction kind, state/topic small multiples, and top units route back to the Law Map with browser-only filters or published aggregate unit IDs.
 - Tier chips in the map guide click through to an ontology tier-focus card that summarizes visible units, topic/function links, neutral score means, and filter context.
 - The tier-focus ontology card includes mini charts for topic mix, function mix, unit type mix, and neutral score means under the current filters.
 - Topic, function, and unit-type mini-chart bars can drill back into the map by applying aggregate filters; this changes only browser state and does not publish rows.
