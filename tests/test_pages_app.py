@@ -169,9 +169,15 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderInquiryPathways" in js
     assert "inquiryPathwayRows" in js
     assert "inquiryPathwayCardHtml" in js
+    assert "inquiryPathwayOntologyChipsHtml" in js
     assert "applyInquiryPathway" in js
+    assert "applyInquiryPathwayOntology" in js
     assert "data-inquiry-pathway-ask" in js
     assert "data-inquiry-pathway-map" in js
+    assert "data-inquiry-pathway-ontology" in js
+    assert "Topic node:" in js
+    assert "Tier node:" in js
+    assert "Map unit:" in js
     assert "Ask this pathway" in js
     assert "Open on map" in js
     assert "packageInquiryAnswer" in js
@@ -223,6 +229,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-pathway-card" in css
     assert "inquiry-pathway-grid" in css
     assert "inquiry-pathway-cell" in css
+    assert "inquiry-pathway-ontology-chips" in css
     assert "inquiry-pathway-actions" in css
     assert "inquiry-log-actions" in css
     assert "inquiry-log-entry.active" in css

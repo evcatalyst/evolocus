@@ -3767,6 +3767,33 @@ legend {
   margin: 0;
 }
 
+.inquiry-pathway-ontology-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.inquiry-pathway-ontology-chips button,
+.inquiry-pathway-ontology-chips span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 6px 8px;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.inquiry-pathway-ontology-chips button {
+  cursor: pointer;
+}
+
+.inquiry-pathway-ontology-chips button:hover,
+.inquiry-pathway-ontology-chips button:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
 .inquiry-pathway-actions {
   display: flex;
   flex-wrap: wrap;

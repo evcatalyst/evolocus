@@ -93,7 +93,8 @@
         "Add Law Map last-refresh source detail",
         "Add replay controls for saved aggregate inquiry logs",
         "Add Inquiry topic/tier pathway chart",
-        "Add replay timeline for saved aggregate inquiry logs"
+        "Add replay timeline for saved aggregate inquiry logs",
+        "Add map-linked ontology chips for Inquiry pathway cells"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

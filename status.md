@@ -226,3 +226,4 @@ Evaluator implementation state:
 - Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.
 - Inquiry pathway surface: GitHub Pages groups current aggregate units into topic/tier visual cells with ask and map actions that reuse safe filters and deterministic aggregate answers only.
 - Inquiry replay timeline surface: saved aggregate inquiry entries render as browser-local row/unit sparklines with replay and map actions, excluding text, locators, review events, and browser model calls.
+- Inquiry ontology-chip surface: topic/tier pathway cells now include aggregate topic, tier, and top-unit chips that route to Ontology or Law Map using safe filters and published unit IDs only.

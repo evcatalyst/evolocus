@@ -4491,11 +4491,35 @@ function inquiryPathwayCardHtml(row, maxLawCount, maxUnitCount) {
       </div>
       <p>${escapeHtml(stateList.join(", ") || "No state")} ${escapeHtml(moreStates)} · ${escapeHtml(row.topKind.label || "mixed")} source units</p>
       <em>${escapeHtml(unitPreview)}</em>
+      ${inquiryPathwayOntologyChipsHtml(row)}
       <div class="inquiry-pathway-actions">
         <button type="button" data-inquiry-pathway-ask data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}" data-pathway-question="${escapeHtml(question)}">Ask this pathway</button>
         <button type="button" data-inquiry-pathway-map data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}">Open on map</button>
       </div>
     </article>
+  `;
+}
+
+function inquiryPathwayOntologyChipsHtml(row) {
+  const topUnit = row.topUnits[0];
+  return `
+    <div class="inquiry-pathway-ontology-chips" aria-label="Aggregate ontology links for pathway">
+      ${
+        row.topic
+          ? `<button type="button" data-inquiry-pathway-ontology="topic" data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}">Topic node: ${escapeHtml(row.topicLabel)}</button>`
+          : '<span>No topic node</span>'
+      }
+      ${
+        row.tierKey
+          ? `<button type="button" data-inquiry-pathway-ontology="tier" data-pathway-topic="${escapeHtml(row.topic)}" data-pathway-tier="${escapeHtml(row.tierKey)}">Tier node: ${escapeHtml(row.tierLabel)}</button>`
+          : '<span>No tier node</span>'
+      }
+      ${
+        topUnit
+          ? `<button type="button" data-inquiry-pathway-ontology="unit" data-pathway-unit="${escapeHtml(topUnit.unit_id)}">Map unit: ${escapeHtml(displayUnitName(topUnit))}</button>`
+          : '<span>No map unit</span>'
+      }
+    </div>
   `;
 }
 
@@ -4528,6 +4552,31 @@ function applyInquiryPathway(topic, tier, question, destination) {
   }
   answerAndLogInquiry(prompt, "topic-tier pathway");
   state.activeTab = "inquiry";
+  render();
+}
+
+function applyInquiryPathwayOntology(action, topic, tier, unitId) {
+  if (action === "unit" && unitId) {
+    openAuditUnitOnMap(unitId);
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: topic || state.mapFilters.topic,
+    tier: tier || state.mapFilters.tier,
+  };
+  state.selectedUnitId = null;
+  if (action === "tier" && tier) {
+    openTierOntology(tier);
+    return;
+  }
+  if (tier) {
+    state.ontologyFocusTier = tier;
+  }
+  if (state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  state.activeTab = "ontology";
   render();
 }
 
@@ -8262,6 +8311,17 @@ function bindEvents() {
     if (statusButton) {
       event.preventDefault();
       openAnalysisStatusTab();
+      return;
+    }
+    const pathwayOntologyButton = event.target.closest("[data-inquiry-pathway-ontology]");
+    if (pathwayOntologyButton) {
+      event.preventDefault();
+      applyInquiryPathwayOntology(
+        pathwayOntologyButton.dataset.inquiryPathwayOntology || "",
+        pathwayOntologyButton.dataset.pathwayTopic || "",
+        pathwayOntologyButton.dataset.pathwayTier || "",
+        pathwayOntologyButton.dataset.pathwayUnit || "",
+      );
       return;
     }
     const pathwayAskButton = event.target.closest("[data-inquiry-pathway-ask]");
