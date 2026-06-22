@@ -109,6 +109,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "scoreColor" in js
     assert "Neutral model-output layer; score direction remains unverified" in js
     assert "No ordinance text, source locators, browser model calls, API keys, rankings, or legal findings" in js
+    assert "selectedUnitColorExplanationHtml" in js
+    assert "selectedUnitColorExplanationRows" in js
+    assert "selectedUnitColorExplanationRowHtml" in js
+    assert "Why this color?" in js
+    assert "Color explanations use public aggregate counts and released LOCUS model outputs only" in js
+    assert "not legal findings, rankings, controlling-law claims, source records, or ordinance excerpts" in js
+    assert "selected-color-explanation-grid" in css
+    assert "selected-color-row" in css
     assert "map-layer-stepper-grid" in css
     assert "map-layer-step-button" in css
     assert "score-gradient" in css

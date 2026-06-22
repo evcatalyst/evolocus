@@ -107,6 +107,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             )
             page.locator(".map-layer-stepper [data-map-layer-step='audit']").click()
             page.wait_for_function("() => document.querySelector('#county-layer-summary')?.innerText.toLowerCase().includes('color: audit attention')")
+            page.wait_for_selector(".selected-color-explanation [data-map-layer-step='score']", timeout=10_000)
+            color_explanation_text = page.locator(".selected-color-explanation").inner_text(timeout=5_000).lower()
+            assert "why this color?" in color_explanation_text
+            assert "public aggregate counts" in color_explanation_text
+            assert "not legal findings" in color_explanation_text
+            page.locator(".selected-color-explanation [data-map-layer-step='score']").click()
+            page.wait_for_function(
+                "() => { const text = document.querySelector('#county-layer-summary')?.innerText.toLowerCase() || ''; return text.includes('color: neutral') && text.includes('score'); }",
+            )
+            page.locator(".selected-color-explanation [data-map-layer-step='tier']").click()
+            page.wait_for_function("() => document.querySelector('#county-layer-summary')?.innerText.toLowerCase().includes('color: neutral tier')")
             page.wait_for_selector(".topic-playback-presets-card [data-topic-playback-action='map'][data-topic-playback-topic]", timeout=10_000)
             topic_playback_text = page.locator(".topic-playback-presets-card").inner_text(timeout=5_000).lower()
             assert "topic playback presets" in topic_playback_text

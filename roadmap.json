@@ -168,7 +168,8 @@
         "Add per-topic map playback presets",
         "Add selected-unit ontology answer cards",
         "Add offline AI analysis pack route cards",
-        "Add map-side layer step animation for tier topic function score and audit colors"
+        "Add map-side layer step animation for tier topic function score and audit colors",
+        "Add selected unit why-this-color explanations for tier topic function score and audit layers"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

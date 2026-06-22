@@ -316,6 +316,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "scoreColor" in js
     assert "Neutral model-output layer; score direction remains unverified" in js
     assert "No ordinance text, source locators, browser model calls, API keys, rankings, or legal findings" in js
+    assert "selectedUnitColorExplanationHtml" in js
+    assert "selectedUnitColorExplanationRows" in js
+    assert "selectedUnitColorExplanationRowHtml" in js
+    assert "Why this color?" in js
+    assert "Color explanations use public aggregate counts and released LOCUS model outputs only" in js
+    assert "not legal findings, rankings, controlling-law claims, source records, or ordinance excerpts" in js
     assert "LOCUS aggregate scan" in js
     assert "Map layer published" in js
     assert "Ontology/model layer" in js
@@ -1234,6 +1240,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-layer-stepper-grid" in css
     assert "map-layer-step-button" in css
     assert "score-gradient" in css
+    assert "selected-color-explanation-grid" in css
+    assert "selected-color-row" in css
     assert "geo-layer-link-list" in css
     assert "geo-layer-boundary" in css
     assert "geography-ontology-link" in css

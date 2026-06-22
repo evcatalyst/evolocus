@@ -5917,6 +5917,7 @@ function renderCountyGeometryDetail(feature, artifact, _municipalArtifact, packa
       <dt>Dominant topic</dt><dd>${escapeHtml(properties.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(properties.match_status || "Unknown")}</dd>
     </dl>
+    ${selectedUnitColorExplanationHtml(properties, "county")}
     ${selectedUnitPackageCoverageHtml(packageHit)}
     ${
       showEvidence
@@ -5967,6 +5968,7 @@ function renderMunicipalPointDetail(point, artifact, packageStats = importedPack
       <dt>Dominant topic</dt><dd>${escapeHtml(point.dominant_topic || "Unknown")}</dd>
       <dt>Match status</dt><dd>${escapeHtml(point.match_status || "Unknown")}</dd>
     </dl>
+    ${selectedUnitColorExplanationHtml(point, "municipality")}
     ${selectedUnitPackageCoverageHtml(packageHit)}
     ${
       showEvidence
@@ -5974,6 +5976,94 @@ function renderMunicipalPointDetail(point, artifact, packageStats = importedPack
         : `<p class="muted-note">Switch to Evidence trail to reveal municipal point source and match-status details.</p>`
     }
   `;
+}
+
+function selectedUnitColorExplanationHtml(datum, unitKind) {
+  const modeLabel = geographyColorLabel(state.geographyColorMode);
+  const rows = selectedUnitColorExplanationRows(datum);
+  return `
+    <section class="selected-color-explanation" aria-label="Why this ${escapeHtml(unitKind)} has this aggregate map color">
+      <div class="selected-color-explanation-heading">
+        <div>
+          <strong>Why this color?</strong>
+          <p>${escapeHtml(displayDatumName(datum))} is currently colored by ${escapeHtml(modeLabel)}.</p>
+        </div>
+        <span>${escapeHtml(titleCase(state.disclosureLevel))}</span>
+      </div>
+      <div class="selected-color-explanation-grid" role="list">
+        ${rows.map(selectedUnitColorExplanationRowHtml).join("")}
+      </div>
+      <p class="selected-color-explanation-boundary">
+        Color explanations use public aggregate counts and released LOCUS model outputs only. They are not legal findings, rankings, controlling-law claims, source records, or ordinance excerpts.
+      </p>
+    </section>
+  `;
+}
+
+function selectedUnitColorExplanationRows(datum) {
+  const topic = datum.dominant_topic || topEntry(datum.topic_counts || {}).label || "Unknown";
+  const topicCount = Number(datum.topic_counts?.[topic] || 0);
+  const functionLabel = datum.dominant_function || topEntry(datum.function_counts || {}).label || "Unknown";
+  const functionCount = Number(datum.function_counts?.[functionLabel] || 0);
+  const scoreField = state.mapFilters.scoreField || topScoreField(datum.model_score_means || {}) || SCORE_FIELDS[0];
+  const scoreValue = Number(datum.model_score_means?.[scoreField]);
+  const auditQuality = unitAuditQualityFor(datum.unit_id);
+  const auditValue = Number(auditQuality?.audit_attention_score || 0);
+  return [
+    {
+      step: "tier",
+      label: "Tier color",
+      value: datum.tier_label || datum.tier || "No tier",
+      detail: "neutral aggregate review band, not a ranking",
+      active: state.geographyColorMode === "tier",
+    },
+    {
+      step: "topic",
+      label: "Topic color",
+      value: topic,
+      detail: topicCount ? `${formatCount(topicCount)} aggregate rows in this released topic` : "topic count not available",
+      active: state.geographyColorMode === "topic",
+    },
+    {
+      step: "function",
+      label: "Function color",
+      value: functionLabel,
+      detail: functionCount ? `${formatCount(functionCount)} aggregate rows in this released function` : "function count not available",
+      active: state.geographyColorMode === "function",
+    },
+    {
+      step: "score",
+      label: "Score color",
+      value: scoreFieldLabel(scoreField),
+      detail: Number.isFinite(scoreValue)
+        ? `${formatNumber(scoreValue)} relative mean; direction unverified`
+        : "neutral score mean not available",
+      active: state.geographyColorMode === "score",
+    },
+    {
+      step: "audit",
+      label: "Audit color",
+      value: auditQuality ? `${formatNumber(auditValue)} / 100` : "No audit signal",
+      detail: auditQuality
+        ? `${formatCount(auditQuality.ocr_review_rows || 0)} OCR-review rows · ${formatCount(auditQuality.duplicate_text_hash_rows || 0)} duplicate-hash rows`
+        : "no published audit-quality aggregate for this unit",
+      active: state.geographyColorMode === "audit_attention",
+    },
+  ];
+}
+
+function selectedUnitColorExplanationRowHtml(row) {
+  return `
+    <button type="button" class="selected-color-row${row.active ? " active" : ""}" data-map-layer-step="${escapeHtml(row.step)}" role="listitem">
+      <span>${escapeHtml(row.label)}</span>
+      <strong>${escapeHtml(row.value)}</strong>
+      <em>${escapeHtml(row.detail)}</em>
+    </button>
+  `;
+}
+
+function displayDatumName(datum) {
+  return datum?.census_name || datum?.unit_name || datum?.jurisdiction_name || datum?.unit_id || "Selected aggregate unit";
 }
 
 function geographyColorContext(features, municipalPoints) {
