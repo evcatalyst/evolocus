@@ -49,7 +49,6 @@ def publish_inquiry_briefings(
         "used": False,
         "model": grok_model,
         "secret_env": grok_api_key_env,
-        "endpoint": XAI_RESPONSES_URL,
         "docs": "https://docs.x.ai/overview",
         "error": None,
     }

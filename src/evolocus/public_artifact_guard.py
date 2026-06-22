@@ -14,6 +14,7 @@ FORBIDDEN_PUBLIC_TOKENS = [
     '"source_locator"',
     "source_locator",
     "Authorization: Bearer",
+    "api.x.ai",
     "github_pat_",
     "gho_",
     "xai-",

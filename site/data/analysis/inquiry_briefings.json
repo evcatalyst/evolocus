@@ -311,7 +311,6 @@
   "generator": "evolocus-static-progressive-inquiry",
   "grok": {
     "docs": "https://docs.x.ai/overview",
-    "endpoint": "https://api.x.ai/v1/responses",
     "error": null,
     "model": "grok-4.3",
     "secret_env": "GROK_API_KEY",
