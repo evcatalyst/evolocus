@@ -331,6 +331,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoorRoutePreviewCards" in js
     assert "frontdoorRoutePreviewCardHtml" in js
     assert "applyFrontdoorRoutePreviewAction" in js
+    assert "frontdoorGrokInquiryPackCardHtml" in js
+    assert "frontdoorGrokPackRouteHtml" in js
     assert "frontdoorSavedRoutesHtml" in js
     assert "frontdoorSavedRouteCardHtml" in js
     assert "frontdoorRouteExportPayload" in js
@@ -393,6 +395,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-frontdoor-route-preview" in js
     assert "Ask this map result routes" in js
     assert "Route previews use aggregate counts" in js
+    assert "data-frontdoor-grok-pack-card" in js
+    assert "Grok-refreshed inquiry pack" in js
+    assert "Offline analysis routes are ready for the county/town map" in js
     assert "data-frontdoor-route-action" in js
     assert "data-frontdoor-route-id" in js
     assert "data-frontdoor-export-routes" in js
@@ -869,6 +874,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoor-question-metrics" in css
     assert "frontdoor-route-preview-strip" in css
     assert "frontdoor-route-preview-card" in css
+    assert "frontdoor-grok-pack-card" in css
+    assert "frontdoor-grok-pack-route" in css
     assert "frontdoor-saved-routes" in css
     assert "frontdoor-saved-route" in css
     assert "frontdoor-saved-actions" in css

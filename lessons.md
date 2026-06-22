@@ -153,3 +153,4 @@
 - Question-result tier summary cards should explain map colors as neutral aggregate model-output bands and keep click actions limited to safe map filters, not rankings or legal conclusions.
 - Question-result score/audit signal cards should route into Score Lens or Audit Lens from aggregate highlighted units while labeling score direction as unverified and audit values as review cues.
 - Front-door Ask-this-map route previews should expose the next possible aggregate surfaces before navigation, while passing only typed filters, public unit IDs, neutral score/audit summaries, and ontology route metadata.
+- Front-door Grok-refreshed pack cards should make offline AI analysis visible immediately while routing only aggregate filters, neutral color modes, public unit IDs, and ontology stages to Inquiry, Map, or Ontology.

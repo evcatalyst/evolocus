@@ -721,6 +721,7 @@ function renderFrontdoorVisualPath() {
         <strong>${escapeHtml(question)}</strong>
         <em>${escapeHtml(filters.length ? filters.slice(0, 4).join(" · ") : "No active map filters")}</em>
       </div>
+      ${frontdoorGrokInquiryPackCardHtml(summary)}
       ${frontdoorQuestionComposerHtml(composerPlan, question)}
       ${frontdoorVisualStoryPacketHtml(question, visibleUnits, summary, selectedUnit)}
       ${frontdoorSavedRoutesHtml(state.inquiryResultsLog)}
@@ -732,6 +733,79 @@ function renderFrontdoorVisualPath() {
         ${["overview", "unit", "evidence"].map(frontdoorDisclosureButtonHtml).join("")}
       </div>
       <p class="frontdoor-visual-path-boundary">Actions pass only aggregate filters, disclosure level, selected published unit IDs, and deterministic answers. No browser Grok call, API key, source locator, review event, or LOCUS ordinance text is exposed.</p>
+    </article>
+  `;
+}
+
+function frontdoorGrokInquiryPackCardHtml(summary) {
+  const pack = state.analysis.aiAnalysisPack;
+  const briefings = state.analysis.inquiryBriefings;
+  const questionPack = state.analysis.questionPack;
+  const refreshStatus = state.analysis.refreshStatus;
+  if (!pack && !briefings && !questionPack) {
+    return "";
+  }
+  const allCards = Array.isArray(pack?.cards) ? pack.cards : [];
+  const cards = allCards.slice(0, 3);
+  const packGrok = pack?.grok || {};
+  const briefingGrok = briefings?.grok || {};
+  const questionGrok = questionPack?.grok || {};
+  const grokUsed = Boolean(packGrok.used || briefingGrok.used || questionGrok.used);
+  const model = packGrok.model || briefingGrok.model || questionGrok.model || "";
+  const latest = latestIso([pack?.generated_at, briefings?.generated_at, questionPack?.generated_at, refreshStatus?.completed_at, refreshStatus?.generated_at]);
+  const runUrl = safeRefreshRunUrl(refreshStatus?.run_url || "");
+  const rows = [
+    ["Mode", grokUsed ? `Offline Grok${model ? ` ${model}` : ""}` : "Deterministic static"],
+    ["Cards", formatCount(allCards.length)],
+    ["Briefings", briefings ? formatCount((briefings.briefings || []).length) : "loading"],
+    ["Prompts", questionPack ? formatCount((questionPack.prompts || []).length) : "loading"],
+    ["Visible rows", formatCount(summary.lawCount || 0)],
+    ["Refresh", refreshStatus?.run_id ? `Actions ${refreshStatus.run_id}` : "run loading"],
+  ];
+  return `
+    <section class="frontdoor-grok-pack-card" aria-label="Grok-refreshed aggregate inquiry pack">
+      <div class="frontdoor-grok-pack-heading">
+        <div>
+          <p class="eyebrow">Grok-refreshed inquiry pack</p>
+          <strong>Offline analysis routes are ready for the county/town map.</strong>
+          <span>${escapeHtml(latest ? `${formatDateTime(latest)} · ${artifactAgeLabel(latest)}` : "Artifact time loading")}</span>
+        </div>
+        <a href="${escapeHtml(runUrl)}" target="_blank" rel="noopener noreferrer">Open refresh run</a>
+      </div>
+      <div class="frontdoor-grok-pack-metrics">
+        ${rows.map(frontdoorGrokPackMetricHtml).join("")}
+      </div>
+      <div class="frontdoor-grok-pack-routes">
+        ${cards.map(frontdoorGrokPackRouteHtml).join("")}
+      </div>
+      <p class="frontdoor-grok-pack-boundary">This card reads committed aggregate JSON only. Route buttons pass filters, neutral color modes, public unit IDs, and ontology stages into the browser app; they do not send browser model calls, secrets, ordinance text, source locators, review events, rankings, or legal findings.</p>
+    </section>
+  `;
+}
+
+function frontdoorGrokPackMetricHtml([label, value]) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(String(value))}</em>
+    </span>
+  `;
+}
+
+function frontdoorGrokPackRouteHtml(card) {
+  const route = card.route || {};
+  const colorMode = route.color_mode || "tier";
+  const secondaryAction = colorMode === "function" ? "ontology" : colorMode === "topic" ? "map" : "ask";
+  return `
+    <article class="frontdoor-grok-pack-route">
+      <span>${escapeHtml(card.label || "Aggregate route")}</span>
+      <strong>${escapeHtml(card.title || card.question || "Aggregate inquiry route")}</strong>
+      <em>${escapeHtml(card.question || card.detail || "Open a safe aggregate route")}</em>
+      <div>
+        <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="ask">Ask</button>
+        <button type="button" data-frontdoor-grok-pack-card="${escapeHtml(card.id || "")}" data-frontdoor-grok-pack-action="${escapeHtml(secondaryAction)}">${secondaryAction === "ontology" ? "Graph" : secondaryAction === "map" ? "Color map" : "Open route"}</button>
+      </div>
+      <small>${escapeHtml(colorMode)} route · no row text</small>
     </article>
   `;
 }
@@ -16384,6 +16458,15 @@ function bindEvents() {
         routePreviewButton.dataset.frontdoorRoutePreview || "map",
         routePreviewButton.dataset.frontdoorRoutePreviewValue || "",
         $("#frontdoor-visual-path [data-frontdoor-composer]"),
+      );
+      return;
+    }
+    const grokPackButton = event.target.closest("[data-frontdoor-grok-pack-card]");
+    if (grokPackButton) {
+      event.preventDefault();
+      applyAiAnalysisPackCard(
+        grokPackButton.dataset.frontdoorGrokPackCard || "",
+        grokPackButton.dataset.frontdoorGrokPackAction || "ask",
       );
       return;
     }

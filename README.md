@@ -52,6 +52,7 @@ The Pages app supports:
 - one-click front-door example questions that apply aggregate topic/tier filters before opening Inquiry, Map, or Ontology;
 - first-screen offline analysis freshness card for briefing/question-pack age, mode, validation, and Actions-only refresh;
 - Pages-visible offline Grok refresh run badge with latest Actions run link, artifact counts, commit, and aggregate-only safety boundary;
+- first-screen Grok-refreshed inquiry pack card that previews offline aggregate AI routes into Ask, colored county/town map, and ontology views;
 - first-screen Visual Route Verified card backed by `visual_smoke.json`, linking to the hosted browser-smoke workflow run;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;

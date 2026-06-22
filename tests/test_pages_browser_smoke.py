@@ -119,6 +119,14 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "not legal coverage findings" in law_location_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
 
+            page.wait_for_selector(".frontdoor-grok-pack-card [data-frontdoor-grok-pack-card]", timeout=10_000)
+            grok_pack_text = page.locator(".frontdoor-grok-pack-card").inner_text(timeout=5_000).lower()
+            assert "grok-refreshed inquiry pack" in grok_pack_text
+            assert "offline analysis routes" in grok_pack_text
+            assert "county/town map" in grok_pack_text
+            assert "no row text" in grok_pack_text
+            assert "browser model calls" in grok_pack_text
+
             page.wait_for_selector("[data-frontdoor-composer] #frontdoor-question-input", timeout=10_000)
             page.locator("#frontdoor-question-input").fill("Where are zoning enforcement laws in cities?")
             page.locator("[data-frontdoor-composer-action='preview']").click()
