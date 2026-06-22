@@ -832,6 +832,136 @@ textarea {
   background: var(--green);
 }
 
+.artifact-lineage-visual {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.artifact-lineage-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.artifact-lineage-heading span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.artifact-lineage-heading strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.98rem;
+}
+
+.artifact-lineage-heading em,
+.artifact-lineage-boundary,
+.artifact-lineage-more {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.artifact-lineage-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.artifact-lineage-flow span {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f4f8f7;
+  color: var(--ink);
+  padding: 9px;
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.artifact-lineage-flow b {
+  color: var(--green);
+  font-size: 1rem;
+}
+
+.artifact-lineage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.artifact-lineage-row {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 10px;
+}
+
+.artifact-lineage-row span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.artifact-lineage-row strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.artifact-lineage-row p,
+.artifact-lineage-row em,
+.artifact-lineage-row li {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.artifact-lineage-row ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.artifact-lineage-row li {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 3px 7px;
+  color: var(--green);
+  font-weight: 850;
+}
+
+.artifact-lineage-row button {
+  justify-self: start;
+  padding: 7px 9px;
+  font-size: 0.78rem;
+}
+
 .artifact-change-boundary {
   margin: 0;
   font-size: 0.84rem;
@@ -5503,6 +5633,8 @@ th {
   .artifact-freshness-grid,
   .artifact-change-grid,
   .artifact-refresh-timeline-strip,
+  .artifact-lineage-flow,
+  .artifact-lineage-grid,
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,
@@ -5612,6 +5744,8 @@ th {
   .map-filter-grid,
   .artifact-freshness-grid,
   .artifact-refresh-timeline-strip,
+  .artifact-lineage-flow,
+  .artifact-lineage-grid,
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,

@@ -385,6 +385,13 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "artifactTimestampDeltaLabel" in js
     assert "Refresh timeline" in js
     assert "Timeline entries compare current public aggregate artifact timestamps" in js
+    assert "artifactLineageVisualHtml" in js
+    assert "artifactLineageRows" in js
+    assert "artifactLineageRowHtml" in js
+    assert "Artifact lineage" in js
+    assert "Which public files power each visual surface." in js
+    assert "Lineage shows public aggregate artifacts only." in js
+    assert "data-artifact-lineage-tab" in js
     assert "artifactChangeRowHtml" in js
     assert "latestArtifactTimestamp" in js
     assert "Current refresh metadata, not a historical diff" not in js
@@ -400,6 +407,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "artifact-refresh-timeline-strip" in css
     assert "artifact-refresh-timeline-row" in css
     assert "artifact-refresh-track" in css
+    assert "artifact-lineage-visual" in css
+    assert "artifact-lineage-flow" in css
+    assert "artifact-lineage-grid" in css
+    assert "artifact-lineage-row" in css
     assert "artifact-change-card" in css
     assert "artifact-change-grid" in css
     assert "artifact-change-row" in css

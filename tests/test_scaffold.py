@@ -570,6 +570,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "artifactTimestampDeltaLabel" in js
     assert "Refresh timeline" in js
     assert "Timeline entries compare current public aggregate artifact timestamps" in js
+    assert "artifactLineageVisualHtml" in js
+    assert "artifactLineageRows" in js
+    assert "artifactLineageRowHtml" in js
+    assert "Artifact lineage" in js
+    assert "Which public files power each visual surface." in js
+    assert "Lineage shows public aggregate artifacts only." in js
+    assert "data-artifact-lineage-tab" in js
     assert "artifactChangeRowHtml" in js
     assert "latestArtifactTimestamp" in js
     assert "Current refresh metadata only; no stored snapshot loaded." in js
@@ -585,6 +592,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "artifact-refresh-timeline-strip" in css
     assert "artifact-refresh-timeline-row" in css
     assert "artifact-refresh-track" in css
+    assert "artifact-lineage-visual" in css
+    assert "artifact-lineage-flow" in css
+    assert "artifact-lineage-grid" in css
+    assert "artifact-lineage-row" in css
     assert "artifact-freshness-grid span.snapshot-delta" in css
     assert "artifact-freshness-grid .snapshot-delta em" in css
     assert "filterMapUnits" in js

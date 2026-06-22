@@ -62,6 +62,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
 - browser-local aggregate inquiry results log for preset/manual questions with content-free JSON export and no browser model calls;
 - latest-artifact refresh panel and timeline strip in Analysis Status that summarize current aggregate metadata contributions without row text or law-change claims;
+- artifact lineage visual in Analysis Status that maps public surfaces to aggregate JSON artifacts and disclosure boundaries;
 - visual replay controls for aggregate inquiry log entries that restore safe filters, disclosure level, and selected aggregate unit context;
 - replay timeline sparklines for saved aggregate inquiry results, scaled by visible law rows and units while excluding row text and locators;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;
@@ -186,7 +187,7 @@ The current-view snapshot export captures active filters, visible aggregate summ
 
 The Snapshots tab stores those aggregate current-view payloads in browser localStorage, renders comparison bars, and can reload a saved view's map filters. Package-aware snapshot cards compare matched package units and record counts while preserving text and locator exclusion. Gallery export uses the same aggregate-only policy.
 
-The Analysis Status tab also reads `site/data/analysis/artifact_snapshot.json`, an aggregate-only stored baseline that lets the static site show true current-vs-snapshot metadata deltas. The Map and Inquiry freshness cards reuse this baseline for public snapshot badges: map units/rows on the Law Map, and briefing/question-pack counts on Inquiry. The latest-artifact timeline strip uses the same baseline to compare artifact timestamps only. The snapshot contains counts, timestamps, citation metadata, and publication-policy flags only.
+The Analysis Status tab also reads `site/data/analysis/artifact_snapshot.json`, an aggregate-only stored baseline that lets the static site show true current-vs-snapshot metadata deltas. The Map and Inquiry freshness cards reuse this baseline for public snapshot badges: map units/rows on the Law Map, and briefing/question-pack counts on Inquiry. The latest-artifact timeline strip uses the same baseline to compare artifact timestamps only. The artifact lineage visual lists the aggregate JSON files behind each public surface and changes detail level with the same Overview, Unit detail, and Evidence trail control. The snapshot contains counts, timestamps, citation metadata, and publication-policy flags only.
 
 The map-side inquiry card can save and export a bounded local history of aggregate answers. History entries are browser-local only and store prompt context, filters, selected unit metadata, package counts, and comparison rows; exports sanitize those fields and exclude ordinance text, source locator values, review events, local databases, secrets, and browser LLM calls.
 

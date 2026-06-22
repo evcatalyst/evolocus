@@ -2820,6 +2820,7 @@ function latestArtifactChangePanelHtml(status, artifacts) {
         ${rows.map(artifactChangeRowHtml).join("")}
       </div>
       ${artifactRefreshTimelineHtml(rows, snapshot)}
+      ${artifactLineageVisualHtml(status, artifacts)}
       <p class="artifact-change-boundary">No row text, source locators, local databases, exports, or legal findings are included in this change summary.</p>
     </section>
   `;
@@ -3026,6 +3027,152 @@ function artifactRefreshTimelineRowHtml(row) {
       </div>
       <strong>${escapeHtml(row.delta)}</strong>
       <em>snapshot ${escapeHtml(row.baselineAt ? formatDateTime(row.baselineAt) : "unavailable")} · current ${escapeHtml(row.currentAt ? formatDateTime(row.currentAt) : "unavailable")}</em>
+    </article>
+  `;
+}
+
+function artifactLineageVisualHtml(status, artifacts) {
+  const rows = artifactLineageRows(status, artifacts);
+  const visibleRows = state.disclosureLevel === "overview" ? rows.slice(0, 4) : rows;
+  const hiddenCount = rows.length - visibleRows.length;
+  return `
+    <section class="artifact-lineage-visual" aria-label="Public aggregate artifact lineage">
+      <div class="artifact-lineage-heading">
+        <div>
+          <span>Artifact lineage</span>
+          <strong>Which public files power each visual surface.</strong>
+        </div>
+        <em>${escapeHtml(titleCase(state.disclosureLevel))} disclosure · ${escapeHtml(status.dataset_revision || artifacts.mapLayers?.dataset_revision || "unknown revision")}</em>
+      </div>
+      <div class="artifact-lineage-flow" aria-label="Aggregate publication flow">
+        <span>Local Polars aggregate build</span>
+        <b aria-hidden="true">&rarr;</b>
+        <span>Validated static JSON</span>
+        <b aria-hidden="true">&rarr;</b>
+        <span>GitHub Pages visuals</span>
+        <b aria-hidden="true">&rarr;</b>
+        <span>Browser-local review/export</span>
+      </div>
+      <div class="artifact-lineage-grid">
+        ${visibleRows.map(artifactLineageRowHtml).join("")}
+      </div>
+      ${hiddenCount > 0 ? `<p class="artifact-lineage-more">${escapeHtml(formatCount(hiddenCount))} more lineage rows available at Unit detail or Evidence trail disclosure.</p>` : ""}
+      <p class="artifact-lineage-boundary">Lineage shows public aggregate artifacts only. It excludes ordinance text, headers, source locators, SQLite databases, exports, local paths, secrets, and legal findings.</p>
+    </section>
+  `;
+}
+
+function artifactLineageRows(status, artifacts) {
+  const {
+    mapLayers,
+    auditStatus,
+    inquiryBriefings,
+    questionPack,
+    countyGeometry,
+    municipalPoints,
+    unitAuditQuality,
+    ontology,
+    charts,
+    models,
+    packageVerification,
+  } = artifacts;
+  const unitCount = status.unit_count || (mapLayers?.units || []).length;
+  const lawCount = status.law_count || mapLayers?.row_count || 0;
+  const briefingCount = (inquiryBriefings?.briefings || []).length;
+  const promptCount = (questionPack?.prompts || []).length;
+  const ontologyNodeCount = (ontology?.nodes || []).length;
+  const ontologyEdgeCount = (ontology?.edges || []).length;
+  const chartCount = charts?.charts ? Object.keys(charts.charts).length : 0;
+  const modelCount = (models?.models || []).length;
+  return [
+    {
+      surface: "Law Map",
+      tab: "map",
+      artifacts: ["map_layers.json", "county_geometry.json", "municipal_points.json", "unit_audit_quality.json"],
+      metric: `${formatCount(unitCount)} aggregate units · ${formatCount(lawCount)} rows summarized`,
+      visual: "County/town colored map, official geography overlays, neutral tiers, audit filters.",
+      detail: "Map filters, selected-unit trails, package overlays, and tier chips read aggregate units only.",
+      evidence: "Evidence trail adds geometry-match and audit-signal provenance without row text.",
+    },
+    {
+      surface: "Inquiry",
+      tab: "inquiry",
+      artifacts: ["inquiry_briefings.json", "question_pack.json", "map_layers.json"],
+      metric: `${formatCount(briefingCount)} briefings · ${formatCount(promptCount)} prompts`,
+      visual: "Deterministic aggregate answers, prompt matrix, mini charts, ontology mini-map.",
+      detail: "Questions use current filters and selected-unit aggregate context, not browser LLM calls.",
+      evidence: "Offline Grok notes may appear only in validated static aggregate JSON.",
+    },
+    {
+      surface: "Ontology",
+      tab: "ontology",
+      artifacts: ["ontology.json", "models.json", "map_layers.json"],
+      metric: `${formatCount(ontologyNodeCount)} nodes · ${formatCount(ontologyEdgeCount)} links · ${formatCount(modelCount)} model fields`,
+      visual: "Topic, function, neutral tier, model-output, package, and unit relationship cards.",
+      detail: "Ontology links are aggregate similarity and grouping cues, not legal authority claims.",
+      evidence: "Model scores remain neutral relative outputs until score direction is verified.",
+    },
+    {
+      surface: "Charts and Score Lens",
+      tab: "results",
+      artifacts: ["charts.json", "models.json", "map_layers.json"],
+      metric: `${formatCount(chartCount)} chart panels · ${formatCount(modelCount)} model fields`,
+      visual: "State/topic charts, neutral score distributions, state matrix, unit profiles.",
+      detail: "Charts summarize published aggregate units and disclose denominators.",
+      evidence: "No best/worst, burden, freedom, or legal ranking claims are created.",
+    },
+    {
+      surface: "Audit Lens",
+      tab: "audit",
+      artifacts: ["audit_status.json", "unit_audit_quality.json", "map_layers.json"],
+      metric: `${formatCount(auditStatus?.row_count || 0)} audit rows · ${formatCount(unitAuditQuality?.matched_unit_count || 0)} matched units`,
+      visual: "OCR-risk, duplicate-text-hash, attention distribution, state atlas, queue preview.",
+      detail: "Audit attention is a review-priority signal, not proof of OCR defects.",
+      evidence: "Full audit outputs stay in ignored local storage; Pages receives aggregate rates only.",
+    },
+    {
+      surface: "Queue Plan and Packages",
+      tab: "queueplan",
+      artifacts: ["map_layers.json", "unit_audit_quality.json", "status.json"],
+      metric: packageVerification?.status === "complete" ? `${formatCount(packageVerification.matched_public_unit_count)} smoke-tested units` : "aggregate request planning only",
+      visual: "Unit-level package requests, safety gates, browser-local package overlays.",
+      detail: "The public export is a request artifact; local tooling materializes bounded packages.",
+      evidence: "Text-bearing packages remain ignored and require explicit local content flags.",
+    },
+    {
+      surface: "Snapshots and Status",
+      tab: "snapshots",
+      artifacts: ["artifact_snapshot.json", "status.json", "map_layers.json"],
+      metric: `${formatCount(unitCount)} units compared against stored aggregate snapshot metrics`,
+      visual: "Current-view exports, snapshot gallery, freshness badges, refresh timeline.",
+      detail: "Snapshots preserve visual context and publication metadata, not row-level evidence.",
+      evidence: "Timestamp and metric deltas are publication provenance, not proof of legal change.",
+    },
+    {
+      surface: "Geometry Overlays",
+      tab: "map",
+      artifacts: ["county_geometry.json", "municipal_points.json", "map_layers.json"],
+      metric: `${formatCount(countyGeometry?.matched_count || 0)} counties · ${formatCount(municipalPoints?.matched_count || 0)} towns matched`,
+      visual: "Official county polygons, municipal/town points, selected-unit peer links.",
+      detail: "Matches are machine-generated and pending review; unmatched towns remain explicit.",
+      evidence: "No FIPS certainty or jurisdiction-control claim is inferred from a map match.",
+    },
+  ];
+}
+
+function artifactLineageRowHtml(row) {
+  const showArtifacts = ["unit", "evidence"].includes(state.disclosureLevel);
+  const showEvidence = state.disclosureLevel === "evidence";
+  return `
+    <article class="artifact-lineage-row">
+      <div>
+        <span>${escapeHtml(row.surface)}</span>
+        <strong>${escapeHtml(row.metric)}</strong>
+      </div>
+      <p>${escapeHtml(row.visual)}</p>
+      ${showArtifacts ? `<ul>${row.artifacts.map((artifact) => `<li>${escapeHtml(artifact)}</li>`).join("")}</ul>` : ""}
+      <em>${escapeHtml(showEvidence ? row.evidence : row.detail)}</em>
+      <button type="button" data-artifact-lineage-tab="${escapeHtml(row.tab)}">${escapeHtml(`Open ${row.surface}`)}</button>
     </article>
   `;
 }
@@ -9626,6 +9773,15 @@ function bindEvents() {
     }
     state.selectedUnitId = target.dataset.unitId;
     renderMap();
+  });
+  $("#status-panel").addEventListener("click", (event) => {
+    const lineageButton = event.target.closest("[data-artifact-lineage-tab]");
+    if (!lineageButton) {
+      return;
+    }
+    event.preventDefault();
+    state.activeTab = lineageButton.dataset.artifactLineageTab;
+    render();
   });
   $("#audit-panel").addEventListener("click", (event) => {
     const button = event.target.closest("[data-open-audit-unit]");
