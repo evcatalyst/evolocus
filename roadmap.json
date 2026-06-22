@@ -153,6 +153,7 @@
         "Add first-screen Grok-refreshed inquiry pack routes",
         "Add county town mini maps inside AI briefing routes",
         "Add AI route mini map clickthrough into selected unit detail",
+        "Run persisted Grok-backed aggregate inquiry refresh after AI mini-map clickthrough",
         "Add answer-level Inquiry provenance and Grok refresh badges",
         "Add answer-level question-to-map tier color cards",
         "Add map-side ontology reason traces for highlighted units",

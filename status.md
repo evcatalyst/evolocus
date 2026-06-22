@@ -82,7 +82,7 @@ Current coverage stats:
 - Static inquiry briefings: generated from aggregate-only artifacts; optional Grok enrichment is offline-only
 - Tracked inquiry briefing artifact: Grok-enriched aggregate-only artifact persisted from the validated Actions refresh
 - Static AI analysis pack: generated from validated aggregate artifacts and offline briefing/question outputs; route cards open Inquiry, color the map, or graph ontology context without browser model calls
-- Latest Grok-backed refresh: Actions run `27944446996` refreshed and persisted `inquiry_briefings.json`, `question_pack.json`, `ai_analysis_pack.json`, and `refresh_status.json` as aggregate-only artifacts in commit `23cf88b`
+- Latest Grok-backed refresh: Actions run `27948343807` refreshed and persisted `inquiry_briefings.json`, `question_pack.json`, `ai_analysis_pack.json`, and `refresh_status.json` as aggregate-only artifacts in commit `537c8ef`
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
 - Queue records created from real LOCUS data: 0
