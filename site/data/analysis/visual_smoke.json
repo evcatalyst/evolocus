@@ -133,6 +133,22 @@
         "Ontology replay opens without row-level data",
         "No ordinance text, source locator, secret, or browser model call is observed"
       ]
+    },
+    {
+      "name": "Saved inquiry route comparison",
+      "steps": [
+        "Open Inquiry after creating aggregate question routes",
+        "Inspect saved browser-local route comparison cards",
+        "Inspect the map-to-inquiry route ladder",
+        "Open a saved route back into the Ontology graph"
+      ],
+      "assertions": [
+        "Saved comparison cards use browser-local aggregate route metadata only",
+        "Route ladders show question, filters, map color, selected unit, ontology, and boundary stages",
+        "Comparison copy rejects legal rankings and civic findings",
+        "Ontology replay opens from saved route metadata without row-level data",
+        "No text, locators, review events, secrets, or browser model calls are observed"
+      ]
     }
   ],
   "publication_policy": {

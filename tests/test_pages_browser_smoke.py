@@ -78,6 +78,7 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Question-to-map highlight depth" in verification_text
             assert "Selected-unit ontology route comparison" in verification_text
             assert "Selected-unit query replay" in verification_text
+            assert "Saved inquiry route comparison" in verification_text
             assert "No rows" in verification_text
             assert "No text" in verification_text
             page.wait_for_selector(".grok-refresh-run-badge a[href*='/actions/runs/']", timeout=10_000)

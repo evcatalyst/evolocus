@@ -140,6 +140,7 @@
         "Add multi-route visual-smoke verification for question-to-map highlight depth",
         "Add multi-route visual-smoke verification for selected-unit ontology route comparison",
         "Add multi-route visual-smoke verification for selected-unit query replay",
+        "Add multi-route visual-smoke verification for saved inquiry route comparison",
         "Add selected-unit map-to-ontology route trails",
         "Add first-screen deterministic chat-to-map composer",
         "Add front-door Ask-this-map route preview strip",

@@ -2559,8 +2559,7 @@ function visualSmokeRoutes(smoke) {
   const routes = Array.isArray(smoke?.verified_routes) ? smoke.verified_routes : [];
   const fallback = smoke?.verified_route ? [smoke.verified_route] : [];
   return (routes.length ? routes : fallback)
-    .filter((route) => route && route.name)
-    .slice(0, 6);
+    .filter((route) => route && route.name);
 }
 
 function visualRouteCoverageHtml(route) {
