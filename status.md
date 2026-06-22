@@ -80,6 +80,7 @@ Current coverage stats:
 - Static site data: aggregate-only LOCUS state-clustered map, ontology, model, inquiry, chart, and status artifacts
 - Static inquiry briefings: generated from aggregate-only artifacts; optional Grok enrichment is offline-only
 - Tracked inquiry briefing artifact: Grok-enriched aggregate-only artifact persisted from the validated Actions refresh
+- Latest Grok-backed refresh: Actions run `27934813781` refreshed and persisted `inquiry_briefings.json`, `question_pack.json`, and `refresh_status.json` as aggregate-only artifacts in commit `e5656b2`
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
 - Queue records created from real LOCUS data: 0
@@ -167,6 +168,7 @@ Current coverage stats:
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only, with the existing `Grok_api_key` Actions secret accepted as an alias by the refresh workflow
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
 - Persisted refresh path: manual analysis-refresh can commit only validated `inquiry_briefings.json` and `question_pack.json` aggregate artifacts back to the current branch
+- Latest persisted refresh verification: run `27934813781` used Grok for both inquiry briefings and the question pack, passed the public artifact guard, and deployed through GitHub Pages
 - Pages deploy guard: normal Pages workflow validates public artifacts before upload
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
 - Real LOCUS evaluation: not started
