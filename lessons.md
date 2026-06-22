@@ -175,6 +175,7 @@
 - Question-to-map highlight depth should be public proof because it shows progressive disclosure from an aggregate answer to map color, score depth, and highlighted-unit rationale without row-level evidence.
 - Selected-unit route comparison should stay framed as aggregate navigation proof; peer comparisons are useful only when the UI explicitly rejects rankings, legal findings, source records, and authority claims.
 - Selected-unit query replay should be named in public proof because it closes the county/town loop from map selection to saved aggregate question, static answer, and ontology graph without exposing row text.
+- Selected-unit ontology answer cards should be public proof because they turn topic, function, tier, audit, and peer lenses into map or graph routes while keeping all answers aggregate-only.
 - Shareable route URLs need visible copy confirmation on Pages; otherwise users cannot tell whether an aggregate-only route packet is ready to paste.
 - Saved inquiry route comparison belongs in public proof because it shows browser-local aggregate routes can be compared, laddered back to map color, and replayed into ontology without text, locators, review events, or model calls.
 - County/town ontology tier drilldowns should be public proof because they connect neutral tier concepts back to concrete aggregate units while avoiding legal coverage findings, rankings, and controlling-law claims.

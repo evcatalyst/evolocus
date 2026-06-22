@@ -39,6 +39,7 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
         "Question-to-map highlight depth",
         "Selected-unit ontology route comparison",
         "Selected-unit query replay",
+        "Selected-unit ontology answer cards",
         "Saved inquiry route comparison",
         "Timeline-driven map layer playback",
         "Map-side layer step animation",

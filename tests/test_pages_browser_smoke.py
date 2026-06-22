@@ -79,6 +79,7 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Question-to-map highlight depth" in verification_text
             assert "Selected-unit ontology route comparison" in verification_text
             assert "Selected-unit query replay" in verification_text
+            assert "Selected-unit ontology answer cards" in verification_text
             assert "Saved inquiry route comparison" in verification_text
             assert "Timeline-driven map layer playback" in verification_text
             assert "Map-side layer step animation" in verification_text

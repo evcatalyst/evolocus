@@ -1592,6 +1592,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
         "Question-to-map highlight depth",
         "Selected-unit ontology route comparison",
         "Selected-unit query replay",
+        "Selected-unit ontology answer cards",
         "Saved inquiry route comparison",
         "Timeline-driven map layer playback",
         "Map-side layer step animation",

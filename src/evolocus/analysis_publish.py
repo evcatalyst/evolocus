@@ -877,6 +877,23 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
             ],
         },
         {
+            "name": "Selected-unit ontology answer cards",
+            "steps": [
+                "Open a selected county/town aggregate unit on the map",
+                "Inspect topic, function, neutral-tier, audit, and peer ontology answer cards",
+                "Open an answer-card map route for the selected aggregate lens",
+                "Verify matching county/town units are highlighted on the colored map",
+                "Keep the same selected-unit lens available for Inquiry or Ontology follow-up",
+            ],
+            "assertions": [
+                "Answer cards are generated from public aggregate unit metadata and released model outputs only",
+                "Map routes highlight aggregate county/town units without row-level text or source locators",
+                "Topic, function, tier, audit, and peer lenses are navigation aids, not legal findings",
+                "No browser model call, review event, secret, ranking, legal-control claim, or controlling-law meaning is observed",
+                "No ordinance text or source locator is observed",
+            ],
+        },
+        {
             "name": "Saved inquiry route comparison",
             "steps": [
                 "Open Inquiry after creating aggregate question routes",
