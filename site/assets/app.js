@@ -7850,8 +7850,112 @@ function renderInquiryResultsLog() {
   }
   target.innerHTML = `
     ${inquiryResultsTimelineHtml(state.inquiryResultsLog)}
+    ${inquiryRouteComparisonHtml(state.inquiryResultsLog)}
     ${state.inquiryResultsLog.slice(0, 8).map(inquiryResultLogCardHtml).join("")}
   `;
+}
+
+function inquiryRouteComparisonHtml(entries) {
+  const rows = entries.slice(0, 6);
+  if (!rows.length) {
+    return "";
+  }
+  const maxRows = Math.max(1, ...rows.map((item) => Number(item.visible_summary?.law_count || 0)));
+  const maxUnits = Math.max(1, ...rows.map((item) => Number(item.visible_summary?.unit_count || 0)));
+  const baseline = rows[0];
+  return `
+    <section class="inquiry-route-comparison" aria-label="Saved aggregate route comparison">
+      <div class="inquiry-route-comparison-heading">
+        <div>
+          <span>Route comparison</span>
+          <strong>${escapeHtml(formatCount(rows.length))} browser-local saved question paths</strong>
+        </div>
+        <em>${escapeHtml(rows.length > 1 ? "Compared against newest saved route" : "Save another route to compare deltas")}</em>
+      </div>
+      <div class="inquiry-route-comparison-grid">
+        ${rows.map((item, index) => inquiryRouteComparisonCardHtml(item, index, baseline, maxRows, maxUnits)).join("")}
+      </div>
+      <p class="inquiry-route-comparison-boundary">Comparison rows use saved aggregate route metadata only: filters, selected public unit IDs, row/unit counts, model-output labels, artifact timestamps, and no-text publication flags. They are not legal rankings or civic findings.</p>
+    </section>
+  `;
+}
+
+function inquiryRouteComparisonCardHtml(item, index, baseline, maxRows, maxUnits) {
+  const summary = item.visible_summary || {};
+  const lawCount = Number(summary.law_count || 0);
+  const unitCount = Number(summary.unit_count || 0);
+  const selectedUnit = item.selected_unit?.name
+    ? `${item.selected_unit.name}${item.selected_unit.state ? `, ${item.selected_unit.state}` : ""}`
+    : "No selected unit";
+  const filters = item.filter_labels?.length ? item.filter_labels : ["No active filters"];
+  const activeClass = item.id === state.activeInquiryReplayId ? " active" : "";
+  return `
+    <article class="inquiry-route-comparison-card${activeClass}">
+      <div class="inquiry-route-comparison-title">
+        <span>Route ${escapeHtml(String(index + 1))}</span>
+        <em>${escapeHtml(formatDateTime(item.created_at))}</em>
+      </div>
+      <strong>${escapeHtml(item.question || item.answer_title || "Aggregate question")}</strong>
+      <div class="inquiry-route-comparison-bars">
+        ${inquiryRouteComparisonBarHtml("Rows", lawCount, maxRows, routeComparisonDelta(lawCount, Number(baseline.visible_summary?.law_count || 0), index))}
+        ${inquiryRouteComparisonBarHtml("Units", unitCount, maxUnits, routeComparisonDelta(unitCount, Number(baseline.visible_summary?.unit_count || 0), index))}
+      </div>
+      <dl class="inquiry-route-comparison-facts">
+        <dt>Selected unit</dt><dd>${escapeHtml(selectedUnit)}</dd>
+        <dt>Top topic</dt><dd>${escapeHtml(routeComparisonField(summary.top_topic))}</dd>
+        <dt>Top function</dt><dd>${escapeHtml(routeComparisonField(summary.top_function))}</dd>
+        <dt>Top tier</dt><dd>${escapeHtml(routeComparisonTopTier(summary.tier_counts || {}))}</dd>
+        <dt>Artifacts</dt><dd>${escapeHtml(item.artifact_provenance?.briefing_mode || "static")} · ${escapeHtml(formatDateTime(item.artifact_provenance?.briefing_generated_at))}</dd>
+      </dl>
+      <div class="inquiry-route-comparison-filters">
+        ${filters.slice(0, 5).map((label) => `<i>${escapeHtml(label)}</i>`).join("")}
+      </div>
+      <div class="inquiry-route-comparison-actions">
+        <button type="button" data-replay-inquiry-log="${escapeHtml(item.id || "")}">Answer</button>
+        <button type="button" data-open-inquiry-log-map="${escapeHtml(item.id || "")}">Map</button>
+        <button type="button" data-open-inquiry-log-ontology="${escapeHtml(item.id || "")}">Ontology</button>
+      </div>
+    </article>
+  `;
+}
+
+function inquiryRouteComparisonBarHtml(label, value, maxValue, deltaLabel) {
+  const width = Math.max(value ? 5 : 0, (Number(value || 0) / Math.max(1, Number(maxValue || 0))) * 100).toFixed(2);
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b><i style="width:${escapeHtml(width)}%"></i></b>
+      <em>${escapeHtml(formatCount(value))} · ${escapeHtml(deltaLabel)}</em>
+    </span>
+  `;
+}
+
+function routeComparisonDelta(value, baseline, index) {
+  if (index === 0) {
+    return "baseline";
+  }
+  const delta = Number(value || 0) - Number(baseline || 0);
+  if (!delta) {
+    return "same as baseline";
+  }
+  return `${delta > 0 ? "+" : "-"}${formatCount(Math.abs(delta))} from baseline`;
+}
+
+function routeComparisonField(field) {
+  if (!field) {
+    return "not available";
+  }
+  if (typeof field === "string") {
+    return field;
+  }
+  const label = field.label || field.name || "not available";
+  const value = Number(field.value || 0);
+  return value ? `${label} (${formatCount(value)})` : label;
+}
+
+function routeComparisonTopTier(tierCounts) {
+  const topTier = topEntry(tierCounts || {});
+  return topTier.label ? `${topTier.label} (${formatCount(topTier.value)})` : "not available";
 }
 
 function inquiryResultsTimelineHtml(entries) {

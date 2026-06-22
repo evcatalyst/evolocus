@@ -148,6 +148,13 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "grok-refreshed offline" in normalized_answer_text
             assert "no browser model call" in normalized_answer_text
             assert "no ordinance text" in normalized_answer_text
+            page.wait_for_selector(".inquiry-route-comparison-card [data-open-inquiry-log-ontology]", timeout=10_000)
+            comparison_text = page.locator(".inquiry-route-comparison").inner_text(timeout=5_000)
+            assert "route comparison" in comparison_text.lower()
+            assert "browser-local saved question paths" in comparison_text.lower()
+            assert "not legal rankings" in comparison_text.lower()
+            page.locator(".inquiry-route-comparison-card [data-open-inquiry-log-ontology]").first.click()
+            page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
 
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='graph']", timeout=10_000)

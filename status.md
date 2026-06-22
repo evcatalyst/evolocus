@@ -262,6 +262,7 @@ Evaluator implementation state:
 - Inquiry results log: GitHub Pages stores recent preset/manual aggregate answers in browser localStorage with content-free export and explicit no-text/no-locator/no-review-event policy metadata.
 - Refresh-source surface: Law Map header distinguishes tracked Polars aggregate map artifacts, offline briefing source, analysis commit, deploy guard, and aggregate-only publication boundary.
 - Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.
+- Inquiry route comparison surface: saved aggregate question paths compare browser-local row/unit counts, selected units, filters, topic/function/tier context, and artifact provenance without legal rankings or row text.
 - Inquiry pathway surface: GitHub Pages groups current aggregate units into topic/tier visual cells with ask and map actions that reuse safe filters and deterministic aggregate answers only.
 - Inquiry pathway peer surface: topic/tier pathway cells compare top aggregate units with row-count bars and map drillback using published unit IDs only.
 - Inquiry replay timeline surface: saved aggregate inquiry entries render as browser-local row/unit sparklines with replay and map actions, excluding text, locators, review events, and browser model calls.

@@ -6717,6 +6717,181 @@ legend {
   margin: 0;
 }
 
+.inquiry-route-comparison {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(107, 79, 214, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #fbfaff);
+  margin: 14px 0;
+  padding: 14px;
+}
+
+.inquiry-route-comparison-heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.inquiry-route-comparison-heading div {
+  display: grid;
+  gap: 4px;
+}
+
+.inquiry-route-comparison-heading span,
+.inquiry-route-comparison-title span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.inquiry-route-comparison-heading strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.inquiry-route-comparison-heading em,
+.inquiry-route-comparison-boundary,
+.inquiry-route-comparison-title em {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.inquiry-route-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.inquiry-route-comparison-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.inquiry-route-comparison-card.active {
+  border-color: rgba(107, 79, 214, 0.42);
+  background: #f6f3ff;
+}
+
+.inquiry-route-comparison-title {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.inquiry-route-comparison-card > strong {
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-route-comparison-bars {
+  display: grid;
+  gap: 7px;
+}
+
+.inquiry-route-comparison-bars span {
+  display: grid;
+  grid-template-columns: 52px minmax(80px, 1fr);
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.inquiry-route-comparison-bars strong {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-route-comparison-bars b {
+  display: block;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8edf2;
+}
+
+.inquiry-route-comparison-bars i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6b4fd6, #326f70);
+}
+
+.inquiry-route-comparison-bars em {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-style: normal;
+}
+
+.inquiry-route-comparison-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 5px 8px;
+  margin: 0;
+}
+
+.inquiry-route-comparison-facts dt {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.inquiry-route-comparison-facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-route-comparison-filters,
+.inquiry-route-comparison-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.inquiry-route-comparison-filters i {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: var(--muted);
+  padding: 5px 7px;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.inquiry-route-comparison-actions button {
+  border-color: rgba(107, 79, 214, 0.28);
+  background: #ffffff;
+  color: #3b2a91;
+}
+
+.inquiry-route-comparison-actions button:hover,
+.inquiry-route-comparison-actions button:focus-visible {
+  border-color: rgba(107, 79, 214, 0.58);
+  background: #f4f0ff;
+}
+
+.inquiry-route-comparison-boundary {
+  margin: 0;
+}
+
 .inquiry-results-log-card {
   display: grid;
   gap: 12px;
@@ -7915,6 +8090,7 @@ th {
   .inquiry-answer-ontology-drawer-row,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
+  .inquiry-route-comparison-grid,
   .inquiry-route-grid,
   .inquiry-route-steps,
   .review-layout,
@@ -8062,6 +8238,8 @@ th {
   .selected-query-steps,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
+  .inquiry-route-comparison-heading,
+  .inquiry-route-comparison-grid,
   .inquiry-answer-ontology-actions,
   .inquiry-answer-ontology-drawer-heading,
   .inquiry-answer-ontology-drawer-row,

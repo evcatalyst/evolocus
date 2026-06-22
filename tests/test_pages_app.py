@@ -434,6 +434,13 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiryResultsTimelineRowHtml" in js
     assert "Replay timeline" in js
     assert "Aggregate inquiry replay timeline" in js
+    assert "inquiryRouteComparisonHtml" in js
+    assert "inquiryRouteComparisonCardHtml" in js
+    assert "inquiryRouteComparisonBarHtml" in js
+    assert "routeComparisonDelta" in js
+    assert "Route comparison" in js
+    assert "Compared against newest saved route" in js
+    assert "not legal rankings or civic findings" in js
     assert "renderInquiryRouteReplay" in js
     assert "inquiryRouteReplayCardHtml" in js
     assert "inquiryRouteStepHtml" in js
@@ -533,6 +540,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-log-timeline" in css
     assert "inquiry-log-timeline-row" in css
     assert "inquiry-log-sparkline" in css
+    assert "inquiry-route-comparison" in css
+    assert "inquiry-route-comparison-grid" in css
+    assert "inquiry-route-comparison-card" in css
     assert "inquiry-route-replay-card" in css
     assert "inquiry-route-grid" in css
     assert "inquiry-route-card" in css
