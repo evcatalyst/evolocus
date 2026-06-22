@@ -174,3 +174,4 @@
 - Latest-analysis Ask-this-map-layer belongs in the public visual-smoke catalog because it proves offline aggregate analysis can become a visible Inquiry answer without browser model calls or row text.
 - Question-to-map highlight depth should be public proof because it shows progressive disclosure from an aggregate answer to map color, score depth, and highlighted-unit rationale without row-level evidence.
 - Selected-unit route comparison should stay framed as aggregate navigation proof; peer comparisons are useful only when the UI explicitly rejects rankings, legal findings, source records, and authority claims.
+- Selected-unit query replay should be named in public proof because it closes the county/town loop from map selection to saved aggregate question, static answer, and ontology graph without exposing row text.

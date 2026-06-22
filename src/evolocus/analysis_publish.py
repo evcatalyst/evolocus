@@ -842,4 +842,21 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
                 "No ordinance text, source locator, secret, or browser model call is observed",
             ],
         },
+        {
+            "name": "Selected-unit query replay",
+            "steps": [
+                "Open a selected county/town aggregate unit on the map",
+                "Inspect the selected-unit query replay card",
+                "Save the aggregate question route",
+                "Open the static Inquiry answer",
+                "Replay the selected unit into the Ontology graph",
+            ],
+            "assertions": [
+                "The replay card describes an Ask -> Answer -> Ontology route",
+                "Saved routes contain aggregate county/town metadata only",
+                "Static Inquiry answers are deterministic and browser-local",
+                "Ontology replay opens without row-level data",
+                "No ordinance text, source locator, secret, or browser model call is observed",
+            ],
+        },
     ]

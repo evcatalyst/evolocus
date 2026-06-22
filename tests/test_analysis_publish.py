@@ -37,6 +37,7 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
         "Latest analysis Ask this map layer",
         "Question-to-map highlight depth",
         "Selected-unit ontology route comparison",
+        "Selected-unit query replay",
     ]
 
 
