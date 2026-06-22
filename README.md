@@ -39,6 +39,7 @@ The Pages app supports:
 - first-screen Ask -> Map -> Ontology visual path with current aggregate denominators and progressive disclosure controls;
 - first-screen deterministic chat-to-map composer that previews aggregate filters from typed questions and routes to Map, Inquiry, or Ontology;
 - ontology-backed question routes that show topic, function, neutral tier, and county/town unit nodes from static aggregate artifacts;
+- tier-colored county/town law-location route trail inside question-driven map highlights, using aggregate unit IDs, counts, and neutral tiers only;
 - first-screen saved visual route cards that replay browser-local aggregate questions back to answers, map filters, and ontology context;
 - first-screen visual story packet that exports the current Ask -> Map -> Ontology aggregate route with counts, public unit IDs, ontology nodes, and provenance only;
 - first-screen visual story packet import/replay that validates a shared story JSON and replays its aggregate route back to Map, Inquiry, or Ontology;

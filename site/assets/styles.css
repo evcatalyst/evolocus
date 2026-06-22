@@ -5818,6 +5818,131 @@ textarea {
   font-style: normal;
 }
 
+.map-question-law-location-trail {
+  display: grid;
+  gap: 9px;
+  border: 1px solid rgba(45, 92, 122, 0.22);
+  border-radius: 8px;
+  background: #f7fbfd;
+  padding: 10px;
+}
+
+.map-question-law-location-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.map-question-law-location-heading div {
+  display: grid;
+  gap: 2px;
+}
+
+.map-question-law-location-heading strong {
+  color: #17415d;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.map-question-law-location-heading span,
+.map-question-law-location-heading em,
+.map-question-law-location-trail p {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.map-question-law-location-steps {
+  display: grid;
+  gap: 7px;
+}
+
+.map-question-law-location-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.map-question-law-location-step:hover,
+.map-question-law-location-step:focus-visible {
+  border-color: rgba(45, 92, 122, 0.34);
+  background: #fbfdff;
+}
+
+.map-question-law-location-step > i {
+  display: block;
+  width: 16px;
+  height: 34px;
+  border: 1px solid rgba(17, 24, 39, 0.16);
+  border-radius: 999px;
+}
+
+.map-question-law-location-step span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.map-question-law-location-step b,
+.map-question-law-location-step strong,
+.map-question-law-location-step em,
+.map-question-law-location-step small {
+  overflow-wrap: anywhere;
+}
+
+.map-question-law-location-step b {
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.map-question-law-location-step strong {
+  color: #17415d;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.map-question-law-location-step em,
+.map-question-law-location-step small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.map-question-law-location-step small {
+  grid-column: 2 / -1;
+}
+
+.map-question-law-location-step u {
+  grid-column: 1 / -1;
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8eef4;
+  text-decoration: none;
+}
+
+.map-question-law-location-step mark {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #326f70;
+}
+
 .map-question-highlight-details {
   display: grid;
   gap: 8px;

@@ -180,6 +180,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-reading-guide" in html
     assert "map-route-replay" in html
     assert "map-inline-inquiry" in html
+    assert "map-question-law-location-trail" in css
     assert "map-freshness-badge" in html
     assert "map-refresh-source" in html
     assert "status-artifact-change-panel" in html
@@ -364,6 +365,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "applyFrontdoorExampleQuestion" in js
     assert "applyFrontdoorComposerAction" in js
     assert "applyFrontdoorSavedRoute" in js
+    assert "mapQuestionLawLocationTrailHtml" in js
+    assert "mapQuestionLawLocationTrailUnits" in js
+    assert "mapQuestionLawLocationTrailStepHtml" in js
+    assert "County/town law-location route" in js
+    assert "Tier-colored aggregate units matched by this question" in js
     assert "data-frontdoor-action" in js
     assert "data-frontdoor-composer" in js
     assert "data-frontdoor-composer-action" in js

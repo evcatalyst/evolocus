@@ -3673,12 +3673,67 @@ function renderMapQuestionHighlight(units) {
       </div>
       ${questionOntologyRouteHtml(ontologyRoute, "map")}
       ${mapQuestionHighlightDepthHtml(highlight, visibleHighlightedUnits, summary, ontologyRoute)}
+      ${mapQuestionLawLocationTrailHtml(highlight, visibleHighlightedUnits)}
       ${topUnits.length ? `<div class="map-question-highlight-units">${topUnits.map((unit) => mapQuestionHighlightUnitHtml(unit)).join("")}</div>` : ""}
       ${mapQuestionHighlightDetailCardsHtml(highlight, visibleHighlightedUnits)}
       <p class="map-question-highlight-boundary">
         Highlighting uses public aggregate unit IDs and counts from static artifacts. It exposes no ordinance text, source locators, review events, rankings, legal conclusions, and makes no browser-side Grok call.
       </p>
     </section>
+  `;
+}
+
+function mapQuestionLawLocationTrailHtml(highlight, units) {
+  const trailUnits = mapQuestionLawLocationTrailUnits(highlight, units);
+  if (!trailUnits.length) {
+    return "";
+  }
+  return `
+    <section class="map-question-law-location-trail" aria-label="Tier-colored county and town law-location route">
+      <div class="map-question-law-location-heading">
+        <div>
+          <strong>County/town law-location route</strong>
+          <span>Tier-colored aggregate units matched by this question</span>
+        </div>
+        <em>${escapeHtml(formatCount(trailUnits.length))} shown · ${escapeHtml(formatCount((units || []).length))} highlighted</em>
+      </div>
+      <div class="map-question-law-location-steps" role="list">
+        ${trailUnits.map((unit, index) => mapQuestionLawLocationTrailStepHtml(highlight, unit, index)).join("")}
+      </div>
+      <p>Each stop is a public aggregate county/town unit colored by its neutral tier. Counts are LOCUS aggregate rows, not legal coverage findings or official source text.</p>
+    </section>
+  `;
+}
+
+function mapQuestionLawLocationTrailUnits(highlight, units) {
+  const topIds = Array.isArray(highlight?.top_unit_ids) ? highlight.top_unit_ids : [];
+  const topIndex = new Map(topIds.map((id, index) => [id, index]));
+  return (units || [])
+    .filter((unit) => unit?.unit_id)
+    .slice()
+    .sort((a, b) => {
+      const aTop = topIndex.has(a.unit_id) ? topIndex.get(a.unit_id) : Number.POSITIVE_INFINITY;
+      const bTop = topIndex.has(b.unit_id) ? topIndex.get(b.unit_id) : Number.POSITIVE_INFINITY;
+      return aTop - bTop || Number(b.law_count || 0) - Number(a.law_count || 0) || displayUnitName(a).localeCompare(displayUnitName(b));
+    })
+    .slice(0, state.disclosureLevel === "overview" ? 5 : 8);
+}
+
+function mapQuestionLawLocationTrailStepHtml(highlight, unit, index) {
+  const reasons = mapQuestionHighlightUnitReasons(highlight, unit);
+  const primaryReason = reasons[0] || "aggregate match";
+  const width = Math.max(14, Math.min(100, Number(unit.law_count || 0) / Math.max(1, Number(highlight?.visible_summary?.law_count || unit.law_count || 1)) * 100)).toFixed(2);
+  return `
+    <button type="button" class="map-question-law-location-step" data-unit-id="${escapeHtml(unit.unit_id)}" role="listitem">
+      <i style="background:${escapeHtml(unit.tier_color || "#d8dee8")}"></i>
+      <span>
+        <b>${escapeHtml(String(index + 1))}. ${escapeHtml(displayUnitName(unit))}</b>
+        <em>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(text(unit.tier_label))}</em>
+      </span>
+      <strong>${escapeHtml(formatCount(unit.law_count))} rows</strong>
+      <small>${escapeHtml(primaryReason)}</small>
+      <u aria-hidden="true"><mark style="width:${escapeHtml(width)}%"></mark></u>
+    </button>
   `;
 }
 
