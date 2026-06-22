@@ -20,6 +20,7 @@ const ANALYSIS_PATHS = {
   chatIndex: "data/analysis/chat_index.json",
   inquiryBriefings: "data/analysis/inquiry_briefings.json",
   questionPack: "data/analysis/question_pack.json",
+  aiAnalysisPack: "data/analysis/ai_analysis_pack.json",
   models: "data/analysis/models.json",
   charts: "data/analysis/charts.json",
   artifactSnapshot: "data/analysis/artifact_snapshot.json",
@@ -330,6 +331,7 @@ let state = {
     chatIndex: null,
     inquiryBriefings: null,
     questionPack: null,
+    aiAnalysisPack: null,
     models: null,
     charts: null,
     artifactSnapshot: null,
@@ -8907,6 +8909,7 @@ function renderInquiry() {
     `
     : "<span>Inquiry briefings loading</span>";
   renderInquiryContext();
+  renderAiAnalysisPack();
   renderInquiryMapComposer();
   renderInquiryPathways();
   renderInquiryMatrix();
@@ -8918,6 +8921,185 @@ function renderInquiry() {
     : "<p>Ask about status, tiers, topics, map units, model outputs, or Grok integration.</p>";
   renderInquiryRouteReplay();
   renderInquiryResultsLog();
+}
+
+function renderAiAnalysisPack() {
+  const target = $("#ai-analysis-pack");
+  if (!target) {
+    return;
+  }
+  const pack = state.analysis.aiAnalysisPack;
+  if (!pack) {
+    target.innerHTML = `
+      <article class="ai-analysis-pack-card loading">
+        <div>
+          <p class="eyebrow">Offline AI analysis pack</p>
+          <h3>Loading aggregate AI cards.</h3>
+          <p>The pack appears after static aggregate artifacts load from GitHub Pages.</p>
+        </div>
+      </article>
+    `;
+    return;
+  }
+  const cards = Array.isArray(pack.cards) ? pack.cards : [];
+  const grok = pack.grok || {};
+  const status = pack.analysis_status || {};
+  const latest = latestIso([pack.generated_at, status.briefing_generated_at, status.question_pack_generated_at, status.map_generated_at]);
+  const mode = grok.used ? `Offline Grok ${grok.model || "artifact"}` : "Deterministic aggregate pack";
+  target.innerHTML = `
+    <article class="ai-analysis-pack-card">
+      <div class="ai-analysis-pack-heading">
+        <div>
+          <p class="eyebrow">Offline AI analysis pack</p>
+          <h3>Ask, color, and graph the current aggregate analysis.</h3>
+          <p>Cards are generated outside the browser from public aggregate artifacts, then published as static JSON. They route questions into the same county/town map and ontology without exposing model credentials.</p>
+        </div>
+        <span>${escapeHtml(mode)}</span>
+      </div>
+      <div class="ai-analysis-pack-status">
+        ${aiAnalysisPackStatusRows(pack).map(aiAnalysisPackStatusHtml).join("")}
+      </div>
+      <div class="ai-analysis-pack-grid">
+        ${cards.map(aiAnalysisPackCardHtml).join("")}
+      </div>
+      <p class="ai-analysis-pack-boundary">Generated ${escapeHtml(latest ? `${formatDateTime(latest)} · ${artifactAgeLabel(latest)}` : "time unavailable")}. Public cards contain aggregate counts, filters, route metadata, and sanitized summaries only: no ordinance text, row records, source locators, review events, secrets, browser model calls, rankings, or legal findings.</p>
+    </article>
+  `;
+}
+
+function aiAnalysisPackStatusRows(pack) {
+  const status = pack.analysis_status || {};
+  const policy = pack.publication_policy || {};
+  return [
+    ["Dataset", `${pack.dataset_id || "LocalLaws/LOCUS-v1"} · ${pack.dataset_revision || "unknown"}`],
+    ["Units", formatCount(status.unit_count || 0)],
+    ["Rows", formatCount(status.law_count || 0)],
+    ["Cards", formatCount((pack.cards || []).length)],
+    ["Run", status.refresh_run_id ? `Actions ${status.refresh_run_id}` : "local/static artifact"],
+    ["Boundary", policy.browser_llm_calls === false ? "no browser model calls" : "boundary loading"],
+  ];
+}
+
+function aiAnalysisPackStatusHtml([label, value]) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <em>${escapeHtml(String(value))}</em>
+    </span>
+  `;
+}
+
+function aiAnalysisPackCardHtml(card) {
+  const facts = Array.isArray(card.supporting_facts) ? card.supporting_facts.slice(0, 3) : [];
+  const route = card.route || {};
+  const colorMode = route.color_mode || "tier";
+  return `
+    <article class="ai-analysis-card" data-ai-analysis-pack-card-id="${escapeHtml(card.id || "")}">
+      <div class="ai-analysis-card-heading">
+        <span>${escapeHtml(card.label || "Aggregate route")}</span>
+        <strong>${escapeHtml(card.title || "AI analysis card")}</strong>
+      </div>
+      <p>${escapeHtml(card.question || "What does this aggregate route show?")}</p>
+      <em>${escapeHtml(card.answer || "")}</em>
+      <div class="ai-analysis-card-facts">
+        ${facts.map(aiAnalysisPackFactHtml).join("")}
+      </div>
+      <small>${escapeHtml(card.detail || "Aggregate route")}</small>
+      <div class="ai-analysis-card-actions">
+        <button type="button" data-ai-analysis-card="${escapeHtml(card.id || "")}" data-ai-analysis-action="ask">Ask</button>
+        <button type="button" data-ai-analysis-card="${escapeHtml(card.id || "")}" data-ai-analysis-action="map">Color map</button>
+        <button type="button" data-ai-analysis-card="${escapeHtml(card.id || "")}" data-ai-analysis-action="ontology">Graph</button>
+      </div>
+      <b>${escapeHtml(colorMode)} route</b>
+    </article>
+  `;
+}
+
+function aiAnalysisPackFactHtml(fact) {
+  return `
+    <span>
+      <strong>${escapeHtml(String(fact.value ?? "n/a"))}</strong>
+      <em>${escapeHtml(fact.label || "Aggregate fact")}</em>
+    </span>
+  `;
+}
+
+function aiAnalysisPackCardById(cardId) {
+  return (state.analysis.aiAnalysisPack?.cards || []).find((card) => card.id === cardId) || null;
+}
+
+function applyAiAnalysisPackCard(cardId, action) {
+  const card = aiAnalysisPackCardById(cardId);
+  if (!card) {
+    return;
+  }
+  const route = card.route || {};
+  const filters = route.filters || {};
+  state.mapFilters = {
+    ...state.mapFilters,
+    state: filters.state || "",
+    topic: filters.topic || "",
+    function: filters.function || "",
+    kind: filters.kind || "",
+    tier: filters.tier || "",
+    scoreField: filters.scoreField || filters.score_field || "",
+    scoreBand: filters.scoreBand || filters.score_band || "",
+    auditFocus: filters.auditFocus || "",
+    packageOnly: typeof filters.packageOnly === "boolean" ? filters.packageOnly : false,
+  };
+  state.geographyColorMode = route.color_mode || "tier";
+  if (route.disclosure_level && ["overview", "unit", "evidence"].includes(route.disclosure_level)) {
+    state.disclosureLevel = route.disclosure_level;
+  }
+  if (route.selected_unit_id) {
+    state.selectedUnitId = route.selected_unit_id;
+  }
+  const units = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const question = route.question || card.question || "What does the current filtered map view show?";
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "offline AI analysis pack", units);
+  if (action === "map") {
+    state.activeTab = "map";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    state.ontologyPathStage = route.ontology_stage || "overview";
+    state.geographyLayers = {
+      ...defaultGeographyLayers(),
+      ...state.geographyLayers,
+      ontology: true,
+    };
+    state.activeTab = "ontology";
+    render();
+    return;
+  }
+  const answer = answerWithRouteMetadata(question, `offline AI analysis pack: ${card.title || card.id}`, {
+    title: card.title || "Offline AI analysis pack",
+    answer: card.answer || "",
+    sections: `
+      <h4>Progressive route</h4>
+      <p>${escapeHtml(card.detail || "This card routes a sanitized aggregate summary into the current map, inquiry, and ontology surfaces.")}</p>
+      <dl class="briefing-facts">
+        ${(card.supporting_facts || [])
+          .slice(0, 6)
+          .map((fact) => `<dt>${escapeHtml(fact.label || "Fact")}</dt><dd>${escapeHtml(String(fact.value ?? "n/a"))} <span>${escapeHtml(fact.source || "aggregate artifact")}</span></dd>`)
+          .join("")}
+      </dl>
+    `,
+    matches: `
+      <h4>Publication boundary</h4>
+      <p>This answer was generated from ai_analysis_pack.json and current aggregate map filters. It includes no ordinance text, row records, source locators, review events, secrets, live browser model calls, rankings, or legal findings.</p>
+    `,
+  });
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  state.inquiryOntologyDrawer = null;
+  state.inquiryAnswer = answer;
+  appendInquiryResultsLog(question, answer, `offline AI analysis pack: ${card.title || card.id}`);
+  state.activeTab = "inquiry";
+  render();
 }
 
 function renderInquiryContext() {
@@ -14776,7 +14958,7 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke, refreshStatus] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, aiAnalysisPack, models, charts, artifactSnapshot, visualSmoke, refreshStatus] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
@@ -14787,13 +14969,14 @@ async function fetchAnalysisArtifacts() {
       fetchJson(ANALYSIS_PATHS.chatIndex),
       fetchJson(ANALYSIS_PATHS.inquiryBriefings),
       fetchJson(ANALYSIS_PATHS.questionPack),
+      fetchJson(ANALYSIS_PATHS.aiAnalysisPack),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
       fetchJson(ANALYSIS_PATHS.artifactSnapshot),
       fetchJson(ANALYSIS_PATHS.visualSmoke),
       fetchJson(ANALYSIS_PATHS.refreshStatus),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, visualSmoke, refreshStatus, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, aiAnalysisPack, models, charts, artifactSnapshot, visualSmoke, refreshStatus, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }
@@ -15007,6 +15190,15 @@ function bindEvents() {
     render();
   });
   $("#inquiry-panel").addEventListener("click", (event) => {
+    const aiAnalysisButton = event.target.closest("[data-ai-analysis-card]");
+    if (aiAnalysisButton) {
+      event.preventDefault();
+      applyAiAnalysisPackCard(
+        aiAnalysisButton.dataset.aiAnalysisCard || "",
+        aiAnalysisButton.dataset.aiAnalysisAction || "ask",
+      );
+      return;
+    }
     const statusButton = event.target.closest("[data-open-status-tab]");
     if (statusButton) {
       event.preventDefault();

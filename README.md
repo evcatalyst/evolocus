@@ -125,6 +125,7 @@ The Pages app supports:
 - Score Lens tab with filter-aware neutral model-score distributions, state matrix, and high-contrast unit profiles;
 - static progressive inquiry briefings over current aggregate analysis artifacts;
 - static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;
+- static AI analysis pack generated offline from validated aggregate artifacts, with cards that route to Inquiry, Map, and Ontology without browser model calls;
 - answer-level question-to-map cards that explain neutral tier color swatches and open matching county/town aggregate map highlights;
 - answer-level ontology filter chips that progressively narrow the colored county/town map by aggregate topic, function, tier, or unit context;
 - map-side highlighted-unit detail cards showing topic/function/tier match reasons and aggregate denominators for the current question;
@@ -385,7 +386,7 @@ gh secret set GROK_API_KEY --repo evcatalyst/evolocus
 
 The `GROK_API_KEY` or `Grok_api_key` repository secret is configured for GitHub Actions offline jobs. The key must never be embedded into `site/assets/app.js` or any other browser JavaScript. GitHub Pages can show static Grok-generated artifacts after an offline workflow produces them, but it cannot safely call Grok directly with a private key.
 
-The current tracked `site/data/analysis/inquiry_briefings.json` artifact is Grok-enriched and aggregate-only. Run the manual `Refresh static analysis artifacts` workflow to regenerate static inquiry briefings with the secret. The workflow can persist validated updates to `inquiry_briefings.json` and `question_pack.json` back to the current branch, so the next normal Pages deploy does not revert refreshed aggregate artifacts. The GitHub Pages Analysis Status tab includes an Actions-only refresh control that opens that workflow; it does not call Grok from the browser. Both the normal Pages deploy workflow and the manual refresh workflow validate `site/data/analysis/` with `validate-public-artifacts` before deploying Pages.
+The current tracked `site/data/analysis/inquiry_briefings.json`, `question_pack.json`, and `ai_analysis_pack.json` artifacts are aggregate-only; the briefing and question artifacts can be Grok-enriched offline. Run the manual `Refresh static analysis artifacts` workflow to regenerate static inquiry briefings with the secret. The workflow can persist validated updates to `inquiry_briefings.json`, `question_pack.json`, `ai_analysis_pack.json`, and `refresh_status.json` back to the current branch, so the next normal Pages deploy does not revert refreshed aggregate artifacts. The GitHub Pages Analysis Status tab includes an Actions-only refresh control that opens that workflow; it does not call Grok from the browser. Both the normal Pages deploy workflow and the manual refresh workflow validate `site/data/analysis/` with `validate-public-artifacts` before deploying Pages.
 
 ## Hugging Face Download One-Liner
 

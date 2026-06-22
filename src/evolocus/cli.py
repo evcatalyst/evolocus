@@ -9,6 +9,7 @@ import sys
 from typing import NoReturn
 
 from .analysis_publish import DEFAULT_OUTPUT_DIR, publish_analysis_artifacts
+from .ai_analysis_pack import DEFAULT_AI_ANALYSIS_PACK_PATH, publish_ai_analysis_pack
 from .audit_status import DEFAULT_AUDIT_PATH, DEFAULT_AUDIT_STATUS_PATH, DEFAULT_MANIFEST_PATH, publish_audit_status
 from .county_geometry import publish_county_geometry_artifact
 from .evaluation_db import init_db, create_queue
@@ -183,6 +184,24 @@ def main(argv: list[str] | None = None) -> int:
     question_pack_parser.add_argument("--grok-api-key-env", default="GROK_API_KEY")
     question_pack_parser.add_argument("--grok-model", default="grok-4.3")
     question_pack_parser.set_defaults(func=_publish_question_pack)
+
+    ai_analysis_pack_parser = subparsers.add_parser(
+        "publish-ai-analysis-pack",
+        help="Publish static aggregate-only AI analysis cards from Pages artifacts.",
+    )
+    ai_analysis_pack_parser.add_argument(
+        "--analysis-dir",
+        type=Path,
+        default=DEFAULT_ANALYSIS_DIR,
+        help="Directory containing aggregate analysis, briefing, and question-pack artifacts.",
+    )
+    ai_analysis_pack_parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_AI_ANALYSIS_PACK_PATH,
+        help="Output ai_analysis_pack.json artifact.",
+    )
+    ai_analysis_pack_parser.set_defaults(func=_publish_ai_analysis_pack)
 
     validate_public_parser = subparsers.add_parser(
         "validate-public-artifacts",
@@ -373,6 +392,12 @@ def _publish_question_pack(args: argparse.Namespace) -> int:
         grok_api_key_env=args.grok_api_key_env,
         grok_model=args.grok_model,
     )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def _publish_ai_analysis_pack(args: argparse.Namespace) -> int:
+    result = publish_ai_analysis_pack(args.analysis_dir, args.output)
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0
 

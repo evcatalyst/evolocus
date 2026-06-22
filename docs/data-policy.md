@@ -23,6 +23,7 @@ EvoLOCUS treats provenance, uncertainty, licensing, and publication boundaries a
 - Public map, chart, inquiry, and ontology artifacts may be synthetic or reviewed aggregate-only outputs.
 - Aggregate-only public artifacts may include jurisdiction-unit names, counts, neutral tiers, topic/function aggregates, and model-score summaries, but must omit ordinance text, raw LOCUS rows, local SQLite state, local exports, credentials, and private machine paths.
 - Static progressive inquiry briefings must be derived from aggregate artifacts and must not introduce unsupported legal conclusions, rankings, or raw record excerpts.
+- Static AI analysis packs must derive from validated aggregate artifacts and may publish only sanitized summaries, route filters, aggregate facts, and policy flags; they must not publish endpoints, secret values, raw rows, source locators, review events, rankings, or legal findings.
 - Browser score-band filters are neutral relative model-output views and must not be presented as legal direction, burden, ranking, or finding.
 - Browser ontology-link overlays are aggregate peer visuals from public map metadata only and must not be described as source-backed legal relationships.
 - Browser ontology-link legends may summarize peer reasons such as same topic, same function, same tier, same source-unit type, same state, or similar count, but must label those as aggregate similarity reasons only.

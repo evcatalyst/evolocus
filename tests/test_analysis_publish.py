@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from evolocus.ai_analysis_pack import publish_ai_analysis_pack
 from evolocus.analysis_publish import publish_analysis_artifacts
 from evolocus.inquiry_briefings import publish_inquiry_briefings
 from evolocus.locus_source import LocusCorpus
@@ -73,15 +74,46 @@ def test_publish_question_pack_is_aggregate_only(tmp_path) -> None:
     assert "source_locator" not in serialized
 
 
-def test_public_artifact_guard_accepts_aggregate_artifacts(tmp_path) -> None:
+def test_publish_ai_analysis_pack_is_aggregate_only(tmp_path) -> None:
     output_dir = tmp_path / "analysis"
     publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
     publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
     publish_question_pack(output_dir, output_dir / "question_pack.json")
 
+    result = publish_ai_analysis_pack(output_dir, output_dir / "ai_analysis_pack.json")
+    payload = json.loads((output_dir / "ai_analysis_pack.json").read_text(encoding="utf-8"))
+
+    assert result.card_count == 5
+    assert result.grok_used is False
+    assert payload["schema_version"] == "evolocus-ai-analysis-pack-v1"
+    assert payload["real_locus_rows_published"] is False
+    assert payload["publication_policy"]["raw_rows_included"] is False
+    assert payload["publication_policy"]["ordinance_text_included"] is False
+    assert payload["publication_policy"]["record_locator_values_included"] is False
+    assert payload["publication_policy"]["browser_llm_calls"] is False
+    assert payload["publication_policy"]["secrets_included"] is False
+    assert payload["publication_policy"]["legal_findings"] is False
+    assert payload["grok"]["secret_env"] == "GROK_API_KEY"
+    assert payload["cards"]
+    assert {card["id"] for card in payload["cards"]} >= {"aggregate-summary", "question-router", "color-map-route", "ontology-route", "unit-focus"}
+    serialized = json.dumps(payload)
+    assert '"content"' not in serialized
+    assert '"header"' not in serialized
+    assert "source_locator" not in serialized
+    assert "api.x.ai" not in serialized
+
+
+def test_public_artifact_guard_accepts_aggregate_artifacts(tmp_path) -> None:
+    output_dir = tmp_path / "analysis"
+    publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
+    publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
+    publish_question_pack(output_dir, output_dir / "question_pack.json")
+    publish_ai_analysis_pack(output_dir, output_dir / "ai_analysis_pack.json")
+
     result = validate_public_analysis_artifacts(output_dir)
 
     assert result.artifact_count >= 6
+    assert "ai_analysis_pack.json" in result.checked_artifacts
     assert "inquiry_briefings.json" in result.checked_artifacts
     assert "question_pack.json" in result.checked_artifacts
     assert "visual_smoke.json" in result.checked_artifacts
@@ -92,6 +124,7 @@ def test_public_artifact_guard_accepts_refresh_status_policy(tmp_path) -> None:
     publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
     publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
     publish_question_pack(output_dir, output_dir / "question_pack.json")
+    publish_ai_analysis_pack(output_dir, output_dir / "ai_analysis_pack.json")
     (output_dir / "refresh_status.json").write_text(
         json.dumps(
             {
@@ -122,6 +155,7 @@ def test_public_artifact_guard_rejects_raw_text_fields(tmp_path) -> None:
     publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
     publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
     publish_question_pack(output_dir, output_dir / "question_pack.json")
+    publish_ai_analysis_pack(output_dir, output_dir / "ai_analysis_pack.json")
     (output_dir / "unsafe.json").write_text('{"content": "do not publish ordinance text"}', encoding="utf-8")
 
     try:
@@ -137,6 +171,7 @@ def test_public_artifact_guard_rejects_browser_llm_policy(tmp_path) -> None:
     publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
     publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
     publish_question_pack(output_dir, output_dir / "question_pack.json")
+    publish_ai_analysis_pack(output_dir, output_dir / "ai_analysis_pack.json")
     path = output_dir / "inquiry_briefings.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload["publication_policy"]["browser_llm_calls"] = True

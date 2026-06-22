@@ -86,6 +86,11 @@ jobs:
               --analysis-dir site/data/analysis \
               --output site/data/analysis/question_pack.json
           fi
+      - name: Generate aggregate-only AI analysis pack
+        run: |
+          PYTHONPATH=src python -m evolocus.cli publish-ai-analysis-pack \
+            --analysis-dir site/data/analysis \
+            --output site/data/analysis/ai_analysis_pack.json
       - name: Write public refresh status
         run: |
           python - <<'PY'
@@ -97,6 +102,7 @@ jobs:
           analysis_dir = Path("site/data/analysis")
           briefings = json.loads((analysis_dir / "inquiry_briefings.json").read_text(encoding="utf-8"))
           question_pack = json.loads((analysis_dir / "question_pack.json").read_text(encoding="utf-8"))
+          ai_analysis_pack = json.loads((analysis_dir / "ai_analysis_pack.json").read_text(encoding="utf-8"))
           run_id = os.environ.get("GITHUB_RUN_ID", "")
           server_url = os.environ.get("GITHUB_SERVER_URL", "https://github.com").rstrip("/")
           repository = os.environ.get("GITHUB_REPOSITORY", "evcatalyst/evolocus")
@@ -137,12 +143,20 @@ jobs:
                       "grok_used": bool(question_grok.get("used")),
                       "model": question_grok.get("model"),
                   },
+                  "ai_analysis_pack": {
+                      "path": "site/data/analysis/ai_analysis_pack.json",
+                      "generated_at": ai_analysis_pack.get("generated_at"),
+                      "card_count": len(ai_analysis_pack.get("cards") or []),
+                      "grok_used": bool((ai_analysis_pack.get("grok") or {}).get("used")),
+                      "model": (ai_analysis_pack.get("grok") or {}).get("model"),
+                  },
               },
               "validation": {
                   "public_artifact_guard": "required_before_pages_deploy",
                   "persisted_paths_allowlist": [
                       "site/data/analysis/inquiry_briefings.json",
                       "site/data/analysis/question_pack.json",
+                      "site/data/analysis/ai_analysis_pack.json",
                       "site/data/analysis/refresh_status.json",
                   ],
                   "pages_deploy_after_validation": True,
@@ -166,7 +180,7 @@ jobs:
       - name: Persist aggregate inquiry artifacts
         if: ${{ inputs.persist_artifacts }}
         run: |
-          git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json site/data/analysis/refresh_status.json
+          git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json site/data/analysis/ai_analysis_pack.json site/data/analysis/refresh_status.json
           staged="$(git diff --cached --name-only)"
           if [ -z "$staged" ]; then
             echo "No aggregate inquiry artifact changes to persist."
@@ -174,7 +188,7 @@ jobs:
           fi
           for path in $staged; do
             case "$path" in
-              site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json|site/data/analysis/refresh_status.json)
+              site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json|site/data/analysis/ai_analysis_pack.json|site/data/analysis/refresh_status.json)
                 ;;
               *)
                 echo "Unexpected staged path: $path"
@@ -194,16 +208,20 @@ jobs:
 
           payload = json.loads(Path("site/data/analysis/inquiry_briefings.json").read_text(encoding="utf-8"))
           question_pack = json.loads(Path("site/data/analysis/question_pack.json").read_text(encoding="utf-8"))
+          ai_analysis_pack = json.loads(Path("site/data/analysis/ai_analysis_pack.json").read_text(encoding="utf-8"))
           grok = payload.get("grok") or {}
           question_grok = question_pack.get("grok") or {}
+          ai_grok = ai_analysis_pack.get("grok") or {}
           summary = [
               "## EvoLOCUS inquiry briefing refresh",
               "",
               f"- Dataset revision: `{payload.get('dataset_revision')}`",
               f"- Briefings: `{len(payload.get('briefings') or [])}`",
               f"- Question prompts: `{len(question_pack.get('prompts') or [])}`",
+              f"- AI analysis cards: `{len(ai_analysis_pack.get('cards') or [])}`",
               f"- Grok used: `{bool(grok.get('used'))}`",
               f"- Question-pack Grok used: `{bool(question_grok.get('used'))}`",
+              f"- AI pack Grok source used: `{bool(ai_grok.get('used'))}`",
               f"- Grok model: `{grok.get('model')}`",
               f"- Refresh run: `{__import__('os').environ.get('GITHUB_RUN_ID')}`",
               "- Publication boundary: aggregate-only, no ordinance text, no raw rows, no browser LLM calls.",

@@ -48,7 +48,8 @@ flowchart LR
 - The Inquiry tab renders question-to-map replay paths that visualize each saved aggregate question as prompt, filters, colored map scale, and ontology context before routing back to answer, map, or ontology views.
 - The Law Map renders the same saved aggregate question paths as map-side playback cards, so a user can restore the answer, colored map state, or ontology route from the primary surface without exposing row-level fields.
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
-- The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages. When enabled, it commits only validated aggregate inquiry JSON back to the current branch so refreshed artifacts survive later normal Pages deploys.
+- `ai_analysis_pack.json` packages offline briefing/question output into routeable aggregate cards that can Ask, Color map, or Graph without browser model calls.
+- The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages. When enabled, it commits only validated aggregate inquiry and AI-pack JSON back to the current branch so refreshed artifacts survive later normal Pages deploys.
 - The Pages Analysis Status tab links to that manual workflow as an Actions-only refresh control; the browser never receives a model secret and never performs a live model call.
 - The Law Map and Inquiry headers show artifact freshness badges for the aggregate map layer, briefing, question pack, dataset revision, stored-snapshot deltas, and no-row-text boundary before users drill into detail.
 - The Law Map header also shows a last-refresh source strip so map readers can distinguish tracked Polars aggregate artifacts, offline briefing refreshes, analysis commit provenance, and deploy validation gates.
@@ -139,6 +140,7 @@ Raw LOCUS fields are preserved. Derived fields such as `record_id`, `source_loca
 - `chat_index.json`: deterministic inquiry entries for the browser chat panel.
 - `inquiry_briefings.json`: progressive static answer briefings derived from aggregate artifacts.
 - `question_pack.json`: aggregate-only filter-aware question prompts with optional offline Grok note.
+- `ai_analysis_pack.json`: sanitized aggregate AI analysis cards derived from public artifacts and offline briefing/question outputs.
 
 The Ontology tab includes a build-status panel that reads those same aggregate artifacts and reports graph freshness, node and edge composition, model registry provenance, snapshot deltas, and publication boundaries. It is a provenance and navigation aid, not a legal ontology of controlling authority.
 
@@ -174,7 +176,7 @@ The same stored snapshot appears on the primary Map and Inquiry freshness cards.
 
 The repository secret name is `GROK_API_KEY`. It may be used by offline GitHub Actions or local jobs to produce static aggregate-only inquiry briefings. It must not be exposed in Pages JavaScript because every browser-delivered asset is public.
 
-The Actions refresh path uses the xAI Responses endpoint with model `grok-4.3` for offline enrichment when available. The generated artifact records whether Grok was used, and the Analysis Status tab surfaces that state.
+The Actions refresh path uses the xAI Responses endpoint with model `grok-4.3` for offline enrichment when available. The generated artifacts record whether Grok was used, and the Analysis Status and Inquiry tabs surface that state without exposing the endpoint, secret, raw rows, or source locators to browser JavaScript.
 
 ## Optional Support Components
 

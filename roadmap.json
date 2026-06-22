@@ -153,7 +153,8 @@
         "Add saved inquiry route comparison visuals",
         "Add real-data coverage timeline animation",
         "Add timeline-driven map layer playback",
-        "Add selected-unit ontology answer cards"
+        "Add selected-unit ontology answer cards",
+        "Add offline AI analysis pack route cards"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

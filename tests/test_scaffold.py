@@ -1131,9 +1131,21 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "actions/workflows/analysis-refresh.yml" in js
     assert "actionsBriefingRefreshHtml" in js
     assert "Open refresh workflow" in js
+    assert "aiAnalysisPack" in js
+    assert "data/analysis/ai_analysis_pack.json" in js
+    assert "renderAiAnalysisPack" in js
+    assert "aiAnalysisPackCardHtml" in js
+    assert "applyAiAnalysisPackCard" in js
+    assert "data-ai-analysis-card" in js
+    assert "Offline AI analysis pack" in js
+    assert "Ask, color, and graph the current aggregate analysis." in js
+    assert "ai-analysis-pack" in html
     assert "actions-briefing-refresh" in css
     assert "grok-refresh-run-badge" in css
     assert "grok-refresh-run-grid" in css
+    assert "ai-analysis-pack-card" in css
+    assert "ai-analysis-pack-grid" in css
+    assert "ai-analysis-card-actions" in css
     assert "primary-action-link" in css
     assert "artifactSnapshot" in js
     assert "currentArtifactSnapshotMetrics" in js
@@ -1395,14 +1407,16 @@ def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() ->
     assert "GROK_API_KEY_ALIAS" in workflow
     assert "publish-inquiry-briefings" in workflow
     assert "publish-question-pack" in workflow
+    assert "publish-ai-analysis-pack" in workflow
     assert "question_pack.json" in workflow
+    assert "ai_analysis_pack.json" in workflow
     assert "refresh_status.json" in workflow
     assert "Write public refresh status" in workflow
     assert "validate-public-artifacts" in workflow
-    assert "git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json site/data/analysis/refresh_status.json" in workflow
+    assert "git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json site/data/analysis/ai_analysis_pack.json site/data/analysis/refresh_status.json" in workflow
     assert "git diff --cached --name-only" in workflow
     assert "Unexpected staged path" in workflow
-    assert "site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json|site/data/analysis/refresh_status.json" in workflow
+    assert "site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json|site/data/analysis/ai_analysis_pack.json|site/data/analysis/refresh_status.json" in workflow
     assert "chore: refresh aggregate inquiry artifacts [skip ci]" in workflow
     assert 'git push origin "HEAD:${GITHUB_REF_NAME}"' in workflow
     assert "actions/upload-pages-artifact@v3" in workflow

@@ -866,9 +866,21 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "actions/workflows/analysis-refresh.yml" in js
     assert "actionsBriefingRefreshHtml" in js
     assert "Open refresh workflow" in js
+    assert "aiAnalysisPack" in js
+    assert "data/analysis/ai_analysis_pack.json" in js
+    assert "renderAiAnalysisPack" in js
+    assert "aiAnalysisPackCardHtml" in js
+    assert "applyAiAnalysisPackCard" in js
+    assert "data-ai-analysis-card" in js
+    assert "Offline AI analysis pack" in js
+    assert "Ask, color, and graph the current aggregate analysis." in js
+    assert "ai-analysis-pack" in html
     assert "actions-briefing-refresh" in css
     assert "grok-refresh-run-badge" in css
     assert "grok-refresh-run-grid" in css
+    assert "ai-analysis-pack-card" in css
+    assert "ai-analysis-pack-grid" in css
+    assert "ai-analysis-card-actions" in css
     assert "primary-action-link" in css
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js

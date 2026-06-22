@@ -27,6 +27,7 @@ Files saved:
 - `site/data/analysis/chat_index.json`
 - `site/data/analysis/inquiry_briefings.json`
 - `site/data/analysis/question_pack.json`
+- `site/data/analysis/ai_analysis_pack.json`
 - `site/data/analysis/models.json`
 - `site/data/analysis/charts.json`
 - `site/data/analysis/visual_smoke.json`
@@ -80,6 +81,7 @@ Current coverage stats:
 - Static site data: aggregate-only LOCUS state-clustered map, ontology, model, inquiry, chart, and status artifacts
 - Static inquiry briefings: generated from aggregate-only artifacts; optional Grok enrichment is offline-only
 - Tracked inquiry briefing artifact: Grok-enriched aggregate-only artifact persisted from the validated Actions refresh
+- Static AI analysis pack: generated from validated aggregate artifacts and offline briefing/question outputs; route cards open Inquiry, color the map, or graph ontology context without browser model calls
 - Latest Grok-backed refresh: Actions run `27934813781` refreshed and persisted `inquiry_briefings.json`, `question_pack.json`, and `refresh_status.json` as aggregate-only artifacts in commit `e5656b2`
 - Master jurisdiction contract: implemented
 - Master jurisdiction rows built from real LOCUS data: 0
@@ -128,6 +130,7 @@ Current coverage stats:
 - Charts route smoke coverage: optional Playwright browser smoke now clicks the Charts route buttons and verifies navigation to Map, Inquiry, and Ontology when `EVOLOCUS_BROWSER_SMOKE=1`
 - Deployed visual smoke workflow: manual GitHub Actions route smoke can click the hosted Pages URL through Chart -> Map -> Inquiry -> Ontology without secrets or write permissions
 - Visual smoke public artifact: `visual_smoke.json` records workflow metadata and no-row/no-text/no-secret policy flags for the verified public route
+- Inquiry AI analysis pack: GitHub Pages renders `ai_analysis_pack.json` cards generated from aggregate artifacts and offline Grok-backed briefing/question outputs, with Ask, Color map, and Graph routes only
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Selected-unit query replay: GitHub Pages map detail cards can save a county/town aggregate question route, open the static answer, or replay the selected unit into the ontology graph without text or locator exposure
 - Selected-unit ontology answer cards: GitHub Pages map detail cards preview safe aggregate answers for topic, function, neutral tier, audit signals, and peer routes, then open Inquiry, color the map, or replay the graph
@@ -178,7 +181,7 @@ Current coverage stats:
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only, with the existing `Grok_api_key` Actions secret accepted as an alias by the refresh workflow
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
-- Persisted refresh path: manual analysis-refresh can commit only validated `inquiry_briefings.json` and `question_pack.json` aggregate artifacts back to the current branch
+- Persisted refresh path: manual analysis-refresh can commit only validated `inquiry_briefings.json`, `question_pack.json`, `ai_analysis_pack.json`, and `refresh_status.json` aggregate artifacts back to the current branch
 - Latest persisted refresh verification: run `27934813781` used Grok for both inquiry briefings and the question pack, passed the public artifact guard, and deployed through GitHub Pages
 - Pages deploy guard: normal Pages workflow validates public artifacts before upload
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
