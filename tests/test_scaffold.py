@@ -415,6 +415,20 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Ask this pathway" in js
     assert "Open on map" in js
     assert "renderMapReadingGuide" in js
+    assert "mapCrossFilterLegendHtml" in js
+    assert "crossFilterCountRows" in js
+    assert "crossFilterTierRows" in js
+    assert "mapCrossFilterGroupHtml" in js
+    assert "mapCrossFilterRowHtml" in js
+    assert "applyMapCrossFilterLegend" in js
+    assert "data-map-cross-filter" in js
+    assert "map cross-filter legend" in js
+    assert "Cross-filter legend" in js
+    assert "Visible topic, function, and tier routes" in js
+    assert "Rows apply browser map filters from aggregate counts only" in js
+    assert "map-cross-filter-legend" in css
+    assert "map-cross-filter-grid" in css
+    assert "map-cross-filter-row" in css
     assert "mapTopicTierMatrixHtml" in js
     assert "topicTierMatrixRows" in js
     assert "mapTopicTierQuestion" in js

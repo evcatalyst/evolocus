@@ -219,6 +219,20 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "artifact-freshness-grid span.snapshot-delta" in css
     assert "artifact-freshness-grid .snapshot-delta em" in css
     assert "renderMapReadingGuide" in js
+    assert "mapCrossFilterLegendHtml" in js
+    assert "crossFilterCountRows" in js
+    assert "crossFilterTierRows" in js
+    assert "mapCrossFilterGroupHtml" in js
+    assert "mapCrossFilterRowHtml" in js
+    assert "applyMapCrossFilterLegend" in js
+    assert "data-map-cross-filter" in js
+    assert "map cross-filter legend" in js
+    assert "Cross-filter legend" in js
+    assert "Visible topic, function, and tier routes" in js
+    assert "Rows apply browser map filters from aggregate counts only" in js
+    assert "map-cross-filter-legend" in css
+    assert "map-cross-filter-grid" in css
+    assert "map-cross-filter-row" in css
     assert "chartMapFilterEnabled" in js
     assert "applyChartMapFilter" in js
     assert "applyChartStateTopicFilter" in js

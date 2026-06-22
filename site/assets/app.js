@@ -1848,6 +1848,7 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
       <div class="map-reading-guide-tiers" aria-label="Visible neutral tier mix">
         ${tierRows || "<span><strong>No visible tiers</strong><em>adjust filters</em></span>"}
       </div>
+      ${mapCrossFilterLegendHtml(units, summary, tierDefinitions)}
       ${mapTopicTierMatrixHtml(units, tierDefinitions)}
       <div class="map-reading-guide-filters" aria-label="Active map filters">
         ${
@@ -1860,6 +1861,129 @@ function renderMapReadingGuide(units, allUnits, mapLayers, packageStats) {
         Official county polygons and municipal points are machine-matched and pending review. Public artifacts contain aggregate counts only: no ordinance text, source locators, review events, or legal findings.
       </p>
     </section>
+  `;
+}
+
+function mapCrossFilterLegendHtml(units, summary, tierDefinitions) {
+  const limit = state.disclosureLevel === "overview" ? 4 : 6;
+  const rows = [
+    mapCrossFilterGroup("topic", "Topic nodes", "released model topic labels", crossFilterCountRows(units, "topic_counts", summary.lawCount, limit)),
+    mapCrossFilterGroup("function", "Function nodes", "released model function labels", crossFilterCountRows(units, "function_counts", summary.lawCount, limit)),
+    mapCrossFilterGroup("tier", "Neutral tiers", "aggregate review color bands", crossFilterTierRows(units, tierDefinitions, limit)),
+  ];
+  return `
+    <section class="map-cross-filter-legend" aria-label="Cross-filtered topic function and tier legend">
+      <div class="map-cross-filter-heading">
+        <div>
+          <span>Cross-filter legend</span>
+          <strong>Visible topic, function, and tier routes</strong>
+        </div>
+        <em>Current map scope only</em>
+      </div>
+      <div class="map-cross-filter-grid">
+        ${rows.map(mapCrossFilterGroupHtml).join("")}
+      </div>
+      <p>Rows apply browser map filters from aggregate counts only. They are navigation aids, not legal findings, rankings, or evidence that a law controls a place.</p>
+    </section>
+  `;
+}
+
+function mapCrossFilterGroup(type, title, detail, rows) {
+  return { type, title, detail, rows };
+}
+
+function crossFilterCountRows(units, countField, denominator, limit) {
+  const rows = new Map();
+  for (const unit of units || []) {
+    for (const [label, rawValue] of Object.entries(unit[countField] || {})) {
+      if (!label || label === "Not_applicable") {
+        continue;
+      }
+      const row = rows.get(label) || { label, value: 0, unitCount: 0, topUnit: null };
+      const value = Number(rawValue || 0);
+      row.value += value;
+      if (value > 0) {
+        row.unitCount += 1;
+      }
+      row.topUnit = !row.topUnit || value > Number(row.topUnit[countField]?.[label] || 0) ? unit : row.topUnit;
+      rows.set(label, row);
+    }
+  }
+  return [...rows.values()]
+    .filter((row) => row.value > 0)
+    .map((row) => ({
+      ...row,
+      valueLabel: `${formatCount(row.value)} rows`,
+      unitLabel: `${formatCount(row.unitCount)} units`,
+      shareLabel: formatPercent(row.value, denominator),
+      topUnitLabel: row.topUnit ? displayUnitName(row.topUnit) : "No unit",
+      valueKey: row.label,
+    }))
+    .sort((a, b) => b.value - a.value || b.unitCount - a.unitCount || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+function crossFilterTierRows(units, tierDefinitions, limit) {
+  const rows = new Map();
+  for (const unit of units || []) {
+    const tierKey = unit.tier || tierKeyForLabel(unit.tier_label, tierDefinitions) || "";
+    const definition = tierDefinitionForKey(tierKey);
+    const label = definition.label || unit.tier_label || tierKey || "No neutral tier";
+    const row = rows.get(tierKey || label) || {
+      label,
+      valueKey: tierKey,
+      value: 0,
+      unitCount: 0,
+      topUnit: null,
+      color: definition.color || unit.tier_color || "#d8dee8",
+    };
+    row.value += Number(unit.law_count || 0);
+    row.unitCount += 1;
+    row.topUnit = !row.topUnit || Number(unit.law_count || 0) > Number(row.topUnit.law_count || 0) ? unit : row.topUnit;
+    rows.set(tierKey || label, row);
+  }
+  const denominator = (units || []).reduce((total, unit) => total + Number(unit.law_count || 0), 0);
+  return [...rows.values()]
+    .map((row) => ({
+      ...row,
+      valueLabel: `${formatCount(row.value)} rows`,
+      unitLabel: `${formatCount(row.unitCount)} units`,
+      shareLabel: formatPercent(row.value, denominator),
+      topUnitLabel: row.topUnit ? displayUnitName(row.topUnit) : "No unit",
+    }))
+    .sort((a, b) => b.value - a.value || b.unitCount - a.unitCount || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+function mapCrossFilterGroupHtml(group) {
+  return `
+    <article class="map-cross-filter-group">
+      <div>
+        <span>${escapeHtml(group.title)}</span>
+        <em>${escapeHtml(group.detail)}</em>
+      </div>
+      ${
+        group.rows.length
+          ? group.rows.map((row) => mapCrossFilterRowHtml(group.type, row, Math.max(1, ...group.rows.map((item) => Number(item.value || 0))))).join("")
+          : '<p class="muted-note">No visible aggregate rows for this lens.</p>'
+      }
+    </article>
+  `;
+}
+
+function mapCrossFilterRowHtml(type, row, maxValue) {
+  const width = Math.max(row.value ? 5 : 0, (Number(row.value || 0) / Math.max(1, Number(maxValue || 1))) * 100).toFixed(2);
+  const color = type === "tier" ? row.color || tierDefinitionForKey(row.valueKey).color || "#d8dee8" : "";
+  return `
+    <button type="button" class="map-cross-filter-row ${escapeHtml(type)}" data-map-cross-filter="${escapeHtml(type)}" data-map-cross-value="${escapeHtml(row.valueKey || row.label)}" data-map-cross-label="${escapeHtml(row.label)}">
+      <span>
+        ${color ? `<i style="background:${escapeHtml(color)}"></i>` : ""}
+        <strong>${escapeHtml(row.label)}</strong>
+        <em>${escapeHtml(row.unitLabel)} · ${escapeHtml(row.shareLabel)}</em>
+      </span>
+      <b><u style="width:${escapeHtml(width)}%"></u></b>
+      <small>${escapeHtml(row.valueLabel)} · ${escapeHtml(row.topUnitLabel)}</small>
+    </button>
   `;
 }
 
@@ -11514,6 +11638,27 @@ function applyMapTopicTierMatrix(topic, tier) {
   renderMap();
 }
 
+function applyMapCrossFilterLegend(type, value, label = "") {
+  if (!["topic", "function", "tier"].includes(type) || !value) {
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: type === "topic" ? value : state.mapFilters.topic,
+    function: type === "function" ? value : state.mapFilters.function,
+    tier: type === "tier" ? value : state.mapFilters.tier,
+  };
+  state.selectedUnitId = null;
+  const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
+  const displayLabel = label || value;
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(
+    `Show ${displayLabel} ${type} aggregate units from the map legend`,
+    "map cross-filter legend",
+    visibleUnits,
+  );
+  renderMap();
+}
+
 function askMapTopicTierMatrix(topic, tier, question) {
   state.mapFilters = {
     ...state.mapFilters,
@@ -12985,6 +13130,16 @@ function bindEvents() {
       event.preventDefault();
       state.inquiryMapHighlight = null;
       renderMap();
+      return;
+    }
+    const crossFilterButton = event.target.closest("[data-map-cross-filter]");
+    if (crossFilterButton) {
+      event.preventDefault();
+      applyMapCrossFilterLegend(
+        crossFilterButton.dataset.mapCrossFilter || "",
+        crossFilterButton.dataset.mapCrossValue || "",
+        crossFilterButton.dataset.mapCrossLabel || "",
+      );
       return;
     }
     const selectedNeighborFilterButton = event.target.closest("[data-selected-neighbor-filter]");

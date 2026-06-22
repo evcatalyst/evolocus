@@ -106,6 +106,7 @@ Current coverage stats:
 - Official geography layer toggles: GitHub Pages can independently show matched county polygons, matched town/municipal points, and progressive aggregate ontology peer links
 - Official geography layer legend: GitHub Pages explains active county/town layers, selected-unit peer-link reasons, disclosure depth, and aggregate-only interpretation boundaries
 - Map-side tier guide: GitHub Pages explains active filters, visible county/town counts, neutral tier mix, geography color mode, disclosure depth, and aggregate-only publication boundary in the map card
+- Map-side cross-filter legend: GitHub Pages summarizes visible topic, function, and neutral-tier aggregate routes with row bars and safe filter drillback
 - Map-side topic/tier matrix: GitHub Pages shows aggregate dominant-topic by neutral-tier co-occurrence cells with unit counts, row bars, and safe map filter drillback
 - Matrix-linked Inquiry prompts: GitHub Pages topic/tier cells can open deterministic aggregate Inquiry answers after applying safe map filters, with no browser model call
 - Tier-to-ontology clickthrough: GitHub Pages tier chips open a focused ontology card with visible units, topic/function links, neutral score means, and current filter context
@@ -276,3 +277,4 @@ Evaluator implementation state:
 - Analysis journey surface: GitHub Pages shows a persistent Map -> Inquiry -> Ontology -> Queue Plan strip that routes tabs with aggregate counts, filters, disclosure level, and no row-level data.
 - Chart-brush surface: GitHub Pages chart route buttons and chart rows now open the Law Map with a visible aggregate-only county/town highlight, no raw rows, no locators, and no browser model call.
 - Ontology-backed question route surface: GitHub Pages typed questions now show and replay aggregate topic/function/tier/unit graph nodes with explicit no-text/no-locator/no-browser-model boundaries.
+- Map cross-filter legend surface: GitHub Pages Law Map now shows visible topic, function, and neutral-tier rows that apply aggregate-only filters and map highlights without row text or legal findings.
