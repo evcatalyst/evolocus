@@ -1,22 +1,22 @@
 {
-  "artifact_commit": "1ceffc5f4471c67077c734b05ca62b545abca795",
+  "artifact_commit": "1e816d5b06a83b2bbe35f2823ece2c566416240e",
   "artifacts": {
     "ai_analysis_pack": {
       "card_count": 5,
-      "generated_at": "2026-06-22T15:06:11.700137+00:00",
+      "generated_at": "2026-06-22T15:12:26.696501+00:00",
       "grok_used": true,
       "model": "grok-4.3",
       "path": "site/data/analysis/ai_analysis_pack.json"
     },
     "inquiry_briefings": {
       "briefing_count": 5,
-      "generated_at": "2026-06-22T15:06:01.793242+00:00",
+      "generated_at": "2026-06-22T15:12:18.206306+00:00",
       "grok_used": true,
       "model": "grok-4.3",
       "path": "site/data/analysis/inquiry_briefings.json"
     },
     "question_pack": {
-      "generated_at": "2026-06-22T15:06:05.990026+00:00",
+      "generated_at": "2026-06-22T15:12:22.351859+00:00",
       "grok_used": true,
       "model": "grok-4.3",
       "path": "site/data/analysis/question_pack.json",
@@ -25,13 +25,13 @@
   },
   "branch": "main",
   "browser_boundary": "GitHub Pages displays static run metadata only. Grok calls, if enabled, run offline in GitHub Actions and no model credentials are delivered to browser JavaScript.",
-  "completed_at": "2026-06-22T15:06:11.777849+00:00",
+  "completed_at": "2026-06-22T15:12:26.758102+00:00",
   "conclusion": "success_if_pages_deploys",
-  "created_at": "2026-06-22T15:06:11.777849+00:00",
+  "created_at": "2026-06-22T15:12:26.486770+00:00",
   "dataset_revision": "main",
   "event": "workflow_dispatch",
-  "generated_at": "2026-06-22T15:06:11.777849+00:00",
-  "head_sha": "1ceffc5f4471c67077c734b05ca62b545abca795",
+  "generated_at": "2026-06-22T15:12:26.758102+00:00",
+  "head_sha": "1e816d5b06a83b2bbe35f2823ece2c566416240e",
   "persist_artifacts_input": true,
   "publication_policy": {
     "artifact_kind": "aggregate_only_actions_refresh_status",
@@ -43,10 +43,10 @@
     "review_events_included": false,
     "secrets_included": false
   },
-  "run_id": 27962599678,
-  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27962599678",
+  "run_id": 27962998510,
+  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27962998510",
   "schema_version": "evolocus-actions-refresh-status-v1",
-  "started_at": "2026-06-22T15:06:11.777849+00:00",
+  "started_at": "2026-06-22T15:12:26.486770+00:00",
   "status": "completed_if_pages_deploys",
   "use_grok_input": true,
   "validation": {
