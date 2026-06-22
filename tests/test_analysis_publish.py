@@ -42,6 +42,7 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
         "Timeline-driven map layer playback",
         "Map-side layer step animation",
         "Askable selected color lens cards",
+        "Ontology peer-link explainer cards",
         "Per-topic map playback presets",
     ]
 

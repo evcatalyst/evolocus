@@ -927,6 +927,23 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
             ],
         },
         {
+            "name": "Ontology peer-link explainer cards",
+            "steps": [
+                "Open the Law Map with county/town aggregate units visible",
+                "Enable the ontology-link geography layer",
+                "Switch to selected-unit disclosure depth",
+                "Inspect the peer-link explainer card",
+                "Verify topic, function, tier, geography, unit-type, and scale lenses are described as navigation cues",
+            ],
+            "assertions": [
+                "Peer links are generated from public aggregate map-unit metadata only",
+                "Explainer copy frames lenses as aggregate navigation cues, not legal relationships",
+                "Topic and function lenses remain released model-output facets, not verified legal conclusions",
+                "The card rejects legal authority, rankings, source records, and controlling-law meaning",
+                "No ordinance text, source locator, secret, browser model call, or legal finding is observed",
+            ],
+        },
+        {
             "name": "Per-topic map playback presets",
             "steps": [
                 "Open the Law Map topic playback preset card",
