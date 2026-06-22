@@ -1,15 +1,22 @@
 {
-  "artifact_commit": "4c4555c9c2c4263c47759f6a1cc569736a32532a",
+  "artifact_commit": "01aaea89c2593e620848d614544f183440e36a1b",
   "artifacts": {
+    "ai_analysis_pack": {
+      "card_count": 5,
+      "generated_at": "2026-06-22T09:01:35.456173+00:00",
+      "grok_used": true,
+      "model": "grok-4.3",
+      "path": "site/data/analysis/ai_analysis_pack.json"
+    },
     "inquiry_briefings": {
       "briefing_count": 5,
-      "generated_at": "2026-06-22T07:46:31.676806+00:00",
+      "generated_at": "2026-06-22T09:01:27.110289+00:00",
       "grok_used": true,
       "model": "grok-4.3",
       "path": "site/data/analysis/inquiry_briefings.json"
     },
     "question_pack": {
-      "generated_at": "2026-06-22T07:46:35.949488+00:00",
+      "generated_at": "2026-06-22T09:01:31.673315+00:00",
       "grok_used": true,
       "model": "grok-4.3",
       "path": "site/data/analysis/question_pack.json",
@@ -18,13 +25,13 @@
   },
   "branch": "main",
   "browser_boundary": "GitHub Pages displays static run metadata only. Grok calls, if enabled, run offline in GitHub Actions and no model credentials are delivered to browser JavaScript.",
-  "completed_at": "2026-06-22T07:46:40.951465+00:00",
+  "completed_at": "2026-06-22T09:01:35.540738+00:00",
   "conclusion": "success_if_pages_deploys",
-  "created_at": "2026-06-22T07:46:40.951465+00:00",
+  "created_at": "2026-06-22T09:01:35.540738+00:00",
   "dataset_revision": "main",
   "event": "workflow_dispatch",
-  "generated_at": "2026-06-22T07:46:40.951465+00:00",
-  "head_sha": "4c4555c9c2c4263c47759f6a1cc569736a32532a",
+  "generated_at": "2026-06-22T09:01:35.540738+00:00",
+  "head_sha": "01aaea89c2593e620848d614544f183440e36a1b",
   "persist_artifacts_input": true,
   "publication_policy": {
     "artifact_kind": "aggregate_only_actions_refresh_status",
@@ -36,10 +43,10 @@
     "review_events_included": false,
     "secrets_included": false
   },
-  "run_id": 27937484982,
-  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27937484982",
+  "run_id": 27941425678,
+  "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/27941425678",
   "schema_version": "evolocus-actions-refresh-status-v1",
-  "started_at": "2026-06-22T07:46:40.951465+00:00",
+  "started_at": "2026-06-22T09:01:35.540738+00:00",
   "status": "completed_if_pages_deploys",
   "use_grok_input": true,
   "validation": {
@@ -47,6 +54,7 @@
     "persisted_paths_allowlist": [
       "site/data/analysis/inquiry_briefings.json",
       "site/data/analysis/question_pack.json",
+      "site/data/analysis/ai_analysis_pack.json",
       "site/data/analysis/refresh_status.json"
     ],
     "public_artifact_guard": "required_before_pages_deploy"

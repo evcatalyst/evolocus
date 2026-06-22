@@ -29,7 +29,7 @@
       "value": 407704
     }
   },
-  "generated_at": "2026-06-22T07:46:35.949488+00:00",
+  "generated_at": "2026-06-22T09:01:31.673315+00:00",
   "generator": "evolocus-static-question-pack",
   "grok": {
     "error": null,
@@ -37,7 +37,7 @@
     "secret_env": "GROK_API_KEY",
     "used": true
   },
-  "grok_note": "This filter-aware question pack holds 8 prompts (Current view, CA focus, Other topic, Rules function, Tier 1 tier, Audit signals, Selected unit, Local package) from dataset main. Apply matching filters to surface aggregate civic data only. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
+  "grok_note": "This 8-prompt pack (dataset main) supports filter-aware queries on aggregate civic topics including Current view, CA focus, and Local package. Apply prompts to surface packaged signals only. GitHub Pages does not make live model calls. Raw ordinance text and source locators are not published.",
   "license": "CC-BY-NC-4.0",
   "paper": "https://arxiv.org/abs/2606.19334",
   "prompts": [
@@ -259,7 +259,7 @@
       "synthetic": false
     },
     {
-      "generated_at": "2026-06-22T07:46:31.676806+00:00",
+      "generated_at": "2026-06-22T09:01:27.110289+00:00",
       "id": "inquiry_briefings",
       "real_locus_rows_published": false,
       "schema_version": "evolocus-progressive-inquiry-v1",
