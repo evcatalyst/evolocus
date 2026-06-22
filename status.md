@@ -134,6 +134,7 @@ Current coverage stats:
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only, with the existing `Grok_api_key` Actions secret accepted as an alias by the refresh workflow
 - Public artifact guard: validates aggregate-only Pages JSON before analysis-refresh deployment
+- Persisted refresh path: manual analysis-refresh can commit only validated `inquiry_briefings.json` and `question_pack.json` aggregate artifacts back to the current branch
 - Pages deploy guard: normal Pages workflow validates public artifacts before upload
 - Real LOCUS aggregate scan: run for top 1,000 state-clustered jurisdiction units; artifact law count 1,517,672 within the published unit cap
 - Real LOCUS evaluation: not started
@@ -204,6 +205,7 @@ Latest update:
 - Added a package-to-ontology bridge that connects browser-local package topic/function/tier counts to matched aggregate map units without exposing text, headers, locator values, or review-event details.
 - Added package-aware snapshot summaries and comparisons so saved browser-local aggregate views can show local package counts and matched units without text, locators, or review-event history.
 - Added Actions support for the existing `Grok_api_key` secret alias while keeping generated artifacts normalized to `GROK_API_KEY` and browser JavaScript key-free.
+- Added guarded persistence for manual Actions refreshes so validated aggregate inquiry briefing and question-pack artifacts can be committed back without touching real-data paths.
 - Added a selected-unit progressive visual trail in the map panel so real aggregate county/town visuals can step through overview, model-output detail, and evidence boundaries without leaving the map.
 - Added selected-unit ontology drilldown cards in the map panel for topic, function, neutral tier, model outputs, geometry provenance, and browser-local package context.
 - Added tier-focus mini charts for topic mix, function mix, unit type mix, and neutral score means inside the ontology focus card.

@@ -220,7 +220,7 @@ PYTHONPATH=src python -m evolocus.cli validate-public-artifacts \
   --analysis-dir site/data/analysis
 ```
 
-The tracked `site/data/analysis/inquiry_briefings.json` artifact is currently Grok-enriched and aggregate-only. The manual `Refresh static analysis artifacts` GitHub Actions workflow performs the same briefing refresh and validation before deploying Pages. The Analysis Status tab now exposes an Actions-only refresh control that opens the workflow page, reports current artifact freshness, and keeps all model calls in Actions rather than the browser. The normal Pages deploy workflow also runs the validator so a later push cannot publish raw rows or secret-shaped values by accident.
+The tracked `site/data/analysis/inquiry_briefings.json` artifact is currently Grok-enriched and aggregate-only. The manual `Refresh static analysis artifacts` GitHub Actions workflow performs the same briefing refresh and validation before deploying Pages. Its `persist_artifacts` input can commit only the validated `inquiry_briefings.json` and `question_pack.json` artifacts back to the current branch, preventing the next normal Pages deploy from reverting refreshed aggregate inquiry output. The Analysis Status tab now exposes an Actions-only refresh control that opens the workflow page, reports current artifact freshness, and keeps all model calls in Actions rather than the browser. The normal Pages deploy workflow also runs the validator so a later push cannot publish raw rows or secret-shaped values by accident.
 
 ## Support CLI
 

@@ -68,6 +68,7 @@
         "Add Queue Plan tab for aggregate review batch planning",
         "Add public artifact guard for Grok inquiry briefing refresh",
         "Persist Grok-enriched aggregate inquiry briefings in Pages data",
+        "Persist validated aggregate inquiry refresh artifacts from Actions",
         "Add aggregate current-view snapshot export",
         "Add browser-local aggregate snapshot gallery",
         "Add guided public aggregate walkthrough across map, inquiry, ontology, queue planning, and snapshots",

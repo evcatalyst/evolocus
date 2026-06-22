@@ -43,7 +43,7 @@ flowchart LR
 - Saved inquiry results can replay only safe browser state: map filters, disclosure depth, and selected aggregate unit IDs. Replay does not create row-level evidence or call a model.
 - Saved inquiry results also render as a browser-local replay timeline with row/unit sparklines derived from aggregate summaries only.
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
-- The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
+- The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages. When enabled, it commits only validated aggregate inquiry JSON back to the current branch so refreshed artifacts survive later normal Pages deploys.
 - The Pages Analysis Status tab links to that manual workflow as an Actions-only refresh control; the browser never receives a model secret and never performs a live model call.
 - The Law Map and Inquiry headers show artifact freshness badges for the aggregate map layer, briefing, question pack, dataset revision, stored-snapshot deltas, and no-row-text boundary before users drill into detail.
 - The Law Map header also shows a last-refresh source strip so map readers can distinguish tracked Polars aggregate artifacts, offline briefing refreshes, analysis commit provenance, and deploy validation gates.

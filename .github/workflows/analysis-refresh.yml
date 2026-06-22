@@ -8,9 +8,14 @@ on:
         required: true
         type: boolean
         default: true
+      persist_artifacts:
+        description: "Commit validated aggregate inquiry artifacts back to the current branch."
+        required: true
+        type: boolean
+        default: true
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -82,6 +87,29 @@ jobs:
           fi
       - name: Validate public artifact boundary
         run: PYTHONPATH=src python -m evolocus.cli validate-public-artifacts --analysis-dir site/data/analysis
+      - name: Persist aggregate inquiry artifacts
+        if: ${{ inputs.persist_artifacts }}
+        run: |
+          git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json
+          staged="$(git diff --cached --name-only)"
+          if [ -z "$staged" ]; then
+            echo "No aggregate inquiry artifact changes to persist."
+            exit 0
+          fi
+          for path in $staged; do
+            case "$path" in
+              site/data/analysis/inquiry_briefings.json|site/data/analysis/question_pack.json)
+                ;;
+              *)
+                echo "Unexpected staged path: $path"
+                exit 1
+                ;;
+            esac
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh aggregate inquiry artifacts [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
       - name: Summarize briefing artifact
         run: |
           python - <<'PY'

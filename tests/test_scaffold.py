@@ -852,6 +852,8 @@ def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() ->
     js = read_text("site/assets/app.js")
     assert "workflow_dispatch" in workflow
     assert "use_grok" in workflow
+    assert "persist_artifacts" in workflow
+    assert "contents: write" in workflow
     assert "secrets.GROK_API_KEY" in workflow
     assert "secrets.Grok_api_key" in workflow
     assert "GROK_API_KEY_ALIAS" in workflow
@@ -859,8 +861,17 @@ def test_analysis_refresh_workflow_uses_grok_secret_without_client_exposure() ->
     assert "publish-question-pack" in workflow
     assert "question_pack.json" in workflow
     assert "validate-public-artifacts" in workflow
+    assert "git add site/data/analysis/inquiry_briefings.json site/data/analysis/question_pack.json" in workflow
+    assert "git diff --cached --name-only" in workflow
+    assert "Unexpected staged path" in workflow
+    assert "chore: refresh aggregate inquiry artifacts [skip ci]" in workflow
+    assert 'git push origin "HEAD:${GITHUB_REF_NAME}"' in workflow
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "publish-analysis" not in workflow
+    assert "data/raw" not in workflow
+    assert "data/processed" not in workflow
+    assert "data/evaluation" not in workflow
+    assert "data/exports" not in workflow
     assert "GROK_API_KEY" not in js
     assert "api.x.ai" not in js
 
