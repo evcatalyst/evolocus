@@ -67,6 +67,7 @@
 - Pathway peer visuals should compare only aggregate unit counts and published unit IDs; peer drillback belongs on the map, not in row-level public evidence.
 - Pathway ontology chips should route through aggregate unit IDs and safe filters only, so inquiry-to-ontology drillback does not imply row-level evidence has been published.
 - Inquiry-to-map composers should preview deterministic aggregate filters and denominators before applying state changes; they are not semantic search or legal reasoning.
+- Ontology-to-map visual presets should preview color mode, filters, unit counts, and row denominators before changing the map; the route is navigation, not a legal ontology finding.
 - Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.
 - Record-level review queues should still be materialized with local ignored tooling before any ordinance text is reviewed or exported.
 - Grok refreshes need a deployment-time public artifact guard because model enrichment is still generated text and must not weaken raw-data, source-locator, or secret boundaries.

@@ -4477,6 +4477,7 @@ function ontologyQueryPresetsHtml() {
       <div class="ontology-query-grid">
         ${presets.length ? presets.map(ontologyQueryPresetCardHtml).join("") : '<p class="muted-note">Map artifacts are not loaded yet.</p>'}
       </div>
+      ${ontologyMapPresetHtml()}
       <p class="ontology-query-boundary">Queries are deterministic browser actions over public aggregate artifacts. Results are review context, not legal findings or rankings.</p>
     </section>
   `;
@@ -4580,6 +4581,164 @@ function ontologyQueryPresetCardHtml(card) {
   `;
 }
 
+function ontologyMapPresetHtml() {
+  const presets = ontologyMapPresetCards();
+  return `
+    <section class="ontology-map-presets" aria-label="Ontology-to-map visual presets">
+      <div class="ontology-map-preset-heading">
+        <div>
+          <p class="eyebrow">Ontology-to-map visuals</p>
+          <h4>Color counties and towns from ontology cues.</h4>
+          <p>Each card previews a deterministic aggregate map route, including color mode, filters, and matching unit counts.</p>
+        </div>
+        <span>${escapeHtml(formatCount(presets.length))} map routes</span>
+      </div>
+      <div class="ontology-map-preset-grid">
+        ${presets.length ? presets.map(ontologyMapPresetCardHtml).join("") : '<p class="muted-note">Aggregate map layers are not loaded yet.</p>'}
+      </div>
+      <p class="ontology-map-preset-boundary">Map presets use public aggregate counts and model labels only. They do not expose ordinance text, source locators, live model calls, or legal conclusions.</p>
+    </section>
+  `;
+}
+
+function ontologyMapPresetCards() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return [];
+  }
+  const mapUnits = mapLayers.units || [];
+  const currentUnits = filterMapUnits(mapUnits);
+  const summary = summarizeUnits(currentUnits);
+  const topTier = topEntry(summary.tierCounts);
+  const tierKey = topTier.value ? tierKeyForLabel(topTier.label, mapLayers.tier_definitions || {}) : "";
+  const scoreField = state.mapFilters.scoreField || topScoreField(summary.scoreMeans);
+  const baseLayers = { counties: true, municipalities: true, ontology: true };
+  const rows = [
+    {
+      key: "tier-colored-map",
+      group: "Tier map",
+      title: "County/town neutral tier colors",
+      question: "Where are the current aggregate laws on the county and town map by neutral tier?",
+      detail: "Keeps current filters and colors geography by neutral tier.",
+      colorMode: "tier",
+      filters: {},
+      geographyLayers: baseLayers,
+      disclosure: "unit",
+    },
+    {
+      key: "topic-colored-map",
+      group: "Topic map",
+      title: summary.topTopic.value ? `${summary.topTopic.label} geography` : "Topic geography unavailable",
+      question: `Where do ${summary.topTopic.label} laws appear on the county and town map?`,
+      detail: "Filters to the current top topic and colors geography by topic.",
+      colorMode: "topic",
+      filters: summary.topTopic.value ? { topic: summary.topTopic.label } : {},
+      geographyLayers: baseLayers,
+      disclosure: "unit",
+      disabled: !summary.topTopic.value,
+    },
+    {
+      key: "function-colored-map",
+      group: "Function map",
+      title: summary.topFunction.value ? `${summary.topFunction.label} geography` : "Function geography unavailable",
+      question: `Where do ${summary.topFunction.label} law functions appear on the county and town map?`,
+      detail: "Filters to the current top function and colors geography by function.",
+      colorMode: "function",
+      filters: summary.topFunction.value ? { function: summary.topFunction.label } : {},
+      geographyLayers: baseLayers,
+      disclosure: "unit",
+      disabled: !summary.topFunction.value,
+    },
+    {
+      key: "audit-attention-map",
+      group: "Audit map",
+      title: "Audit-attention geography",
+      question: "Where are aggregate OCR and duplicate-text review signals concentrated on the map?",
+      detail: "Focuses audit attention signals and colors geography by audit score.",
+      colorMode: "audit_attention",
+      filters: { auditFocus: "attention", minAuditScore: Math.max(5, Number(state.mapFilters.minAuditScore || 0)) },
+      geographyLayers: baseLayers,
+      disclosure: "evidence",
+    },
+    {
+      key: "law-count-map",
+      group: "Density map",
+      title: "Law-count intensity geography",
+      question: "Where are the largest aggregate law-count units on the county and town map?",
+      detail: "Raises the minimum law-count filter and colors geography by row-count intensity.",
+      colorMode: "law_count",
+      filters: { minLaws: Math.max(10000, Number(state.mapFilters.minLaws || 0)) },
+      geographyLayers: baseLayers,
+      disclosure: "unit",
+    },
+  ];
+  if (tierKey) {
+    rows.splice(1, 0, {
+      key: "top-tier-map",
+      group: "Tier focus",
+      title: `${topTier.label} counties/towns`,
+      question: `Where do ${topTier.label} aggregate units appear on the county and town map?`,
+      detail: "Filters to the dominant visible neutral tier and opens the tier ontology focus.",
+      colorMode: "tier",
+      filters: { tier: tierKey },
+      geographyLayers: baseLayers,
+      disclosure: "unit",
+      tierFocus: tierKey,
+    });
+  }
+  if (scoreField) {
+    rows.push({
+      key: "score-band-map",
+      group: "Score band",
+      title: `${scoreFieldLabel(scoreField)} band`,
+      question: `Where do high relative ${scoreFieldLabel(scoreField)} score-band units appear on the county and town map?`,
+      detail: "Filters to a neutral high relative model-score band while keeping tier colors visible.",
+      colorMode: "tier",
+      filters: { scoreField, scoreBand: state.mapFilters.scoreBand || "high" },
+      geographyLayers: baseLayers,
+      disclosure: "unit",
+    });
+  }
+  return rows.map((row) => ontologyMapPresetWithPreview(row, mapUnits));
+}
+
+function ontologyMapPresetWithPreview(row, mapUnits) {
+  const proposedFilters = normalizedLogMapFilters({ ...state.mapFilters, ...(row.filters || {}) });
+  const previewUnits = filterMapUnitsWithFilters(mapUnits, proposedFilters);
+  const previewSummary = summarizeUnits(previewUnits);
+  return {
+    ...row,
+    proposedFilters,
+    previewUnits,
+    previewSummary,
+    disabled: row.disabled || !previewUnits.length,
+  };
+}
+
+function ontologyMapPresetCardHtml(card) {
+  const colorLabel = geographyColorLabel(card.colorMode || "tier");
+  const filterLabels = mapComposerFilterLabels(card.proposedFilters).slice(0, 4);
+  return `
+    <article class="ontology-map-preset-card${card.disabled ? " disabled" : ""}">
+      <span>${escapeHtml(card.group)}</span>
+      <strong>${escapeHtml(card.title)}</strong>
+      <p>${escapeHtml(card.detail)}</p>
+      <div class="ontology-map-preset-metrics">
+        <em>${escapeHtml(colorLabel)} colors</em>
+        <em>${escapeHtml(formatCount(card.previewUnits.length))} units</em>
+        <em>${escapeHtml(formatCount(card.previewSummary.lawCount))} rows</em>
+      </div>
+      <div class="ontology-map-preset-filters" aria-label="Preset aggregate filters">
+        ${filterLabels.length ? filterLabels.map((label) => `<i>${escapeHtml(label)}</i>`).join("") : "<i>Current map filters</i>"}
+      </div>
+      <div class="ontology-map-preset-actions">
+        <button type="button" data-ontology-map-preset="${escapeHtml(card.key)}" data-ontology-map-preset-action="map"${card.disabled ? " disabled" : ""}>Open colored map</button>
+        <button type="button" data-ontology-map-preset="${escapeHtml(card.key)}" data-ontology-map-preset-action="ask-map"${card.disabled ? " disabled" : ""}>Ask + map</button>
+      </div>
+    </article>
+  `;
+}
+
 function topScoreField(scoreMeans) {
   const rows = Object.entries(scoreMeans || {})
     .map(([field, value]) => ({ field, value: Number(value) }))
@@ -4617,6 +4776,36 @@ function applyOntologyQueryPreset(key) {
   }
   answerAndLogInquiry(preset.question, `ontology preset: ${preset.title || preset.key}`);
   state.activeTab = "inquiry";
+  render();
+}
+
+function applyOntologyMapPreset(key, action = "map") {
+  const preset = ontologyMapPresetCards().find((card) => card.key === key);
+  if (!preset || preset.disabled) {
+    return;
+  }
+  state.mapFilters = preset.proposedFilters;
+  state.geographyColorMode = preset.colorMode || state.geographyColorMode;
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    ...(preset.geographyLayers || {}),
+  };
+  state.selectedUnitId = preset.previewSummary.topUnit?.unit_id || null;
+  if (preset.tierFocus) {
+    state.ontologyFocusTier = preset.tierFocus;
+  }
+  if (["overview", "unit", "evidence"].includes(preset.disclosure)) {
+    state.disclosureLevel = preset.disclosure;
+  }
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = preset.question;
+  }
+  if (action === "ask-map") {
+    answerAndLogInquiry(preset.question, `ontology map preset: ${preset.title || preset.key}`);
+  }
+  state.activeTab = "map";
   render();
 }
 
@@ -10359,6 +10548,11 @@ function bindEvents() {
     const queryPresetButton = event.target.closest("[data-ontology-query-preset]");
     if (queryPresetButton) {
       applyOntologyQueryPreset(queryPresetButton.dataset.ontologyQueryPreset);
+      return;
+    }
+    const mapPresetButton = event.target.closest("[data-ontology-map-preset]");
+    if (mapPresetButton) {
+      applyOntologyMapPreset(mapPresetButton.dataset.ontologyMapPreset, mapPresetButton.dataset.ontologyMapPresetAction || "map");
       return;
     }
     const tierUnitButton = event.target.closest("[data-tier-ontology-unit]");

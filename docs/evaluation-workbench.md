@@ -38,6 +38,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - Results-tab package coverage visuals for imported browser-local queues, including state/topic/function/type/OCR mix and review workflow status;
 - ontology and model-output registry views;
 - map-driven ontology query presets that transform current map context into bounded Inquiry prompts;
+- ontology-to-map visual presets that preview aggregate county/town filters, denominators, and color modes before opening the map;
 - package-to-ontology bridge that connects active package counts to topic, function, tier, and matched map-unit context without exposing row text;
 - selected-unit ontology neighborhood visual for aggregate topic/function/tier/score/geography links;
 - selected-unit peer comparison visuals for similar published county/town aggregate units;
