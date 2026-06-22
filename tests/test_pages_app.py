@@ -112,11 +112,19 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "selectedUnitColorExplanationHtml" in js
     assert "selectedUnitColorExplanationRows" in js
     assert "selectedUnitColorExplanationRowHtml" in js
+    assert "selectedColorQuestionFor" in js
+    assert "selectedColorQuestionAnswer" in js
+    assert "selectedColorQuestionSectionsHtml" in js
+    assert "applySelectedColorQuestion" in js
+    assert "data-selected-color-question" in js
+    assert "Ask this lens" in js
     assert "Why this color?" in js
     assert "Color explanations use public aggregate counts and released LOCUS model outputs only" in js
     assert "not legal findings, rankings, controlling-law claims, source records, or ordinance excerpts" in js
     assert "selected-color-explanation-grid" in css
+    assert "selected-color-card" in css
     assert "selected-color-row" in css
+    assert "selected-color-ask" in css
     assert "map-layer-stepper-grid" in css
     assert "map-layer-step-button" in css
     assert "score-gradient" in css

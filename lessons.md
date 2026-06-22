@@ -160,3 +160,4 @@
 - After Grok-backed artifact refreshes, status should record the new Actions run and bot commit so Pages users can trace stale-vs-current aggregate analysis without exposing credentials or row-level data.
 - Map-side layer step animations should reuse existing aggregate map controls and color modes; each step is progressive disclosure, not new analysis, legal ranking, or browser-side model inference.
 - Selected county/town color explanations are safest when they explain only the active aggregate color lens and let users switch layers without exposing ordinance text, source locators, or controlling-law claims.
+- Askable selected-color lenses should route through deterministic aggregate Inquiry answers and saved route metadata, not browser LLM calls or row-level evidence.

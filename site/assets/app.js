@@ -6015,6 +6015,7 @@ function selectedUnitColorExplanationRows(datum) {
       label: "Tier color",
       value: datum.tier_label || datum.tier || "No tier",
       detail: "neutral aggregate review band, not a ranking",
+      unitId: datum.unit_id || "",
       active: state.geographyColorMode === "tier",
     },
     {
@@ -6022,6 +6023,7 @@ function selectedUnitColorExplanationRows(datum) {
       label: "Topic color",
       value: topic,
       detail: topicCount ? `${formatCount(topicCount)} aggregate rows in this released topic` : "topic count not available",
+      unitId: datum.unit_id || "",
       active: state.geographyColorMode === "topic",
     },
     {
@@ -6029,6 +6031,7 @@ function selectedUnitColorExplanationRows(datum) {
       label: "Function color",
       value: functionLabel,
       detail: functionCount ? `${formatCount(functionCount)} aggregate rows in this released function` : "function count not available",
+      unitId: datum.unit_id || "",
       active: state.geographyColorMode === "function",
     },
     {
@@ -6038,6 +6041,7 @@ function selectedUnitColorExplanationRows(datum) {
       detail: Number.isFinite(scoreValue)
         ? `${formatNumber(scoreValue)} relative mean; direction unverified`
         : "neutral score mean not available",
+      unitId: datum.unit_id || "",
       active: state.geographyColorMode === "score",
     },
     {
@@ -6047,6 +6051,7 @@ function selectedUnitColorExplanationRows(datum) {
       detail: auditQuality
         ? `${formatCount(auditQuality.ocr_review_rows || 0)} OCR-review rows · ${formatCount(auditQuality.duplicate_text_hash_rows || 0)} duplicate-hash rows`
         : "no published audit-quality aggregate for this unit",
+      unitId: datum.unit_id || "",
       active: state.geographyColorMode === "audit_attention",
     },
   ];
@@ -6054,16 +6059,120 @@ function selectedUnitColorExplanationRows(datum) {
 
 function selectedUnitColorExplanationRowHtml(row) {
   return `
-    <button type="button" class="selected-color-row${row.active ? " active" : ""}" data-map-layer-step="${escapeHtml(row.step)}" role="listitem">
-      <span>${escapeHtml(row.label)}</span>
-      <strong>${escapeHtml(row.value)}</strong>
-      <em>${escapeHtml(row.detail)}</em>
-    </button>
+    <article class="selected-color-card${row.active ? " active" : ""}" role="listitem">
+      <button type="button" class="selected-color-row${row.active ? " active" : ""}" data-map-layer-step="${escapeHtml(row.step)}">
+        <span>${escapeHtml(row.label)}</span>
+        <strong>${escapeHtml(row.value)}</strong>
+        <em>${escapeHtml(row.detail)}</em>
+      </button>
+      <button type="button" class="selected-color-ask" data-selected-color-question="${escapeHtml(row.step)}" data-selected-color-unit="${escapeHtml(row.unitId || "")}">
+        Ask this lens
+      </button>
+    </article>
   `;
 }
 
 function displayDatumName(datum) {
   return datum?.census_name || datum?.unit_name || datum?.jurisdiction_name || datum?.unit_id || "Selected aggregate unit";
+}
+
+function selectedColorQuestionFor(step, unit) {
+  const row = selectedUnitColorExplanationRows(unit).find((item) => item.step === step) || selectedUnitColorExplanationRows(unit)[0];
+  const unitName = displayUnitName(unit);
+  if (step === "score") {
+    return `What does the neutral ${row.value} score color show for ${unitName}?`;
+  }
+  if (step === "audit") {
+    return `What audit review-signal color is shown for ${unitName}?`;
+  }
+  return `Why is ${unitName} colored by ${row.label.toLowerCase()} as ${row.value}?`;
+}
+
+function selectedColorQuestionAnswer(step, unit) {
+  const row = selectedUnitColorExplanationRows(unit).find((item) => item.step === step) || selectedUnitColorExplanationRows(unit)[0];
+  const unitName = displayUnitName(unit);
+  const scoreWarning = step === "score" ? " Score direction is unverified, so this describes only a relative model-output value." : "";
+  return {
+    title: `${row.label}: ${row.value}`,
+    answer: `${unitName} is shown through the ${row.label.toLowerCase()} lens as ${row.value}. ${row.detail}.${scoreWarning} This answer uses public aggregate map fields only and does not interpret the law for any person, parcel, business, or dispute.`,
+    sections: selectedColorQuestionSectionsHtml(row, unit),
+    matches: `
+      <h4>Publication boundary</h4>
+      <dl class="briefing-facts">
+        <dt>Map unit</dt><dd>${escapeHtml(unitName)} <span>public aggregate ID</span></dd>
+        <dt>Color lens</dt><dd>${escapeHtml(row.label)} <span>${escapeHtml(geographyColorLabel(state.geographyColorMode))}</span></dd>
+        <dt>Ordinance text</dt><dd>Not included <span>GitHub Pages boundary</span></dd>
+        <dt>Source locators</dt><dd>Not included <span>aggregate visualization only</span></dd>
+        <dt>Browser model calls</dt><dd>None <span>deterministic static answer</span></dd>
+      </dl>
+    `,
+  };
+}
+
+function selectedColorQuestionSectionsHtml(row, unit) {
+  const auditQuality = unitAuditQualityFor(unit.unit_id);
+  const rows = [
+    { field: "state", value: unit.state || "unknown" },
+    { field: "unit type", value: titleCase(unit.kind || "unit") },
+    { field: "law rows", value: formatCount(unit.law_count || 0) },
+    { field: "neutral tier", value: unit.tier_label || unit.tier || "No tier" },
+    { field: "dominant topic", value: unit.dominant_topic || "Unknown" },
+    { field: "dominant function", value: unit.dominant_function || "Unknown" },
+  ];
+  if (row.step === "score") {
+    rows.push({ field: "score direction", value: "unverified" });
+  }
+  if (row.step === "audit" && auditQuality) {
+    rows.push({ field: "OCR-review rows", value: formatCount(auditQuality.ocr_review_rows || 0) });
+    rows.push({ field: "duplicate-hash rows", value: formatCount(auditQuality.duplicate_text_hash_rows || 0) });
+  }
+  return `
+    <div class="briefing-sections selected-color-answer">
+      <section>
+        <h4>Selected color lens</h4>
+        <p>${escapeHtml(row.label)} is an aggregate navigation lens. It helps move between map colors, inquiry answers, and ontology context without publishing row-level evidence.</p>
+        <dl class="briefing-facts">
+          <dt>lens value</dt><dd>${escapeHtml(row.value)} <span>${escapeHtml(row.detail)}</span></dd>
+          ${rows.map((item) => `<dt>${escapeHtml(item.field)}</dt><dd>${escapeHtml(item.value)}</dd>`).join("")}
+        </dl>
+      </section>
+    </div>
+  `;
+}
+
+function applySelectedColorQuestion(step, unitId) {
+  const units = state.analysis.mapLayers?.units || [];
+  const unit = units.find((item) => item.unit_id === unitId) || currentSelectedMapUnit();
+  if (!unit) {
+    return;
+  }
+  state.selectedUnitId = unit.unit_id;
+  if (step === "topic") {
+    state.geographyColorMode = "topic";
+  } else if (step === "function") {
+    state.geographyColorMode = "function";
+  } else if (step === "score") {
+    const scoreField = state.mapFilters.scoreField || topScoreField(unit.model_score_means || {}) || SCORE_FIELDS[0];
+    state.mapFilters = { ...state.mapFilters, scoreField, scoreBand: "" };
+    state.geographyColorMode = "score";
+    state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+  } else if (step === "audit") {
+    state.geographyColorMode = "audit_attention";
+    state.disclosureLevel = state.disclosureLevel === "overview" ? "unit" : state.disclosureLevel;
+  } else {
+    state.geographyColorMode = "tier";
+  }
+  const question = selectedColorQuestionFor(step, unit);
+  const answer = answerWithRouteMetadata(question, "selected color explanation", selectedColorQuestionAnswer(step, unit));
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "selected color explanation", [unit], summarizeUnits([unit]));
+  state.inquiryAnswer = answer;
+  appendInquiryResultsLog(question, answer, "selected color explanation");
+  state.activeTab = "inquiry";
+  render();
 }
 
 function geographyColorContext(features, municipalPoints) {
@@ -17509,6 +17618,15 @@ function bindEvents() {
     if (depthStageButton) {
       event.preventDefault();
       applyMapQuestionHighlightDepthStage(depthStageButton.dataset.mapHighlightDepthStage || "");
+      return;
+    }
+    const selectedColorQuestionButton = event.target.closest("[data-selected-color-question]");
+    if (selectedColorQuestionButton) {
+      event.preventDefault();
+      applySelectedColorQuestion(
+        selectedColorQuestionButton.dataset.selectedColorQuestion || "tier",
+        selectedColorQuestionButton.dataset.selectedColorUnit || "",
+      );
       return;
     }
     const mapLayerStepButton = event.target.closest("[data-map-layer-step]");

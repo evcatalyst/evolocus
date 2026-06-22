@@ -118,6 +118,16 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             )
             page.locator(".selected-color-explanation [data-map-layer-step='tier']").click()
             page.wait_for_function("() => document.querySelector('#county-layer-summary')?.innerText.toLowerCase().includes('color: neutral tier')")
+            page.locator(".selected-color-explanation [data-selected-color-question='score']").click()
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
+            page.wait_for_selector("#inquiry-answer .selected-color-answer", timeout=10_000)
+            selected_color_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
+            assert "score color" in selected_color_answer_text
+            assert "selected color lens" in selected_color_answer_text
+            assert "publication boundary" in selected_color_answer_text
+            assert "browser model calls" in selected_color_answer_text
+            page.locator("[data-tab='map']").click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
             page.wait_for_selector(".topic-playback-presets-card [data-topic-playback-action='map'][data-topic-playback-topic]", timeout=10_000)
             topic_playback_text = page.locator(".topic-playback-presets-card").inner_text(timeout=5_000).lower()
             assert "topic playback presets" in topic_playback_text
