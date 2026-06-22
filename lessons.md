@@ -134,3 +134,4 @@
 - Answer-level map cards should explain tier colors as neutral review bands and open aggregate highlights only; they must not turn colors into legal rankings or publish row evidence.
 - After a manual Grok-backed Actions refresh persists artifacts, pull the bot commit, validate the public artifact guard locally, and verify the deployed Pages route before continuing feature work.
 - Highlighted-unit detail cards should explain why a public aggregate unit matched a question using filter and ontology-route context, not by implying legal control or publishing row-level evidence.
+- Ontology traces on highlighted units should explain the aggregate navigation path from topic/function/tier nodes to a county/town color mark, not legal authority, rankings, or row-level evidence.

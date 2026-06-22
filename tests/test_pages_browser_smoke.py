@@ -230,6 +230,9 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             detail_card_text = page.locator(".map-question-highlight-detail-card").first.inner_text(timeout=5_000).lower()
             assert "why this unit matched" in detail_card_text
             assert "not evidence that a law controls" in detail_card_text
+            assert "highlighted-unit ontology trace" in detail_card_text
+            assert "aggregate route nodes only" in detail_card_text
+            assert "not legal authority" in detail_card_text
             assert "rows" in detail_card_text
             page.locator(".map-question-highlight-detail-card [data-unit-id]").first.click()
             page.wait_for_selector(".selected-query-replay", timeout=10_000)

@@ -133,6 +133,7 @@ Current coverage stats:
 - Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
 - Chat-to-map highlighting: GitHub Pages turns Inquiry and landing question routes into highlighted county/town map units using aggregate unit IDs, counts, filters, and no-content policy flags only
 - Highlighted-unit detail cards: GitHub Pages explains why top highlighted county/town aggregate units matched a question using current filters, ontology route context, and aggregate denominators only
+- Highlighted-unit ontology traces: GitHub Pages shows a compact aggregate topic/function/tier/unit route inside each highlighted county/town card without row text, source locators, rankings, or legal-authority claims
 - Question-to-ontology routing: GitHub Pages stores content-free ontology route metadata with question highlights and saved routes so users can move from a question to highlighted units to aggregate graph nodes
 - Ontology build-status surface: GitHub Pages shows graph freshness, node/edge mix, model registry provenance, snapshot deltas, and aggregate-only boundaries
 - Ontology tier-neighborhood graph: GitHub Pages links the active neutral tier to aggregate topic, function, unit-type, and model-score nodes with map drillback and no row-level evidence

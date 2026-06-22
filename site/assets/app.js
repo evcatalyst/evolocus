@@ -2344,6 +2344,7 @@ function mapQuestionHighlightDetailCardHtml(highlight, unit) {
       <div class="map-question-highlight-reasons">
         ${reasons.map((reason) => `<span>${escapeHtml(reason)}</span>`).join("")}
       </div>
+      ${mapQuestionHighlightOntologyTraceHtml(highlight, unit)}
       <small>Why this unit matched is a public aggregate navigation explanation, not evidence that a law controls a place or person.</small>
     </article>
   `;
@@ -2387,6 +2388,77 @@ function mapQuestionHighlightUnitReasons(highlight, unit) {
     reasons.push(highlight.source);
   }
   return reasons.length ? [...new Set(reasons)].slice(0, 5) : ["current aggregate highlight"];
+}
+
+function mapQuestionHighlightOntologyTraceHtml(highlight, unit) {
+  const nodes = mapQuestionHighlightOntologyTraceNodes(highlight, unit);
+  if (!nodes.length) {
+    return "";
+  }
+  return `
+    <div class="map-question-highlight-ontology-trace" aria-label="Highlighted-unit ontology trace">
+      <strong>Highlighted-unit ontology trace</strong>
+      <div class="map-question-highlight-ontology-nodes">
+        ${nodes
+          .map(
+            (node, index) => `
+              ${index ? `<i aria-hidden="true">&rarr;</i>` : ""}
+              <span class="map-question-highlight-ontology-node ${escapeHtml(node.type)}${node.active ? " active" : ""}">
+                <b>${escapeHtml(node.label)}</b>
+                <em>${escapeHtml(node.detail)}</em>
+              </span>
+            `,
+          )
+          .join("")}
+      </div>
+      <small>Aggregate route nodes only; this trace is not legal authority, row-level evidence, or a ranking.</small>
+    </div>
+  `;
+}
+
+function mapQuestionHighlightOntologyTraceNodes(highlight, unit) {
+  const route = normalizedQuestionOntologyRoute(highlight?.ontology_route);
+  const filters = normalizedLogMapFilters(highlight?.map_filters || route?.map_filters || {});
+  const routeNodeByType = new Map((route?.nodes || []).map((node) => [node.type, node]));
+  const topicLabel = routeNodeByType.get("topic")?.label || route?.focus_topic || filters.topic || unit.dominant_topic || "";
+  const functionLabel = routeNodeByType.get("function")?.label || route?.focus_function || filters.function || unit.dominant_function || "";
+  const tierDefinition = filters.tier ? tierDefinitionForKey(filters.tier) : null;
+  const tierLabel = routeNodeByType.get("tier")?.label || tierDefinition?.label || filters.tier || unit.tier_label || unit.tier || "";
+  const nodes = [];
+  if (topicLabel) {
+    const topicCount = Number(unit.topic_counts?.[topicLabel] || 0);
+    nodes.push({
+      type: "topic",
+      label: `Topic: ${topicLabel}`,
+      detail: topicCount ? `${formatCount(topicCount)} aggregate rows in unit` : "route or dominant topic node",
+      active: unit.dominant_topic === topicLabel || topicCount > 0,
+    });
+  }
+  if (functionLabel) {
+    const functionCount = Number(unit.function_counts?.[functionLabel] || 0);
+    nodes.push({
+      type: "function",
+      label: `Function: ${functionLabel}`,
+      detail: functionCount ? `${formatCount(functionCount)} aggregate rows in unit` : "route or dominant function node",
+      active: unit.dominant_function === functionLabel || functionCount > 0,
+    });
+  }
+  if (tierLabel) {
+    const tierValues = [unit.tier, unit.tier_label, filters.tier].filter(Boolean).map((value) => String(value).toLowerCase());
+    nodes.push({
+      type: "tier",
+      label: `Tier: ${tierLabel}`,
+      detail: "neutral color tier from aggregate model-output bands",
+      active: tierValues.includes(String(tierLabel).toLowerCase()) || tierValues.includes(String(filters.tier || "").toLowerCase()),
+    });
+  }
+  nodes.push({
+    type: "unit",
+    label: displayUnitName(unit),
+    detail: `${unit.state || "NA"} · ${text(unit.kind)} · ${formatCount(unit.law_count)} aggregate rows`,
+    active: true,
+  });
+  return nodes.filter((node) => node.label && node.detail).slice(0, 4);
 }
 
 function mapQuestionHighlightMetricHtml(label, value, detail) {

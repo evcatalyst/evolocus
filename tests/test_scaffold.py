@@ -496,8 +496,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "mapQuestionHighlightDetailCardsHtml" in js
     assert "mapQuestionHighlightDetailCardHtml" in js
     assert "mapQuestionHighlightUnitReasons" in js
+    assert "mapQuestionHighlightOntologyTraceHtml" in js
+    assert "mapQuestionHighlightOntologyTraceNodes" in js
     assert "Why highlighted county/town units matched" in js
     assert "Why this unit matched is a public aggregate navigation explanation" in js
+    assert "Highlighted-unit ontology trace" in js
+    assert "Aggregate route nodes only" in js
+    assert "not legal authority" in js
     assert "browser-side Grok call" in js
     assert "browser_model_call: false" in js
     assert "map-question-highlight-card" in css
@@ -505,6 +510,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-question-highlight-details" in css
     assert "map-question-highlight-detail-card" in css
     assert "map-question-highlight-reasons" in css
+    assert "map-question-highlight-ontology-trace" in css
+    assert "map-question-highlight-ontology-node" in css
     assert "question-ontology-route" in css
     assert "question-ontology-route-nodes" in css
     assert "question-ontology-route-actions" in css
