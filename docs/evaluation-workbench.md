@@ -71,6 +71,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - ontology build-status panel for graph freshness, node/edge mix, released model-field provenance, and aggregate-only boundaries;
 - selected-unit ontology drilldown cards for topic/function/tier/score/geometry/package links inside the map panel;
 - selected-unit mini ontology path animation that adds score and geometry nodes as disclosure depth increases;
+- map-to-ontology animation controls that focus aggregate unit, topic, function, tier, score, or geometry stages without exposing row text;
 - selected-unit progressive visual trail for overview, unit-detail, and evidence disclosure inside the map panel;
 - current-view snapshot export for filtered map/inquiry context without LOCUS text or review events;
 - browser-local snapshot gallery for comparing saved aggregate map/inquiry exports;

@@ -33,6 +33,7 @@
 - Map-to-inquiry drilldowns should answer from the selected aggregate unit and geometry-match artifacts, while preserving the same raw-text and legal-conclusion boundaries as the public map.
 - Selected-unit ontology neighborhoods are useful when they visualize only aggregate model-output relationships and explicitly label geometry matches as machine-generated pending review.
 - Mini ontology path animations should animate aggregate relationships only and include reduced-motion fallbacks so motion supports comprehension without becoming required evidence.
+- Map-to-ontology controls should change disclosure state and visual focus only; they must not imply row-level evidence or verified legal relationships.
 - Map legends should explain active filters and county/town scope in the same panel as the visual, because tier colors are neutral review bands rather than legal rankings.
 - Tier chips should click through to ontology context rather than stand alone as a legend, so color bands become explainable aggregate relationships.
 - Tier-focus cards are stronger when aggregate mini charts make topic/function/type/score relationships visible without row-level evidence.

@@ -289,6 +289,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "askAboutMapUnit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
     assert "selectedUnitOntologyPathHtml" in js
+    assert "ontologyPathControlStages" in js
+    assert "ontologyPathControlStageHtml" in js
+    assert "applyOntologyPathStage" in js
+    assert "data-ontology-path-stage" in js
+    assert "Map-to-ontology animation controls" in js
+    assert "Controls focus aggregate map-to-ontology stages only" in js
     assert "selected-disclosure-trail" in css
     assert "analysis-journey" in css
     assert "analysis-journey-step" in css
@@ -337,6 +343,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontology-tier-mini-charts" in css
     assert "ontology-tier-mini-bar" in css
     assert "button.ontology-tier-mini-bar" in css
+    assert "ontology-path-controls" in css
+    assert "ontology-path-control" in css
+    assert "ontology-path-control.active" in css
+    assert "ontology-path-strip.controlled" in css
+    assert "ontology-path-step.active" in css
+    assert "ontology-path-boundary" in css
     assert "ontology-path-strip" in css
     assert "ontologyPathSweep" in css
     assert "ontologyNodeSvg" in js

@@ -99,6 +99,7 @@
         "Add artifact refresh history timeline strip",
         "Add public artifact lineage visual",
         "Add ontology build-status panel",
+        "Add map-to-ontology animation controls",
         "Add replay controls for saved aggregate inquiry logs",
         "Add map-side topic/tier co-occurrence mini matrix",
         "Add matrix-linked Inquiry prompt presets",

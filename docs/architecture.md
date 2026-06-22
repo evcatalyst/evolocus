@@ -63,7 +63,7 @@ flowchart LR
 - Map-side inquiry history can be exported as JSON with sanitized aggregate entries and explicit no-text/no-locator/no-review-event policy metadata.
 - The map inquiry panel renders a prompt-aware county/town comparison strip and lets users drill comparison rows back into the selected map unit.
 - The selected map unit includes a progressive visual trail that switches between overview, unit detail, and evidence trail while preserving aggregate-only publication boundaries.
-- The selected ontology neighborhood includes a mini animated path from map unit to released topic/function/tier, then score and geometry nodes as disclosure depth increases.
+- The selected ontology neighborhood includes a mini animated path from map unit to released topic/function/tier, then score and geometry nodes as disclosure depth increases. Map-to-ontology controls can focus each aggregate stage; score and geometry controls automatically move to the disclosure depth needed to show those nodes.
 - The selected map unit also includes ontology drilldown cards for topic, function, tier, score, geometry, and package links; cards route to ontology, detail, evidence, or package-filter states without exposing row text.
 - The Ontology tab includes map-driven query presets that derive from current filters, selected unit, visible top topic/function/tier, audit signals, and score context, then route to deterministic Inquiry answers.
 - The Analysis Status tab reads `audit_status.json`, a full-row-count audit summary that excludes raw rows, ordinance text, sampled findings, and record locators.

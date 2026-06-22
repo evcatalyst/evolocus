@@ -423,10 +423,22 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-package-ontology-unit" in js
     assert "selectedUnitOntologyNeighborhoodHtml" in js
     assert "selectedUnitOntologyPathHtml" in js
+    assert "ontologyPathControlStages" in js
+    assert "ontologyPathControlStageHtml" in js
+    assert "applyOntologyPathStage" in js
+    assert "data-ontology-path-stage" in js
+    assert "Map-to-ontology animation controls" in js
+    assert "Controls focus aggregate map-to-ontology stages only" in js
     assert "ontologyPathStepHtml" in js
     assert "selectedUnitOntologyNodes" in js
     assert "ontologyNodeSvg" in js
     assert "ontology-neighborhood-svg" in css
+    assert "ontology-path-controls" in css
+    assert "ontology-path-control" in css
+    assert "ontology-path-control.active" in css
+    assert "ontology-path-strip.controlled" in css
+    assert "ontology-path-step.active" in css
+    assert "ontology-path-boundary" in css
     assert "ontology-path-strip" in css
     assert "ontology-path-step" in css
     assert "ontologyPathSweep" in css

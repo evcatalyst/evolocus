@@ -233,6 +233,7 @@ let state = {
   geographyLayers: defaultGeographyLayers(),
   mapInlineInquiry: "view",
   ontologyFocusTier: "",
+  ontologyPathStage: "auto",
   mapFilters: {
     state: "",
     topic: "",
@@ -4912,21 +4913,25 @@ function selectedUnitOntologyNeighborhoodHtml(unit, { compact = false } = {}) {
 function selectedUnitOntologyPathHtml(unit, geometry, showUnit, showEvidence) {
   const steps = [
     {
+      key: "unit",
       label: "Map unit",
       value: `${displayUnitName(unit)} (${text(unit.state)})`,
       detail: `${formatCount(unit.law_count)} aggregate law rows`,
     },
     {
+      key: "topic",
       label: "Topic",
       value: text(unit.dominant_topic),
       detail: "released model label",
     },
     {
+      key: "function",
       label: "Function",
       value: text(unit.dominant_function),
       detail: "released model label",
     },
     {
+      key: "tier",
       label: "Neutral tier",
       value: text(unit.tier_label),
       detail: "map color grouping",
@@ -4934,6 +4939,7 @@ function selectedUnitOntologyPathHtml(unit, geometry, showUnit, showEvidence) {
   ];
   if (showUnit) {
     steps.push({
+      key: "scores",
       label: "Scores",
       value: scoreSnapshot(unit.model_score_means || {}),
       detail: "neutral means; direction unverified",
@@ -4941,28 +4947,70 @@ function selectedUnitOntologyPathHtml(unit, geometry, showUnit, showEvidence) {
   }
   if (showEvidence) {
     steps.push({
+      key: "geometry",
       label: "Geometry",
       value: geometry.matchStatus,
       detail: `${geometry.source}; pending review`,
     });
   }
+  const activeKey = state.ontologyPathStage === "auto" ? "" : state.ontologyPathStage;
   return `
-    <div class="ontology-path-strip" aria-label="Animated aggregate ontology path">
-      ${steps.map((step, index) => ontologyPathStepHtml(step, index, steps.length)).join("")}
+    <div class="ontology-path-controls" aria-label="Map-to-ontology animation controls">
+      ${ontologyPathControlStages().map((stage) => ontologyPathControlStageHtml(stage, activeKey, showUnit, showEvidence)).join("")}
     </div>
+    <div class="ontology-path-strip${activeKey ? " controlled" : ""}" aria-label="Animated aggregate ontology path">
+      ${steps.map((step, index) => ontologyPathStepHtml(step, index, steps.length, activeKey)).join("")}
+    </div>
+    <p class="ontology-path-boundary">Controls focus aggregate map-to-ontology stages only; they do not reveal ordinance text, source locators, legal conclusions, or live model calls.</p>
   `;
 }
 
-function ontologyPathStepHtml(step, index, total) {
+function ontologyPathControlStages() {
+  return [
+    ["auto", "Auto", "loop"],
+    ["unit", "Map", "unit"],
+    ["topic", "Topic", "label"],
+    ["function", "Function", "label"],
+    ["tier", "Tier", "band"],
+    ["scores", "Scores", "unit detail"],
+    ["geometry", "Geometry", "evidence"],
+  ];
+}
+
+function ontologyPathControlStageHtml([stage, label, detail], activeKey, showUnit, showEvidence) {
+  const active = stage === "auto" ? !activeKey : activeKey === stage;
+  const locked = (stage === "scores" && !showUnit) || (stage === "geometry" && !showEvidence);
+  return `
+    <button class="ontology-path-control${active ? " active" : ""}${locked ? " gated" : ""}" type="button" data-ontology-path-stage="${escapeHtml(stage)}" aria-pressed="${active ? "true" : "false"}">
+      <strong>${escapeHtml(label)}</strong>
+      <span>${escapeHtml(detail)}</span>
+    </button>
+  `;
+}
+
+function ontologyPathStepHtml(step, index, total, activeKey = "") {
   const progress = total > 1 ? (index / (total - 1)) * 100 : 0;
   const delay = `${(index * 0.18).toFixed(2)}s`;
+  const active = activeKey && step.key === activeKey ? " active" : "";
   return `
-    <article class="ontology-path-step" style="--path-progress:${progress}%; --path-delay:${delay}">
+    <article class="ontology-path-step${active}" style="--path-progress:${progress}%; --path-delay:${delay}">
       <span>${escapeHtml(step.label)}</span>
       <strong>${escapeHtml(step.value)}</strong>
       <em>${escapeHtml(step.detail)}</em>
     </article>
   `;
+}
+
+function applyOntologyPathStage(stage) {
+  const allowed = new Set(["auto", "unit", "topic", "function", "tier", "scores", "geometry"]);
+  state.ontologyPathStage = allowed.has(stage) ? stage : "auto";
+  if (state.ontologyPathStage === "scores" && state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  if (state.ontologyPathStage === "geometry") {
+    state.disclosureLevel = "evidence";
+  }
+  render();
 }
 
 function selectedUnitOntologyNodes(unit, geometry, showUnit, showEvidence) {
@@ -9805,6 +9853,12 @@ function bindEvents() {
       render();
       return;
     }
+    const ontologyPathButton = event.target.closest("[data-ontology-path-stage]");
+    if (ontologyPathButton) {
+      event.preventDefault();
+      applyOntologyPathStage(ontologyPathButton.dataset.ontologyPathStage);
+      return;
+    }
     const ontologyDrilldownButton = event.target.closest("[data-selected-ontology-drilldown]");
     if (ontologyDrilldownButton) {
       event.preventDefault();
@@ -9925,6 +9979,11 @@ function bindEvents() {
       if (actionButton.dataset.ontologyAction === "open-status") {
         openAnalysisStatusTab();
       }
+      return;
+    }
+    const ontologyPathButton = event.target.closest("[data-ontology-path-stage]");
+    if (ontologyPathButton) {
+      applyOntologyPathStage(ontologyPathButton.dataset.ontologyPathStage);
       return;
     }
     const queryPresetButton = event.target.closest("[data-ontology-query-preset]");

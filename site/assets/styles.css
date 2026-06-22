@@ -3772,6 +3772,46 @@ textarea {
   margin-top: 10px;
 }
 
+.ontology-path-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.ontology-path-control {
+  display: grid;
+  gap: 2px;
+  min-width: 78px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 7px 9px;
+  text-align: left;
+}
+
+.ontology-path-control strong {
+  font-size: 0.78rem;
+  line-height: 1.1;
+}
+
+.ontology-path-control span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.ontology-path-control.active {
+  border-color: rgba(50, 111, 112, 0.48);
+  background: #edf3f1;
+  box-shadow: 0 0 0 2px rgba(50, 111, 112, 0.12);
+}
+
+.ontology-path-control.gated {
+  border-style: dashed;
+}
+
 .ontology-path-strip::before {
   position: absolute;
   top: 16px;
@@ -3784,6 +3824,11 @@ textarea {
   transform: scaleX(0);
   transform-origin: left;
   animation: ontologyPathSweep 3.2s ease-in-out infinite;
+}
+
+.ontology-path-strip.controlled::before {
+  transform: scaleX(1);
+  animation: none;
 }
 
 .ontology-path-step {
@@ -3812,6 +3857,18 @@ textarea {
   animation-delay: var(--path-delay, 0s);
 }
 
+.ontology-path-step.active {
+  border-color: rgba(50, 111, 112, 0.48);
+  background: #edf3f1;
+  box-shadow: 0 0 0 2px rgba(50, 111, 112, 0.12);
+}
+
+.ontology-path-step.active::before {
+  background: #b7892c;
+  animation: none;
+  box-shadow: 0 0 0 6px rgba(183, 137, 44, 0.14);
+}
+
 .ontology-path-step span {
   color: var(--muted);
   font-size: 0.68rem;
@@ -3832,6 +3889,13 @@ textarea {
   font-size: 0.72rem;
   font-style: normal;
   line-height: 1.3;
+}
+
+.ontology-path-boundary {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 @keyframes ontologyPathSweep {
