@@ -82,6 +82,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "real-data coverage timeline" in coverage_timeline_text
             assert "aggregate artifact metadata only" in coverage_timeline_text
             assert "no ordinance text" in coverage_timeline_text
+            assert "map layer playback" in coverage_timeline_text
+            assert "playback changes aggregate layer controls only" in coverage_timeline_text
+            page.locator("#coverage-timeline [data-coverage-playback-stage='audit']").click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_function("() => document.querySelector('#county-layer-summary')?.innerText.toLowerCase().includes('color: audit attention')")
             page.get_by_label("Real-data coverage timeline").get_by_role("button", name="Open Analysis Status").click()
             page.wait_for_function("() => document.querySelector('#status-panel')?.classList.contains('active')")
             page.locator("[data-tab='map']").click()

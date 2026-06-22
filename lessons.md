@@ -142,3 +142,4 @@
 - Model import/status surfaces should distinguish released dataset output columns from executable model-weight imports, especially while score direction and model cards remain unverified.
 - Question-to-map ontology depth overlays should make route stages inspectable across highlighted units while keeping stage actions to aggregate filters, Score Lens, Ontology focus, and provenance gates.
 - A first-map coverage timeline should animate artifact milestones from status JSON only; it is publication provenance and must not imply legal change, controlling authority, or row-level evidence.
+- Timeline playback should drive existing map controls instead of duplicating data; stage changes are visual disclosure states, not new analysis or legal findings.

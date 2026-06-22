@@ -278,9 +278,21 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "renderCoverageTimeline" in js
     assert "coverageTimelineStages" in js
     assert "coverageTimelineStageHtml" in js
+    assert "coverageTimelinePlaybackHtml" in js
+    assert "coverageTimelinePlaybackStepHtml" in js
+    assert "coverageTimelinePlaybackConfig" in js
+    assert "handleCoverageTimelinePlaybackAction" in js
+    assert "startCoverageTimelinePlayback" in js
+    assert "stopCoverageTimelinePlayback" in js
+    assert "applyCoverageTimelinePlayback" in js
     assert "coverageTimelinePolicyHtml" in js
     assert "applyCoverageTimelineAction" in js
     assert "Real-data coverage timeline" in js
+    assert "Map layer playback" in js
+    assert "Playback changes aggregate layer controls only" in js
+    assert "law-count scan -> neutral tier map -> audit-review signal -> ontology peers -> inquiry topic view -> hosted smoke verification" in js
+    assert "data-coverage-playback-action" in js
+    assert "data-coverage-playback-stage" in js
     assert "Coverage animation uses aggregate artifact metadata only" in js
     assert "No ordinance text, source locators, review events, secrets, or legal findings" in js
     assert "LOCUS aggregate scan" in js
@@ -1093,6 +1105,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "coverage-timeline-card" in css
     assert "coverage-timeline-rail" in css
     assert "coverage-timeline-stage" in css
+    assert "coverage-playback" in css
+    assert "coverage-playback-steps" in css
+    assert "coverage-playback-step" in css
     assert "coverageTimelineSweep" in css
     assert "coverageTimelinePulse" in css
     assert "map-refresh-source-card" in css

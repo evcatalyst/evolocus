@@ -287,6 +287,8 @@ let state = {
   disclosureLevel: "overview",
   geographyColorMode: "tier",
   geographyLayers: defaultGeographyLayers(),
+  coveragePlaybackStage: "scan",
+  coveragePlaybackPlaying: false,
   mapInlineInquiry: "view",
   inquiryMapHighlight: null,
   ontologyFocusTier: "",
@@ -336,6 +338,7 @@ let state = {
     error: null,
   },
 };
+let coveragePlaybackTimer = null;
 
 function $(selector) {
   return document.querySelector(selector);
@@ -1704,6 +1707,7 @@ function renderCoverageTimeline() {
       <div class="coverage-timeline-rail" aria-label="Aggregate artifact milestone animation">
         ${stages.map(coverageTimelineStageHtml).join("")}
       </div>
+      ${coverageTimelinePlaybackHtml(stages)}
       <div class="coverage-timeline-metrics">
         ${coverageTimelineMetrics().map(coverageTimelineMetricHtml).join("")}
       </div>
@@ -1816,8 +1820,9 @@ function coverageTimelineMetrics() {
 
 function coverageTimelineStageHtml(stage, index) {
   const action = stage.action || "status";
+  const activeStage = coverageTimelineActiveStageId() === stage.id ? " playback-active" : "";
   return `
-    <article class="coverage-timeline-stage ${escapeHtml(stage.state)}" style="--stage-index:${index}">
+    <article class="coverage-timeline-stage ${escapeHtml(stage.state)}${activeStage}" style="--stage-index:${index}">
       <button type="button" data-coverage-timeline-action="${escapeHtml(action)}">
         <span>${escapeHtml(stage.title)}</span>
         <strong>${escapeHtml(stage.value)}</strong>
@@ -1826,6 +1831,180 @@ function coverageTimelineStageHtml(stage, index) {
       </button>
     </article>
   `;
+}
+
+function coverageTimelinePlaybackHtml(stages) {
+  const activeStageId = coverageTimelineActiveStageId(stages);
+  const config = coverageTimelinePlaybackConfig(activeStageId);
+  return `
+    <section class="coverage-playback" aria-label="Timeline-driven map layer playback">
+      <div class="coverage-playback-heading">
+        <div>
+          <span>Map layer playback</span>
+          <strong>${escapeHtml(config.title)}</strong>
+          <em>${escapeHtml(config.detail)}</em>
+        </div>
+        <p>Playback changes aggregate layer controls only. It fetches no new data and publishes no ordinance text, source locators, review events, secrets, or legal findings.</p>
+      </div>
+      <div class="coverage-playback-controls">
+        <button type="button" data-coverage-playback-action="play">${escapeHtml(state.coveragePlaybackPlaying ? "Playing timeline" : "Play timeline")}</button>
+        <button type="button" data-coverage-playback-action="pause"${state.coveragePlaybackPlaying ? "" : " disabled"}>Pause</button>
+        <button type="button" data-coverage-playback-action="reset">Reset to scan</button>
+      </div>
+      <div class="coverage-playback-steps">
+        ${stages.map((stage, index) => coverageTimelinePlaybackStepHtml(stage, index, activeStageId)).join("")}
+      </div>
+      <p class="coverage-playback-boundary">Stage playback is a progressive disclosure aid over public aggregate artifacts: law-count scan -> neutral tier map -> audit-review signal -> ontology peers -> inquiry topic view -> hosted smoke verification.</p>
+    </section>
+  `;
+}
+
+function coverageTimelinePlaybackStepHtml(stage, index, activeStageId) {
+  const config = coverageTimelinePlaybackConfig(stage.id);
+  const active = activeStageId === stage.id;
+  return `
+    <button type="button" class="coverage-playback-step${active ? " active" : ""}" data-coverage-playback-action="stage" data-coverage-playback-stage="${escapeHtml(stage.id)}">
+      <span>${escapeHtml(String(index + 1))}</span>
+      <strong>${escapeHtml(stage.title)}</strong>
+      <em>${escapeHtml(config.layerLabel)}</em>
+    </button>
+  `;
+}
+
+function coverageTimelineActiveStageId(stages = coverageTimelineStages()) {
+  const ids = new Set(stages.map((stage) => stage.id));
+  return ids.has(state.coveragePlaybackStage) ? state.coveragePlaybackStage : stages[0]?.id || "scan";
+}
+
+function coverageTimelinePlaybackConfig(stageId) {
+  const configs = {
+    scan: {
+      title: "Law-count scan layer",
+      detail: "Colors counties and towns by aggregate row-count intensity before deeper interpretation.",
+      layerLabel: "Color law-count intensity",
+      colorMode: "law_count",
+      layers: { counties: true, municipalities: true, ontology: false },
+      disclosure: "overview",
+      ontologyPathStage: "auto",
+    },
+    map: {
+      title: "Neutral tier map layer",
+      detail: "Shows county polygons and town points by neutral tier, not by legal ranking.",
+      layerLabel: "Color neutral tier",
+      colorMode: "tier",
+      layers: { counties: true, municipalities: true, ontology: false },
+      disclosure: "overview",
+      ontologyPathStage: "auto",
+    },
+    audit: {
+      title: "Audit-review signal layer",
+      detail: "Colors geography by aggregate OCR and duplicate-text review signals.",
+      layerLabel: "Color audit attention",
+      colorMode: "audit_attention",
+      layers: { counties: true, municipalities: true, ontology: false },
+      disclosure: "evidence",
+      ontologyPathStage: "geometry",
+    },
+    ontology: {
+      title: "Ontology peer-link layer",
+      detail: "Opens selected-unit peer links from topic, function, tier, kind, state, and count similarity.",
+      layerLabel: "Turn ontology links on",
+      colorMode: "tier",
+      layers: { counties: true, municipalities: true, ontology: true },
+      disclosure: "unit",
+      ontologyPathStage: "unit",
+    },
+    inquiry: {
+      title: "Inquiry topic layer",
+      detail: "Colors the map by dominant topic while static aggregate inquiry artifacts remain browser-safe.",
+      layerLabel: "Color dominant topic",
+      colorMode: "topic",
+      layers: { counties: true, municipalities: true, ontology: true },
+      disclosure: "unit",
+      ontologyPathStage: "topic",
+    },
+    smoke: {
+      title: "Verified public route layer",
+      detail: "Returns to the tier map after public route smoke verification has exercised Map, Inquiry, and Ontology.",
+      layerLabel: "Show verified route",
+      colorMode: "tier",
+      layers: { counties: true, municipalities: true, ontology: true },
+      disclosure: "unit",
+      ontologyPathStage: "provenance",
+    },
+  };
+  return configs[stageId] || configs.scan;
+}
+
+function handleCoverageTimelinePlaybackAction(action, stageId) {
+  if (action === "play") {
+    startCoverageTimelinePlayback();
+    return;
+  }
+  if (action === "pause") {
+    stopCoverageTimelinePlayback();
+    return;
+  }
+  if (action === "reset") {
+    stopCoverageTimelinePlayback({ renderNow: false });
+    applyCoverageTimelinePlayback("scan");
+    return;
+  }
+  stopCoverageTimelinePlayback({ renderNow: false });
+  applyCoverageTimelinePlayback(stageId || "scan");
+}
+
+function startCoverageTimelinePlayback() {
+  const stages = coverageTimelineStages();
+  if (!stages.length) {
+    return;
+  }
+  clearCoveragePlaybackTimer();
+  let index = Math.max(0, stages.findIndex((stage) => stage.id === coverageTimelineActiveStageId(stages)));
+  state.coveragePlaybackPlaying = true;
+  applyCoverageTimelinePlayback(stages[index].id);
+  coveragePlaybackTimer = window.setInterval(() => {
+    const currentStages = coverageTimelineStages();
+    index += 1;
+    if (index >= currentStages.length) {
+      stopCoverageTimelinePlayback();
+      return;
+    }
+    applyCoverageTimelinePlayback(currentStages[index].id);
+  }, 1700);
+}
+
+function stopCoverageTimelinePlayback(options = {}) {
+  clearCoveragePlaybackTimer();
+  state.coveragePlaybackPlaying = false;
+  if (options.renderNow !== false) {
+    render();
+  }
+}
+
+function clearCoveragePlaybackTimer() {
+  if (coveragePlaybackTimer !== null) {
+    window.clearInterval(coveragePlaybackTimer);
+    coveragePlaybackTimer = null;
+  }
+}
+
+function applyCoverageTimelinePlayback(stageId) {
+  const config = coverageTimelinePlaybackConfig(stageId);
+  state.coveragePlaybackStage = stageId || "scan";
+  state.activeTab = "map";
+  state.geographyColorMode = config.colorMode;
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...config.layers,
+  };
+  state.disclosureLevel = config.disclosure;
+  state.ontologyPathStage = config.ontologyPathStage;
+  if (config.layers.ontology && !state.selectedUnitId) {
+    const firstUnit = filterMapUnits(state.analysis.mapLayers?.units || [])[0];
+    state.selectedUnitId = firstUnit?.unit_id || state.selectedUnitId;
+  }
+  render();
 }
 
 function coverageTimelineMetricHtml([label, value]) {
@@ -14690,6 +14869,15 @@ function bindEvents() {
     }
   });
   $("#map-panel").addEventListener("click", (event) => {
+    const playbackButton = event.target.closest("[data-coverage-playback-action]");
+    if (playbackButton) {
+      event.preventDefault();
+      handleCoverageTimelinePlaybackAction(
+        playbackButton.dataset.coveragePlaybackAction || "stage",
+        playbackButton.dataset.coveragePlaybackStage || "",
+      );
+      return;
+    }
     const coverageButton = event.target.closest("[data-coverage-timeline-action]");
     if (coverageButton) {
       event.preventDefault();
