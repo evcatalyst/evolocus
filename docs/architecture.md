@@ -154,7 +154,7 @@ The map-side inquiry history is also browser-local visual state. It stores bound
 
 The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 
-The latest-artifact refresh panel reports current metadata contributions from the loaded aggregate artifact set. The tracked `artifact_snapshot.json` file stores prior aggregate metrics only, allowing current-vs-snapshot deltas without publishing text, source locators, databases, exports, or legal findings.
+The latest-artifact refresh panel reports current metadata contributions from the loaded aggregate artifact set. The tracked `artifact_snapshot.json` file stores prior aggregate metrics only, allowing current-vs-snapshot deltas without publishing text, source locators, databases, exports, or legal findings. The Analysis Status timeline strip compares aggregate artifact timestamps against that stored baseline as publication provenance only; it is not evidence that the underlying law corpus changed.
 
 The same stored snapshot appears on the primary Map and Inquiry freshness cards. Map deltas compare aggregate unit and row counts; Inquiry deltas compare briefing and question-pack counts. These badges are publication provenance, not claims that the underlying law corpus changed.
 

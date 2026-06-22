@@ -126,6 +126,7 @@ Current coverage stats:
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots, including package-count comparisons when a local package overlay is active
 - Artifact snapshot diff surface: GitHub Pages Analysis Status compares current aggregate metadata with `artifact_snapshot.json`, a stored public baseline containing counts and publication-policy flags only
+- Artifact refresh timeline surface: GitHub Pages Analysis Status compares current aggregate artifact timestamps with the stored public snapshot baseline as publication provenance only
 - Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only, with the existing `Grok_api_key` Actions secret accepted as an alias by the refresh workflow

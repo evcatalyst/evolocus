@@ -379,6 +379,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "artifactAgeLabel" in js
     assert "latestArtifactChangePanelHtml" in js
     assert "latestArtifactChangeRows" in js
+    assert "artifactRefreshTimelineHtml" in js
+    assert "artifactRefreshTimelineRows" in js
+    assert "artifactRefreshTimelineRowHtml" in js
+    assert "artifactTimestampDeltaLabel" in js
+    assert "Refresh timeline" in js
+    assert "Timeline entries compare current public aggregate artifact timestamps" in js
     assert "artifactChangeRowHtml" in js
     assert "latestArtifactTimestamp" in js
     assert "Current refresh metadata, not a historical diff" not in js
@@ -390,6 +396,10 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "No row text published" in js
     assert "artifact-freshness-card" in css
     assert "artifact-freshness-grid" in css
+    assert "artifact-refresh-timeline" in css
+    assert "artifact-refresh-timeline-strip" in css
+    assert "artifact-refresh-timeline-row" in css
+    assert "artifact-refresh-track" in css
     assert "artifact-change-card" in css
     assert "artifact-change-grid" in css
     assert "artifact-change-row" in css

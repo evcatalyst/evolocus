@@ -2819,6 +2819,7 @@ function latestArtifactChangePanelHtml(status, artifacts) {
       <div class="artifact-change-grid">
         ${rows.map(artifactChangeRowHtml).join("")}
       </div>
+      ${artifactRefreshTimelineHtml(rows, snapshot)}
       <p class="artifact-change-boundary">No row text, source locators, local databases, exports, or legal findings are included in this change summary.</p>
     </section>
   `;
@@ -2849,6 +2850,7 @@ function latestArtifactChangeRows(status, artifacts) {
   return [
     {
       label: "Aggregate map scope",
+      snapshotKey: "map_layers",
       value: `${formatCount(status.unit_count || mapUnits.length)} units · ${formatCount(status.law_count)} rows`,
       detail: `Dataset ${status.dataset_revision || mapLayers?.dataset_revision || "unknown"} · ${status.real_locus_rows_published ? "review needed" : "no row text"}`,
       generatedAt: mapLayers?.generated_at || status.generated_at,
@@ -2859,6 +2861,7 @@ function latestArtifactChangeRows(status, artifacts) {
     },
     {
       label: "Inquiry answers",
+      snapshotKey: "inquiry_briefings",
       value: inquiryBriefings ? `${formatCount((inquiryBriefings.briefings || []).length)} briefings · ${briefingGrok.used ? `offline ${briefingGrok.model || "Grok"}` : "deterministic"}` : "not loaded",
       detail: "Published as static aggregate JSON; no browser model call",
       generatedAt: inquiryBriefings?.generated_at,
@@ -2866,6 +2869,7 @@ function latestArtifactChangeRows(status, artifacts) {
     },
     {
       label: "Question presets",
+      snapshotKey: "question_pack",
       value: questionPack ? `${formatCount((questionPack.prompts || []).length)} prompts · ${questionGrok.used ? "offline noted" : "deterministic"}` : "not loaded",
       detail: "Filter-aware prompts over aggregate map artifacts",
       generatedAt: questionPack?.generated_at,
@@ -2873,6 +2877,7 @@ function latestArtifactChangeRows(status, artifacts) {
     },
     {
       label: "Audit layer",
+      snapshotKey: "audit_status",
       value: auditStatus ? `${formatCount(auditStatus.row_count)} audited rows` : "not loaded",
       detail: auditStatus ? `${formatCount((auditStatus.quality_gates || []).length)} quality gates · ${auditGateSummary(auditStatus)}` : "Run local audit before publishing status",
       generatedAt: auditStatus?.generated_at,
@@ -2880,6 +2885,7 @@ function latestArtifactChangeRows(status, artifacts) {
     },
     {
       label: "Per-unit audit signals",
+      snapshotKey: "unit_audit_quality",
       value: unitAuditQuality ? `${formatCount(unitAuditQuality.matched_unit_count)} matched units` : "not loaded",
       detail: unitAuditQuality ? `${formatCount(unitAuditQuality.row_count)} rows summarized as OCR/duplicate review signals` : "Unit audit artifact unavailable",
       generatedAt: unitAuditQuality?.generated_at,
@@ -2890,6 +2896,7 @@ function latestArtifactChangeRows(status, artifacts) {
     },
     {
       label: "Geometry overlay",
+      snapshotKey: "county_geometry",
       value: `${countyGeometry ? `${formatCount(countyGeometry.matched_count)} counties` : "counties loading"} · ${municipalPoints ? `${formatCount(municipalPoints.matched_count)} towns` : "towns loading"}`,
       detail: "Official Census geometry machine-matched and pending review",
       generatedAt: latestIso([countyGeometry?.generated_at, municipalPoints?.generated_at]),
@@ -2900,6 +2907,7 @@ function latestArtifactChangeRows(status, artifacts) {
     },
     {
       label: "Ontology and charts",
+      snapshotKey: "ontology",
       value: `${ontology ? `${formatCount((ontology.nodes || []).length)} nodes` : "ontology loading"} · ${formatCount(chartCount)} charts · ${formatCount(modelCount)} models`,
       detail: ontology ? `${formatCount((ontology.edges || []).length)} aggregate edges; charts are review aids` : "Static graph artifacts loading",
       generatedAt: latestIso([ontology?.generated_at, charts?.generated_at, models?.generated_at]),
@@ -2911,6 +2919,7 @@ function latestArtifactChangeRows(status, artifacts) {
     },
     {
       label: "Local package verification",
+      snapshotKey: "local_package_verification",
       value: packageVerification?.status === "complete" ? `${formatCount(packageVerification.metadata_package_record_count)} metadata records` : "not recorded",
       detail: packageVerification?.status === "complete" ? `${formatCount(packageVerification.matched_public_unit_count)} matched public units · local-only` : "Package materialization remains ignored and browser-local",
       generatedAt: packageVerification?.verified_at,
@@ -2920,6 +2929,105 @@ function latestArtifactChangeRows(status, artifacts) {
       ]),
     },
   ];
+}
+
+function artifactRefreshTimelineHtml(rows, snapshot) {
+  const timelineRows = artifactRefreshTimelineRows(rows, snapshot);
+  const latest = latestArtifactTimestamp(rows);
+  return `
+    <section class="artifact-refresh-timeline" aria-label="Aggregate artifact refresh history timeline">
+      <div class="artifact-refresh-timeline-heading">
+        <div>
+          <span>Refresh timeline</span>
+          <strong>${escapeHtml(latest ? `Latest current artifact ${formatDateTime(latest)}` : "Artifact timestamps loading")}</strong>
+        </div>
+        <em>${escapeHtml(snapshot ? `Snapshot baseline ${snapshot.snapshot_label || formatDateTime(snapshot.created_at)}` : "Snapshot baseline unavailable")}</em>
+      </div>
+      <div class="artifact-refresh-timeline-strip">
+        ${timelineRows.map(artifactRefreshTimelineRowHtml).join("")}
+      </div>
+      <p>Timeline entries compare current public aggregate artifact timestamps with the stored aggregate snapshot baseline only.</p>
+    </section>
+  `;
+}
+
+function artifactRefreshTimelineRows(rows, snapshot) {
+  const snapshotTimes = snapshot?.artifact_generated_at || {};
+  return rows
+    .filter((row) => row.generatedAt || snapshotTimes[row.snapshotKey])
+    .map((row) => {
+      const baselineAt = snapshotTimes[row.snapshotKey] || "";
+      return {
+        label: row.label,
+        currentAt: row.generatedAt || "",
+        baselineAt,
+        status: artifactTimelineStatus(row.generatedAt, baselineAt),
+        delta: artifactTimestampDeltaLabel(row.generatedAt, baselineAt),
+      };
+    });
+}
+
+function artifactTimelineStatus(currentAt, baselineAt) {
+  const currentTime = new Date(currentAt || "").getTime();
+  const baselineTime = new Date(baselineAt || "").getTime();
+  if (!Number.isFinite(currentTime) || !Number.isFinite(baselineTime)) {
+    return "unknown";
+  }
+  if (currentTime === baselineTime) {
+    return "same";
+  }
+  return currentTime > baselineTime ? "newer" : "older";
+}
+
+function artifactTimestampDeltaLabel(currentAt, baselineAt) {
+  const currentTime = new Date(currentAt || "").getTime();
+  const baselineTime = new Date(baselineAt || "").getTime();
+  if (!Number.isFinite(currentTime) && !Number.isFinite(baselineTime)) {
+    return "timestamps unavailable";
+  }
+  if (!Number.isFinite(baselineTime)) {
+    return "snapshot timestamp unavailable";
+  }
+  if (!Number.isFinite(currentTime)) {
+    return "current timestamp unavailable";
+  }
+  const deltaMs = currentTime - baselineTime;
+  if (!deltaMs) {
+    return "same as snapshot";
+  }
+  const direction = deltaMs > 0 ? "after snapshot" : "before snapshot";
+  return `${artifactDurationLabel(Math.abs(deltaMs))} ${direction}`;
+}
+
+function artifactDurationLabel(durationMs) {
+  const minutes = Math.round(durationMs / 60000);
+  if (minutes < 1) {
+    return "under 1 min";
+  }
+  if (minutes < 60) {
+    return `${formatCount(minutes)} min`;
+  }
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) {
+    return `${formatCount(hours)} hr`;
+  }
+  const days = Math.round(hours / 24);
+  return `${formatCount(days)} days`;
+}
+
+function artifactRefreshTimelineRowHtml(row) {
+  return `
+    <article class="artifact-refresh-timeline-row ${escapeHtml(row.status)}">
+      <span>${escapeHtml(row.label)}</span>
+      <div class="artifact-refresh-track" aria-hidden="true">
+        <i class="baseline"></i>
+        <b></b>
+        <i class="current"></i>
+      </div>
+      <strong>${escapeHtml(row.delta)}</strong>
+      <em>snapshot ${escapeHtml(row.baselineAt ? formatDateTime(row.baselineAt) : "unavailable")} · current ${escapeHtml(row.currentAt ? formatDateTime(row.currentAt) : "unavailable")}</em>
+    </article>
+  `;
 }
 
 function currentArtifactSnapshotMetrics(status, artifacts) {

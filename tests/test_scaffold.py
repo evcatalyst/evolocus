@@ -564,6 +564,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-log-sparkline" in css
     assert "latestArtifactChangePanelHtml" in js
     assert "latestArtifactChangeRows" in js
+    assert "artifactRefreshTimelineHtml" in js
+    assert "artifactRefreshTimelineRows" in js
+    assert "artifactRefreshTimelineRowHtml" in js
+    assert "artifactTimestampDeltaLabel" in js
+    assert "Refresh timeline" in js
+    assert "Timeline entries compare current public aggregate artifact timestamps" in js
     assert "artifactChangeRowHtml" in js
     assert "latestArtifactTimestamp" in js
     assert "Current refresh metadata only; no stored snapshot loaded." in js
@@ -575,6 +581,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "artifact-change-card" in css
     assert "artifact-change-grid" in css
     assert "artifact-change-row" in css
+    assert "artifact-refresh-timeline" in css
+    assert "artifact-refresh-timeline-strip" in css
+    assert "artifact-refresh-timeline-row" in css
+    assert "artifact-refresh-track" in css
     assert "artifact-freshness-grid span.snapshot-delta" in css
     assert "artifact-freshness-grid .snapshot-delta em" in css
     assert "filterMapUnits" in js

@@ -96,6 +96,7 @@
         "Add stored aggregate artifact snapshot diffs",
         "Add browser-local aggregate inquiry results log",
         "Add Law Map last-refresh source detail",
+        "Add artifact refresh history timeline strip",
         "Add replay controls for saved aggregate inquiry logs",
         "Add map-side topic/tier co-occurrence mini matrix",
         "Add matrix-linked Inquiry prompt presets",
