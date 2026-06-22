@@ -331,6 +331,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoorRoutePreviewCards" in js
     assert "frontdoorRoutePreviewCardHtml" in js
     assert "applyFrontdoorRoutePreviewAction" in js
+    assert "frontdoorTierConcentrationRouteHtml" in js
+    assert "frontdoorTierConcentrationRows" in js
+    assert "frontdoorTierConcentrationRowHtml" in js
+    assert "frontdoorTierConcentrationUnitHtml" in js
+    assert "applyFrontdoorTierConcentrationRoute" in js
     assert "frontdoorGrokInquiryPackCardHtml" in js
     assert "frontdoorGrokPackRouteHtml" in js
     assert "aiAnalysisRouteMiniMapHtml" in js
@@ -397,6 +402,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-frontdoor-route-preview" in js
     assert "Ask this map result routes" in js
     assert "Route previews use aggregate counts" in js
+    assert "Law-tier concentration route" in js
+    assert "Where are" in js
+    assert "front-door law-tier concentration route" in js
+    assert "data-frontdoor-tier-route-action" in js
+    assert "data-frontdoor-tier-route-tier" in js
+    assert "data-frontdoor-tier-route-unit" in js
+    assert "Color tier map" in js
+    assert "Step route" in js
     assert "data-frontdoor-grok-pack-card" in js
     assert "Grok-refreshed inquiry pack" in js
     assert "Offline analysis routes are ready for the county/town map" in js
@@ -878,6 +891,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "analysis-journey-step" in css
     assert "analysis-journey-boundary" in css
     assert "frontdoor-visual-path-card" in css
+    assert "frontdoor-tier-route" in css
+    assert "frontdoor-tier-route-focus" in css
+    assert "frontdoor-tier-route-bars" in css
+    assert "frontdoor-tier-route-units" in css
     assert "frontdoor-question-composer" in css
     assert "frontdoor-question-actions" in css
     assert "frontdoor-question-metrics" in css

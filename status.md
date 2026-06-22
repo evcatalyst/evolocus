@@ -97,6 +97,7 @@ Current coverage stats:
 - Audit Lens visual surface: GitHub Pages tab for attention distribution, OCR reason mix, state audit atlas, and review-priority unit drill-through
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Front-door visual path: GitHub Pages now exposes Ask -> Map -> Ontology actions with current aggregate denominators, suggested deterministic question, and progressive disclosure controls before the map panel
+- Front-door law-tier concentration route: GitHub Pages now asks where the lead neutral tier's aggregate law rows concentrate, then routes to the tier-colored county/town map, selected-unit detail, Inquiry, or Ontology without row text
 - Front-door question composer: GitHub Pages lets users type a question, preview deterministic aggregate filters, and route the result to Map, Inquiry, or Ontology without browser model calls
 - Front-door route preview strip: GitHub Pages previews tier, score, audit, and ontology routes for the typed aggregate question before opening Map, Score Lens, Audit Lens, or Ontology
 - Front-door ontology-backed question routes: typed questions now display aggregate topic/function/tier/unit ontology nodes and carry that route into Map and Ontology views without row text

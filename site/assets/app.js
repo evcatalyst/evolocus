@@ -721,6 +721,7 @@ function renderFrontdoorVisualPath() {
         <strong>${escapeHtml(question)}</strong>
         <em>${escapeHtml(filters.length ? filters.slice(0, 4).join(" · ") : "No active map filters")}</em>
       </div>
+      ${frontdoorTierConcentrationRouteHtml(visibleUnits, summary)}
       ${frontdoorGrokInquiryPackCardHtml(summary)}
       ${frontdoorQuestionComposerHtml(composerPlan, question)}
       ${frontdoorVisualStoryPacketHtml(question, visibleUnits, summary, selectedUnit)}
@@ -1905,6 +1906,112 @@ function frontdoorVisualPathStepHtml(card, question) {
   `;
 }
 
+function frontdoorTierConcentrationRouteHtml(units, summary) {
+  const rows = frontdoorTierConcentrationRows(units);
+  if (!rows.length) {
+    return `
+      <section class="frontdoor-tier-route empty" aria-label="Law-tier concentration route">
+        <div>
+          <span>Law-tier concentration route</span>
+          <strong>No neutral tier route is available under the current filters.</strong>
+          <p>Clear filters or load aggregate artifacts with tier metadata to route a tier into the county/town map.</p>
+        </div>
+      </section>
+    `;
+  }
+  const lead = rows[0];
+  const maxRows = Math.max(1, ...rows.map((row) => Number(row.lawCount || 0)));
+  return `
+    <section class="frontdoor-tier-route" aria-label="Law-tier concentration route">
+      <div class="frontdoor-tier-route-heading">
+        <div>
+          <span>Law-tier concentration route</span>
+          <strong>Where are ${escapeHtml(lead.tierLabel)} aggregate law rows concentrated?</strong>
+          <p>Open a tier-colored county/town map, then step into unit detail and ontology context from the same public aggregate route.</p>
+        </div>
+        <em>${escapeHtml(formatCount(summary.lawCount || 0))} visible rows · ${escapeHtml(formatCount(units.length))} visible units</em>
+      </div>
+      <div class="frontdoor-tier-route-focus">
+        <i style="background:${escapeHtml(lead.color)}"></i>
+        <div>
+          <span>${escapeHtml(lead.tierLabel)}</span>
+          <strong>${escapeHtml(formatCount(lead.lawCount))} aggregate rows</strong>
+          <em>${escapeHtml(formatCount(lead.unitCount))} county/town units · top unit ${escapeHtml(lead.topUnits[0] ? displayUnitName(lead.topUnits[0]) : "not available")}</em>
+        </div>
+        <div class="frontdoor-tier-route-actions">
+          <button type="button" data-frontdoor-tier-route-action="map" data-frontdoor-tier-route-tier="${escapeHtml(lead.tierKey)}">Color tier map</button>
+          <button type="button" data-frontdoor-tier-route-action="animate" data-frontdoor-tier-route-tier="${escapeHtml(lead.tierKey)}">Step route</button>
+          <button type="button" data-frontdoor-tier-route-action="ask" data-frontdoor-tier-route-tier="${escapeHtml(lead.tierKey)}">Ask this tier</button>
+          <button type="button" data-frontdoor-tier-route-action="ontology" data-frontdoor-tier-route-tier="${escapeHtml(lead.tierKey)}">Ontology trail</button>
+        </div>
+      </div>
+      <div class="frontdoor-tier-route-bars" aria-label="Visible neutral tier concentration rows">
+        ${rows.slice(0, 4).map((row) => frontdoorTierConcentrationRowHtml(row, maxRows)).join("")}
+      </div>
+      <div class="frontdoor-tier-route-units" aria-label="Top county and town units in the lead tier">
+        ${lead.topUnits.slice(0, 5).map((unit) => frontdoorTierConcentrationUnitHtml(unit, lead)).join("")}
+      </div>
+      <p class="frontdoor-tier-route-boundary">Tier routes use public aggregate counts, neutral model-output bands, and unit IDs only. No ordinance text, source locators, review events, secrets, browser model calls, rankings, legal conclusions, source-backed findings, or evidence that a law controls a person, parcel, business, or dispute.</p>
+    </section>
+  `;
+}
+
+function frontdoorTierConcentrationRows(units) {
+  const definitions = state.analysis.mapLayers?.tier_definitions || {};
+  const rows = new Map();
+  for (const unit of units || []) {
+    const tierLabel = unit.tier_label || unit.tier || "Unspecified";
+    const tierKey = unit.tier || tierKeyForLabel(tierLabel, definitions);
+    if (!tierKey || tierLabel === "Unspecified") {
+      continue;
+    }
+    const definition = tierDefinitionForKey(tierKey);
+    const existing = rows.get(tierKey) || {
+      tierKey,
+      tierLabel: definition?.label || tierLabel,
+      color: definition?.color || unit.tier_color || "#d8dee8",
+      lawCount: 0,
+      unitCount: 0,
+      topUnits: [],
+    };
+    existing.lawCount += Number(unit.law_count || 0);
+    existing.unitCount += 1;
+    existing.topUnits.push(unit);
+    rows.set(tierKey, existing);
+  }
+  return [...rows.values()]
+    .map((row) => ({
+      ...row,
+      topUnits: row.topUnits
+        .slice()
+        .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0) || displayUnitName(a).localeCompare(displayUnitName(b))),
+    }))
+    .sort((a, b) => Number(b.lawCount || 0) - Number(a.lawCount || 0) || a.tierLabel.localeCompare(b.tierLabel));
+}
+
+function frontdoorTierConcentrationRowHtml(row, maxRows) {
+  const width = Math.max(row.lawCount ? 6 : 0, (Number(row.lawCount || 0) / Math.max(1, maxRows)) * 100).toFixed(2);
+  return `
+    <button type="button" data-frontdoor-tier-route-action="map" data-frontdoor-tier-route-tier="${escapeHtml(row.tierKey)}">
+      <i style="background:${escapeHtml(row.color)}"></i>
+      <span>
+        <strong>${escapeHtml(row.tierLabel)}</strong>
+        <em>${escapeHtml(formatCount(row.unitCount))} units · ${escapeHtml(formatCount(row.lawCount))} rows</em>
+      </span>
+      <u aria-hidden="true"><mark style="width:${escapeHtml(width)}%"></mark></u>
+    </button>
+  `;
+}
+
+function frontdoorTierConcentrationUnitHtml(unit, row) {
+  return `
+    <button type="button" data-frontdoor-tier-route-action="unit" data-frontdoor-tier-route-tier="${escapeHtml(row.tierKey)}" data-frontdoor-tier-route-unit="${escapeHtml(unit.unit_id)}">
+      <strong>${escapeHtml(displayUnitName(unit))}</strong>
+      <span>${escapeHtml(unit.state || "NA")} · ${escapeHtml(text(unit.kind))} · ${escapeHtml(formatCount(unit.law_count))} rows</span>
+    </button>
+  `;
+}
+
 function frontdoorExampleQuestionRows(units) {
   return inquiryPathwayRows(units)
     .filter((row) => row.topic && row.tierKey && row.unitCount && row.lawCount)
@@ -2106,6 +2213,55 @@ function applyFrontdoorVisualPathAction(action, question) {
     state.activeTab = "ontology";
     render();
     return;
+  }
+  state.activeTab = "map";
+  render();
+}
+
+function applyFrontdoorTierConcentrationRoute(action, tierKey, unitId = "") {
+  if (!tierKey) {
+    return;
+  }
+  const definition = tierDefinitionForKey(tierKey);
+  const nextFilters = {
+    ...state.mapFilters,
+    tier: tierKey,
+  };
+  const units = filterMapUnitsWithFilters(state.analysis.mapLayers?.units || [], nextFilters);
+  const summary = summarizeUnits(units);
+  const prompt = `Where are ${definition.label || tierKey} aggregate law rows concentrated across counties and towns?`;
+  state.mapFilters = nextFilters;
+  state.geographyColorMode = "tier";
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    counties: true,
+    municipalities: true,
+  };
+  state.selectedUnitId = unitId || summary.topUnit?.unit_id || null;
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(prompt, "front-door law-tier concentration route", units, summary);
+  if (action === "ask") {
+    const input = $("#inquiry-form input[name='question']");
+    if (input) {
+      input.value = prompt;
+    }
+    answerAndLogInquiry(prompt, "front-door law-tier concentration route");
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    applyQuestionOntologyRoute(state.inquiryMapHighlight.ontology_route);
+    return;
+  }
+  if (action === "animate") {
+    state.disclosureLevel = "evidence";
+    state.geographyLayers = {
+      ...state.geographyLayers,
+      ontology: true,
+    };
+  } else if (state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
   }
   state.activeTab = "map";
   render();
@@ -16646,6 +16802,16 @@ function bindEvents() {
         routePreviewButton.dataset.frontdoorRoutePreview || "map",
         routePreviewButton.dataset.frontdoorRoutePreviewValue || "",
         $("#frontdoor-visual-path [data-frontdoor-composer]"),
+      );
+      return;
+    }
+    const tierRouteButton = event.target.closest("[data-frontdoor-tier-route-action]");
+    if (tierRouteButton) {
+      event.preventDefault();
+      applyFrontdoorTierConcentrationRoute(
+        tierRouteButton.dataset.frontdoorTierRouteAction || "map",
+        tierRouteButton.dataset.frontdoorTierRouteTier || "",
+        tierRouteButton.dataset.frontdoorTierRouteUnit || "",
       );
       return;
     }

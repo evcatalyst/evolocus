@@ -494,6 +494,209 @@ main {
   overflow-wrap: anywhere;
 }
 
+.frontdoor-tier-route {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(37, 112, 87, 0.24);
+  border-radius: 8px;
+  background: #f8fcfa;
+  padding: 12px;
+}
+
+.frontdoor-tier-route.empty {
+  background: #f8fafc;
+}
+
+.frontdoor-tier-route-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.frontdoor-tier-route-heading div,
+.frontdoor-tier-route.empty div {
+  display: grid;
+  gap: 3px;
+}
+
+.frontdoor-tier-route-heading span,
+.frontdoor-tier-route.empty span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.frontdoor-tier-route-heading strong,
+.frontdoor-tier-route.empty strong {
+  color: var(--ink);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-tier-route-heading p,
+.frontdoor-tier-route.empty p,
+.frontdoor-tier-route-boundary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.frontdoor-tier-route-heading em {
+  color: #245b49;
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 850;
+  text-align: right;
+}
+
+.frontdoor-tier-route-focus {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(37, 112, 87, 0.16);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.frontdoor-tier-route-focus > i {
+  width: 14px;
+  height: 100%;
+  min-height: 58px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+}
+
+.frontdoor-tier-route-focus > div:not(.frontdoor-tier-route-actions) {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.frontdoor-tier-route-focus span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.frontdoor-tier-route-focus strong {
+  color: var(--ink);
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-tier-route-focus em {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+}
+
+.frontdoor-tier-route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 330px;
+}
+
+.frontdoor-tier-route-actions button,
+.frontdoor-tier-route-bars button,
+.frontdoor-tier-route-units button {
+  border-color: rgba(37, 112, 87, 0.24);
+  background: #ffffff;
+  color: #245b49;
+}
+
+.frontdoor-tier-route-actions button:hover,
+.frontdoor-tier-route-actions button:focus-visible,
+.frontdoor-tier-route-bars button:hover,
+.frontdoor-tier-route-bars button:focus-visible,
+.frontdoor-tier-route-units button:hover,
+.frontdoor-tier-route-units button:focus-visible {
+  border-color: #257057;
+  box-shadow: 0 0 0 3px rgba(37, 112, 87, 0.1);
+}
+
+.frontdoor-tier-route-bars {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-tier-route-bars button {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  gap: 6px 8px;
+  min-width: 0;
+  padding: 9px;
+  text-align: left;
+}
+
+.frontdoor-tier-route-bars i {
+  grid-row: 1 / span 2;
+  align-self: stretch;
+  width: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+}
+
+.frontdoor-tier-route-bars span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.frontdoor-tier-route-bars strong,
+.frontdoor-tier-route-units strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-tier-route-bars em,
+.frontdoor-tier-route-units span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+}
+
+.frontdoor-tier-route-bars u {
+  grid-column: 1 / -1;
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(37, 112, 87, 0.12);
+  text-decoration: none;
+}
+
+.frontdoor-tier-route-bars mark {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #257057;
+}
+
+.frontdoor-tier-route-units {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-tier-route-units button {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 9px;
+  text-align: left;
+}
+
 .frontdoor-grok-pack-card {
   display: grid;
   gap: 10px;
@@ -11896,6 +12099,10 @@ th {
   .toolbar,
   .analysis-journey-steps,
   .frontdoor-visual-path-heading,
+  .frontdoor-tier-route-heading,
+  .frontdoor-tier-route-focus,
+  .frontdoor-tier-route-bars,
+  .frontdoor-tier-route-units,
   .frontdoor-grok-pack-heading,
   .frontdoor-grok-pack-metrics,
   .frontdoor-grok-pack-routes,
@@ -12092,6 +12299,10 @@ th {
   .analysis-journey-heading,
   .frontdoor-visual-path-heading,
   .frontdoor-visual-path-metrics,
+  .frontdoor-tier-route-heading,
+  .frontdoor-tier-route-focus,
+  .frontdoor-tier-route-bars,
+  .frontdoor-tier-route-units,
   .frontdoor-grok-pack-heading,
   .frontdoor-grok-pack-metrics,
   .frontdoor-grok-pack-routes,

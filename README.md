@@ -37,6 +37,7 @@ The Pages app supports:
 - guided Walkthrough tab for the public map -> inquiry -> ontology -> queue plan -> package overlay -> snapshots demo flow;
 - compact analysis journey strip connecting Map -> Inquiry -> Ontology -> Queue Plan with aggregate-only status;
 - first-screen Ask -> Map -> Ontology visual path with current aggregate denominators and progressive disclosure controls;
+- first-screen law-tier concentration route that colors the county/town map by neutral tier and opens a selected aggregate unit;
 - first-screen deterministic chat-to-map composer that previews aggregate filters from typed questions and routes to Map, Inquiry, or Ontology;
 - front-door Ask-this-map route preview strip for tier, score, audit, and ontology paths from the current typed question;
 - ontology-backed question routes that show topic, function, neutral tier, and county/town unit nodes from static aggregate artifacts;

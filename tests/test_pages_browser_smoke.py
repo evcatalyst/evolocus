@@ -119,6 +119,20 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "not legal coverage findings" in law_location_text
             assert page.locator(".map-unit.inquiry-hit").count() > 0
 
+            page.wait_for_selector(".frontdoor-tier-route .frontdoor-tier-route-actions [data-frontdoor-tier-route-action='map']", timeout=10_000)
+            tier_route_text = page.locator(".frontdoor-tier-route").inner_text(timeout=5_000).lower()
+            assert "law-tier concentration route" in tier_route_text
+            assert "where are" in tier_route_text
+            assert "county/town map" in tier_route_text
+            assert "no ordinance text" in tier_route_text
+            page.locator(".frontdoor-tier-route .frontdoor-tier-route-actions [data-frontdoor-tier-route-action='map']").first.click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            tier_route_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "front-door law-tier concentration route" in tier_route_highlight_text
+            assert "no browser-side grok call" in tier_route_highlight_text
+            page.wait_for_selector(".map-question-law-location-trail .map-question-law-location-step", timeout=10_000)
+
             page.wait_for_selector(".frontdoor-grok-pack-card [data-frontdoor-grok-pack-card]", timeout=10_000)
             grok_pack_text = page.locator(".frontdoor-grok-pack-card").inner_text(timeout=5_000).lower()
             assert "grok-refreshed inquiry pack" in grok_pack_text
