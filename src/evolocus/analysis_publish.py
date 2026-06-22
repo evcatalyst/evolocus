@@ -894,6 +894,23 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
             ],
         },
         {
+            "name": "Selected-unit map-to-ontology route trails",
+            "steps": [
+                "Open a selected county/town aggregate unit on the Law Map",
+                "Inspect the compact route from selected map color to ontology stages",
+                "Step through topic, function, tier, score, and geometry route stages",
+                "Open the topic stage in the Ontology graph",
+                "Verify score and geometry stages change disclosure depth without exposing row text",
+            ],
+            "assertions": [
+                "Route trails use public aggregate unit metadata and visual state only",
+                "Stage buttons open existing aggregate ontology context without generating new analysis",
+                "Score stages remain neutral because score direction is unverified",
+                "Geometry stages are map-match context, not legal jurisdiction or controlling-law claims",
+                "No ordinance text, source locator, secret, browser model call, ranking, or legal conclusion is observed",
+            ],
+        },
+        {
             "name": "Saved inquiry route comparison",
             "steps": [
                 "Open Inquiry after creating aggregate question routes",

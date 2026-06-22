@@ -1593,6 +1593,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
         "Selected-unit ontology route comparison",
         "Selected-unit query replay",
         "Selected-unit ontology answer cards",
+        "Selected-unit map-to-ontology route trails",
         "Saved inquiry route comparison",
         "Timeline-driven map layer playback",
         "Map-side layer step animation",
