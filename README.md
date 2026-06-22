@@ -194,6 +194,17 @@ python -m playwright install chromium
 EVOLOCUS_BROWSER_SMOKE=1 pytest tests/test_pages_browser_smoke.py -q
 ```
 
+Smoke the deployed GitHub Pages route locally:
+
+```bash
+EVOLOCUS_BROWSER_SMOKE=1 \
+EVOLOCUS_BROWSER_SMOKE_URL=https://evcatalyst.github.io/evolocus/ \
+pytest tests/test_pages_browser_smoke.py -q
+```
+
+The same deployed-route smoke is available as the manual GitHub Actions workflow
+`Browser smoke static Pages visuals`.
+
 Serve the Pages app locally with any static server, for example:
 
 ```bash

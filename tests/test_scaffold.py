@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_PATHS = [
     ".github/workflows/pages.yml",
     ".github/workflows/analysis-refresh.yml",
+    ".github/workflows/pages-browser-smoke.yml",
     "data/README.md",
     "dashboards/README.md",
     "docs/architecture.md",
@@ -106,6 +107,29 @@ def test_pages_workflow_uses_pinned_major_versions_and_site_path() -> None:
     assert "actions/configure-pages@v5" in workflow
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "actions/deploy-pages@v4" in workflow
+
+
+def test_pages_browser_smoke_workflow_clicks_deployed_visual_route() -> None:
+    workflow = read_text(".github/workflows/pages-browser-smoke.yml")
+    assert "workflow_dispatch" in workflow
+    assert "target_url" in workflow
+    assert "https://evcatalyst.github.io/evolocus/" in workflow
+    assert "contents: read" in workflow
+    assert "actions/checkout@v4" in workflow
+    assert "actions/setup-python@v5" in workflow
+    assert "requirements-dev.txt" in workflow
+    assert "playwright install --with-deps chromium" in workflow
+    assert "EVOLOCUS_BROWSER_SMOKE: \"1\"" in workflow
+    assert "EVOLOCUS_BROWSER_SMOKE_URL" in workflow
+    assert "validate-public-artifacts" in workflow
+    assert "tests/test_pages_browser_smoke.py" in workflow
+    assert "pages: write" not in workflow
+    assert "secrets." not in workflow
+    assert "GROK_API_KEY" not in workflow
+    assert "data/raw" not in workflow
+    assert "data/processed" not in workflow
+    assert "data/evaluation" not in workflow
+    assert "data/exports" not in workflow
 
 
 def test_static_site_is_relative_and_aggregate_only() -> None:

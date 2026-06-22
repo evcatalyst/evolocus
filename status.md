@@ -8,6 +8,7 @@ Files saved:
 
 - `.github/workflows/pages.yml`
 - `.github/workflows/analysis-refresh.yml`
+- `.github/workflows/pages-browser-smoke.yml`
 - `data/README.md`
 - `dashboards/README.md`
 - `docs/architecture.md`
@@ -109,6 +110,7 @@ Current coverage stats:
 - Charts-tab ontology handoff: GitHub Pages chart Graph buttons route aggregate chart scope into the existing Ontology tab with tier focus, ontology layer visibility, and no row text
 - Charts route legend: GitHub Pages animates Chart -> Map -> Inquiry -> Ontology as an aggregate-only progressive disclosure path with route buttons
 - Charts route smoke coverage: optional Playwright browser smoke now clicks the Charts route buttons and verifies navigation to Map, Inquiry, and Ontology when `EVOLOCUS_BROWSER_SMOKE=1`
+- Deployed visual smoke workflow: manual GitHub Actions route smoke can click the hosted Pages URL through Chart -> Map -> Inquiry -> Ontology without secrets or write permissions
 - Map-side inquiry panel: GitHub Pages answers current-filter, selected-unit, audit, score, and package-overlay questions inside the map card from static aggregate artifacts
 - Map-side route playback: GitHub Pages restores saved aggregate question paths directly from the Law Map, including filters, color mode, selected unit, answer replay, and ontology route
 - Map inquiry history surface: GitHub Pages saves browser-local aggregate answer snapshots with filters, selected unit metadata, package counts, and comparison rows

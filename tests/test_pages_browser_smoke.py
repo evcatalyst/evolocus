@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from urllib.parse import unquote, urlparse
 from typing import Any
+from urllib.parse import unquote, urlparse
 
 import pytest
 
@@ -57,8 +57,12 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
         try:
             page = browser.new_page()
             page.on("pageerror", lambda error: errors.append(str(error)))
-            page.route(f"{SITE_ORIGIN}/**", fulfill_static_asset)
-            page.goto(f"{SITE_ORIGIN}/", wait_until="networkidle")
+            target_url = os.environ.get("EVOLOCUS_BROWSER_SMOKE_URL", "").strip()
+            if target_url:
+                page.goto(target_url, wait_until="networkidle")
+            else:
+                page.route(f"{SITE_ORIGIN}/**", fulfill_static_asset)
+                page.goto(f"{SITE_ORIGIN}/", wait_until="networkidle")
 
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='map']", timeout=10_000)
