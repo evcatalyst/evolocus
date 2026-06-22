@@ -559,7 +559,12 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chart-drilldown-row" in css
     assert "chart-drilldown-row.disabled" in css
     assert "chart-drilldown-note" in css
-    assert "top-unit-list button" in css
+    assert "chart-drilldown-line" in css
+    assert "chart-inquiry-card" in css
+    assert "chart-inquiry-actions" in css
+    assert "chart-inquiry-chip" in css
+    assert "top-unit-list-row > button" in css
+    assert "top-unit-list-row" in css
     assert "state-topic-actions" in css
     assert "topic-strip-row:hover" in css
     assert "package-map-actions" in css
@@ -784,13 +789,26 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chartMapFilterEnabled" in js
     assert "applyChartMapFilter" in js
     assert "applyChartStateTopicFilter" in js
+    assert "chartInquiryCard" in js
+    assert "chartInquiryButton" in js
+    assert "applyChartInquiryAction" in js
+    assert "applyChartUnitInquiry" in js
+    assert "chartInquiryQuestion" in js
     assert "data-chart-map-filter" in js
     assert "data-chart-map-value" in js
     assert "data-chart-map-unit" in js
     assert "data-chart-state-map" in js
     assert "data-chart-topic-map" in js
     assert "data-chart-state-topic-map" in js
-    assert "Click a row to filter the Law Map. This changes browser state only." in js
+    assert "data-chart-inquiry-action" in js
+    assert "data-chart-inquiry-value" in js
+    assert "data-chart-inquiry-state" in js
+    assert "data-chart-inquiry-label" in js
+    assert "Ask this chart view" in js
+    assert "Ask score profile" in js
+    assert "charts tab aggregate ask" in js
+    assert "Click a row to filter the Law Map, or Ask to open a deterministic Inquiry answer. This changes browser state only." in js
+    assert "Inquiry answers are generated from published aggregate JSON artifacts" in js
     assert "Topic bars and state cards can route back to the Law Map using aggregate filters only." in js
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js

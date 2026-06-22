@@ -9073,6 +9073,7 @@ function renderAnalysisCharts() {
     return;
   }
   grid.innerHTML = [
+    chartInquiryCard(),
     chartCard("Tier distribution", charts.tier_counts || [], "tier"),
     chartCard("Topic distribution", charts.topic_counts || [], "topic"),
     chartCard("Function distribution", charts.function_counts || [], "function"),
@@ -9080,6 +9081,42 @@ function renderAnalysisCharts() {
     scoreCard("Neutral score means", charts.score_means || []),
     topUnitsCard(charts.top_units || []),
   ].join("");
+}
+
+function chartInquiryCard() {
+  const mapLayers = state.analysis.mapLayers;
+  const units = mapLayers ? filterMapUnits(mapLayers.units || []) : [];
+  const summary = summarizeUnits(units);
+  const tierDefinitions = mapLayers?.tier_definitions || {};
+  const topTier = topEntry(summary.tierCounts);
+  const topTierKey = tierKeyForLabel(topTier.label, tierDefinitions);
+  const topTopic = summary.topTopic.value > 0 ? summary.topTopic.label : "";
+  const topUnit = summary.topUnit;
+  const scope = activeFilterLabels().join(" · ") || "No active map filters";
+  return `
+    <article class="chart-card chart-inquiry-card">
+      <div>
+        <h3>Ask this chart view</h3>
+        <p>Route the current aggregate chart scope into deterministic Inquiry answers. These actions update browser state only and do not call a model endpoint.</p>
+      </div>
+      <div class="chart-inquiry-summary">
+        <span>${escapeHtml(formatCount(units.length))} visible units</span>
+        <span>${escapeHtml(formatCount(summary.lawCount))} law records</span>
+        <span>${escapeHtml(scope)}</span>
+      </div>
+      <div class="chart-inquiry-actions">
+        ${chartInquiryButton("view", "", "Ask current view", "Visible aggregate chart scope", true, "", "current chart view")}
+        ${chartInquiryButton("topic", topTopic, "Ask top topic", topTopic ? `${topTopic} · ${formatCount(summary.topTopic.value)} rows` : "No topic rows", Boolean(topTopic), "", topTopic)}
+        ${chartInquiryButton("tier", topTierKey, "Ask top tier", topTier.value ? `${topTier.label} · ${formatCount(topTier.value)} units` : "No tier rows", topTier.value > 0, "", topTier.label)}
+        ${
+          topUnit
+            ? chartInquiryButton("unit", topUnit.unit_id, "Ask top unit", `${displayUnitName(topUnit)} · ${topUnit.state || "NA"}`, true, "", displayUnitName(topUnit))
+            : chartInquiryButton("unit", "", "Ask top unit", "No visible unit", false)
+        }
+      </div>
+      <p class="chart-drilldown-note">Inquiry answers are generated from published aggregate JSON artifacts and omit ordinance text, source locators, review events, and browser model calls.</p>
+    </article>
+  `;
 }
 
 function chartCard(title, rows, action = "") {
@@ -9093,16 +9130,19 @@ function chartCard(title, rows, action = "") {
             const value = row.id || row.label;
             const enabled = chartMapFilterEnabled(action, value);
             return `
-              <button type="button" class="bar-row chart-drilldown-row${enabled ? "" : " disabled"}" ${enabled ? "" : "disabled"} data-chart-map-filter="${escapeHtml(enabled ? action : "")}" data-chart-map-value="${escapeHtml(enabled ? value : "")}">
-                <span>${escapeHtml(row.label)}</span>
-                <div><i style="width:${Math.max(3, (Number(row.value || 0) / max) * 100)}%"></i></div>
-                <strong>${escapeHtml(String(row.value))}</strong>
-              </button>
+              <div class="chart-drilldown-line">
+                <button type="button" class="bar-row chart-drilldown-row${enabled ? "" : " disabled"}" ${enabled ? "" : "disabled"} data-chart-map-filter="${escapeHtml(enabled ? action : "")}" data-chart-map-value="${escapeHtml(enabled ? value : "")}">
+                  <span>${escapeHtml(row.label)}</span>
+                  <div><i style="width:${Math.max(3, (Number(row.value || 0) / max) * 100)}%"></i></div>
+                  <strong>${escapeHtml(String(row.value))}</strong>
+                </button>
+                ${chartInquiryButton(action, value, "Ask", `Inquiry for ${row.label}`, enabled, "", row.label, "compact")}
+              </div>
             `;
           })
           .join("") || "<p>No aggregate rows.</p>"}
       </div>
-      <p class="chart-drilldown-note">Click a row to filter the Law Map. This changes browser state only.</p>
+      <p class="chart-drilldown-note">Click a row to filter the Law Map, or Ask to open a deterministic Inquiry answer. This changes browser state only.</p>
     </article>
   `;
 }
@@ -9130,6 +9170,9 @@ function scoreCard(title, rows) {
           })
           .join("")}
       </div>
+      <div class="chart-inquiry-actions compact">
+        ${chartInquiryButton("score", "", "Ask score profile", "Current filtered map view", true, "", "score profile")}
+      </div>
       <p>Scores are neutral model outputs; direction is not verified.</p>
     </article>
   `;
@@ -9143,11 +9186,12 @@ function topUnitsCard(rows) {
         ${rows
           .slice(0, 8)
           .map((row) => `
-            <li>
+            <li class="top-unit-list-row">
               <button type="button" data-chart-map-unit="${escapeHtml(row.unit_id || "")}">
                 <strong>${escapeHtml(displayUnitName(row.name))}</strong>
                 <span>${escapeHtml(row.state)} · ${escapeHtml(String(row.law_count))} laws · ${escapeHtml(row.tier_label)}</span>
               </button>
+              ${chartInquiryButton("unit", row.unit_id || "", "Ask", "Selected-unit inquiry", Boolean(row.unit_id), "", displayUnitName(row.name), "compact")}
             </li>
           `)
           .join("")}
@@ -9334,6 +9378,8 @@ function stateTopicCard(summary) {
       <div class="state-topic-actions">
         <button type="button" data-chart-state-map="${escapeHtml(summary.state)}">Open state on map</button>
         <button type="button" data-chart-state-topic-map="${escapeHtml(summary.state)}" data-chart-topic-map="${escapeHtml(topTopic.label)}">Map top topic</button>
+        ${chartInquiryButton("state", summary.state, "Ask state", `${formatCount(summary.lawCount)} rows`, true, summary.state, summary.state)}
+        ${chartInquiryButton("state_topic", topTopic.label, "Ask top topic", `${topTopic.label} · ${formatCount(topTopic.value)} rows`, topTopic.value > 0, summary.state, topTopic.label)}
       </div>
     </article>
   `;
@@ -9413,6 +9459,111 @@ function applyChartStateTopicFilter(stateCode, topic) {
   state.selectedUnitId = null;
   state.activeTab = "map";
   render();
+}
+
+function chartInquiryButton(action, value, label, detail, enabled = true, stateCode = "", questionLabel = "", variant = "") {
+  const disabled = !enabled || (action !== "view" && action !== "score" && !value);
+  return `
+    <button type="button" class="chart-inquiry-chip${variant ? ` ${escapeHtml(variant)}` : ""}${disabled ? " disabled" : ""}" ${disabled ? "disabled" : ""} data-chart-inquiry-action="${escapeHtml(disabled ? "" : action)}" data-chart-inquiry-value="${escapeHtml(disabled ? "" : value)}" data-chart-inquiry-state="${escapeHtml(disabled ? "" : stateCode)}" data-chart-inquiry-label="${escapeHtml(disabled ? "" : questionLabel)}">
+      <strong>${escapeHtml(label)}</strong>
+      <span>${escapeHtml(detail)}</span>
+    </button>
+  `;
+}
+
+function applyChartInquiryAction(action, value, label = "", stateCode = "") {
+  if (!action) {
+    return;
+  }
+  if (action === "unit") {
+    applyChartUnitInquiry(value);
+    return;
+  }
+  const nextFilters = { ...state.mapFilters };
+  if (action === "topic") {
+    if (!chartMapFilterEnabled("topic", value)) {
+      return;
+    }
+    nextFilters.topic = value;
+  }
+  if (action === "function") {
+    if (!chartMapFilterEnabled("function", value)) {
+      return;
+    }
+    nextFilters.function = value;
+  }
+  if (action === "kind") {
+    if (!chartMapFilterEnabled("kind", value)) {
+      return;
+    }
+    nextFilters.kind = normalizePackageKind(value);
+  }
+  if (action === "tier") {
+    if (!chartMapFilterEnabled("tier", value)) {
+      return;
+    }
+    nextFilters.tier = value;
+  }
+  if (action === "state") {
+    nextFilters.state = value || stateCode || nextFilters.state;
+  }
+  if (action === "state_topic") {
+    nextFilters.state = stateCode || nextFilters.state;
+    nextFilters.topic = value || nextFilters.topic;
+  }
+  state.mapFilters = nextFilters;
+  state.selectedUnitId = null;
+  const question = chartInquiryQuestion(action, value, label, stateCode);
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  answerAndLogInquiry(question, "charts tab aggregate ask");
+  state.activeTab = "inquiry";
+  render();
+}
+
+function applyChartUnitInquiry(unitId) {
+  const unit = (state.analysis.mapLayers?.units || []).find((item) => item.unit_id === unitId);
+  if (!unit) {
+    return;
+  }
+  state.selectedUnitId = unit.unit_id;
+  state.disclosureLevel = "unit";
+  const question = `What does the selected unit ${displayUnitName(unit)} show?`;
+  const input = $("#inquiry-form input[name='question']");
+  if (input) {
+    input.value = question;
+  }
+  answerAndLogInquiry(question, "charts tab top unit ask");
+  state.activeTab = "inquiry";
+  render();
+}
+
+function chartInquiryQuestion(action, value, label = "", stateCode = "") {
+  const displayLabel = label || value;
+  if (action === "topic") {
+    return `What does the current filtered map view show for ${displayLabel} laws?`;
+  }
+  if (action === "function") {
+    return `What does the current filtered map view show for ${displayLabel} functions?`;
+  }
+  if (action === "kind") {
+    return `What does the current filtered map view show for ${displayLabel} sources?`;
+  }
+  if (action === "tier") {
+    return `What does the current filtered map view show for ${displayLabel}?`;
+  }
+  if (action === "state_topic") {
+    return `What does the current filtered map view show for ${displayLabel} laws in ${stateCode || "this state"}?`;
+  }
+  if (action === "state") {
+    return `What does the current filtered map view show in ${stateCode || displayLabel}?`;
+  }
+  if (action === "score") {
+    return "What model score profile is visible in the current filtered map view?";
+  }
+  return "What does the current chart view show on the county and town map?";
 }
 
 function agreementMetrics(events) {
@@ -11082,6 +11233,17 @@ function bindEvents() {
     render();
   });
   $("#results-panel").addEventListener("click", (event) => {
+    const chartInquiryButton = event.target.closest("[data-chart-inquiry-action]");
+    if (chartInquiryButton) {
+      event.preventDefault();
+      applyChartInquiryAction(
+        chartInquiryButton.dataset.chartInquiryAction || "",
+        chartInquiryButton.dataset.chartInquiryValue || "",
+        chartInquiryButton.dataset.chartInquiryLabel || "",
+        chartInquiryButton.dataset.chartInquiryState || "",
+      );
+      return;
+    }
     const unitButton = event.target.closest("[data-chart-map-unit]");
     if (unitButton) {
       event.preventDefault();
