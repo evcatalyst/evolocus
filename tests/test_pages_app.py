@@ -212,6 +212,13 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Package evidence boundary" in js
     assert "filteredAuditAnswer" in js
     assert "filteredScoreAnswer" in js
+    assert "inquiryAnswerMiniChartsHtml" in js
+    assert "inquiryAnswerCountChart" in js
+    assert "inquiryAnswerUnitChart" in js
+    assert "applyInquiryAnswerChartAction" in js
+    assert "data-inquiry-answer-chart-action" in js
+    assert "Click rows to filter the Law Map" in js
+    assert "Mini charts reuse current aggregate map artifacts only" in js
     assert "briefingSectionsHtml" in js
     assert "STORAGE_INQUIRY_RESULTS_LOG" in js
     assert "loadInquiryResultsLog" in js
@@ -250,6 +257,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontology-query-presets" in css
     assert "ontology-query-grid" in css
     assert "ontology-query-card" in css
+    assert "inquiry-answer-mini-charts" in css
+    assert "inquiry-answer-mini-grid" in css
+    assert "inquiry-answer-mini-row" in css
     assert "map-reading-guide-card" in css
     assert "map-topic-tier-matrix" in css
     assert "map-topic-tier-grid" in css

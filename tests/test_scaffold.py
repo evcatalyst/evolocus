@@ -259,6 +259,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "What does the loaded package show on the map?" in js
     assert "Package evidence boundary" in js
     assert "selectedUnitAnswer" in js
+    assert "inquiryAnswerMiniChartsHtml" in js
+    assert "inquiryAnswerCountChart" in js
+    assert "inquiryAnswerUnitChart" in js
+    assert "applyInquiryAnswerChartAction" in js
+    assert "data-inquiry-answer-chart-action" in js
+    assert "Click rows to filter the Law Map" in js
+    assert "Mini charts reuse current aggregate map artifacts only" in js
     assert "renderInquiryContext" in js
     assert "renderInquiryMatrix" in js
     assert "renderInquiryPathways" in js
@@ -514,6 +521,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "score-state-row" in css
     assert "score-unit-row" in css
     assert "inquiry-context-grid" in css
+    assert "inquiry-answer-mini-charts" in css
+    assert "inquiry-answer-mini-grid" in css
+    assert "inquiry-answer-mini-row" in css
     assert "inquiry-pathway-card" in css
     assert "inquiry-pathway-grid" in css
     assert "inquiry-pathway-cell" in css

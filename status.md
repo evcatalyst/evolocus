@@ -110,6 +110,7 @@ Current coverage stats:
 - Selected-unit ontology drilldowns: GitHub Pages map panel shows topic/function/tier/score/geometry/package cards that route to ontology context, evidence depth, or package focus without raw text
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, package overlay, topic, function, audit, score, and selected-unit answers
 - Static question-pack surface: GitHub Pages reads `question_pack.json` prompts that can apply aggregate map filters and disclosure levels without live browser model calls
+- Inquiry answer mini-chart surface: GitHub Pages answers now include click-through topic, function, tier, and top-unit aggregate mini charts that route back to safe map filters or published unit IDs only
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download

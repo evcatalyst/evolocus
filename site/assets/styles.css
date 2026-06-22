@@ -2314,6 +2314,127 @@ textarea {
   grid-template-columns: 1fr;
 }
 
+.inquiry-answer-mini-charts {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.inquiry-answer-mini-charts.empty {
+  background: #f8fafc;
+}
+
+.inquiry-answer-mini-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.inquiry-answer-mini-heading span,
+.inquiry-answer-mini-charts.empty span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-answer-mini-heading strong,
+.inquiry-answer-mini-charts.empty strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.25;
+}
+
+.inquiry-answer-mini-heading em,
+.inquiry-answer-mini-charts > p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.inquiry-answer-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.inquiry-answer-mini-chart {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbfa;
+  padding: 10px;
+}
+
+.inquiry-answer-mini-chart h4 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.inquiry-answer-mini-row {
+  display: grid;
+  grid-template-columns: minmax(86px, 1fr) minmax(70px, 0.8fr) auto;
+  gap: 8px;
+  align-items: center;
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 7px;
+  text-align: left;
+}
+
+.inquiry-answer-mini-row:hover,
+.inquiry-answer-mini-row:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.12);
+}
+
+.inquiry-answer-mini-row span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.inquiry-answer-mini-row strong {
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-answer-mini-row em,
+.inquiry-answer-mini-row small {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.inquiry-answer-mini-row b {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6ecef;
+}
+
+.inquiry-answer-mini-row i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+
 .map-inline-inquiry-actions {
   display: flex;
   flex-wrap: wrap;
@@ -5006,6 +5127,7 @@ th {
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,
+  .inquiry-answer-mini-grid,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
   .review-layout,
@@ -5118,6 +5240,7 @@ th {
   .county-layer-heading,
   .view-export-strip,
   .inquiry-export-row,
+  .inquiry-answer-mini-grid,
   .map-insight-grid,
   .map-comparison-grid,
   .package-map-card-grid,

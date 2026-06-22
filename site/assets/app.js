@@ -5115,8 +5115,142 @@ function inquiryAnswerHtml(answer) {
     <p>${escapeHtml(answer.answer)}</p>
     ${answer.grokSummary ? `<aside><strong>Offline Grok summary</strong><p>${escapeHtml(answer.grokSummary)}</p></aside>` : ""}
     ${answer.sections || ""}
+    ${inquiryAnswerMiniChartsHtml()}
     ${answer.matches || ""}
   `;
+}
+
+function inquiryAnswerMiniChartsHtml() {
+  const mapLayers = state.analysis.mapLayers;
+  if (!mapLayers) {
+    return "";
+  }
+  const units = filterMapUnits(mapLayers.units || []);
+  if (!units.length) {
+    return `
+      <section class="inquiry-answer-mini-charts empty" aria-label="Aggregate answer mini charts">
+        <div>
+          <span>Answer visuals</span>
+          <strong>No aggregate units match the current filters.</strong>
+        </div>
+        <p>Adjust the Law Map filters to restore answer-level topic, function, tier, and unit charts.</p>
+      </section>
+    `;
+  }
+  const summary = summarizeUnits(units);
+  const tierDefinitions = mapLayers.tier_definitions || {};
+  const limit = state.disclosureLevel === "evidence" ? 6 : state.disclosureLevel === "unit" ? 5 : 4;
+  const charts = [
+    inquiryAnswerCountChart("Topic mix", "topic", summary.topicCounts, summary.lawCount, limit),
+    inquiryAnswerCountChart("Function mix", "function", summary.functionCounts, summary.lawCount, limit),
+    inquiryAnswerCountChart("Neutral tier mix", "tier", summary.tierCounts, units.length, limit, (label) => tierKeyForLabel(label, tierDefinitions)),
+    inquiryAnswerUnitChart(units, limit),
+  ].filter(Boolean);
+  return `
+    <section class="inquiry-answer-mini-charts" aria-label="Aggregate answer mini charts">
+      <div class="inquiry-answer-mini-heading">
+        <div>
+          <span>Answer visuals</span>
+          <strong>${escapeHtml(formatCount(units.length))} visible units · ${escapeHtml(formatCount(summary.lawCount))} rows</strong>
+        </div>
+        <em>Click rows to filter the Law Map</em>
+      </div>
+      <div class="inquiry-answer-mini-grid">
+        ${charts.join("")}
+      </div>
+      <p>Mini charts reuse current aggregate map artifacts only. They do not expose ordinance text, source locators, review events, or legal findings.</p>
+    </section>
+  `;
+}
+
+function inquiryAnswerCountChart(title, action, counts, denominator, limit, valueTransform = (label) => label) {
+  const rows = Object.entries(counts || {})
+    .filter(([, value]) => Number(value || 0) > 0)
+    .sort((a, b) => Number(b[1] || 0) - Number(a[1] || 0) || a[0].localeCompare(b[0]))
+    .slice(0, limit);
+  if (!rows.length) {
+    return "";
+  }
+  const max = Math.max(1, ...rows.map(([, value]) => Number(value || 0)));
+  return `
+    <article class="inquiry-answer-mini-chart">
+      <h4>${escapeHtml(title)}</h4>
+      ${rows
+        .map(([label, value]) =>
+          inquiryAnswerMiniChartRowHtml({
+            label,
+            value,
+            max,
+            detail: `${formatPercent(value, denominator)} of current aggregate scope`,
+            action,
+            actionValue: valueTransform(label),
+          }),
+        )
+        .join("")}
+    </article>
+  `;
+}
+
+function inquiryAnswerUnitChart(units, limit) {
+  const rows = units
+    .slice()
+    .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0) || displayUnitName(a).localeCompare(displayUnitName(b)))
+    .slice(0, limit);
+  if (!rows.length) {
+    return "";
+  }
+  const max = Math.max(1, ...rows.map((unit) => Number(unit.law_count || 0)));
+  return `
+    <article class="inquiry-answer-mini-chart">
+      <h4>Top visible units</h4>
+      ${rows
+        .map((unit) =>
+          inquiryAnswerMiniChartRowHtml({
+            label: displayUnitName(unit),
+            value: Number(unit.law_count || 0),
+            max,
+            detail: `${unit.state || "NA"} · ${text(unit.kind)} · ${text(unit.tier_label)}`,
+            action: "unit",
+            actionValue: unit.unit_id,
+          }),
+        )
+        .join("")}
+    </article>
+  `;
+}
+
+function inquiryAnswerMiniChartRowHtml(row) {
+  const width = Math.max(row.value ? 5 : 0, (Number(row.value || 0) / Math.max(1, Number(row.max || 1))) * 100).toFixed(2);
+  return `
+    <button type="button" class="inquiry-answer-mini-row" data-inquiry-answer-chart-action="${escapeHtml(row.action)}" data-inquiry-answer-chart-value="${escapeHtml(row.actionValue)}">
+      <span>
+        <strong>${escapeHtml(row.label)}</strong>
+        <em>${escapeHtml(row.detail)}</em>
+      </span>
+      <b><i style="width:${escapeHtml(width)}%"></i></b>
+      <small>${escapeHtml(formatCount(row.value))}</small>
+    </button>
+  `;
+}
+
+function applyInquiryAnswerChartAction(action, value) {
+  if (action === "unit") {
+    openAuditUnitOnMap(value);
+    return;
+  }
+  if (!["topic", "function", "tier"].includes(action)) {
+    return;
+  }
+  state.mapFilters = {
+    ...state.mapFilters,
+    topic: action === "topic" ? value : state.mapFilters.topic,
+    function: action === "function" ? value : state.mapFilters.function,
+    tier: action === "tier" ? value : state.mapFilters.tier,
+  };
+  state.selectedUnitId = null;
+  state.disclosureLevel = "unit";
+  state.activeTab = "map";
+  render();
 }
 
 function answerAndLogInquiry(question, source) {
@@ -8747,6 +8881,15 @@ function bindEvents() {
     if (statusButton) {
       event.preventDefault();
       openAnalysisStatusTab();
+      return;
+    }
+    const answerChartButton = event.target.closest("[data-inquiry-answer-chart-action]");
+    if (answerChartButton) {
+      event.preventDefault();
+      applyInquiryAnswerChartAction(
+        answerChartButton.dataset.inquiryAnswerChartAction || "",
+        answerChartButton.dataset.inquiryAnswerChartValue || "",
+      );
       return;
     }
     const pathwayPeerButton = event.target.closest("[data-inquiry-pathway-peer-unit]");
