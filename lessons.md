@@ -146,3 +146,4 @@
 - Selected-unit answer cards should show the answer preview before navigation, then reuse the same aggregate lens for Inquiry, Map, and Ontology so question answering and colored geography stay connected.
 - Offline model output is safest on Pages when repackaged into explicit aggregate route cards with filters, facts, policy flags, and no endpoint, key, row text, or source-locator fields.
 - Topic playback presets should remain browser-state routes over published aggregate topic counts, not regenerated analysis, row-level evidence, or browser-side model calls.
+- Visual story packets should package Ask -> Map -> Ontology as aggregate route metadata only: typed filters, public unit IDs, counts, ontology nodes, provenance, and explicit no-text/no-answer/no-locator policy flags.

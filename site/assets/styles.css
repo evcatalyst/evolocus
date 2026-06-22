@@ -622,6 +622,127 @@ main {
   margin: 0;
 }
 
+.frontdoor-story-packet {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(183, 137, 44, 0.26);
+  border-radius: 8px;
+  background: #fffdf7;
+  padding: 12px;
+}
+
+.frontdoor-story-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.frontdoor-story-heading div {
+  display: grid;
+  gap: 3px;
+}
+
+.frontdoor-story-heading span,
+.frontdoor-story-metrics strong,
+.frontdoor-story-path strong {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.frontdoor-story-heading strong {
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.frontdoor-story-heading p,
+.frontdoor-story-boundary,
+.frontdoor-story-metrics em,
+.frontdoor-story-path em {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.38;
+}
+
+.frontdoor-story-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.frontdoor-story-actions button {
+  border-color: rgba(183, 137, 44, 0.35);
+  background: #fff4d8;
+  color: #7a5412;
+  padding: 7px 9px;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.frontdoor-story-actions button:first-child,
+.frontdoor-story-actions button:hover,
+.frontdoor-story-actions button:focus-visible {
+  border-color: #9b6d19;
+  background: #b7892c;
+  color: #ffffff;
+}
+
+.frontdoor-story-metrics {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-story-metrics span,
+.frontdoor-story-path span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid rgba(183, 137, 44, 0.2);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.frontdoor-story-metrics b,
+.frontdoor-story-path b {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-story-path {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-story-path span {
+  position: relative;
+  padding-left: 34px;
+}
+
+.frontdoor-story-path i {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 999px;
+  background: #b7892c;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
 .frontdoor-saved-routes {
   display: grid;
   gap: 10px;
@@ -10960,6 +11081,9 @@ th {
   .analysis-journey-steps,
   .frontdoor-visual-path-heading,
   .frontdoor-question-composer form,
+  .frontdoor-story-heading,
+  .frontdoor-story-metrics,
+  .frontdoor-story-path,
   .frontdoor-question-metrics,
   .frontdoor-saved-export-card,
   .frontdoor-route-import,
@@ -11147,6 +11271,10 @@ th {
   .frontdoor-visual-path-metrics,
   .frontdoor-question-composer form,
   .frontdoor-question-actions,
+  .frontdoor-story-heading,
+  .frontdoor-story-actions,
+  .frontdoor-story-metrics,
+  .frontdoor-story-path,
   .frontdoor-question-metrics,
   .frontdoor-saved-export-card,
   .frontdoor-route-import,

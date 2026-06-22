@@ -720,6 +720,7 @@ function renderFrontdoorVisualPath() {
         <em>${escapeHtml(filters.length ? filters.slice(0, 4).join(" · ") : "No active map filters")}</em>
       </div>
       ${frontdoorQuestionComposerHtml(composerPlan, question)}
+      ${frontdoorVisualStoryPacketHtml(question, visibleUnits, summary, selectedUnit)}
       ${frontdoorSavedRoutesHtml(state.inquiryResultsLog)}
       <div class="frontdoor-visual-path-steps">
         ${cards.map((card) => frontdoorVisualPathStepHtml(card, question)).join("")}
@@ -731,6 +732,268 @@ function renderFrontdoorVisualPath() {
       <p class="frontdoor-visual-path-boundary">Actions pass only aggregate filters, disclosure level, selected published unit IDs, and deterministic answers. No browser Grok call, API key, source locator, review event, or LOCUS ordinance text is exposed.</p>
     </article>
   `;
+}
+
+function frontdoorVisualStoryPacketHtml(question, visibleUnits, summary, selectedUnit) {
+  const context = frontdoorVisualStoryContext(question, visibleUnits, summary, selectedUnit);
+  const route = normalizedQuestionOntologyRoute(questionOntologyRouteFromUnits(context.question, "visual story packet", context.units, context.filters, context.summary));
+  const stages = frontdoorVisualStoryStages(context.summary, context.selectedUnit, route);
+  return `
+    <section class="frontdoor-story-packet" aria-label="Shareable aggregate visual story packet">
+      <div class="frontdoor-story-heading">
+        <div>
+          <span>Visual story packet</span>
+          <strong>Package this aggregate question as Ask -&gt; Map -&gt; Ontology.</strong>
+          <p>Exports the current public visual route, aggregate denominators, selected county/town context, ontology nodes, and provenance gates.</p>
+        </div>
+        <div class="frontdoor-story-actions">
+          <button type="button" data-frontdoor-story-action="export">Download story JSON</button>
+          <button type="button" data-frontdoor-story-action="map">Open story map</button>
+          <button type="button" data-frontdoor-story-action="ask">Ask story</button>
+          <button type="button" data-frontdoor-story-action="ontology">Graph story</button>
+        </div>
+      </div>
+      <div class="frontdoor-story-metrics">
+        ${frontdoorStoryMetricHtml("Question", context.question, context.previewed ? "typed question preview route" : "deterministic aggregate route")}
+        ${frontdoorStoryMetricHtml("Visible scope", `${formatCount(context.units.length)} units`, `${formatCount(context.summary.lawCount)} aggregate rows`)}
+        ${frontdoorStoryMetricHtml("Ontology path", `${formatCount(route?.nodes?.length || 0)} nodes`, `${formatCount(route?.edge_count || 0)} adjacent graph links`)}
+        ${frontdoorStoryMetricHtml("Export boundary", "content-free", "no text, locators, answers, reviews, or secrets")}
+      </div>
+      <div class="frontdoor-story-path">
+        ${stages.map((stage, index) => frontdoorStoryStageHtml(stage, index)).join("")}
+      </div>
+      <p class="frontdoor-story-boundary">Story packets are browser-generated from static aggregate artifacts. They include filters, counts, public unit IDs, neutral tier labels, ontology route nodes, and provenance only; they exclude answer text, ordinance text, headers, source locator values, review events, local paths, secrets, legal findings, and browser model calls.</p>
+    </section>
+  `;
+}
+
+function frontdoorVisualStoryContext(question, visibleUnits, summary, selectedUnit) {
+  const typedQuestion = String(state.frontdoorComposerQuestion || "").trim();
+  if (typedQuestion) {
+    const plan = inquiryMapComposerPlan(typedQuestion);
+    return {
+      question: typedQuestion,
+      units: plan.previewUnits || [],
+      summary: plan.previewSummary || summarizeUnits(plan.previewUnits || []),
+      filters: plan.proposedFilters || state.mapFilters,
+      filterLabels: plan.filterLabels || [],
+      selectedUnit: plan.previewSummary?.topUnit || selectedUnit || null,
+      previewed: true,
+      reasons: plan.reasons || [],
+    };
+  }
+  return {
+    question: String(question || frontdoorVisualPathQuestion(summary, visibleUnits)).trim(),
+    units: visibleUnits || [],
+    summary,
+    filters: state.mapFilters,
+    filterLabels: activeFilterLabels(),
+    selectedUnit: selectedUnit || summary.topUnit || null,
+    previewed: false,
+    reasons: ["Current aggregate map filter state"],
+  };
+}
+
+function frontdoorStoryMetricHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(String(value))}</b>
+      <em>${escapeHtml(detail)}</em>
+    </span>
+  `;
+}
+
+function frontdoorVisualStoryStages(summary, selectedUnit, route) {
+  const unitLabel = selectedUnit ? `${displayUnitName(selectedUnit)}${selectedUnit.state ? `, ${selectedUnit.state}` : ""}` : "No selected unit";
+  const unitCount = Object.values(summary.tierCounts || {}).reduce((total, value) => total + Number(value || 0), 0);
+  return [
+    {
+      label: "Ask",
+      value: summary.topTopic.label || "Topic route pending",
+      detail: `${formatCount(summary.topTopic.value || 0)} rows in top visible topic`,
+    },
+    {
+      label: "Map",
+      value: `${formatCount(summary.lawCount)} rows`,
+      detail: `${geographyColorLabel(state.geographyColorMode)} across ${formatCount(unitCount)} units`,
+    },
+    {
+      label: "Unit",
+      value: unitLabel,
+      detail: selectedUnit ? `${selectedUnit.tier_label || "neutral tier n/a"} · ${selectedUnit.kind || "unit"}` : "select a county/town for detail",
+    },
+    {
+      label: "Ontology",
+      value: `${formatCount(route?.nodes?.length || 0)} nodes`,
+      detail: `${formatCount(route?.edge_count || 0)} adjacent graph links`,
+    },
+    {
+      label: "Provenance",
+      value: "Aggregate only",
+      detail: "public artifacts + CC-BY-NC-4.0 citation",
+    },
+  ];
+}
+
+function frontdoorStoryStageHtml(stage, index) {
+  return `
+    <span>
+      <i>${escapeHtml(String(index + 1))}</i>
+      <strong>${escapeHtml(stage.label)}</strong>
+      <b>${escapeHtml(stage.value)}</b>
+      <em>${escapeHtml(stage.detail)}</em>
+    </span>
+  `;
+}
+
+function frontdoorVisualStoryPacketPayload(question = "") {
+  const mapLayers = state.analysis.mapLayers;
+  const status = state.analysis.status || {};
+  const briefings = state.analysis.inquiryBriefings || {};
+  const questionPack = state.analysis.questionPack || {};
+  const allUnits = mapLayers?.units || [];
+  const visibleUnits = filterMapUnits(allUnits);
+  const summary = summarizeUnits(visibleUnits);
+  const allSummary = summarizeUnits(allUnits);
+  const selectedUnit = currentSelectedMapUnit() || summary.topUnit;
+  const context = frontdoorVisualStoryContext(question || frontdoorVisualPathQuestion(summary, visibleUnits), visibleUnits, summary, selectedUnit);
+  const storyQuestion = context.question;
+  const ontologyRoute = normalizedQuestionOntologyRoute(questionOntologyRouteFromUnits(storyQuestion, "visual story packet", context.units, context.filters, context.summary));
+  const mapHighlight = frontdoorVisualStoryHighlight(context, ontologyRoute);
+  const answerPreview = answerQuestion(storyQuestion);
+  return {
+    schema_version: "evolocus-visual-story-packet-v1",
+    generated_at: new Date().toISOString(),
+    title: "EvoLOCUS aggregate visual story packet",
+    story_mode: "Ask -> Map -> Ontology",
+    story_question: storyQuestion,
+    dataset_id: status.dataset_id || briefings.dataset_id || "LocalLaws/LOCUS-v1",
+    dataset_revision: status.dataset_revision || mapLayers?.dataset_revision || briefings.dataset_revision || "unknown",
+    license: status.license || briefings.license || "CC-BY-NC-4.0",
+    citation: status.citation || briefings.citation || "Peskoff, Barrow, Vu, and Davenport. Freeing the Law with LOCUS. arXiv:2606.19334, 2026.",
+    source_artifacts: [
+      "status.json",
+      "map_layers.json",
+      "ontology.json",
+      "models.json",
+      "charts.json",
+      "unit_audit_quality.json",
+      "inquiry_briefings.json",
+      "question_pack.json",
+      "ai_analysis_pack.json",
+      "visual_smoke.json",
+    ],
+    artifact_provenance: {
+      map_generated_at: mapLayers?.generated_at || status.generated_at || null,
+      briefing_generated_at: briefings.generated_at || null,
+      question_pack_generated_at: questionPack.generated_at || null,
+      code_commit: status.code_commit || null,
+      visual_smoke_run: state.analysis.visualSmoke?.run_id || null,
+      briefing_mode: briefings.grok?.used ? `offline Grok ${briefings.grok.model || ""}`.trim() : "deterministic static",
+      browser_model_call: false,
+    },
+    map_route: {
+      filters: normalizedLogMapFilters(context.filters),
+      filter_labels: context.filterLabels,
+      disclosure_level: state.disclosureLevel,
+      geography_color_mode: state.geographyColorMode,
+      geography_layers: { ...state.geographyLayers },
+      selected_unit_id: context.selectedUnit?.unit_id || null,
+      highlight: mapHighlight,
+      previewed_from_typed_question: Boolean(context.previewed),
+      route_reasons: context.reasons,
+    },
+    inquiry_route: {
+      answer_title: answerPreview.title || "Aggregate answer",
+      answer_text_included: false,
+      source: answerPreview.source || "static aggregate artifacts",
+      question_pack_prompt_count: Number(questionPack.prompt_count || questionPack.prompts?.length || 0),
+    },
+    ontology_route: ontologyRoute,
+    visible_summary: currentViewSummaryPayload(context.summary, context.units.length),
+    full_layer_summary: currentViewSummaryPayload(allSummary, allUnits.length),
+    selected_unit: context.selectedUnit ? currentViewUnitPayload(context.selectedUnit) : null,
+    top_units: context.units
+      .slice()
+      .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0) || displayUnitName(a).localeCompare(displayUnitName(b)))
+      .slice(0, 12)
+      .map(currentViewUnitPayload),
+    story_steps: frontdoorVisualStoryStages(context.summary, context.selectedUnit, ontologyRoute).map((stage, index) => ({
+      step: index + 1,
+      label: stage.label,
+      value: stage.value,
+      detail: stage.detail,
+    })),
+    publication_policy: {
+      ...aggregateInquiryLogPolicy(),
+      aggregate_only: true,
+      answer_text_included: false,
+      local_paths_included: false,
+      secrets_included: false,
+      route_only: true,
+    },
+    limitations: [
+      "This packet is a shareable aggregate visual route, not legal advice or a legal finding.",
+      "It excludes LOCUS ordinance text, headers, raw rows, source locator values, review events, local databases, local paths, and secrets.",
+      "Neutral tiers and scores are model-output review aids; score direction remains unverified.",
+      "Consult official and current legal sources for legal interpretation.",
+    ],
+  };
+}
+
+function frontdoorVisualStoryHighlight(context, ontologyRoute) {
+  const unitIds = (context.units || []).map((unit) => unit.unit_id).filter(Boolean).slice(0, 1000);
+  return {
+    schema_version: "evolocus-question-map-highlight-v1",
+    question: context.question,
+    source: "visual story packet",
+    map_filters: normalizedLogMapFilters(context.filters),
+    filter_labels: context.filterLabels || [],
+    reasons: context.reasons?.length ? context.reasons : ["Visual story packet -> aggregate map route"],
+    unit_ids: unitIds,
+    unit_count: unitIds.length,
+    law_count: Number(context.summary?.lawCount || 0),
+    top_unit_ids: (context.units || []).slice(0, 8).map((unit) => unit.unit_id).filter(Boolean),
+    ontology_route: ontologyRoute,
+    publication_policy: {
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      record_locator_values_included: false,
+      review_events_included: false,
+      browser_model_call: false,
+      legal_findings: false,
+    },
+  };
+}
+
+function exportFrontdoorVisualStoryPacket() {
+  const payload = frontdoorVisualStoryPacketPayload();
+  download("evolocus-visual-story-packet.json", JSON.stringify(payload, null, 2), "application/json");
+}
+
+function applyFrontdoorVisualStoryAction(action) {
+  const payload = frontdoorVisualStoryPacketPayload();
+  if (action === "export") {
+    exportFrontdoorVisualStoryPacket();
+    return;
+  }
+  state.inquiryMapHighlight = payload.map_route.highlight;
+  state.mapFilters = payload.map_route.filters;
+  state.geographyColorMode = payload.map_route.geography_color_mode || state.geographyColorMode;
+  state.selectedUnitId = payload.map_route.selected_unit_id || state.selectedUnitId;
+  if (action === "ask") {
+    answerAndLogInquiry(payload.story_question, "visual story packet");
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    applyQuestionOntologyRoute(payload.ontology_route);
+    return;
+  }
+  state.activeTab = "map";
+  render();
 }
 
 function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
@@ -15282,6 +15545,12 @@ function bindEvents() {
     if (composerButton) {
       event.preventDefault();
       applyFrontdoorComposerAction(composerButton.dataset.frontdoorComposerAction || "preview", composerButton.closest("form"));
+      return;
+    }
+    const storyButton = event.target.closest("[data-frontdoor-story-action]");
+    if (storyButton) {
+      event.preventDefault();
+      applyFrontdoorVisualStoryAction(storyButton.dataset.frontdoorStoryAction || "export");
       return;
     }
     const exportRoutesButton = event.target.closest("[data-frontdoor-export-routes]");

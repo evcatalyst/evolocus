@@ -124,6 +124,16 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoorRouteExportPayload" in js
     assert "frontdoorRouteExportItem" in js
     assert "exportFrontdoorSavedRoutes" in js
+    assert "frontdoorVisualStoryPacketHtml" in js
+    assert "frontdoorVisualStoryPacketPayload" in js
+    assert "exportFrontdoorVisualStoryPacket" in js
+    assert "applyFrontdoorVisualStoryAction" in js
+    assert "evolocus-visual-story-packet-v1" in js
+    assert "evolocus-visual-story-packet.json" in js
+    assert "data-frontdoor-story-action" in js
+    assert "Visual story packet" in js
+    assert "answer_text_included: false" in js
+    assert "route_only: true" in js
     assert "frontdoorRouteImportHtml" in js
     assert "importFrontdoorSavedRoutes" in js
     assert "frontdoorRouteImportEntries" in js
@@ -712,6 +722,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoor-saved-actions" in css
     assert "frontdoor-saved-export-card" in css
     assert "frontdoor-route-import" in css
+    assert "frontdoor-story-packet" in css
+    assert "frontdoor-story-metrics" in css
+    assert "frontdoor-story-path" in css
     assert "frontdoor-step-card" in css
     assert "frontdoor-example-questions" in css
     assert "frontdoor-example-card" in css

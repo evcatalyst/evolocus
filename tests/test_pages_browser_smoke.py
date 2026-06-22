@@ -114,6 +114,32 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "Function: Enforcement" in composer_text
             assert "State IN" not in composer_text
             assert "no ordinance text" in composer_text.lower()
+            page.wait_for_selector(".frontdoor-story-packet [data-frontdoor-story-action='export']", timeout=10_000)
+            story_text = page.locator(".frontdoor-story-packet").inner_text(timeout=5_000).lower()
+            assert "visual story packet" in story_text
+            assert "ask -> map -> ontology" in story_text
+            assert "no text" in story_text
+            assert "browser model calls" in story_text
+            with page.expect_download() as story_download_info:
+                page.locator(".frontdoor-story-packet [data-frontdoor-story-action='export']").click()
+            story_download = story_download_info.value
+            assert story_download.suggested_filename == "evolocus-visual-story-packet.json"
+            story_payload = json.loads(Path(story_download.path()).read_text(encoding="utf-8"))
+            assert story_payload["schema_version"] == "evolocus-visual-story-packet-v1"
+            assert story_payload["story_mode"] == "Ask -> Map -> Ontology"
+            assert story_payload["publication_policy"]["ordinance_text_included"] is False
+            assert story_payload["publication_policy"]["answer_text_included"] is False
+            assert story_payload["publication_policy"]["route_only"] is True
+            assert story_payload["map_route"]["previewed_from_typed_question"] is True
+            assert story_payload["ontology_route"]["schema_version"] == "evolocus-question-ontology-route-v1"
+            assert "answer_excerpt" not in story_payload
+            page.locator(".frontdoor-story-packet [data-frontdoor-story-action='map']").click()
+            page.wait_for_function("() => document.querySelector('#map-panel')?.classList.contains('active')")
+            page.wait_for_selector(".map-question-highlight-card [data-clear-inquiry-map-highlight]", timeout=10_000)
+            story_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
+            assert "visual story packet" in story_highlight_text
+            assert "no browser-side grok call" in story_highlight_text
+            assert page.locator(".map-unit.inquiry-hit").count() > 0
             page.locator("[data-frontdoor-composer-action='save']").click()
             page.wait_for_selector(".frontdoor-saved-route [data-frontdoor-route-action='ontology']", timeout=10_000)
             saved_route_text = page.locator(".frontdoor-saved-routes").inner_text(timeout=5_000)
