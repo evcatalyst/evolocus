@@ -26,6 +26,7 @@ REQUIRED_PATHS = [
     "site/data/analysis/question_pack.json",
     "site/data/analysis/models.json",
     "site/data/analysis/charts.json",
+    "site/data/analysis/artifact_snapshot.json",
     "site/data/analysis/audit_status.json",
     "site/data/analysis/unit_audit_quality.json",
     "site/data/analysis/county_geometry.json",
@@ -198,6 +199,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "SYNTHETIC DEMONSTRATION PACKAGE" in js
     assert "Synthetic package units are highlighted on the map" in js
     assert "data/analysis/charts.json" in js
+    assert "data/analysis/artifact_snapshot.json" in js
     assert "data/analysis/audit_status.json" in js
     assert "data/analysis/unit_audit_quality.json" in js
     assert "data/analysis/inquiry_briefings.json" in js
@@ -543,7 +545,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "latestArtifactChangeRows" in js
     assert "artifactChangeRowHtml" in js
     assert "latestArtifactTimestamp" in js
-    assert "This is current refresh metadata, not a historical diff." in js
+    assert "Current refresh metadata only; no stored snapshot loaded." in js
+    assert "Rows summarize public aggregate artifacts only." in js
     assert "No row text, source locators, local databases, exports, or legal findings" in js
     assert "artifact-change-card" in css
     assert "artifact-change-grid" in css
@@ -607,6 +610,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "Open refresh workflow" in js
     assert "actions-briefing-refresh" in css
     assert "primary-action-link" in css
+    assert "artifactSnapshot" in js
+    assert "currentArtifactSnapshotMetrics" in js
+    assert "artifactMetricDelta" in js
+    assert "artifactDeltaSummary" in js
+    assert "Compared with stored snapshot" in js
+    assert "snapshot baseline unavailable" in js
+    assert "artifact-change-row small" in css
     assert "stateSummaries" in js
     assert "api.x.ai" not in js
     assert "GROK_API_KEY" not in js
@@ -627,6 +637,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     question_pack = json.loads(read_text("site/data/analysis/question_pack.json"))
     county_geometry = json.loads(read_text("site/data/analysis/county_geometry.json"))
     municipal_points = json.loads(read_text("site/data/analysis/municipal_points.json"))
+    artifact_snapshot = json.loads(read_text("site/data/analysis/artifact_snapshot.json"))
     assert status["synthetic"] is False
     assert status["real_locus_rows_published"] is False
     assert status["grok_secret_name"] == "GROK_API_KEY"
@@ -705,6 +716,12 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert len(county_geometry["feature_collection"]["features"]) == county_geometry["matched_count"]
     assert all(feature["properties"]["match_status"] == "machine_matched_pending_review" for feature in county_geometry["feature_collection"]["features"])
     assert municipal_points["schema_version"] == "evolocus-municipal-points-v1"
+    assert artifact_snapshot["schema_version"] == "evolocus-artifact-snapshot-v1"
+    assert artifact_snapshot["publication_policy"]["raw_rows_included"] is False
+    assert artifact_snapshot["publication_policy"]["ordinance_text_included"] is False
+    assert artifact_snapshot["publication_policy"]["record_locator_values_included"] is False
+    assert artifact_snapshot["metrics"]["unit_count"] == status["unit_count"]
+    assert artifact_snapshot["metrics"]["law_count"] == status["law_count"]
     assert municipal_points["geometry_status"] == "official_census_municipal_points_machine_matched_pending_review"
     assert municipal_points["real_locus_rows_published"] is False
     assert municipal_points["municipal_unit_count"] == 823
@@ -723,6 +740,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
             "question_pack": question_pack,
             "county_geometry": county_geometry,
             "municipal_points": municipal_points,
+            "artifact_snapshot": artifact_snapshot,
         }
     )
     assert '"content"' not in serialized

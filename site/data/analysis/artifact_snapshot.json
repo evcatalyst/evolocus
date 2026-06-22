@@ -1,0 +1,57 @@
+{
+  "schema_version": "evolocus-artifact-snapshot-v1",
+  "snapshot_label": "baseline before artifact diff support",
+  "created_at": "2026-06-22T00:45:14Z",
+  "captured_from_commit": "0e75f0a1afe719253c74b5dcb161e80dac6f93cc",
+  "dataset_id": "LocalLaws/LOCUS-v1",
+  "dataset_revision": "main",
+  "license": "CC-BY-NC-4.0",
+  "paper": "https://arxiv.org/abs/2606.19334",
+  "citation": "Denis Peskoff, Joe Barrow, Christopher Vu, and Diag Davenport. \"Freeing the Law with LOCUS: A Local Ordinance Corpus for the United States.\" arXiv:2606.19334, 2026.",
+  "purpose": "Public aggregate-only baseline for comparing currently loaded artifact metrics against a stored prior snapshot.",
+  "real_locus_rows_published": false,
+  "publication_policy": {
+    "raw_rows_included": false,
+    "ordinance_text_included": false,
+    "record_locator_values_included": false,
+    "browser_llm_calls": false,
+    "legal_findings": false,
+    "local_databases_included": false,
+    "exports_included": false
+  },
+  "metrics": {
+    "unit_count": 1000,
+    "law_count": 1517672,
+    "audit_row_count": 2211516,
+    "unit_audit_row_count": 1517672,
+    "matched_audit_unit_count": 1000,
+    "inquiry_briefing_count": 5,
+    "question_prompt_count": 8,
+    "ontology_node_count": 1018,
+    "ontology_edge_count": 3000,
+    "chart_panel_count": 6,
+    "model_count": 7,
+    "county_match_count": 177,
+    "municipal_match_count": 815,
+    "local_package_metadata_records": 24,
+    "local_package_matched_units": 12
+  },
+  "artifact_generated_at": {
+    "map_layers": "2026-06-21T15:37:25.346485+00:00",
+    "status": "2026-06-21T15:37:25.327380+00:00",
+    "audit_status": "2026-06-21T17:53:39.398544+00:00",
+    "unit_audit_quality": "2026-06-21T18:08:08.355451+00:00",
+    "inquiry_briefings": "2026-06-21T18:58:46.702559+00:00",
+    "question_pack": "2026-06-21T21:23:58.908993+00:00",
+    "county_geometry": "2026-06-21T16:23:36.005485+00:00",
+    "municipal_points": "2026-06-21T16:34:49.979234+00:00",
+    "ontology": "2026-06-21T15:37:25.327260+00:00",
+    "charts": "2026-06-21T15:37:25.346346+00:00",
+    "models": "2026-06-21T15:37:25.346479+00:00"
+  },
+  "limitations": [
+    "This snapshot contains aggregate metadata only.",
+    "Deltas are valid only for metrics explicitly captured in this snapshot.",
+    "A no-change delta means current public metadata matches this stored baseline, not that the underlying law corpus is unchanged."
+  ]
+}

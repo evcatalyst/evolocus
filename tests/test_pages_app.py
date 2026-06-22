@@ -68,6 +68,13 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "snapshotPackageSummary" in js
     assert "snapshotPackageComparisonHtml" in js
     assert "data/analysis/question_pack.json" in js
+    assert "data/analysis/artifact_snapshot.json" in js
+    assert "artifactSnapshot" in js
+    assert "currentArtifactSnapshotMetrics" in js
+    assert "artifactMetricDelta" in js
+    assert "artifactDeltaSummary" in js
+    assert "Compared with stored snapshot" in js
+    assert "snapshot baseline unavailable" in js
     assert "questionPackPromptCards" in js
     assert "applyQuestionPackPrompt" in js
     assert "data-inquiry-pack" in js
@@ -97,6 +104,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "lastRefreshSourceSummary" in js
     assert "tracked Polars aggregate artifact" in js
     assert "public artifact validator runs before Pages upload" in js
+    assert "artifact-change-row small" in css
     assert "renderMapReadingGuide" in js
     assert "mapTopicTierMatrixHtml" in js
     assert "topicTierMatrixRows" in js
@@ -348,7 +356,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "artifactChangeRowHtml" in js
     assert "latestArtifactTimestamp" in js
     assert "Current refresh metadata, not a historical diff" not in js
-    assert "This is current refresh metadata, not a historical diff." in js
+    assert "Current refresh metadata only; no stored snapshot loaded." in js
+    assert "Rows summarize public aggregate artifacts only." in js
     assert "No row text, source locators, local databases, exports, or legal findings" in js
     assert "openAnalysisStatusTab" in js
     assert "data-open-status-tab" in js

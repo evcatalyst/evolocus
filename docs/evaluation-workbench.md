@@ -186,6 +186,8 @@ The current-view snapshot export captures active filters, visible aggregate summ
 
 The Snapshots tab stores those aggregate current-view payloads in browser localStorage, renders comparison bars, and can reload a saved view's map filters. Package-aware snapshot cards compare matched package units and record counts while preserving text and locator exclusion. Gallery export uses the same aggregate-only policy.
 
+The Analysis Status tab also reads `site/data/analysis/artifact_snapshot.json`, an aggregate-only stored baseline that lets the static site show true current-vs-snapshot metadata deltas. The snapshot contains counts, timestamps, citation metadata, and publication-policy flags only.
+
 The map-side inquiry card can save and export a bounded local history of aggregate answers. History entries are browser-local only and store prompt context, filters, selected unit metadata, package counts, and comparison rows; exports sanitize those fields and exclude ordinance text, source locator values, review events, local databases, secrets, and browser LLM calls.
 
 The Inquiry question matrix reads current browser filter state, `question_pack.json`, and static aggregate artifacts. Question-pack prompts can apply safe map filters and disclosure levels from the browser. They remain deterministic browser logic unless an offline workflow publishes refreshed briefing or question-pack JSON.

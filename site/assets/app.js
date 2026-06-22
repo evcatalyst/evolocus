@@ -21,6 +21,7 @@ const ANALYSIS_PATHS = {
   questionPack: "data/analysis/question_pack.json",
   models: "data/analysis/models.json",
   charts: "data/analysis/charts.json",
+  artifactSnapshot: "data/analysis/artifact_snapshot.json",
 };
 
 const SCORE_OPTIONS = [
@@ -266,6 +267,7 @@ let state = {
     questionPack: null,
     models: null,
     charts: null,
+    artifactSnapshot: null,
     error: null,
   },
 };
@@ -2649,6 +2651,7 @@ function renderAnalysisStatusPanel() {
     ontology: state.analysis.ontology,
     charts: state.analysis.charts,
     models: state.analysis.models,
+    artifactSnapshot: state.analysis.artifactSnapshot,
     packageVerification,
   });
 
@@ -2777,13 +2780,17 @@ function renderAnalysisStatusPanel() {
 function latestArtifactChangePanelHtml(status, artifacts) {
   const rows = latestArtifactChangeRows(status, artifacts);
   const latest = latestArtifactTimestamp(rows);
+  const snapshot = artifacts.artifactSnapshot;
+  const snapshotLabel = snapshot
+    ? `Compared with stored snapshot: ${snapshot.snapshot_label || formatDateTime(snapshot.created_at)}`
+    : "Current refresh metadata only; no stored snapshot loaded.";
   return `
     <section class="artifact-change-card" aria-label="Latest aggregate artifact changes">
       <div class="artifact-change-heading">
         <div>
           <p class="eyebrow">Latest artifact refresh</p>
           <h3>What the current aggregate artifact set contributes.</h3>
-          <p>This is current refresh metadata, not a historical diff. Rows summarize public aggregate artifacts only.</p>
+          <p>${escapeHtml(snapshotLabel)} Rows summarize public aggregate artifacts only.</p>
         </div>
         <span>${escapeHtml(latest ? `${formatDateTime(latest)} · ${artifactAgeLabel(latest)}` : "artifact timestamps loading")}</span>
       </div>
@@ -2807,6 +2814,7 @@ function latestArtifactChangeRows(status, artifacts) {
     ontology,
     charts,
     models,
+    artifactSnapshot,
     packageVerification,
   } = artifacts;
   const mapUnits = mapLayers?.units || [];
@@ -2814,56 +2822,133 @@ function latestArtifactChangeRows(status, artifacts) {
   const questionGrok = questionPack?.grok || {};
   const chartCount = charts?.charts ? Object.keys(charts.charts).length : 0;
   const modelCount = models?.models ? models.models.length : 0;
+  const metrics = currentArtifactSnapshotMetrics(status, artifacts);
+  const snapshotMetrics = artifactSnapshot?.metrics || {};
   return [
     {
       label: "Aggregate map scope",
       value: `${formatCount(status.unit_count || mapUnits.length)} units · ${formatCount(status.law_count)} rows`,
       detail: `Dataset ${status.dataset_revision || mapLayers?.dataset_revision || "unknown"} · ${status.real_locus_rows_published ? "review needed" : "no row text"}`,
       generatedAt: mapLayers?.generated_at || status.generated_at,
+      delta: artifactDeltaSummary([
+        artifactMetricDelta(metrics.unit_count, snapshotMetrics.unit_count, "units"),
+        artifactMetricDelta(metrics.law_count, snapshotMetrics.law_count, "rows"),
+      ]),
     },
     {
       label: "Inquiry answers",
       value: inquiryBriefings ? `${formatCount((inquiryBriefings.briefings || []).length)} briefings · ${briefingGrok.used ? `offline ${briefingGrok.model || "Grok"}` : "deterministic"}` : "not loaded",
       detail: "Published as static aggregate JSON; no browser model call",
       generatedAt: inquiryBriefings?.generated_at,
+      delta: artifactMetricDelta(metrics.inquiry_briefing_count, snapshotMetrics.inquiry_briefing_count, "briefings"),
     },
     {
       label: "Question presets",
       value: questionPack ? `${formatCount((questionPack.prompts || []).length)} prompts · ${questionGrok.used ? "offline noted" : "deterministic"}` : "not loaded",
       detail: "Filter-aware prompts over aggregate map artifacts",
       generatedAt: questionPack?.generated_at,
+      delta: artifactMetricDelta(metrics.question_prompt_count, snapshotMetrics.question_prompt_count, "prompts"),
     },
     {
       label: "Audit layer",
       value: auditStatus ? `${formatCount(auditStatus.row_count)} audited rows` : "not loaded",
       detail: auditStatus ? `${formatCount((auditStatus.quality_gates || []).length)} quality gates · ${auditGateSummary(auditStatus)}` : "Run local audit before publishing status",
       generatedAt: auditStatus?.generated_at,
+      delta: artifactMetricDelta(metrics.audit_row_count, snapshotMetrics.audit_row_count, "audited rows"),
     },
     {
       label: "Per-unit audit signals",
       value: unitAuditQuality ? `${formatCount(unitAuditQuality.matched_unit_count)} matched units` : "not loaded",
       detail: unitAuditQuality ? `${formatCount(unitAuditQuality.row_count)} rows summarized as OCR/duplicate review signals` : "Unit audit artifact unavailable",
       generatedAt: unitAuditQuality?.generated_at,
+      delta: artifactDeltaSummary([
+        artifactMetricDelta(metrics.matched_audit_unit_count, snapshotMetrics.matched_audit_unit_count, "units"),
+        artifactMetricDelta(metrics.unit_audit_row_count, snapshotMetrics.unit_audit_row_count, "rows"),
+      ]),
     },
     {
       label: "Geometry overlay",
       value: `${countyGeometry ? `${formatCount(countyGeometry.matched_count)} counties` : "counties loading"} · ${municipalPoints ? `${formatCount(municipalPoints.matched_count)} towns` : "towns loading"}`,
       detail: "Official Census geometry machine-matched and pending review",
       generatedAt: latestIso([countyGeometry?.generated_at, municipalPoints?.generated_at]),
+      delta: artifactDeltaSummary([
+        artifactMetricDelta(metrics.county_match_count, snapshotMetrics.county_match_count, "counties"),
+        artifactMetricDelta(metrics.municipal_match_count, snapshotMetrics.municipal_match_count, "towns"),
+      ]),
     },
     {
       label: "Ontology and charts",
       value: `${ontology ? `${formatCount((ontology.nodes || []).length)} nodes` : "ontology loading"} · ${formatCount(chartCount)} charts · ${formatCount(modelCount)} models`,
       detail: ontology ? `${formatCount((ontology.edges || []).length)} aggregate edges; charts are review aids` : "Static graph artifacts loading",
       generatedAt: latestIso([ontology?.generated_at, charts?.generated_at, models?.generated_at]),
+      delta: artifactDeltaSummary([
+        artifactMetricDelta(metrics.ontology_node_count, snapshotMetrics.ontology_node_count, "nodes"),
+        artifactMetricDelta(metrics.chart_panel_count, snapshotMetrics.chart_panel_count, "charts"),
+        artifactMetricDelta(metrics.model_count, snapshotMetrics.model_count, "models"),
+      ]),
     },
     {
       label: "Local package verification",
       value: packageVerification?.status === "complete" ? `${formatCount(packageVerification.metadata_package_record_count)} metadata records` : "not recorded",
       detail: packageVerification?.status === "complete" ? `${formatCount(packageVerification.matched_public_unit_count)} matched public units · local-only` : "Package materialization remains ignored and browser-local",
       generatedAt: packageVerification?.verified_at,
+      delta: artifactDeltaSummary([
+        artifactMetricDelta(metrics.local_package_metadata_records, snapshotMetrics.local_package_metadata_records, "records"),
+        artifactMetricDelta(metrics.local_package_matched_units, snapshotMetrics.local_package_matched_units, "units"),
+      ]),
     },
   ];
+}
+
+function currentArtifactSnapshotMetrics(status, artifacts) {
+  const {
+    auditStatus,
+    inquiryBriefings,
+    questionPack,
+    countyGeometry,
+    municipalPoints,
+    unitAuditQuality,
+    ontology,
+    charts,
+    models,
+    packageVerification,
+  } = artifacts;
+  return {
+    unit_count: Number(status.unit_count || artifacts.mapLayers?.units?.length || 0),
+    law_count: Number(status.law_count || 0),
+    audit_row_count: Number(auditStatus?.row_count || 0),
+    unit_audit_row_count: Number(unitAuditQuality?.row_count || 0),
+    matched_audit_unit_count: Number(unitAuditQuality?.matched_unit_count || 0),
+    inquiry_briefing_count: (inquiryBriefings?.briefings || []).length,
+    question_prompt_count: (questionPack?.prompts || []).length,
+    ontology_node_count: (ontology?.nodes || []).length,
+    ontology_edge_count: (ontology?.edges || []).length,
+    chart_panel_count: charts?.charts ? Object.keys(charts.charts).length : 0,
+    model_count: (models?.models || []).length,
+    county_match_count: Number(countyGeometry?.matched_count || 0),
+    municipal_match_count: Number(municipalPoints?.matched_count || 0),
+    local_package_metadata_records: Number(packageVerification?.metadata_package_record_count || 0),
+    local_package_matched_units: Number(packageVerification?.matched_public_unit_count || 0),
+  };
+}
+
+function artifactMetricDelta(currentValue, baselineValue, noun) {
+  const current = Number(currentValue);
+  const baseline = Number(baselineValue);
+  if (!Number.isFinite(current) || !Number.isFinite(baseline)) {
+    return "snapshot baseline unavailable";
+  }
+  const delta = current - baseline;
+  if (!delta) {
+    return `no change in ${noun}`;
+  }
+  const sign = delta > 0 ? "+" : "";
+  return `${sign}${formatCount(delta)} ${noun}`;
+}
+
+function artifactDeltaSummary(parts) {
+  const available = parts.filter((part) => part && part !== "snapshot baseline unavailable");
+  return available.length ? available.join(" · ") : "snapshot baseline unavailable";
 }
 
 function artifactChangeRowHtml(row) {
@@ -2872,6 +2957,7 @@ function artifactChangeRowHtml(row) {
       <span>${escapeHtml(row.label)}</span>
       <strong>${escapeHtml(row.value)}</strong>
       <em>${escapeHtml(row.generatedAt ? `${formatDateTime(row.generatedAt)} · ${artifactAgeLabel(row.generatedAt)}` : "timestamp not available")}</em>
+      <small>${escapeHtml(row.delta || "snapshot baseline unavailable")}</small>
       <p>${escapeHtml(row.detail)}</p>
     </article>
   `;
@@ -8713,7 +8799,7 @@ function formatFraction(metric) {
 
 async function fetchAnalysisArtifacts() {
   try {
-    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts] = await Promise.all([
+    const [status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot] = await Promise.all([
       fetchJson(ANALYSIS_PATHS.status),
       fetchJson(ANALYSIS_PATHS.mapLayers),
       fetchJson(ANALYSIS_PATHS.countyGeometry),
@@ -8726,8 +8812,9 @@ async function fetchAnalysisArtifacts() {
       fetchJson(ANALYSIS_PATHS.questionPack),
       fetchJson(ANALYSIS_PATHS.models),
       fetchJson(ANALYSIS_PATHS.charts),
+      fetchJson(ANALYSIS_PATHS.artifactSnapshot),
     ]);
-    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, error: null };
+    state.analysis = { status, mapLayers, countyGeometry, municipalPoints, auditStatus, unitAuditQuality, ontology, chatIndex, inquiryBriefings, questionPack, models, charts, artifactSnapshot, error: null };
   } catch (error) {
     state.analysis.error = `Could not load analysis artifacts: ${error.message}`;
   }

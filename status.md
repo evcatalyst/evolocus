@@ -124,6 +124,7 @@ Current coverage stats:
 - Package coverage surface: GitHub Pages Results tab summarizes imported browser-local queues by state, topic, function, jurisdiction type, OCR-risk mix, safety markers, and review progress
 - Current-view export surface: GitHub Pages buttons for filtered map/inquiry aggregate snapshot JSON
 - Snapshot gallery surface: GitHub Pages tab for browser-local comparison of saved aggregate map/inquiry snapshots, including package-count comparisons when a local package overlay is active
+- Artifact snapshot diff surface: GitHub Pages Analysis Status compares current aggregate metadata with `artifact_snapshot.json`, a stored public baseline containing counts and publication-policy flags only
 - Walkthrough surface: GitHub Pages tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots
 - Model registry: released LOCUS output fields imported
 - Grok secret wiring: `GROK_API_KEY` documented for offline jobs only, with the existing `Grok_api_key` Actions secret accepted as an alias by the refresh workflow
@@ -210,6 +211,7 @@ Latest update:
 - Persisted the validated Grok-enriched aggregate inquiry briefing artifact so normal Pages deployments preserve the current Q&A layer.
 - Added current-view snapshot export for sharing filtered map/inquiry aggregate context without text, raw rows, record locators, or review events.
 - Added a Snapshots tab that saves aggregate current-view exports locally and compares them visually without LOCUS text or review history.
+- Added a stored aggregate artifact snapshot so the Analysis Status tab can show true current-vs-baseline metadata deltas without text, source locators, databases, exports, or legal findings.
 - Added a Walkthrough tab that turns the existing aggregate map, inquiry, ontology, queue plan, and snapshot surfaces into a guided progressive demo flow.
 
 Evaluator implementation state:

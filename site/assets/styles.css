@@ -691,6 +691,7 @@ textarea {
 }
 
 .artifact-change-row em,
+.artifact-change-row small,
 .artifact-change-row p {
   margin: 0;
   color: var(--muted);
@@ -698,6 +699,11 @@ textarea {
   font-style: normal;
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.artifact-change-row small {
+  color: var(--green);
+  font-weight: 850;
 }
 
 .artifact-change-boundary {
