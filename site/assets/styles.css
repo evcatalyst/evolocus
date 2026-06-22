@@ -4368,6 +4368,84 @@ textarea {
   margin: 0;
 }
 
+.question-ontology-route {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(45, 92, 122, 0.22);
+  border-radius: 8px;
+  background: #f7fbfd;
+  padding: 10px;
+}
+
+.question-ontology-route-heading {
+  display: grid;
+  gap: 3px;
+}
+
+.question-ontology-route-heading span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.question-ontology-route-heading strong,
+.question-ontology-route-heading em {
+  overflow-wrap: anywhere;
+}
+
+.question-ontology-route-heading em {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-style: normal;
+}
+
+.question-ontology-route-nodes,
+.question-ontology-route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.question-ontology-route-nodes span {
+  display: grid;
+  gap: 2px;
+  max-width: 230px;
+  border: 1px solid rgba(45, 92, 122, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 7px 8px;
+}
+
+.question-ontology-route-nodes span.review {
+  border-style: dashed;
+}
+
+.question-ontology-route-nodes strong,
+.question-ontology-route-nodes em {
+  overflow-wrap: anywhere;
+}
+
+.question-ontology-route-nodes strong {
+  color: #17415d;
+  font-size: 0.76rem;
+}
+
+.question-ontology-route-nodes em,
+.question-ontology-route-actions span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-style: normal;
+}
+
+.question-ontology-route-actions button {
+  border-color: rgba(45, 92, 122, 0.34);
+  background: #ffffff;
+  color: #17415d;
+  padding: 7px 10px;
+}
+
 .county-layer-card {
   border: 1px solid var(--line);
   border-radius: 8px;

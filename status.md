@@ -95,6 +95,7 @@ Current coverage stats:
 - Score Lens visual surface: GitHub Pages tab for neutral model-score distributions, state matrix, and high-contrast unit profiles
 - Front-door visual path: GitHub Pages now exposes Ask -> Map -> Ontology actions with current aggregate denominators, suggested deterministic question, and progressive disclosure controls before the map panel
 - Front-door question composer: GitHub Pages lets users type a question, preview deterministic aggregate filters, and route the result to Map, Inquiry, or Ontology without browser model calls
+- Front-door ontology-backed question routes: typed questions now display aggregate topic/function/tier/unit ontology nodes and carry that route into Map and Ontology views without row text
 - Front-door saved route cards: GitHub Pages shows recent browser-local aggregate question routes on the landing page with answer, map, and ontology replay buttons
 - Front-door route export: GitHub Pages downloads a content-free `evolocus-frontdoor-routes.json` packet with aggregate route filters, counts, provenance, and policy flags only
 - Front-door route import: GitHub Pages imports only sanitized front-door route packets, rejecting raw-text, locator, answer-text, review-event, secret, or token-shaped fields before replay
@@ -127,6 +128,7 @@ Current coverage stats:
 - Map inquiry history export: GitHub Pages exports sanitized aggregate answer history JSON with no text, locators, review events, local paths, or secrets
 - Inquiry comparison strip: GitHub Pages pairs map-side answers with prompt-aware county/town aggregate comparison rows that drill back to selected map units
 - Chat-to-map highlighting: GitHub Pages turns Inquiry and landing question routes into highlighted county/town map units using aggregate unit IDs, counts, filters, and no-content policy flags only
+- Question-to-ontology routing: GitHub Pages stores content-free ontology route metadata with question highlights and saved routes so users can move from a question to highlighted units to aggregate graph nodes
 - Ontology build-status surface: GitHub Pages shows graph freshness, node/edge mix, model registry provenance, snapshot deltas, and aggregate-only boundaries
 - Ontology tier-neighborhood graph: GitHub Pages links the active neutral tier to aggregate topic, function, unit-type, and model-score nodes with map drillback and no row-level evidence
 - Selected-unit ontology path animation: GitHub Pages animates the aggregate path from map unit to topic/function/tier, then score and geometry nodes by disclosure depth
@@ -273,3 +275,4 @@ Evaluator implementation state:
 - Inquiry ontology-chip surface: topic/tier pathway cells now include aggregate topic, tier, and top-unit chips that route to Ontology or Law Map using safe filters and published unit IDs only.
 - Analysis journey surface: GitHub Pages shows a persistent Map -> Inquiry -> Ontology -> Queue Plan strip that routes tabs with aggregate counts, filters, disclosure level, and no row-level data.
 - Chart-brush surface: GitHub Pages chart route buttons and chart rows now open the Law Map with a visible aggregate-only county/town highlight, no raw rows, no locators, and no browser model call.
+- Ontology-backed question route surface: GitHub Pages typed questions now show and replay aggregate topic/function/tier/unit graph nodes with explicit no-text/no-locator/no-browser-model boundaries.

@@ -38,6 +38,7 @@ The Pages app supports:
 - compact analysis journey strip connecting Map -> Inquiry -> Ontology -> Queue Plan with aggregate-only status;
 - first-screen Ask -> Map -> Ontology visual path with current aggregate denominators and progressive disclosure controls;
 - first-screen deterministic chat-to-map composer that previews aggregate filters from typed questions and routes to Map, Inquiry, or Ontology;
+- ontology-backed question routes that show topic, function, neutral tier, and county/town unit nodes from static aggregate artifacts;
 - first-screen saved visual route cards that replay browser-local aggregate questions back to answers, map filters, and ontology context;
 - content-free landing route export packet for sharing saved aggregate visual routes without answer text, ordinance text, locators, review events, or secrets;
 - content-free landing route import that rejects row-text or locator-shaped fields before replaying shared aggregate routes;
@@ -83,6 +84,7 @@ The Pages app supports:
 - ontology tier-neighborhood graph linking neutral tiers to aggregate topic, function, unit-type, and model-score nodes with map drillback;
 - map-driven ontology query presets that route current aggregate map context into bounded Inquiry answers;
 - chat-to-map highlighting that turns deterministic question filters into highlighted county/town aggregate units on the Law Map;
+- question-to-ontology route cards that carry typed aggregate questions from map highlights into the ontology graph without row text or live model calls;
 - ontology-to-map visual presets that preview county/town color routes for tiers, topics, functions, audit signals, law-count intensity, and score bands before opening the map;
 - package-to-ontology bridge that connects browser-local package counts to topic, function, tier, and matched map-unit nodes without exposing row text;
 - selected-unit ontology neighborhood visual for topic, function, tier, scores, and geometry provenance;

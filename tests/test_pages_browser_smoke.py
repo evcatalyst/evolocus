@@ -78,6 +78,9 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             composer_text = page.locator(".frontdoor-question-composer").inner_text(timeout=5_000)
             assert "Topic Zoning" in composer_text
             assert "Function Enforcement" in composer_text
+            assert "ontology-backed route" in composer_text.lower()
+            assert "Topic: Zoning" in composer_text
+            assert "Function: Enforcement" in composer_text
             assert "State IN" not in composer_text
             assert "no ordinance text" in composer_text.lower()
             page.locator("[data-frontdoor-composer-action='save']").click()
@@ -95,6 +98,8 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert export_payload["publication_policy"]["ordinance_text_included"] is False
             assert export_payload["publication_policy"]["source_locators_included"] is False
             assert export_payload["publication_policy"]["review_events_included"] is False
+            assert export_payload["routes"][0]["ontology_route"]["schema_version"] == "evolocus-question-ontology-route-v1"
+            assert export_payload["routes"][0]["ontology_route"]["publication_policy"]["ordinance_text_included"] is False
             assert "answer_excerpt" not in export_payload["routes"][0]
             page.evaluate("localStorage.removeItem('evolocus.pages.aggregateInquiryResultsLog.v1')")
             page.reload(wait_until="networkidle")
@@ -110,6 +115,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.locator("[data-tab='map']").click()
             page.locator(".frontdoor-saved-route [data-frontdoor-route-action='ontology']").first.click()
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
+            page.wait_for_selector("#ontology-panel .question-ontology-route", timeout=10_000)
+            imported_ontology_text = page.locator("#ontology-panel .question-ontology-route").first.inner_text(timeout=5_000).lower()
+            assert "ontology-backed route" in imported_ontology_text
+            assert "no row text" in imported_ontology_text
+            assert "browser model calls" in imported_ontology_text
 
             page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='map']", timeout=10_000)

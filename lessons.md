@@ -126,3 +126,4 @@
 - Chat-to-map highlights should store public aggregate unit IDs and filter metadata only; the visual affordance is navigation context, not evidence that a law controls a place or person.
 - Tier-neighborhood graph nodes should be treated as aggregate navigation affordances from the public map layer, not as a complete legal ontology or proof of controlling authority.
 - Chart brushes should reuse the existing chat-to-map highlight panel so chart exploration visibly lands on counties/towns without creating row-level evidence, source locators, or browser-side model calls.
+- Question-to-ontology routes can make typed questions feel connected to the graph, but the route object must remain aggregate-only node IDs, filters, counts, and policy flags rather than legal conclusions or row evidence.

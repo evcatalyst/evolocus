@@ -178,6 +178,15 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiryMapHighlightFromPlan" in js
     assert "inquiryMapHighlightFromVisibleUnits" in js
     assert "setInquiryMapHighlightFromPlan" in js
+    assert "questionOntologyRouteFromPlan" in js
+    assert "questionOntologyRouteFromUnits" in js
+    assert "normalizedQuestionOntologyRoute" in js
+    assert "questionOntologyRouteHtml" in js
+    assert "applyQuestionOntologyRoute" in js
+    assert "evolocus-question-ontology-route-v1" in js
+    assert "Ontology-backed route" in js
+    assert "data-question-ontology-open" in js
+    assert "ontology_route" in js
     assert "setChartBrushHighlight" in js
     assert "chartBrushQuestion" in js
     assert "openChartUnitOnMap" in js
@@ -194,6 +203,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "browser_model_call: false" in js
     assert "map-question-highlight-card" in css
     assert "map-question-highlight-metrics" in css
+    assert "question-ontology-route" in css
+    assert "question-ontology-route-nodes" in css
+    assert "question-ontology-route-actions" in css
     assert "map-unit.inquiry-hit" in css
     assert "map-unit.inquiry-muted" in css
     assert "renderMapRefreshSource" in js
@@ -382,7 +394,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inferQuestionScoreField" in js
     assert "applyInquiryMapComposerAction" in js
     assert "data-inquiry-map-composer-action" in js
-    assert "Composer previews aggregate map filters only" in js
+    assert "Composer previews aggregate map filters and ontology nodes only" in js
     assert "No live browser LLM calls" in js
     assert "inquiry-map-composer-card" in css
     assert "inquiry-map-composer-preview" in css

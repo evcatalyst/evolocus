@@ -731,6 +731,7 @@ function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
     ? plan.reasons.slice(0, 4).map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")
     : "<li>Type a topic, state, county/town cue, model-score field, audit cue, or neutral tier to preview an aggregate route.</li>";
   const topUnit = plan.previewSummary.topUnit;
+  const ontologyRoute = normalizedQuestionOntologyRoute(plan.ontologyRoute);
   return `
     <section class="frontdoor-question-composer" aria-label="Landing question to map composer">
       <form data-frontdoor-composer>
@@ -761,6 +762,7 @@ function frontdoorQuestionComposerHtml(plan, suggestedQuestion) {
           <ul>${reasonRows}</ul>
         </div>
       </div>
+      ${questionOntologyRouteHtml(ontologyRoute, "frontdoor")}
       <p class="frontdoor-question-boundary">Front-door chat is deterministic filter routing over published aggregate artifacts. It makes no browser Grok call, reads no ordinance text, exposes no source locators, and creates no legal finding.</p>
     </section>
   `;
@@ -858,6 +860,7 @@ function frontdoorRouteExportItem(item) {
           tier_label: item.selected_unit.tier_label || null,
         }
       : null,
+    ontology_route: normalizedQuestionOntologyRoute(item.ontology_route || item.question_highlight?.ontology_route),
     visible_summary: {
       unit_count: Number(item.visible_summary?.unit_count || 0),
       law_count: Number(item.visible_summary?.law_count || 0),
@@ -934,6 +937,8 @@ function containsBlockedRoutePacketKeys(value) {
 function frontdoorRouteImportEntry(route, payload, file, index) {
   const routeId = String(route.route_id || `route-${index}`).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) || `route-${index}`;
   const question = String(route.question || "Imported aggregate route").slice(0, 240);
+  const ontologyRoute = normalizedQuestionOntologyRoute(route.ontology_route);
+  const filterLabels = Array.isArray(route.filter_labels) ? route.filter_labels.slice(0, 8).map((label) => String(label).slice(0, 80)) : [];
   return {
     schema_version: "evolocus-aggregate-inquiry-result-v1",
     id: `frontdoor-import-${Date.now()}-${index}-${routeId}`,
@@ -945,7 +950,7 @@ function frontdoorRouteImportEntry(route, payload, file, index) {
     disclosure_level: ["overview", "unit", "evidence"].includes(route.disclosure_level) ? route.disclosure_level : "overview",
     geography_color_mode: route.geography_color_mode || "tier",
     map_filters: normalizedLogMapFilters(route.map_filters),
-    filter_labels: Array.isArray(route.filter_labels) ? route.filter_labels.slice(0, 8).map((label) => String(label).slice(0, 80)) : [],
+    filter_labels: filterLabels,
     selected_unit: route.selected_unit
       ? {
           unit_id: route.selected_unit.unit_id || null,
@@ -955,6 +960,8 @@ function frontdoorRouteImportEntry(route, payload, file, index) {
           tier_label: route.selected_unit.tier_label || null,
         }
       : null,
+    question_highlight: inquiryMapHighlightFromOntologyRoute(question, `front-door route import: ${file.name || "route packet"}`, ontologyRoute, filterLabels),
+    ontology_route: ontologyRoute,
     visible_summary: {
       unit_count: Number(route.visible_summary?.unit_count || 0),
       law_count: Number(route.visible_summary?.law_count || 0),
@@ -1297,20 +1304,7 @@ function applyFrontdoorComposerAction(action, form) {
     return;
   }
   if (action === "ontology") {
-    const topUnit = plan.previewSummary.topUnit;
-    const tier = topUnit?.tier || plan.proposedFilters.tier || "";
-    if (tier) {
-      state.ontologyFocusTier = tier;
-    }
-    state.geographyLayers = {
-      ...defaultGeographyLayers(),
-      ...state.geographyLayers,
-      ontology: true,
-    };
-    if (state.disclosureLevel === "overview") {
-      state.disclosureLevel = "unit";
-    }
-    state.activeTab = "ontology";
+    applyQuestionOntologyRoute(plan.ontologyRoute, { renderNow: false });
     render();
     return;
   }
@@ -2113,6 +2107,7 @@ function renderMapQuestionHighlight(units) {
   const summary = summarizeUnits(visibleHighlightedUnits);
   const topUnits = visibleHighlightedUnits.slice(0, state.disclosureLevel === "overview" ? 3 : 6);
   const filterLabels = highlight.filter_labels?.length ? highlight.filter_labels : mapComposerFilterLabels(highlight.map_filters || {});
+  const ontologyRoute = normalizedQuestionOntologyRoute(highlight.ontology_route);
   panel.innerHTML = `
     <section class="map-question-highlight-card" aria-label="Question-driven map highlight">
       <div class="map-question-highlight-heading">
@@ -2131,6 +2126,7 @@ function renderMapQuestionHighlight(units) {
       <div class="map-question-highlight-chips" aria-label="Question-inferred aggregate filters">
         ${filterLabels.length ? filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("") : "<span>No inferred filters</span>"}
       </div>
+      ${questionOntologyRouteHtml(ontologyRoute, "map")}
       ${topUnits.length ? `<div class="map-question-highlight-units">${topUnits.map((unit) => mapQuestionHighlightUnitHtml(unit)).join("")}</div>` : ""}
       <p class="map-question-highlight-boundary">
         Highlighting uses public aggregate unit IDs and counts from static artifacts. It exposes no ordinance text, source locators, review events, rankings, legal conclusions, and makes no browser-side Grok call.
@@ -2168,11 +2164,13 @@ function normalizedInquiryMapHighlight(highlight) {
     unit_ids: Array.isArray(highlight.unit_ids) ? highlight.unit_ids.filter(Boolean) : [],
     filter_labels: Array.isArray(highlight.filter_labels) ? highlight.filter_labels.filter(Boolean) : [],
     reasons: Array.isArray(highlight.reasons) ? highlight.reasons.filter(Boolean) : [],
+    ontology_route: normalizedQuestionOntologyRoute(highlight.ontology_route),
   };
 }
 
 function inquiryMapHighlightFromPlan(plan, source = "question composer") {
   const unitIds = (plan.previewUnits || []).map((unit) => unit.unit_id).filter(Boolean).slice(0, 1000);
+  const ontologyRoute = normalizedQuestionOntologyRoute(plan.ontologyRoute || questionOntologyRouteFromPlan(plan, source));
   return {
     schema_version: "evolocus-question-map-highlight-v1",
     question: String(plan.question || "").trim(),
@@ -2184,6 +2182,7 @@ function inquiryMapHighlightFromPlan(plan, source = "question composer") {
     unit_count: unitIds.length,
     law_count: Number(plan.previewSummary?.lawCount || 0),
     top_unit_ids: (plan.previewUnits || []).slice(0, 8).map((unit) => unit.unit_id).filter(Boolean),
+    ontology_route: ontologyRoute,
     publication_policy: {
       raw_rows_included: false,
       ordinance_text_included: false,
@@ -2196,6 +2195,7 @@ function inquiryMapHighlightFromPlan(plan, source = "question composer") {
 
 function inquiryMapHighlightFromVisibleUnits(question, source, units, summary = summarizeUnits(units)) {
   const unitIds = (units || []).map((unit) => unit.unit_id).filter(Boolean).slice(0, 1000);
+  const ontologyRoute = questionOntologyRouteFromUnits(question, source, units || [], state.mapFilters, summary);
   return {
     schema_version: "evolocus-question-map-highlight-v1",
     question: String(question || "").trim(),
@@ -2207,6 +2207,7 @@ function inquiryMapHighlightFromVisibleUnits(question, source, units, summary = 
     unit_count: unitIds.length,
     law_count: Number(summary?.lawCount || 0),
     top_unit_ids: (units || []).slice(0, 8).map((unit) => unit.unit_id).filter(Boolean),
+    ontology_route: ontologyRoute,
     publication_policy: {
       raw_rows_included: false,
       ordinance_text_included: false,
@@ -2219,6 +2220,198 @@ function inquiryMapHighlightFromVisibleUnits(question, source, units, summary = 
 
 function setInquiryMapHighlightFromPlan(plan, source) {
   state.inquiryMapHighlight = inquiryMapHighlightFromPlan(plan, source);
+}
+
+function questionOntologyRouteFromPlan(plan, source = "question composer") {
+  return questionOntologyRouteFromUnits(plan.question, source, plan.previewUnits || [], plan.proposedFilters || {}, plan.previewSummary);
+}
+
+function questionOntologyRouteFromUnits(question, source, units, filters = state.mapFilters, summary = summarizeUnits(units)) {
+  const routeUnits = units || [];
+  const normalizedFilters = normalizedLogMapFilters(filters);
+  const routeSummary = summary || summarizeUnits(routeUnits);
+  const definitions = state.analysis.mapLayers?.tier_definitions || {};
+  const topUnit = routeSummary.topUnit || routeUnits[0] || null;
+  const topTier = topEntry(routeSummary.tierCounts || {});
+  const focusTier = normalizedFilters.tier || topUnit?.tier || (topTier.value ? tierKeyForLabel(topTier.label, definitions) : "");
+  const focusTopic = normalizedFilters.topic || (routeSummary.topTopic?.value ? routeSummary.topTopic.label : "");
+  const focusFunction = normalizedFilters.function || (routeSummary.topFunction?.value ? routeSummary.topFunction.label : "");
+  const focusUnitId = topUnit?.unit_id || "";
+  const tierDefinition = focusTier ? tierDefinitionForKey(focusTier) : null;
+  const nodes = [
+    focusTopic
+      ? questionOntologyRouteNode("topic", `topic:${focusTopic}`, focusTopic, `${formatCount(routeSummary.topicCounts?.[focusTopic] || routeSummary.topTopic?.value || 0)} aggregate rows`)
+      : null,
+    focusFunction
+      ? questionOntologyRouteNode("function", `function:${focusFunction}`, focusFunction, `${formatCount(routeSummary.functionCounts?.[focusFunction] || routeSummary.topFunction?.value || 0)} aggregate rows`)
+      : null,
+    focusTier
+      ? questionOntologyRouteNode(
+          "tier",
+          `tier:${focusTier}`,
+          tierDefinition?.label || focusTier,
+          `${formatCount(routeSummary.tierCounts?.[tierDefinition?.label || focusTier] || routeSummary.tierCounts?.[focusTier] || 0)} visible units`,
+        )
+      : null,
+    focusUnitId
+      ? questionOntologyRouteNode("unit", `unit:${focusUnitId}`, displayUnitName(topUnit), `${topUnit.state || "NA"} · ${text(topUnit.kind)} · ${formatCount(topUnit.law_count)} rows`)
+      : null,
+  ].filter(Boolean);
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const edgeCount = (state.analysis.ontology?.edges || []).filter((edge) => nodeIds.has(edge.source) || nodeIds.has(edge.target)).length;
+  return {
+    schema_version: "evolocus-question-ontology-route-v1",
+    source: source || "aggregate question route",
+    question: String(question || "").trim(),
+    map_filters: normalizedFilters,
+    focus_tier: focusTier,
+    focus_topic: focusTopic,
+    focus_function: focusFunction,
+    focus_unit_id: focusUnitId,
+    unit_ids: routeUnits.map((unit) => unit.unit_id).filter(Boolean).slice(0, 1000),
+    unit_count: routeUnits.length,
+    law_count: Number(routeSummary.lawCount || 0),
+    nodes,
+    edge_count: edgeCount,
+    publication_policy: questionOntologyRoutePolicy(),
+  };
+}
+
+function questionOntologyRouteNode(type, id, label, detail) {
+  return {
+    type,
+    id,
+    label,
+    detail,
+    available: ontologyNodeAvailable(id),
+  };
+}
+
+function ontologyNodeAvailable(nodeId) {
+  return Boolean((state.analysis.ontology?.nodes || []).some((node) => node.id === nodeId));
+}
+
+function normalizedQuestionOntologyRoute(route) {
+  if (!route || route.schema_version !== "evolocus-question-ontology-route-v1") {
+    return null;
+  }
+  return {
+    ...route,
+    map_filters: normalizedLogMapFilters(route.map_filters || {}),
+    unit_ids: Array.isArray(route.unit_ids) ? route.unit_ids.filter(Boolean).slice(0, 1000) : [],
+    nodes: Array.isArray(route.nodes)
+      ? route.nodes
+          .filter((node) => node && node.id && node.label)
+          .map((node) => ({
+            type: String(node.type || "node"),
+            id: String(node.id),
+            label: String(node.label),
+            detail: String(node.detail || "aggregate node"),
+            available: Boolean(node.available),
+          }))
+          .slice(0, 6)
+      : [],
+    unit_count: Number(route.unit_count || 0),
+    law_count: Number(route.law_count || 0),
+    edge_count: Number(route.edge_count || 0),
+    publication_policy: questionOntologyRoutePolicy(),
+  };
+}
+
+function questionOntologyRouteHtml(route, surface = "map") {
+  const normalized = normalizedQuestionOntologyRoute(route);
+  if (!normalized) {
+    return "";
+  }
+  const actionLabel = surface === "ontology" ? "Refresh ontology route" : "Open ontology route";
+  return `
+    <section class="question-ontology-route ${escapeHtml(surface)}" aria-label="Ontology-backed aggregate question route">
+      <div class="question-ontology-route-heading">
+        <span>Ontology-backed route</span>
+        <strong>${escapeHtml(formatCount(normalized.nodes.length))} nodes · ${escapeHtml(formatCount(normalized.edge_count))} adjacent graph links</strong>
+        <em>${escapeHtml(formatCount(normalized.unit_count))} units · ${escapeHtml(formatCount(normalized.law_count))} aggregate rows</em>
+      </div>
+      <div class="question-ontology-route-nodes">
+        ${normalized.nodes.map(questionOntologyRouteNodeHtml).join("") || "<span>No ontology nodes matched the current aggregate route.</span>"}
+      </div>
+      <div class="question-ontology-route-actions">
+        <button type="button" data-question-ontology-open>${escapeHtml(actionLabel)}</button>
+        <span>No row text, source locators, legal conclusions, or browser model calls</span>
+      </div>
+    </section>
+  `;
+}
+
+function questionOntologyRouteNodeHtml(node) {
+  return `
+    <span class="${node.available ? "available" : "review"}">
+      <strong>${escapeHtml(titleCase(node.type))}: ${escapeHtml(node.label)}</strong>
+      <em>${escapeHtml(node.detail)} · ${escapeHtml(node.available ? "node found" : "node pending review")}</em>
+    </span>
+  `;
+}
+
+function questionOntologyRoutePolicy() {
+  return {
+    raw_rows_included: false,
+    ordinance_text_included: false,
+    header_text_included: false,
+    record_locator_values_included: false,
+    review_events_included: false,
+    browser_model_call: false,
+    legal_findings: false,
+  };
+}
+
+function inquiryMapHighlightFromOntologyRoute(question, source, route, filterLabels = []) {
+  const normalized = normalizedQuestionOntologyRoute(route);
+  if (!normalized) {
+    return null;
+  }
+  const unitIds = normalized.unit_ids || [];
+  return {
+    schema_version: "evolocus-question-map-highlight-v1",
+    question: String(question || normalized.question || "").trim(),
+    source: source || normalized.source || "saved aggregate route",
+    map_filters: normalized.map_filters,
+    filter_labels: Array.isArray(filterLabels) && filterLabels.length ? filterLabels : mapComposerFilterLabels(normalized.map_filters),
+    reasons: ["Saved route -> ontology-backed aggregate question route"],
+    unit_ids: unitIds,
+    unit_count: Number(normalized.unit_count || unitIds.length),
+    law_count: Number(normalized.law_count || 0),
+    top_unit_ids: unitIds.slice(0, 8),
+    ontology_route: normalized,
+    publication_policy: questionOntologyRoutePolicy(),
+  };
+}
+
+function applyQuestionOntologyRoute(route, options = {}) {
+  const normalized = normalizedQuestionOntologyRoute(route || state.inquiryMapHighlight?.ontology_route);
+  if (!normalized) {
+    state.activeTab = "ontology";
+    if (options.renderNow !== false) {
+      render();
+    }
+    return false;
+  }
+  state.mapFilters = normalized.map_filters;
+  state.selectedUnitId = normalized.focus_unit_id || state.selectedUnitId;
+  if (normalized.focus_tier) {
+    state.ontologyFocusTier = normalized.focus_tier;
+  }
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    ontology: true,
+  };
+  if (state.disclosureLevel === "overview") {
+    state.disclosureLevel = "unit";
+  }
+  state.activeTab = "ontology";
+  if (options.renderNow !== false) {
+    render();
+  }
+  return true;
 }
 
 function inquiryMapHighlightHasUnit(unitId) {
@@ -5986,6 +6179,7 @@ function ontologyTierFocusHtml() {
     .sort((a, b) => Number(b.law_count || 0) - Number(a.law_count || 0))
     .slice(0, state.disclosureLevel === "overview" ? 6 : 10);
   const filters = activeFilterLabels().join(" · ") || "No active map filters";
+  const questionRoute = normalizedQuestionOntologyRoute(state.inquiryMapHighlight?.ontology_route);
   return `
     <section class="ontology-tier-focus" aria-label="Focused tier ontology context">
       <div class="ontology-tier-focus-heading">
@@ -6003,6 +6197,7 @@ function ontologyTierFocusHtml() {
         <span><strong>${escapeHtml(summary.topFunction.label)}</strong><em>top function · ${escapeHtml(formatCount(summary.topFunction.value))} rows</em></span>
         <span><strong>${escapeHtml(scoreSnapshot(summary.scoreMeans))}</strong><em>neutral score means</em></span>
       </div>
+      ${questionOntologyRouteHtml(questionRoute, "ontology")}
       <div class="ontology-tier-focus-links">
         <article>
           <span>Topic links</span>
@@ -7043,6 +7238,7 @@ function inquiryMapComposerHtml(plan) {
   const reasonRows = plan.reasons.length
     ? plan.reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")
     : "<li>Preview uses the current aggregate map filters until the question includes a recognized topic, function, state, tier, score, audit, package, or unit-type cue.</li>";
+  const ontologyRoute = normalizedQuestionOntologyRoute(plan.ontologyRoute);
   const topUnits = plan.previewUnits
     .slice(0, 3)
     .map(
@@ -7076,12 +7272,14 @@ function inquiryMapComposerHtml(plan) {
         <strong>Why these filters?</strong>
         <ul>${reasonRows}</ul>
       </div>
+      ${questionOntologyRouteHtml(ontologyRoute, "inquiry")}
       ${topUnits ? `<div class="inquiry-map-composer-units" aria-label="Top aggregate units for preview">${topUnits}</div>` : ""}
       <div class="inquiry-map-composer-actions">
         <button type="button" data-inquiry-map-composer-action="apply-map"${question ? "" : " disabled"}>Apply preview on map</button>
         <button type="button" data-inquiry-map-composer-action="ask"${question ? "" : " disabled"}>Ask with preview filters</button>
+        <button type="button" data-inquiry-map-composer-action="ontology"${question ? "" : " disabled"}>Open ontology route</button>
       </div>
-      <p class="inquiry-map-composer-boundary">Composer previews aggregate map filters only. It does not call Grok, inspect ordinance text, expose source locators, or create legal findings.</p>
+      <p class="inquiry-map-composer-boundary">Composer previews aggregate map filters and ontology nodes only. It does not call Grok, inspect ordinance text, expose source locators, or create legal findings.</p>
     </article>
   `;
 }
@@ -7168,12 +7366,14 @@ function inquiryMapComposerPlan(question) {
   const currentUnits = filterMapUnitsWithFilters(mapUnits, filters);
   const previewUnits = filterMapUnitsWithFilters(mapUnits, proposedFilters);
   const previewSummary = summarizeUnits(previewUnits);
+  const ontologyRoute = questionOntologyRouteFromUnits(String(question || "").trim(), "question composer", previewUnits, proposedFilters, previewSummary);
   return {
     question: String(question || "").trim(),
     proposedFilters,
     currentUnits,
     previewUnits,
     previewSummary,
+    ontologyRoute,
     filterLabels: mapComposerFilterLabels(proposedFilters),
     reasons,
   };
@@ -8171,6 +8371,8 @@ function inquiryResultLogEntry(question, answer, source) {
   const briefings = state.analysis.inquiryBriefings || {};
   const questionPack = state.analysis.questionPack || {};
   const selectedUnit = currentSelectedMapUnit();
+  const highlight = normalizedInquiryMapHighlight(state.inquiryMapHighlight);
+  const ontologyRoute = normalizedQuestionOntologyRoute(highlight?.ontology_route || questionOntologyRouteFromUnits(question, source, visibleUnits, state.mapFilters, summary));
   return {
     schema_version: "evolocus-aggregate-inquiry-result-v1",
     id: `inquiry-result-${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -8183,7 +8385,8 @@ function inquiryResultLogEntry(question, answer, source) {
     geography_color_mode: state.geographyColorMode,
     map_filters: mapFiltersSnapshot(),
     filter_labels: activeFilterLabels(),
-    question_highlight: inquiryMapHighlightFromVisibleUnits(question, source, visibleUnits, summary),
+    question_highlight: highlight || inquiryMapHighlightFromVisibleUnits(question, source, visibleUnits, summary),
+    ontology_route: ontologyRoute,
     selected_unit: selectedUnit
       ? {
           unit_id: selectedUnit.unit_id,
@@ -8518,7 +8721,14 @@ function replayInquiryResultLog(entryId, destination) {
   state.disclosureLevel = ["overview", "unit", "evidence"].includes(item.disclosure_level) ? item.disclosure_level : state.disclosureLevel;
   state.activeInquiryReplayId = item.id;
   state.inquiryMapHighlight = normalizedInquiryMapHighlight(item.question_highlight) || null;
+  const ontologyRoute = normalizedQuestionOntologyRoute(item.ontology_route || item.question_highlight?.ontology_route);
   const question = String(item.question || "");
+  if (!state.inquiryMapHighlight && ontologyRoute) {
+    state.inquiryMapHighlight = inquiryMapHighlightFromOntologyRoute(question, item.source || "saved aggregate route", ontologyRoute, item.filter_labels || []);
+  }
+  if (destination === "ontology" && ontologyRoute) {
+    applyQuestionOntologyRoute(ontologyRoute, { renderNow: false });
+  }
   const input = $("#inquiry-form input[name='question']");
   if (input) {
     input.value = question;
@@ -11343,6 +11553,11 @@ function applyInquiryMapComposerAction(action) {
     render();
     return;
   }
+  if (action === "ontology") {
+    applyQuestionOntologyRoute(plan.ontologyRoute, { renderNow: false });
+    render();
+    return;
+  }
   if (action === "ask") {
     answerAndLogInquiry(question, "inquiry-to-map composer");
     state.activeTab = "inquiry";
@@ -12451,6 +12666,12 @@ function bindEvents() {
     openAnalysisJourneyStep(stepButton.dataset.journeyTab, stepButton.dataset.journeyDisclosure);
   });
   $("#frontdoor-visual-path").addEventListener("click", (event) => {
+    const questionOntologyButton = event.target.closest("[data-question-ontology-open]");
+    if (questionOntologyButton) {
+      event.preventDefault();
+      applyFrontdoorComposerAction("ontology", $("#frontdoor-visual-path [data-frontdoor-composer]"));
+      return;
+    }
     const composerButton = event.target.closest("[data-frontdoor-composer-action]");
     if (composerButton) {
       event.preventDefault();
@@ -12603,6 +12824,13 @@ function bindEvents() {
       openAnalysisStatusTab();
       return;
     }
+    const questionOntologyButton = event.target.closest("[data-question-ontology-open]");
+    if (questionOntologyButton) {
+      event.preventDefault();
+      const question = String($("#inquiry-form input[name='question']")?.value || state.inquiryMapComposerQuestion || "").trim();
+      applyQuestionOntologyRoute(inquiryMapComposerPlan(question).ontologyRoute);
+      return;
+    }
     const composerActionButton = event.target.closest("[data-inquiry-map-composer-action]");
     if (composerActionButton) {
       event.preventDefault();
@@ -12722,6 +12950,12 @@ function bindEvents() {
     if (statusButton) {
       event.preventDefault();
       openAnalysisStatusTab();
+      return;
+    }
+    const questionOntologyButton = event.target.closest("[data-question-ontology-open]");
+    if (questionOntologyButton) {
+      event.preventDefault();
+      applyQuestionOntologyRoute();
       return;
     }
     const selectedDisclosureButton = event.target.closest("[data-selected-disclosure]");
@@ -12954,6 +13188,12 @@ function bindEvents() {
     openScoreUnitOnMap(button.dataset.openScoreUnit);
   });
   $("#ontology-panel").addEventListener("click", (event) => {
+    const questionOntologyButton = event.target.closest("[data-question-ontology-open]");
+    if (questionOntologyButton) {
+      event.preventDefault();
+      applyQuestionOntologyRoute();
+      return;
+    }
     const actionButton = event.target.closest("[data-ontology-action]");
     if (actionButton) {
       if (actionButton.dataset.ontologyAction === "demo-package") {
