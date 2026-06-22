@@ -1593,6 +1593,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
         "Selected-unit query replay",
         "Saved inquiry route comparison",
         "Timeline-driven map layer playback",
+        "Per-topic map playback presets",
     ]
     assert visual_smoke["run_url"].startswith("https://github.com/evcatalyst/evolocus/actions/runs/")
     assert visual_smoke["publication_policy"]["raw_rows_included"] is False

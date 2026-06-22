@@ -40,6 +40,7 @@ def test_publish_analysis_artifacts_for_demo(tmp_path) -> None:
         "Selected-unit query replay",
         "Saved inquiry route comparison",
         "Timeline-driven map layer playback",
+        "Per-topic map playback presets",
     ]
 
 

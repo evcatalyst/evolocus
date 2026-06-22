@@ -892,4 +892,21 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
                 "No ordinance text, source locator, secret, browser model call, legal finding, or legal-change claim is observed",
             ],
         },
+        {
+            "name": "Per-topic map playback presets",
+            "steps": [
+                "Open the Law Map topic playback preset card",
+                "Inspect released LOCUS topic rows",
+                "Click a topic map playback preset",
+                "Verify matching county/town aggregate units are highlighted",
+                "Keep the same aggregate topic scope available for Inquiry or Ontology",
+            ],
+            "assertions": [
+                "Topic playback uses published aggregate topic counts and public unit IDs only",
+                "Preset clicks change browser map filters and highlights without generating new analysis",
+                "Highlighted map output records the route source as topic playback preset",
+                "Topic labels remain model-produced route facets, not verified legal findings",
+                "No ordinance text, source locator, secret, browser model call, ranking, or legal-control claim is observed",
+            ],
+        },
     ]

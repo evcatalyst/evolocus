@@ -178,3 +178,4 @@
 - Shareable route URLs need visible copy confirmation on Pages; otherwise users cannot tell whether an aggregate-only route packet is ready to paste.
 - Saved inquiry route comparison belongs in public proof because it shows browser-local aggregate routes can be compared, laddered back to map color, and replayed into ontology without text, locators, review events, or model calls.
 - Timeline-driven map playback should be public proof only when it visibly changes existing aggregate map controls and states that timeline stages are artifact/provenance views, not legal-change findings.
+- Per-topic playback should be public proof because it connects released model topic facets to map highlights while preserving that topics are model-produced route labels, not verified legal conclusions.
