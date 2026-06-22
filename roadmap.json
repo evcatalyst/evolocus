@@ -89,6 +89,7 @@
         "Add aggregate-only map inquiry history export",
         "Add Pages Actions-only inquiry briefing refresh control",
         "Add map and inquiry artifact freshness badges",
+        "Add latest-artifact refresh summary panel",
         "Add browser-local aggregate inquiry results log",
         "Add Law Map last-refresh source detail",
         "Add replay controls for saved aggregate inquiry logs",

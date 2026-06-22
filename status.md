@@ -223,6 +223,7 @@ Evaluator implementation state:
 - Primary inquiry/map surface: GitHub Pages browser app reading `site/data/analysis/`
 - Actions refresh surface: GitHub Pages Analysis Status tab exposes an Actions-only refresh control that opens the manual aggregate briefing workflow without browser-side model calls or embedded keys.
 - Freshness surface: Law Map and Inquiry headers show aggregate map, briefing, question-pack, dataset revision, and no-row-text publication boundary before users drill into visuals or answers.
+- Latest artifact change surface: Analysis Status now summarizes the current aggregate refresh metadata for map, inquiry, question pack, audit, geometry, ontology, charts, models, and local package verification without row text or historical-diff claims.
 - Inquiry results log: GitHub Pages stores recent preset/manual aggregate answers in browser localStorage with content-free export and explicit no-text/no-locator/no-review-event policy metadata.
 - Refresh-source surface: Law Map header distinguishes tracked Polars aggregate map artifacts, offline briefing source, analysis commit, deploy guard, and aggregate-only publication boundary.
 - Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.

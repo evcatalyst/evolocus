@@ -60,6 +60,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - tier-focus score mini-chart drilldowns that return to the map with neutral relative score-band filters applied;
 - map-side chat-style inquiry panel that answers from current filters, selected unit, audit signals, model scores, and package overlay without live browser model calls;
 - browser-local aggregate inquiry results log for preset/manual questions with content-free JSON export and no browser model calls;
+- latest-artifact refresh panel in Analysis Status that summarizes current aggregate metadata contributions without row text or historical-diff claims;
 - visual replay controls for aggregate inquiry log entries that restore safe filters, disclosure level, and selected aggregate unit context;
 - replay timeline sparklines for saved aggregate inquiry results, scaled by visible law rows and units while excluding row text and locators;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;

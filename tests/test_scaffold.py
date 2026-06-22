@@ -139,6 +139,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "map-inline-inquiry" in html
     assert "map-freshness-badge" in html
     assert "map-refresh-source" in html
+    assert "status-artifact-change-panel" in html
     assert "inquiry-freshness-badge" in html
     assert "map-insight-grid" in html
     assert "map-comparison-grid" in html
@@ -528,6 +529,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-log-timeline" in css
     assert "inquiry-log-timeline-row" in css
     assert "inquiry-log-sparkline" in css
+    assert "latestArtifactChangePanelHtml" in js
+    assert "latestArtifactChangeRows" in js
+    assert "artifactChangeRowHtml" in js
+    assert "latestArtifactTimestamp" in js
+    assert "This is current refresh metadata, not a historical diff." in js
+    assert "No row text, source locators, local databases, exports, or legal findings" in js
+    assert "artifact-change-card" in css
+    assert "artifact-change-grid" in css
+    assert "artifact-change-row" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

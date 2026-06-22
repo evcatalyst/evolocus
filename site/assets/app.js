@@ -2582,9 +2582,10 @@ function renderAnalysisStatusPanel() {
   const packageVerification = status?.local_package_verification || null;
   const cardsGrid = $("#status-card-grid");
   const actionGrid = $("#status-action-grid");
+  const changePanel = $("#status-artifact-change-panel");
   const detailGrid = $("#status-detail-grid");
   const gateGrid = $("#status-gate-grid");
-  if (!cardsGrid || !actionGrid || !detailGrid || !gateGrid) {
+  if (!cardsGrid || !actionGrid || !changePanel || !detailGrid || !gateGrid) {
     return;
   }
   if (!status) {
@@ -2592,6 +2593,7 @@ function renderAnalysisStatusPanel() {
       <article class="status-card"><span class="metric-value small">...</span><span class="metric-label">Loading analysis artifact status</span></article>
     `;
     actionGrid.innerHTML = "";
+    changePanel.innerHTML = "";
     detailGrid.innerHTML = "";
     gateGrid.innerHTML = "";
     return;
@@ -2636,6 +2638,19 @@ function renderAnalysisStatusPanel() {
     )
     .join("");
   actionGrid.innerHTML = actionsBriefingRefreshHtml(status, inquiryBriefings, briefingGrok);
+  changePanel.innerHTML = latestArtifactChangePanelHtml(status, {
+    mapLayers,
+    auditStatus,
+    inquiryBriefings,
+    questionPack: state.analysis.questionPack,
+    countyGeometry,
+    municipalPoints,
+    unitAuditQuality: state.analysis.unitAuditQuality,
+    ontology: state.analysis.ontology,
+    charts: state.analysis.charts,
+    models: state.analysis.models,
+    packageVerification,
+  });
 
   const showUnit = ["unit", "evidence"].includes(state.disclosureLevel);
   const showEvidence = state.disclosureLevel === "evidence";
@@ -2757,6 +2772,121 @@ function renderAnalysisStatusPanel() {
     </article>
   `;
   renderDisclosureButtons();
+}
+
+function latestArtifactChangePanelHtml(status, artifacts) {
+  const rows = latestArtifactChangeRows(status, artifacts);
+  const latest = latestArtifactTimestamp(rows);
+  return `
+    <section class="artifact-change-card" aria-label="Latest aggregate artifact changes">
+      <div class="artifact-change-heading">
+        <div>
+          <p class="eyebrow">Latest artifact refresh</p>
+          <h3>What the current aggregate artifact set contributes.</h3>
+          <p>This is current refresh metadata, not a historical diff. Rows summarize public aggregate artifacts only.</p>
+        </div>
+        <span>${escapeHtml(latest ? `${formatDateTime(latest)} · ${artifactAgeLabel(latest)}` : "artifact timestamps loading")}</span>
+      </div>
+      <div class="artifact-change-grid">
+        ${rows.map(artifactChangeRowHtml).join("")}
+      </div>
+      <p class="artifact-change-boundary">No row text, source locators, local databases, exports, or legal findings are included in this change summary.</p>
+    </section>
+  `;
+}
+
+function latestArtifactChangeRows(status, artifacts) {
+  const {
+    mapLayers,
+    auditStatus,
+    inquiryBriefings,
+    questionPack,
+    countyGeometry,
+    municipalPoints,
+    unitAuditQuality,
+    ontology,
+    charts,
+    models,
+    packageVerification,
+  } = artifacts;
+  const mapUnits = mapLayers?.units || [];
+  const briefingGrok = inquiryBriefings?.grok || {};
+  const questionGrok = questionPack?.grok || {};
+  const chartCount = charts?.charts ? Object.keys(charts.charts).length : 0;
+  const modelCount = models?.models ? models.models.length : 0;
+  return [
+    {
+      label: "Aggregate map scope",
+      value: `${formatCount(status.unit_count || mapUnits.length)} units · ${formatCount(status.law_count)} rows`,
+      detail: `Dataset ${status.dataset_revision || mapLayers?.dataset_revision || "unknown"} · ${status.real_locus_rows_published ? "review needed" : "no row text"}`,
+      generatedAt: mapLayers?.generated_at || status.generated_at,
+    },
+    {
+      label: "Inquiry answers",
+      value: inquiryBriefings ? `${formatCount((inquiryBriefings.briefings || []).length)} briefings · ${briefingGrok.used ? `offline ${briefingGrok.model || "Grok"}` : "deterministic"}` : "not loaded",
+      detail: "Published as static aggregate JSON; no browser model call",
+      generatedAt: inquiryBriefings?.generated_at,
+    },
+    {
+      label: "Question presets",
+      value: questionPack ? `${formatCount((questionPack.prompts || []).length)} prompts · ${questionGrok.used ? "offline noted" : "deterministic"}` : "not loaded",
+      detail: "Filter-aware prompts over aggregate map artifacts",
+      generatedAt: questionPack?.generated_at,
+    },
+    {
+      label: "Audit layer",
+      value: auditStatus ? `${formatCount(auditStatus.row_count)} audited rows` : "not loaded",
+      detail: auditStatus ? `${formatCount((auditStatus.quality_gates || []).length)} quality gates · ${auditGateSummary(auditStatus)}` : "Run local audit before publishing status",
+      generatedAt: auditStatus?.generated_at,
+    },
+    {
+      label: "Per-unit audit signals",
+      value: unitAuditQuality ? `${formatCount(unitAuditQuality.matched_unit_count)} matched units` : "not loaded",
+      detail: unitAuditQuality ? `${formatCount(unitAuditQuality.row_count)} rows summarized as OCR/duplicate review signals` : "Unit audit artifact unavailable",
+      generatedAt: unitAuditQuality?.generated_at,
+    },
+    {
+      label: "Geometry overlay",
+      value: `${countyGeometry ? `${formatCount(countyGeometry.matched_count)} counties` : "counties loading"} · ${municipalPoints ? `${formatCount(municipalPoints.matched_count)} towns` : "towns loading"}`,
+      detail: "Official Census geometry machine-matched and pending review",
+      generatedAt: latestIso([countyGeometry?.generated_at, municipalPoints?.generated_at]),
+    },
+    {
+      label: "Ontology and charts",
+      value: `${ontology ? `${formatCount((ontology.nodes || []).length)} nodes` : "ontology loading"} · ${formatCount(chartCount)} charts · ${formatCount(modelCount)} models`,
+      detail: ontology ? `${formatCount((ontology.edges || []).length)} aggregate edges; charts are review aids` : "Static graph artifacts loading",
+      generatedAt: latestIso([ontology?.generated_at, charts?.generated_at, models?.generated_at]),
+    },
+    {
+      label: "Local package verification",
+      value: packageVerification?.status === "complete" ? `${formatCount(packageVerification.metadata_package_record_count)} metadata records` : "not recorded",
+      detail: packageVerification?.status === "complete" ? `${formatCount(packageVerification.matched_public_unit_count)} matched public units · local-only` : "Package materialization remains ignored and browser-local",
+      generatedAt: packageVerification?.verified_at,
+    },
+  ];
+}
+
+function artifactChangeRowHtml(row) {
+  return `
+    <article class="artifact-change-row">
+      <span>${escapeHtml(row.label)}</span>
+      <strong>${escapeHtml(row.value)}</strong>
+      <em>${escapeHtml(row.generatedAt ? `${formatDateTime(row.generatedAt)} · ${artifactAgeLabel(row.generatedAt)}` : "timestamp not available")}</em>
+      <p>${escapeHtml(row.detail)}</p>
+    </article>
+  `;
+}
+
+function latestArtifactTimestamp(rows) {
+  return latestIso(rows.map((row) => row.generatedAt));
+}
+
+function latestIso(values) {
+  return values
+    .filter(Boolean)
+    .map((value) => ({ value, time: new Date(value).getTime() }))
+    .filter((item) => Number.isFinite(item.time))
+    .sort((a, b) => b.time - a.time)[0]?.value || "";
 }
 
 function actionsBriefingRefreshHtml(status, inquiryBriefings, briefingGrok) {

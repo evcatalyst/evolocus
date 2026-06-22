@@ -613,6 +613,98 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.status-artifact-change-panel {
+  margin-bottom: 18px;
+}
+
+.artifact-change-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbfa;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.artifact-change-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.artifact-change-heading h3,
+.artifact-change-heading p {
+  margin: 0;
+}
+
+.artifact-change-heading h3 {
+  font-size: 1.08rem;
+}
+
+.artifact-change-heading p,
+.artifact-change-boundary {
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+.artifact-change-heading > span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--green);
+  padding: 7px 10px;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.artifact-change-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.artifact-change-row {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.artifact-change-row span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.artifact-change-row strong {
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.artifact-change-row em,
+.artifact-change-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.artifact-change-boundary {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
 .walkthrough-status,
 .walkthrough-flow,
 .walkthrough-gates {
@@ -4910,6 +5002,7 @@ th {
   .filter-grid,
   .map-filter-grid,
   .artifact-freshness-grid,
+  .artifact-change-grid,
   .map-refresh-source-card,
   .map-refresh-source-card dl,
   .inquiry-context-grid,
@@ -4923,6 +5016,7 @@ th {
   .map-comparison-grid,
   .package-map-card-grid,
   .analysis-status-grid,
+  .artifact-change-grid,
   .walkthrough-status,
   .walkthrough-flow,
   .walkthrough-disclosure-card,

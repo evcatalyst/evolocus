@@ -151,6 +151,8 @@ The map-side inquiry history is also browser-local visual state. It stores bound
 
 The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 
+The latest-artifact refresh panel reports current metadata contributions from the loaded aggregate artifact set. It does not claim a historical before/after diff unless a prior artifact snapshot exists.
+
 ## Grok Integration Boundary
 
 The repository secret name is `GROK_API_KEY`. It may be used by offline GitHub Actions or local jobs to produce static aggregate-only inquiry briefings. It must not be exposed in Pages JavaScript because every browser-delivered asset is public.

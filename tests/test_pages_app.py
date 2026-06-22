@@ -35,6 +35,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-inline-inquiry" in html
     assert "map-freshness-badge" in html
     assert "map-refresh-source" in html
+    assert "status-artifact-change-panel" in html
     assert "inquiry-freshness-badge" in html
     assert "ontology-tier-focus" in html
     assert "ontology-query-presets" in html
@@ -332,9 +333,19 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "renderArtifactFreshnessBadges" in js
     assert "artifactFreshnessBadgeHtml" in js
     assert "artifactAgeLabel" in js
+    assert "latestArtifactChangePanelHtml" in js
+    assert "latestArtifactChangeRows" in js
+    assert "artifactChangeRowHtml" in js
+    assert "latestArtifactTimestamp" in js
+    assert "Current refresh metadata, not a historical diff" not in js
+    assert "This is current refresh metadata, not a historical diff." in js
+    assert "No row text, source locators, local databases, exports, or legal findings" in js
     assert "openAnalysisStatusTab" in js
     assert "data-open-status-tab" in js
     assert "No row text published" in js
     assert "artifact-freshness-card" in css
     assert "artifact-freshness-grid" in css
+    assert "artifact-change-card" in css
+    assert "artifact-change-grid" in css
+    assert "artifact-change-row" in css
     assert "map-refresh-source-card" in css
