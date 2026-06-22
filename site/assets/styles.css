@@ -9600,6 +9600,120 @@ textarea {
   padding: 12px;
 }
 
+.ontology-tier-drilldown {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(91, 95, 151, 0.22);
+  border-radius: 8px;
+  background: #fbfbff;
+  padding: 12px;
+}
+
+.ontology-tier-drilldown-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.ontology-tier-drilldown-heading > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.ontology-tier-drilldown-heading span,
+.ontology-tier-drilldown-unit span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ontology-tier-drilldown-heading strong {
+  color: var(--ink);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.ontology-tier-drilldown-heading em,
+.ontology-tier-drilldown-unit em,
+.ontology-tier-drilldown-boundary {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.ontology-tier-drilldown-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.ontology-tier-drilldown-actions button {
+  border-color: rgba(91, 95, 151, 0.28);
+  background: #ffffff;
+  color: #27375d;
+  padding: 8px 10px;
+}
+
+.ontology-tier-drilldown-actions button:hover,
+.ontology-tier-drilldown-actions button:focus-visible {
+  border-color: #5b5f97;
+  background: #5b5f97;
+  color: #ffffff;
+}
+
+.ontology-tier-drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ontology-tier-drilldown-unit {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(91, 95, 151, 0.16);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 9px;
+  text-align: left;
+}
+
+.ontology-tier-drilldown-unit:hover,
+.ontology-tier-drilldown-unit:focus-visible {
+  border-color: #5b5f97;
+  box-shadow: 0 0 0 3px rgba(91, 95, 151, 0.14);
+  outline: none;
+}
+
+.ontology-tier-drilldown-unit strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.ontology-tier-drilldown-unit i {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7eef3;
+}
+
+.ontology-tier-drilldown-unit u {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #5b5f97;
+}
+
+.ontology-tier-drilldown-boundary {
+  margin: 0;
+}
+
 .ontology-tier-neighborhood-heading {
   display: flex;
   flex-wrap: wrap;
@@ -12960,6 +13074,8 @@ th {
   .ontology-tier-focus-metrics,
   .ontology-tier-focus-links,
   .ontology-tier-neighborhood-grid,
+  .ontology-tier-drilldown-heading,
+  .ontology-tier-drilldown-grid,
   .ontology-tier-mini-charts,
   .ontology-tier-focus-units > div,
   .package-ontology-lane,

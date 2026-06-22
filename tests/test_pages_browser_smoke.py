@@ -629,6 +629,19 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.locator("[data-chart-route-action='graph']").click()
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
             page.wait_for_selector(".ontology-tier-neighborhood [data-tier-neighborhood-map]", timeout=10_000)
+            page.wait_for_selector(".ontology-tier-drilldown [data-tier-drilldown-action='ask']", timeout=10_000)
+            tier_drilldown_text = page.locator(".ontology-tier-drilldown").inner_text(timeout=5_000).lower()
+            assert "county/town tier drilldown" in tier_drilldown_text
+            assert "aggregate units" in tier_drilldown_text
+            assert "not legal coverage findings" in tier_drilldown_text
+            assert "claims that a law controls a place" in tier_drilldown_text
+            page.locator(".ontology-tier-drilldown [data-tier-drilldown-action='ask']").click()
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
+            tier_drilldown_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
+            assert "ontology county/town tier drilldown" in tier_drilldown_answer_text
+            assert "aggregate metadata only" in tier_drilldown_answer_text
+            page.locator("[data-tab='ontology']").click()
+            page.wait_for_selector(".ontology-tier-neighborhood [data-tier-neighborhood-map]", timeout=10_000)
             tier_neighborhood_text = page.locator(".ontology-tier-neighborhood").inner_text(timeout=5_000).lower()
             assert "tier neighborhood graph" in tier_neighborhood_text
             assert "model-score nodes" in tier_neighborhood_text

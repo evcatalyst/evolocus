@@ -968,13 +968,21 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "ontologyTierNeighborhoodHtml" in js
     assert "ontologyTierNeighborhoodNodeHtml" in js
     assert "ontologyTierScoreNeighborhoodNodes" in js
+    assert "ontologyTierCountyTownDrilldownHtml" in js
+    assert "ontologyTierDrilldownUnitRowHtml" in js
+    assert "applyOntologyTierDrilldown" in js
     assert "highlightOntologyTierOnMap" in js
+    assert "data-tier-drilldown-action" in js
+    assert "County/town tier drilldown" in js
+    assert "ontology county/town tier drilldown" in js
     assert "data-tier-neighborhood-filter" in js
     assert "data-tier-neighborhood-score" in js
     assert "data-tier-neighborhood-map" in js
     assert "Tier neighborhood graph" in js
     assert "Neighborhood nodes are aggregate visual routes" in js
     assert "ontology tier neighborhood" in js
+    assert "ontology-tier-drilldown" in css
+    assert "ontology-tier-drilldown-unit" in css
     assert "ontology-tier-neighborhood" in css
     assert "ontology-tier-neighborhood-grid" in css
     assert "ontology-tier-neighborhood-center" in css

@@ -167,3 +167,4 @@
 - Chart/filter share links should turn visual presets into reproducible aggregate routes while making the source visible in Inquiry answers and keeping all row text, locators, and review state out of the URL.
 - Hosted visual smokes should wait for the final verified route text, not merely for the placeholder verification card, because public artifact fetches may complete after the first static render.
 - A first-screen latest-analysis card should reuse the same offline AI pack route actions as deeper cards so the entry point does not create another pathway for row text, locators, secrets, or browser-side model calls.
+- Ontology tier drilldowns should connect neutral tier concepts back to concrete county/town aggregate units while explicitly rejecting legal-coverage, ranking, source-record, and controlling-law interpretations.

@@ -10228,6 +10228,7 @@ function ontologyTierFocusHtml() {
           <strong>${escapeHtml(filters)}</strong>
         </article>
       </div>
+      ${ontologyTierCountyTownDrilldownHtml(tierKey, definition, summary, visibleUnits, topUnits)}
       ${ontologyTierNeighborhoodHtml(tierKey, definition, summary, visibleUnits)}
       ${ontologyTierMiniChartsHtml(summary)}
       <div class="ontology-tier-focus-units">
@@ -10243,6 +10244,86 @@ function ontologyTierFocusHtml() {
       <p class="muted-note">This card reads map_layers.json aggregates and current browser filters only. It does not publish ordinance text, source locators, review events, or legal conclusions.</p>
     </section>
   `;
+}
+
+function ontologyTierCountyTownDrilldownHtml(tierKey, definition, summary, visibleUnits, topUnits) {
+  const maxRows = Math.max(1, ...topUnits.map((unit) => Number(unit.law_count || 0)));
+  return `
+    <section class="ontology-tier-drilldown" aria-label="County and town tier drilldown">
+      <div class="ontology-tier-drilldown-heading">
+        <div>
+          <span>County/town tier drilldown</span>
+          <strong>${escapeHtml(definition.label || tierKey)} aggregate units</strong>
+          <em>${escapeHtml(formatCount(visibleUnits.length))} units · ${escapeHtml(formatCount(summary.lawCount))} aggregate rows · ${escapeHtml(summary.topTopic.label)} topic lead</em>
+        </div>
+        <div class="ontology-tier-drilldown-actions">
+          <button type="button" data-tier-drilldown-action="map" data-tier-drilldown-tier="${escapeHtml(tierKey)}">Open tier map</button>
+          <button type="button" data-tier-drilldown-action="ask" data-tier-drilldown-tier="${escapeHtml(tierKey)}">Ask this tier</button>
+        </div>
+      </div>
+      <div class="ontology-tier-drilldown-grid">
+        ${
+          topUnits.length
+            ? topUnits.map((unit) => ontologyTierDrilldownUnitRowHtml(unit, tierKey, maxRows)).join("")
+            : '<p class="muted-note">No county/town aggregate units match this tier under current filters.</p>'
+        }
+      </div>
+      <p class="ontology-tier-drilldown-boundary">Drilldown rows are public aggregate unit routes from map_layers.json. They show row counts, released model labels, and neutral tier context only; they are not legal coverage findings, rankings, source records, or claims that a law controls a place.</p>
+    </section>
+  `;
+}
+
+function ontologyTierDrilldownUnitRowHtml(unit, tierKey, maxRows) {
+  const width = Math.max(4, (Number(unit.law_count || 0) / Math.max(1, maxRows)) * 100);
+  return `
+    <button type="button" class="ontology-tier-drilldown-unit" data-tier-drilldown-action="unit" data-tier-drilldown-tier="${escapeHtml(tierKey)}" data-tier-drilldown-unit="${escapeHtml(unit.unit_id)}">
+      <span>${escapeHtml(unit.state || "NA")} · ${escapeHtml(titleCase(unit.kind || "unit"))}</span>
+      <strong>${escapeHtml(displayUnitName(unit))}</strong>
+      <i><u style="width:${width.toFixed(2)}%"></u></i>
+      <em>${escapeHtml(formatCount(unit.law_count))} rows · ${escapeHtml(text(unit.dominant_topic))} · ${escapeHtml(text(unit.dominant_function))}</em>
+    </button>
+  `;
+}
+
+function applyOntologyTierDrilldown(action, tierKey, unitId = "") {
+  if (!tierKey) {
+    return;
+  }
+  const definition = tierDefinitionForKey(tierKey);
+  const filters = {
+    ...state.mapFilters,
+    tier: tierKey,
+  };
+  const units = filterMapUnitsWithFilters(state.analysis.mapLayers?.units || [], filters);
+  const summary = summarizeUnits(units);
+  const selectedUnit = unitId ? units.find((unit) => unit.unit_id === unitId) : summary.topUnit;
+  const question = selectedUnit
+    ? `What does ${displayUnitName(selectedUnit)} show inside the ${definition.label || tierKey} neutral tier?`
+    : `Which county and town units are in the ${definition.label || tierKey} neutral tier?`;
+  state.mapFilters = filters;
+  state.geographyColorMode = "tier";
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...state.geographyLayers,
+    counties: true,
+    municipalities: true,
+    ontology: true,
+  };
+  state.selectedUnitId = selectedUnit?.unit_id || null;
+  state.disclosureLevel = "unit";
+  state.inquiryMapHighlight = inquiryMapHighlightFromVisibleUnits(question, "ontology county/town tier drilldown", units, summary);
+  if (action === "ask") {
+    const input = $("#inquiry-form input[name='question']");
+    if (input) {
+      input.value = question;
+    }
+    answerAndLogInquiry(question, "ontology county/town tier drilldown");
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  state.activeTab = "map";
+  render();
 }
 
 function ontologyTierMiniChartsHtml(summary) {
@@ -18569,6 +18650,15 @@ function bindEvents() {
     const mapPresetButton = event.target.closest("[data-ontology-map-preset]");
     if (mapPresetButton) {
       applyOntologyMapPreset(mapPresetButton.dataset.ontologyMapPreset, mapPresetButton.dataset.ontologyMapPresetAction || "map");
+      return;
+    }
+    const tierDrilldownButton = event.target.closest("[data-tier-drilldown-action]");
+    if (tierDrilldownButton) {
+      applyOntologyTierDrilldown(
+        tierDrilldownButton.dataset.tierDrilldownAction || "map",
+        tierDrilldownButton.dataset.tierDrilldownTier || "",
+        tierDrilldownButton.dataset.tierDrilldownUnit || "",
+      );
       return;
     }
     const tierUnitButton = event.target.closest("[data-tier-ontology-unit]");
