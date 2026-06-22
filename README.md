@@ -82,6 +82,7 @@ The Pages app supports:
 - map-side chat-style inquiry panel for current filters, selected unit, audit signals, score profile, and browser-local package overlay;
 - browser-local aggregate inquiry results log for preset/manual questions, with content-free JSON export and explicit no-text/no-locator policy flags;
 - visual replay controls for saved aggregate inquiry log entries that restore safe filters, disclosure depth, and selected aggregate unit context;
+- question-to-map replay paths that visualize saved aggregate questions as prompt -> filters -> colored map -> ontology routes;
 - replay timeline sparklines for saved aggregate inquiry answers, scaled by visible law rows and units without row-level data;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, and comparison rows;
 - browser-local map inquiry history JSON export with aggregate-only policy metadata;

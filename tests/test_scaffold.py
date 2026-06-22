@@ -210,6 +210,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-question-matrix" in html
     assert "Aggregate inquiry results log" in html
     assert "inquiry-results-log" in html
+    assert "inquiry-route-replay" in html
+    assert "Question-to-map replay paths" in html
     assert "score-summary-grid" in html
     assert "score-visual-grid" in html
     assert "score-state-grid" in html
@@ -427,6 +429,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiryResultsTimelineRowHtml" in js
     assert "Replay timeline" in js
     assert "Aggregate inquiry replay timeline" in js
+    assert "renderInquiryRouteReplay" in js
+    assert "inquiryRouteReplayCardHtml" in js
+    assert "inquiryRouteStepHtml" in js
+    assert "inquiryRouteOntologyLabel" in js
+    assert "data-open-inquiry-log-ontology" in js
+    assert "Open ontology path" in js
+    assert "Question routes restore browser state only" in js
+    assert "geography_color_mode" in js
     assert "aggregateInquiryLogPolicy" in js
     assert "renderInquiryResultsLog" in js
     assert "inquiryResultsLogExportPayload" in js
@@ -602,6 +612,11 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "inquiry-log-timeline" in css
     assert "inquiry-log-timeline-row" in css
     assert "inquiry-log-sparkline" in css
+    assert "inquiry-route-replay-card" in css
+    assert "inquiry-route-grid" in css
+    assert "inquiry-route-card" in css
+    assert "inquiry-route-steps" in css
+    assert "inquiry-route-actions" in css
     assert "latestArtifactChangePanelHtml" in js
     assert "latestArtifactChangeRows" in js
     assert "artifactRefreshTimelineHtml" in js

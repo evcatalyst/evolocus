@@ -66,6 +66,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - latest-artifact refresh panel and timeline strip in Analysis Status that summarize current aggregate metadata contributions without row text or law-change claims;
 - artifact lineage visual in Analysis Status that maps public surfaces to aggregate JSON artifacts and disclosure boundaries;
 - visual replay controls for aggregate inquiry log entries that restore safe filters, disclosure level, and selected aggregate unit context;
+- question-to-map replay paths that visualize saved aggregate questions as prompt, filters, colored map, and ontology context before replaying them;
 - replay timeline sparklines for saved aggregate inquiry results, scaled by visible law rows and units while excluding row text and locators;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, package counts, and comparison rows;
 - browser-local map inquiry history JSON export with sanitized aggregate entries and policy metadata;

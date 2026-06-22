@@ -30,6 +30,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-pathway-grid" in html
     assert "Aggregate inquiry results log" in html
     assert "inquiry-results-log" in html
+    assert "inquiry-route-replay" in html
+    assert "Question-to-map replay paths" in html
     assert "package-map-summary" in html
     assert "map-reading-guide" in html
     assert "map-inline-inquiry" in html
@@ -303,6 +305,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiryResultsTimelineRowHtml" in js
     assert "Replay timeline" in js
     assert "Aggregate inquiry replay timeline" in js
+    assert "renderInquiryRouteReplay" in js
+    assert "inquiryRouteReplayCardHtml" in js
+    assert "inquiryRouteStepHtml" in js
+    assert "inquiryRouteOntologyLabel" in js
+    assert "data-open-inquiry-log-ontology" in js
+    assert "Open ontology path" in js
+    assert "Question routes restore browser state only" in js
+    assert "geography_color_mode" in js
     assert "aggregateInquiryLogPolicy" in js
     assert "renderInquiryResultsLog" in js
     assert "inquiryResultsLogExportPayload" in js
@@ -364,6 +374,11 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-log-timeline" in css
     assert "inquiry-log-timeline-row" in css
     assert "inquiry-log-sparkline" in css
+    assert "inquiry-route-replay-card" in css
+    assert "inquiry-route-grid" in css
+    assert "inquiry-route-card" in css
+    assert "inquiry-route-steps" in css
+    assert "inquiry-route-actions" in css
     assert "map-inline-history-row" in css
     assert "map-inline-comparison-strip" in css
     assert "map-inline-comparison-row" in css

@@ -5315,6 +5315,160 @@ legend {
   margin-bottom: 14px;
 }
 
+.inquiry-route-replay-card {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  border: 1px solid rgba(39, 95, 121, 0.24);
+  border-radius: 8px;
+  background: #f8fbfc;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.inquiry-route-replay {
+  display: grid;
+  gap: 10px;
+}
+
+.inquiry-route-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.inquiry-route-card,
+.inquiry-route-empty {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.inquiry-route-card.active {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
+.inquiry-route-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-route-heading em,
+.inquiry-route-empty p,
+.inquiry-route-boundary {
+  color: var(--muted);
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.inquiry-route-card > strong,
+.inquiry-route-empty strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.inquiry-route-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.inquiry-route-steps span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px;
+}
+
+.inquiry-route-steps strong,
+.inquiry-route-scale em {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.inquiry-route-steps b {
+  color: var(--ink);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-route-steps em,
+.inquiry-route-boundary {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.inquiry-route-scale {
+  display: grid;
+  gap: 6px;
+}
+
+.inquiry-route-scale span {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.inquiry-route-scale b {
+  display: block;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+.inquiry-route-filters,
+.inquiry-route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.inquiry-route-filters i {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #edf3f1;
+  color: var(--green);
+  padding: 5px 7px;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.inquiry-route-actions button {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.inquiry-route-actions button:hover,
+.inquiry-route-actions button:focus-visible {
+  border-color: var(--green);
+  background: #ffffff;
+}
+
+.inquiry-route-boundary {
+  margin: 0;
+}
+
 .inquiry-results-log-card {
   display: grid;
   gap: 12px;
@@ -6063,6 +6217,8 @@ th {
   .inquiry-answer-ontology-drawer-row,
   .inquiry-pathway-grid,
   .inquiry-question-matrix,
+  .inquiry-route-grid,
+  .inquiry-route-steps,
   .review-layout,
   .map-layout,
   .county-layer-heading,
@@ -6243,6 +6399,8 @@ th {
   .map-inline-history-row,
   .map-inline-comparison-row,
   .inquiry-log-timeline-row,
+  .inquiry-route-grid,
+  .inquiry-route-steps,
   .inquiry-log-entry dl,
   .geo-layer-legend-pills,
   .geo-layer-link-list button,

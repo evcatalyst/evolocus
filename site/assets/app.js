@@ -5500,6 +5500,7 @@ function renderInquiry() {
   $("#inquiry-answer").innerHTML = state.inquiryAnswer
     ? inquiryAnswerHtml(state.inquiryAnswer)
     : "<p>Ask about status, tiers, topics, map units, model outputs, or Grok integration.</p>";
+  renderInquiryRouteReplay();
   renderInquiryResultsLog();
 }
 
@@ -6649,6 +6650,7 @@ function inquiryResultLogEntry(question, answer, source) {
     answer_title: answer.title,
     answer_excerpt: answer.answer,
     disclosure_level: state.disclosureLevel,
+    geography_color_mode: state.geographyColorMode,
     map_filters: mapFiltersSnapshot(),
     filter_labels: activeFilterLabels(),
     selected_unit: selectedUnit
@@ -6691,6 +6693,89 @@ function aggregateInquiryLogPolicy() {
     browser_llm_calls: false,
     legal_findings: false,
   };
+}
+
+function renderInquiryRouteReplay() {
+  const target = $("#inquiry-route-replay");
+  const summaryTarget = $("#inquiry-route-replay-summary");
+  if (!target || !summaryTarget) {
+    return;
+  }
+  const entries = state.inquiryResultsLog.slice(0, 6);
+  summaryTarget.textContent = entries.length
+    ? `${formatCount(entries.length)} routes · browser local`
+    : "Ask or replay a question";
+  if (!entries.length) {
+    target.innerHTML = `
+      <article class="inquiry-route-empty">
+        <strong>No saved question routes yet.</strong>
+        <p>Ask a question, use the question-to-map composer, or click a preset. The route panel will show aggregate filters, map counts, ontology context, and replay actions.</p>
+      </article>
+    `;
+    return;
+  }
+  const maxRows = Math.max(1, ...entries.map((item) => Number(item.visible_summary?.law_count || 0)));
+  const maxUnits = Math.max(1, ...entries.map((item) => Number(item.visible_summary?.unit_count || 0)));
+  target.innerHTML = `
+    <div class="inquiry-route-grid">
+      ${entries.map((item, index) => inquiryRouteReplayCardHtml(item, index, maxRows, maxUnits)).join("")}
+    </div>
+    <p class="inquiry-route-boundary">Question routes restore browser state only: aggregate map filters, disclosure depth, selected unit IDs, and deterministic answers. They do not store or reveal ordinance text, source locators, review events, secrets, or live model calls.</p>
+  `;
+}
+
+function inquiryRouteReplayCardHtml(item, index, maxRows, maxUnits) {
+  const summary = item.visible_summary || {};
+  const lawCount = Number(summary.law_count || 0);
+  const unitCount = Number(summary.unit_count || 0);
+  const lawWidth = Math.max(lawCount ? 5 : 0, (lawCount / maxRows) * 100).toFixed(2);
+  const unitWidth = Math.max(unitCount ? 5 : 0, (unitCount / maxUnits) * 100).toFixed(2);
+  const activeClass = item.id === state.activeInquiryReplayId ? " active" : "";
+  const filters = item.filter_labels?.length ? item.filter_labels : ["No active filters"];
+  return `
+    <article class="inquiry-route-card${activeClass}">
+      <div class="inquiry-route-heading">
+        <span>Route ${escapeHtml(String(index + 1))}</span>
+        <em>${escapeHtml(formatDateTime(item.created_at))}</em>
+      </div>
+      <strong>${escapeHtml(item.question || "Aggregate question")}</strong>
+      <div class="inquiry-route-steps" aria-label="Question to map route">
+        ${inquiryRouteStepHtml("Question", item.source || "manual inquiry", "prompt")}
+        ${inquiryRouteStepHtml("Filters", filters.slice(0, 3).join(" · "), "browser state")}
+        ${inquiryRouteStepHtml("Colored map", `${formatCount(unitCount)} units · ${formatCount(lawCount)} rows`, geographyColorLabel(item.geography_color_mode || state.geographyColorMode))}
+        ${inquiryRouteStepHtml("Ontology", inquiryRouteOntologyLabel(summary), "aggregate context")}
+      </div>
+      <div class="inquiry-route-scale" aria-label="Aggregate row and unit replay scale">
+        <span><b style="width:${escapeHtml(lawWidth)}%"></b><em>${escapeHtml(formatCount(lawCount))} law rows</em></span>
+        <span><b style="width:${escapeHtml(unitWidth)}%"></b><em>${escapeHtml(formatCount(unitCount))} units</em></span>
+      </div>
+      <div class="inquiry-route-filters" aria-label="Saved aggregate filters">
+        ${filters.slice(0, 5).map((label) => `<i>${escapeHtml(label)}</i>`).join("")}
+      </div>
+      <div class="inquiry-route-actions">
+        <button type="button" data-replay-inquiry-log="${escapeHtml(item.id || "")}">Replay answer</button>
+        <button type="button" data-open-inquiry-log-map="${escapeHtml(item.id || "")}">Open map path</button>
+        <button type="button" data-open-inquiry-log-ontology="${escapeHtml(item.id || "")}">Open ontology path</button>
+      </div>
+    </article>
+  `;
+}
+
+function inquiryRouteStepHtml(label, value, detail) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      <b>${escapeHtml(value || "not available")}</b>
+      <em>${escapeHtml(detail || "aggregate")}</em>
+    </span>
+  `;
+}
+
+function inquiryRouteOntologyLabel(summary) {
+  const topTier = topEntry(summary.tier_counts || {});
+  const topic = summary.top_topic?.label || "topic n/a";
+  const functionLabel = summary.top_function?.label || "function n/a";
+  return `${topic} · ${functionLabel} · ${topTier.label || "tier n/a"}`;
 }
 
 function renderInquiryResultsLog() {
@@ -6793,6 +6878,7 @@ function replayInquiryResultLog(entryId, destination) {
     return;
   }
   state.mapFilters = normalizedLogMapFilters(item.map_filters);
+  state.geographyColorMode = item.geography_color_mode || state.geographyColorMode;
   state.selectedUnitId = item.selected_unit?.unit_id || null;
   state.disclosureLevel = ["overview", "unit", "evidence"].includes(item.disclosure_level) ? item.disclosure_level : state.disclosureLevel;
   state.activeInquiryReplayId = item.id;
@@ -6802,7 +6888,7 @@ function replayInquiryResultLog(entryId, destination) {
     input.value = question;
   }
   state.inquiryAnswer = answerQuestion(question);
-  state.activeTab = destination === "map" ? "map" : "inquiry";
+  state.activeTab = ["map", "ontology"].includes(destination) ? destination : "inquiry";
   render();
 }
 
@@ -10384,6 +10470,12 @@ function bindEvents() {
     if (mapReplayButton) {
       event.preventDefault();
       replayInquiryResultLog(mapReplayButton.dataset.openInquiryLogMap, "map");
+      return;
+    }
+    const ontologyReplayButton = event.target.closest("[data-open-inquiry-log-ontology]");
+    if (ontologyReplayButton) {
+      event.preventDefault();
+      replayInquiryResultLog(ontologyReplayButton.dataset.openInquiryLogOntology, "ontology");
       return;
     }
     const exportButton = event.target.closest("#export-inquiry-log");

@@ -98,6 +98,7 @@
         "Add latest-artifact refresh summary panel",
         "Add stored aggregate artifact snapshot diffs",
         "Add browser-local aggregate inquiry results log",
+        "Add question-to-map replay paths for saved aggregate inquiries",
         "Add Law Map last-refresh source detail",
         "Add artifact refresh history timeline strip",
         "Add public artifact lineage visual",
