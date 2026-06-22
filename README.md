@@ -129,6 +129,7 @@ The Pages app supports:
 - visual replay controls for saved aggregate inquiry log entries that restore safe filters, disclosure depth, and selected aggregate unit context;
 - question-to-map replay paths that visualize saved aggregate questions as prompt -> filters -> colored map -> ontology routes;
 - saved inquiry route comparison cards for browser-local aggregate answer paths, including row/unit deltas, selected units, filters, topic/function/tier context, and replay actions;
+- map-to-inquiry route ladders inside saved route comparisons showing question, filters, map color, selected unit, ontology, and publication boundary stages without text, locators, review events, or browser model calls;
 - map-side route playback cards that restore saved aggregate question paths directly from the Law Map;
 - replay timeline sparklines for saved aggregate inquiry answers, scaled by visible law rows and units without row-level data;
 - browser-local map inquiry history snapshots for saved aggregate answers, filters, selected units, and comparison rows;

@@ -767,8 +767,14 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiryRouteComparisonHtml" in js
     assert "inquiryRouteComparisonCardHtml" in js
     assert "inquiryRouteComparisonBarHtml" in js
+    assert "inquiryRouteComparisonStageStripHtml" in js
+    assert "inquiryRouteComparisonStages" in js
+    assert "inquiryRouteComparisonStageHtml" in js
     assert "routeComparisonDelta" in js
     assert "Route comparison" in js
+    assert "Map-to-Inquiry route ladder" in js
+    assert "No text, locators, review events, or browser model calls" in js
+    assert "neutral model scores" in js
     assert "Compared against newest saved route" in js
     assert "not legal rankings or civic findings" in js
     assert "renderInquiryRouteReplay" in js
@@ -908,6 +914,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-route-comparison" in css
     assert "inquiry-route-comparison-grid" in css
     assert "inquiry-route-comparison-card" in css
+    assert "inquiry-route-stage-strip" in css
+    assert "inquiry-route-stage-grid" in css
+    assert "inquiry-route-stage" in css
     assert "inquiry-route-replay-card" in css
     assert "inquiry-route-grid" in css
     assert "inquiry-route-card" in css

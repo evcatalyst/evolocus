@@ -13009,6 +13009,7 @@ function inquiryRouteComparisonCardHtml(item, index, baseline, maxRows, maxUnits
         ${inquiryRouteComparisonBarHtml("Rows", lawCount, maxRows, routeComparisonDelta(lawCount, Number(baseline.visible_summary?.law_count || 0), index))}
         ${inquiryRouteComparisonBarHtml("Units", unitCount, maxUnits, routeComparisonDelta(unitCount, Number(baseline.visible_summary?.unit_count || 0), index))}
       </div>
+      ${inquiryRouteComparisonStageStripHtml(item, summary, selectedUnit, filters)}
       <dl class="inquiry-route-comparison-facts">
         <dt>Selected unit</dt><dd>${escapeHtml(selectedUnit)}</dd>
         <dt>Top topic</dt><dd>${escapeHtml(routeComparisonField(summary.top_topic))}</dd>
@@ -13025,6 +13026,80 @@ function inquiryRouteComparisonCardHtml(item, index, baseline, maxRows, maxUnits
         <button type="button" data-open-inquiry-log-ontology="${escapeHtml(item.id || "")}">Ontology</button>
       </div>
     </article>
+  `;
+}
+
+function inquiryRouteComparisonStageStripHtml(item, summary, selectedUnit, filters) {
+  const stages = inquiryRouteComparisonStages(item, summary, selectedUnit, filters);
+  return `
+    <div class="inquiry-route-stage-strip" aria-label="Map-to-Inquiry route ladder">
+      <div class="inquiry-route-stage-heading">
+        <span>Map-to-Inquiry route ladder</span>
+        <em>No text, locators, review events, or browser model calls</em>
+      </div>
+      <div class="inquiry-route-stage-grid">
+        ${stages.map((stage, index) => inquiryRouteComparisonStageHtml(stage, index, stages.length)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function inquiryRouteComparisonStages(item, summary, selectedUnit, filters) {
+  const ontologyRoute = normalizedQuestionOntologyRoute(item.ontology_route || item.question_highlight?.ontology_route);
+  const mapFilters = item.map_filters || {};
+  const filterCount = Array.isArray(filters) ? filters.filter((label) => label && label !== "No active filters").length : 0;
+  const scoreMin = Number(mapFilters.score_min);
+  const scoreMax = Number(mapFilters.score_max);
+  const scoreRange = Number.isFinite(scoreMin) || Number.isFinite(scoreMax)
+    ? `${Number.isFinite(scoreMin) ? scoreMin.toFixed(2) : "min"} to ${Number.isFinite(scoreMax) ? scoreMax.toFixed(2) : "max"}`
+    : "neutral score range";
+  const boundary = item.publication_policy || {};
+  const hiddenText = boundary.ordinance_text_included === false && boundary.source_locators_included === false
+    ? "content-free"
+    : "boundary unknown";
+  return [
+    {
+      label: "Question",
+      value: item.source || "aggregate inquiry",
+      detail: item.question || item.answer_title || "saved aggregate prompt",
+    },
+    {
+      label: "Filters",
+      value: filterCount ? `${formatCount(filterCount)} active` : "No active filters",
+      detail: filters.slice(0, 2).join(" · ") || "browser aggregate state",
+    },
+    {
+      label: "Map color",
+      value: geographyColorLabel(item.geography_color_mode || state.geographyColorMode),
+      detail: `${scoreRange} · neutral model scores`,
+    },
+    {
+      label: "Selected unit",
+      value: selectedUnit,
+      detail: item.selected_unit?.tier_label || "public aggregate unit",
+    },
+    {
+      label: "Ontology",
+      value: `${formatCount(ontologyRoute.nodes.length)} nodes · ${formatCount(ontologyRoute.edge_count || 0)} links`,
+      detail: inquiryRouteOntologyLabel(summary),
+    },
+    {
+      label: "Boundary",
+      value: hiddenText,
+      detail: "not a legal ranking or finding",
+    },
+  ];
+}
+
+function inquiryRouteComparisonStageHtml(stage, index, total) {
+  const percent = Math.round(((index + 1) / Math.max(1, total)) * 100);
+  return `
+    <span class="inquiry-route-stage" style="--route-stage-progress:${escapeHtml(String(percent))}%">
+      <i>${escapeHtml(String(index + 1))}</i>
+      <strong>${escapeHtml(stage.label)}</strong>
+      <b>${escapeHtml(stage.value || "not available")}</b>
+      <em>${escapeHtml(stage.detail || "aggregate metadata")}</em>
+    </span>
   `;
 }
 

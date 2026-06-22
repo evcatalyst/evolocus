@@ -162,3 +162,4 @@
 - Selected county/town color explanations are safest when they explain only the active aggregate color lens and let users switch layers without exposing ordinance text, source locators, or controlling-law claims.
 - Askable selected-color lenses should route through deterministic aggregate Inquiry answers and saved route metadata, not browser LLM calls or row-level evidence.
 - Ontology peer-link legends should explain aggregate link reasons as navigation lenses and must explicitly deny legal-authority, ranking, source-record, or controlling-law meaning.
+- Saved route ladders should show the map-to-inquiry journey as aggregate metadata stages: question, filters, map color, selected unit, ontology, and publication boundary, never as law text, source locators, review events, or live model calls.

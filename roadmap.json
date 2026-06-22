@@ -163,6 +163,7 @@
         "Add highlighted county town detail cards for question map routes",
         "Add selected-unit query replay from map to Inquiry and Ontology",
         "Add saved inquiry route comparison visuals",
+        "Add map-to-inquiry route ladders inside saved route comparisons",
         "Add real-data coverage timeline animation",
         "Add timeline-driven map layer playback",
         "Add per-topic map playback presets",
