@@ -118,6 +118,7 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "walkthrough-gates" in html
     assert "public real-aggregate demo path" in html
     assert "analysis-journey" in html
+    assert "frontdoor-visual-path" in html
     assert "Aggregate analysis journey" in html
     assert "Inquiry" in html
     assert "Snapshots" in html
@@ -230,6 +231,14 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "STORAGE_IMPORT_STATUS" in js
     assert "renderImportStatus" in js
     assert "renderAnalysisJourney" in js
+    assert "renderFrontdoorVisualPath" in js
+    assert "frontdoorVisualPathQuestion" in js
+    assert "frontdoorVisualPathStepHtml" in js
+    assert "applyFrontdoorVisualPathAction" in js
+    assert "data-frontdoor-action" in js
+    assert "data-frontdoor-disclosure" in js
+    assert "Ask -&gt; Map -&gt; Ontology" in js
+    assert "No browser Grok call" in js
     assert "analysisJourneyStepHtml" in js
     assert "openAnalysisJourneyStep" in js
     assert "data-journey-tab" in js
@@ -490,6 +499,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "analysis-journey" in css
     assert "analysis-journey-step" in css
     assert "analysis-journey-boundary" in css
+    assert "frontdoor-visual-path-card" in css
+    assert "frontdoor-step-card" in css
+    assert "frontdoor-disclosure-button" in css
+    assert "frontdoor-visual-path-boundary" in css
     assert "selected-disclosure-step" in css
     assert "selected-ontology-drilldown" in css
     assert "ontology-query-presets" in css

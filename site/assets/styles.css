@@ -394,6 +394,160 @@ main {
   font-style: normal;
 }
 
+.frontdoor-visual-path {
+  display: grid;
+  gap: 12px;
+  margin: 14px 24px 0;
+}
+
+.frontdoor-visual-path-card,
+.frontdoor-step-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.frontdoor-visual-path-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.frontdoor-visual-path-card.loading {
+  gap: 6px;
+  background: #f8fafc;
+}
+
+.frontdoor-visual-path-card.loading span,
+.frontdoor-visual-path-question span,
+.frontdoor-step-card span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.frontdoor-visual-path-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.frontdoor-visual-path-heading h2 {
+  max-width: 880px;
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2.4rem);
+  line-height: 1.05;
+}
+
+.frontdoor-visual-path-heading p,
+.frontdoor-visual-path-card.loading p,
+.frontdoor-visual-path-boundary {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.frontdoor-visual-path-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-visual-path-metrics span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbfa;
+  padding: 10px;
+}
+
+.frontdoor-visual-path-metrics strong {
+  color: var(--green);
+  font-size: 1.12rem;
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-visual-path-metrics em,
+.frontdoor-visual-path-question em,
+.frontdoor-step-card em {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.frontdoor-visual-path-question {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(39, 95, 121, 0.24);
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 12px;
+}
+
+.frontdoor-visual-path-question strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-visual-path-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.frontdoor-step-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 12px;
+}
+
+.frontdoor-step-card strong {
+  color: var(--ink);
+  font-size: 1.02rem;
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-step-card button {
+  justify-self: start;
+}
+
+.frontdoor-disclosure-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-disclosure-button {
+  display: grid;
+  gap: 3px;
+  border-color: var(--line);
+  background: #f8fafc;
+  color: var(--ink);
+  text-align: left;
+}
+
+.frontdoor-disclosure-button.active,
+.frontdoor-disclosure-button:hover,
+.frontdoor-disclosure-button:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+}
+
+.frontdoor-disclosure-button span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.frontdoor-visual-path-boundary {
+  font-size: 0.84rem;
+}
+
 label {
   display: grid;
   gap: 5px;
@@ -6340,6 +6494,9 @@ th {
 @media (max-width: 1100px) {
   .toolbar,
   .analysis-journey-steps,
+  .frontdoor-visual-path-heading,
+  .frontdoor-visual-path-steps,
+  .frontdoor-disclosure-controls,
   .import-status-card,
   .import-status-facts,
   .import-safety-grid,
@@ -6463,6 +6620,10 @@ th {
   .toolbar,
   .analysis-journey-steps,
   .analysis-journey-heading,
+  .frontdoor-visual-path-heading,
+  .frontdoor-visual-path-metrics,
+  .frontdoor-visual-path-steps,
+  .frontdoor-disclosure-controls,
   .import-status-card,
   .import-status-facts,
   .import-safety-grid,

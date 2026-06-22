@@ -500,6 +500,7 @@ function render() {
   renderToolbar();
   renderImportStatus();
   renderAnalysisJourney();
+  renderFrontdoorVisualPath();
   renderArtifactFreshnessBadges();
   renderMap();
   renderWalkthrough();
@@ -625,6 +626,152 @@ function openAnalysisJourneyStep(tab, disclosure) {
     }
   }
   state.activeTab = tab || "map";
+  render();
+}
+
+function renderFrontdoorVisualPath() {
+  const target = $("#frontdoor-visual-path");
+  if (!target) {
+    return;
+  }
+  const mapLayers = state.analysis.mapLayers;
+  const status = state.analysis.status;
+  if (!mapLayers || !status) {
+    target.innerHTML = `
+      <article class="frontdoor-visual-path-card loading">
+        <span>Visual path loading</span>
+        <strong>Ask -&gt; Map -&gt; Ontology</strong>
+        <p>The guided public visual path appears after aggregate map and inquiry artifacts load.</p>
+      </article>
+    `;
+    return;
+  }
+  const visibleUnits = filterMapUnits(mapLayers.units || []);
+  const summary = summarizeUnits(visibleUnits);
+  const selectedUnit = currentSelectedMapUnit() || summary.topUnit;
+  const topTier = topEntry(summary.tierCounts);
+  const filters = activeFilterLabels();
+  const question = frontdoorVisualPathQuestion(summary, visibleUnits);
+  const selectedLabel = selectedUnit
+    ? `${displayUnitName(selectedUnit)}${selectedUnit.state ? `, ${selectedUnit.state}` : ""}`
+    : "No selected aggregate unit";
+  const cards = [
+    {
+      key: "ask",
+      title: "Ask the current view",
+      value: summary.topTopic.label || "No topic",
+      detail: `${formatCount(summary.topTopic.value || 0)} rows in top topic · deterministic answer`,
+      button: "Ask now",
+    },
+    {
+      key: "map",
+      title: "Open the colored map",
+      value: `${formatCount(visibleUnits.length)} units`,
+      detail: `${geographyColorLabel(state.geographyColorMode)} · ${formatCount(summary.lawCount)} aggregate rows`,
+      button: "Open map",
+    },
+    {
+      key: "ontology",
+      title: "Inspect the ontology path",
+      value: topTier.label || "No tier",
+      detail: `${selectedLabel} · ${summary.topFunction.label || "No function"}`,
+      button: "Open ontology",
+    },
+  ];
+  target.innerHTML = `
+    <article class="frontdoor-visual-path-card">
+      <div class="frontdoor-visual-path-heading">
+        <div>
+          <p class="eyebrow">Public visual path</p>
+          <h2>Ask a question, see the county/town map, then inspect the ontology.</h2>
+          <p>Uses the published aggregate LOCUS artifacts only. The browser receives units, counts, neutral tiers, and model-output summaries, not ordinance text.</p>
+        </div>
+        <div class="frontdoor-visual-path-metrics" aria-label="Current aggregate scope">
+          <span><strong>${escapeHtml(formatCount(visibleUnits.length))}</strong><em>visible units</em></span>
+          <span><strong>${escapeHtml(formatCount(summary.lawCount))}</strong><em>aggregate rows</em></span>
+          <span><strong>${escapeHtml(titleCase(state.disclosureLevel))}</strong><em>disclosure</em></span>
+        </div>
+      </div>
+      <div class="frontdoor-visual-path-question">
+        <span>Suggested question</span>
+        <strong>${escapeHtml(question)}</strong>
+        <em>${escapeHtml(filters.length ? filters.slice(0, 4).join(" · ") : "No active map filters")}</em>
+      </div>
+      <div class="frontdoor-visual-path-steps">
+        ${cards.map((card) => frontdoorVisualPathStepHtml(card, question)).join("")}
+      </div>
+      <div class="frontdoor-disclosure-controls" role="group" aria-label="Front-door disclosure level">
+        ${["overview", "unit", "evidence"].map(frontdoorDisclosureButtonHtml).join("")}
+      </div>
+      <p class="frontdoor-visual-path-boundary">Actions pass only aggregate filters, disclosure level, selected published unit IDs, and deterministic answers. No browser Grok call, API key, source locator, review event, or LOCUS ordinance text is exposed.</p>
+    </article>
+  `;
+}
+
+function frontdoorVisualPathQuestion(summary, visibleUnits) {
+  const unitPhrase = `${formatCount(visibleUnits.length)} visible county/town aggregate units`;
+  const topicPhrase = summary.topTopic.value ? `${summary.topTopic.label} laws` : "the current published law layer";
+  return `What does the current public map show for ${topicPhrase} across ${unitPhrase}?`;
+}
+
+function frontdoorVisualPathStepHtml(card, question) {
+  return `
+    <article class="frontdoor-step-card">
+      <span>${escapeHtml(card.title)}</span>
+      <strong>${escapeHtml(card.value)}</strong>
+      <em>${escapeHtml(card.detail)}</em>
+      <button type="button" data-frontdoor-action="${escapeHtml(card.key)}" data-frontdoor-question="${escapeHtml(question)}">${escapeHtml(card.button)}</button>
+    </article>
+  `;
+}
+
+function frontdoorDisclosureButtonHtml(level) {
+  const active = state.disclosureLevel === level ? " active" : "";
+  return `
+    <button type="button" class="frontdoor-disclosure-button${active}" data-frontdoor-disclosure="${escapeHtml(level)}">
+      <strong>${escapeHtml(titleCase(level))}</strong>
+      <span>${escapeHtml(frontdoorDisclosureLabel(level))}</span>
+    </button>
+  `;
+}
+
+function frontdoorDisclosureLabel(level) {
+  if (level === "evidence") {
+    return "show provenance gates";
+  }
+  if (level === "unit") {
+    return "show selected-unit context";
+  }
+  return "show aggregate overview";
+}
+
+function applyFrontdoorVisualPathAction(action, question) {
+  if (action === "ask") {
+    const visibleUnits = filterMapUnits(state.analysis.mapLayers?.units || []);
+    const prompt = question || frontdoorVisualPathQuestion(summarizeUnits(visibleUnits), visibleUnits);
+    const input = $("#inquiry-form input[name='question']");
+    if (input) {
+      input.value = prompt;
+    }
+    answerAndLogInquiry(prompt, "front-door visual path");
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    const selectedUnit = currentSelectedMapUnit();
+    const tier = selectedUnit?.tier || selectedUnit?.tier_label || state.mapFilters.tier || "";
+    if (tier) {
+      state.ontologyFocusTier = tier;
+    }
+    if (state.disclosureLevel === "overview") {
+      state.disclosureLevel = "unit";
+    }
+    state.activeTab = "ontology";
+    render();
+    return;
+  }
+  state.activeTab = "map";
   render();
 }
 
@@ -10356,6 +10503,20 @@ function bindEvents() {
       return;
     }
     openAnalysisJourneyStep(stepButton.dataset.journeyTab, stepButton.dataset.journeyDisclosure);
+  });
+  $("#frontdoor-visual-path").addEventListener("click", (event) => {
+    const actionButton = event.target.closest("[data-frontdoor-action]");
+    if (actionButton) {
+      event.preventDefault();
+      applyFrontdoorVisualPathAction(actionButton.dataset.frontdoorAction, actionButton.dataset.frontdoorQuestion || "");
+      return;
+    }
+    const disclosureButton = event.target.closest("[data-frontdoor-disclosure]");
+    if (disclosureButton) {
+      event.preventDefault();
+      state.disclosureLevel = disclosureButton.dataset.frontdoorDisclosure;
+      render();
+    }
   });
   $("#previous-record").addEventListener("click", () => {
     state.currentIndex = Math.max(0, state.currentIndex - 1);

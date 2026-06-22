@@ -100,6 +100,7 @@
         "Add browser-local aggregate inquiry results log",
         "Add question-to-map replay paths for saved aggregate inquiries",
         "Add map-side route playback for saved aggregate question paths",
+        "Add first-screen Ask to Map to Ontology visual path",
         "Add Law Map last-refresh source detail",
         "Add artifact refresh history timeline strip",
         "Add public artifact lineage visual",

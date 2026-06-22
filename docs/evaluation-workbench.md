@@ -10,6 +10,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 
 - synthetic demo queue;
 - Walkthrough tab that guides the public real-aggregate visual path from map to inquiry, ontology, queue planning, package overlay, and snapshots;
+- first-screen Ask -> Map -> Ontology visual path over current aggregate artifacts, with disclosure controls and no browser model call;
 - law map with state-clustered county/town-style units colored by neutral tier;
 - official Census TIGERweb county choropleth for matched aggregate county units;
 - official Census TIGERweb municipal/town point layer for matched aggregate municipal units;

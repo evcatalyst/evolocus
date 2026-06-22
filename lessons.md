@@ -62,6 +62,7 @@
 - Inquiry replay timelines can make saved analysis feel alive when bars scale only saved aggregate row/unit counts and reuse existing safe replay actions.
 - Question-to-map replay panels should show route steps and denominators before replaying browser state, so users can see how a question reaches the map without exposing row-level evidence.
 - Map-side route playback is useful when it reuses the same saved aggregate inquiry log and restores only filters, color mode, selected unit, and ontology context from the primary Law Map.
+- A first-screen Ask -> Map -> Ontology path makes the real aggregate visual stack demonstrable immediately when it shows denominators, disclosure state, and no-browser-model boundaries before navigation.
 - Inquiry pathway visuals should make topic and tier exploration clickable from aggregate cells while preserving the same no-row-text and no-locator boundary as map filters.
 - Inquiry answer mini charts should be generated from current aggregate map scope and route only through safe filters or published aggregate unit IDs.
 - Inquiry answer ontology mini-maps should visualize only aggregate topic, function, tier, and map-unit relationships, then route drillbacks through existing safe Map/Ontology actions.
