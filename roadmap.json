@@ -138,6 +138,7 @@
         "Add first-screen deterministic chat-to-map composer",
         "Add ontology-backed question routes from typed aggregate questions",
         "Add first-screen aggregate visual story packet",
+        "Add aggregate visual story packet import replay",
         "Add map-side cross-filter legend for topic function and tier routes",
         "Add selected-unit county town ontology query drawer",
         "Add selected-unit county town peer comparison drawer",

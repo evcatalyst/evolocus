@@ -300,6 +300,8 @@ let state = {
   inquiryMapComposerQuestion: "",
   frontdoorComposerQuestion: "",
   frontdoorRouteImportStatus: null,
+  frontdoorStoryImportStatus: null,
+  frontdoorImportedStory: null,
   mapFilters: {
     state: "",
     topic: "",
@@ -759,6 +761,8 @@ function frontdoorVisualStoryPacketHtml(question, visibleUnits, summary, selecte
         ${frontdoorStoryMetricHtml("Ontology path", `${formatCount(route?.nodes?.length || 0)} nodes`, `${formatCount(route?.edge_count || 0)} adjacent graph links`)}
         ${frontdoorStoryMetricHtml("Export boundary", "content-free", "no text, locators, answers, reviews, or secrets")}
       </div>
+      ${frontdoorStoryImportHtml()}
+      ${frontdoorImportedStoryHtml()}
       <div class="frontdoor-story-path">
         ${stages.map((stage, index) => frontdoorStoryStageHtml(stage, index)).join("")}
       </div>
@@ -844,6 +848,55 @@ function frontdoorStoryStageHtml(stage, index) {
       <b>${escapeHtml(stage.value)}</b>
       <em>${escapeHtml(stage.detail)}</em>
     </span>
+  `;
+}
+
+function frontdoorStoryImportHtml() {
+  const status = state.frontdoorStoryImportStatus;
+  return `
+    <div class="frontdoor-story-import" aria-label="Import a visual story packet">
+      <label>
+        <span>Import story packet</span>
+        <input id="frontdoor-story-import" type="file" accept="application/json,.json" data-frontdoor-import-story>
+      </label>
+      <p>${escapeHtml(status ? `${status.status} · ${status.filename} · ${status.unit_count} units` : "Imports only EvoLOCUS visual story packets. Raw text, locators, answer text, review events, local paths, and secrets are rejected.")}</p>
+    </div>
+  `;
+}
+
+function frontdoorImportedStoryHtml() {
+  const story = state.frontdoorImportedStory;
+  if (!story) {
+    return "";
+  }
+  const filters = story.map_route?.filter_labels?.length ? story.map_route.filter_labels : ["No active filters"];
+  const summary = story.visible_summary || {};
+  return `
+    <article class="frontdoor-imported-story" aria-label="Imported aggregate visual story">
+      <div class="frontdoor-imported-story-heading">
+        <div>
+          <span>Imported story ready</span>
+          <strong>${escapeHtml(story.story_question || "Imported aggregate visual story")}</strong>
+          <em>${escapeHtml(story.filename || "story packet")} · ${escapeHtml(story.dataset_revision || "revision unknown")}</em>
+        </div>
+        <div class="frontdoor-imported-story-actions">
+          <button type="button" data-frontdoor-imported-story-action="map">Replay map</button>
+          <button type="button" data-frontdoor-imported-story-action="ask">Replay ask</button>
+          <button type="button" data-frontdoor-imported-story-action="ontology">Replay graph</button>
+          <button type="button" data-frontdoor-imported-story-action="clear">Clear</button>
+        </div>
+      </div>
+      <div class="frontdoor-imported-story-metrics">
+        ${frontdoorStoryMetricHtml("Units", formatCount(summary.unit_count || 0), `${formatCount(summary.law_count || 0)} aggregate rows`)}
+        ${frontdoorStoryMetricHtml("Top topic", summary.top_topic?.label || "n/a", `${formatCount(summary.top_topic?.value || 0)} rows`)}
+        ${frontdoorStoryMetricHtml("Ontology", `${formatCount(story.ontology_route?.nodes?.length || 0)} nodes`, `${formatCount(story.ontology_route?.edge_count || 0)} graph links`)}
+        ${frontdoorStoryMetricHtml("Boundary", "imported aggregate route", "no text, locators, answers, reviews, or secrets")}
+      </div>
+      <div class="frontdoor-imported-story-filters" aria-label="Imported story filters">
+        ${filters.slice(0, 6).map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
+      </div>
+      <p class="frontdoor-story-boundary">Imported stories are browser-local route metadata only. Replay changes map filters, selected public unit ID, question highlight, and ontology focus; it does not import ordinance text or create legal findings.</p>
+    </article>
   `;
 }
 
@@ -972,6 +1025,240 @@ function exportFrontdoorVisualStoryPacket() {
   download("evolocus-visual-story-packet.json", JSON.stringify(payload, null, 2), "application/json");
 }
 
+function importFrontdoorVisualStoryPacket(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const payload = JSON.parse(String(reader.result || "{}"));
+      const importedStory = frontdoorVisualStoryImportPayload(payload, file);
+      state.frontdoorImportedStory = importedStory;
+      state.frontdoorStoryImportStatus = {
+        status: "imported",
+        filename: file.name || "story packet",
+        unit_count: importedStory.visible_summary.unit_count || 0,
+      };
+      alert("Imported one content-free aggregate visual story packet.");
+      event.target.value = "";
+      render();
+    } catch (error) {
+      state.frontdoorStoryImportStatus = {
+        status: "rejected",
+        filename: file.name || "story packet",
+        unit_count: 0,
+      };
+      event.target.value = "";
+      alert(`Story packet import failed: ${error.message}`);
+      render();
+    }
+  };
+  reader.readAsText(file);
+}
+
+function frontdoorVisualStoryImportPayload(payload, file) {
+  if (!payload || payload.schema_version !== "evolocus-visual-story-packet-v1") {
+    throw new Error("Story packet must use schema evolocus-visual-story-packet-v1.");
+  }
+  if (containsBlockedRoutePacketKeys(payload) || containsBlockedRoutePacketValues(payload)) {
+    throw new Error("Story packet contains blocked row-text, locator, answer-text, review-event, local-path, secret, or token-shaped fields.");
+  }
+  const policy = payload.publication_policy || {};
+  if (
+    policy.raw_rows_included !== false ||
+    policy.ordinance_text_included !== false ||
+    policy.record_locator_values_included !== false ||
+    policy.review_events_included !== false ||
+    policy.answer_text_included !== false
+  ) {
+    throw new Error("Story packet publication policy must explicitly exclude rows, text, locators, review events, and answer text.");
+  }
+  const mapRoute = payload.map_route || {};
+  const ontologyRoute = normalizedQuestionOntologyRoute(payload.ontology_route || mapRoute.highlight?.ontology_route);
+  const filters = normalizedLogMapFilters(mapRoute.filters || {});
+  const filterLabels = Array.isArray(mapRoute.filter_labels) ? mapRoute.filter_labels.slice(0, 8).map((label) => String(label).slice(0, 80)) : [];
+  const visibleSummary = sanitizedStorySummary(payload.visible_summary || {});
+  return {
+    schema_version: "evolocus-imported-visual-story-v1",
+    imported_at: new Date().toISOString(),
+    filename: file.name || "story packet",
+    story_question: String(payload.story_question || "Imported aggregate visual story").slice(0, 300),
+    story_mode: payload.story_mode === "Ask -> Map -> Ontology" ? payload.story_mode : "Ask -> Map -> Ontology",
+    dataset_id: String(payload.dataset_id || "LocalLaws/LOCUS-v1").slice(0, 120),
+    dataset_revision: String(payload.dataset_revision || "unknown").slice(0, 120),
+    license: String(payload.license || "CC-BY-NC-4.0").slice(0, 80),
+    citation: String(payload.citation || "Peskoff, Barrow, Vu, and Davenport. Freeing the Law with LOCUS. arXiv:2606.19334, 2026.").slice(0, 500),
+    source_artifacts: Array.isArray(payload.source_artifacts) ? payload.source_artifacts.map((artifact) => String(artifact).slice(0, 80)).slice(0, 16) : [],
+    artifact_provenance: sanitizedStoryProvenance(payload.artifact_provenance || {}),
+    map_route: {
+      filters,
+      filter_labels: filterLabels,
+      disclosure_level: ["overview", "unit", "evidence"].includes(mapRoute.disclosure_level) ? mapRoute.disclosure_level : "overview",
+      geography_color_mode: mapRoute.geography_color_mode || "tier",
+      geography_layers: sanitizedGeographyLayers(mapRoute.geography_layers || {}),
+      selected_unit_id: mapRoute.selected_unit_id || payload.selected_unit?.unit_id || null,
+      highlight: frontdoorImportedStoryHighlight(payload, filters, filterLabels, ontologyRoute, visibleSummary),
+      previewed_from_typed_question: Boolean(mapRoute.previewed_from_typed_question),
+      route_reasons: Array.isArray(mapRoute.route_reasons) ? mapRoute.route_reasons.map((reason) => String(reason).slice(0, 160)).slice(0, 8) : [],
+    },
+    ontology_route: ontologyRoute,
+    visible_summary: visibleSummary,
+    selected_unit: sanitizedStorySelectedUnit(payload.selected_unit || {}),
+    story_steps: sanitizedStorySteps(payload.story_steps || []),
+    publication_policy: {
+      ...aggregateInquiryLogPolicy(),
+      aggregate_only: true,
+      answer_text_included: false,
+      local_paths_included: false,
+      secrets_included: false,
+      route_only: true,
+    },
+  };
+}
+
+function containsBlockedRoutePacketValues(value) {
+  if (typeof value === "string") {
+    const lower = value.toLowerCase();
+    const volumePrefix = ["/Vol", "umes/"].join("");
+    const userPrefix = ["/Us", "ers/"].join("");
+    const bearerPrefix = ["bear", "er "].join("");
+    const tokenPrefix = ["x", "ai-"].join("");
+    return (
+      value.includes(volumePrefix) ||
+      value.includes(userPrefix) ||
+      lower.includes("file://") ||
+      (lower.includes("begin ") && lower.includes("private")) ||
+      lower.includes(bearerPrefix) ||
+      lower.includes(tokenPrefix)
+    );
+  }
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  if (Array.isArray(value)) {
+    return value.some(containsBlockedRoutePacketValues);
+  }
+  return Object.values(value).some(containsBlockedRoutePacketValues);
+}
+
+function sanitizedStorySummary(summary) {
+  return {
+    unit_count: Number(summary.unit_count || 0),
+    law_count: Number(summary.law_count || 0),
+    substantive_count: Number(summary.substantive_count || 0),
+    top_topic: sanitizedCountEntry(summary.top_topic),
+    top_function: sanitizedCountEntry(summary.top_function),
+    tier_counts: sanitizedCountMap(summary.tier_counts),
+    kind_counts: sanitizedCountMap(summary.kind_counts),
+    topic_counts_top: Array.isArray(summary.topic_counts_top) ? summary.topic_counts_top.map(sanitizedCountEntry).slice(0, 8) : [],
+    function_counts_top: Array.isArray(summary.function_counts_top) ? summary.function_counts_top.map(sanitizedCountEntry).slice(0, 8) : [],
+    neutral_model_score_means: roundedScoreMeans(summary.neutral_model_score_means || {}),
+  };
+}
+
+function sanitizedCountEntry(entry) {
+  return {
+    label: String(entry?.label || "n/a").slice(0, 120),
+    value: Number(entry?.value || 0),
+  };
+}
+
+function sanitizedCountMap(counts) {
+  return Object.fromEntries(
+    Object.entries(counts || {})
+      .slice(0, 24)
+      .map(([label, value]) => [String(label).slice(0, 120), Number(value || 0)]),
+  );
+}
+
+function sanitizedStorySelectedUnit(unit) {
+  if (!unit || !unit.unit_id) {
+    return null;
+  }
+  return {
+    unit_id: String(unit.unit_id).slice(0, 160),
+    name: String(unit.name || "Imported aggregate unit").slice(0, 180),
+    state: String(unit.state || "").slice(0, 12),
+    kind: String(unit.kind || "").slice(0, 40),
+    law_count: Number(unit.law_count || 0),
+    substantive_count: Number(unit.substantive_count || 0),
+    dominant_topic: unit.dominant_topic ? String(unit.dominant_topic).slice(0, 80) : null,
+    dominant_function: unit.dominant_function ? String(unit.dominant_function).slice(0, 80) : null,
+    neutral_tier: unit.neutral_tier ? String(unit.neutral_tier).slice(0, 80) : null,
+    model_substantive_share: Number(unit.model_substantive_share || 0),
+    neutral_model_score_means: roundedScoreMeans(unit.neutral_model_score_means || {}),
+    audit_attention_score: Number(unit.audit_attention_score || 0),
+  };
+}
+
+function sanitizedStoryProvenance(provenance) {
+  return {
+    map_generated_at: provenance.map_generated_at || null,
+    briefing_generated_at: provenance.briefing_generated_at || null,
+    question_pack_generated_at: provenance.question_pack_generated_at || null,
+    code_commit: provenance.code_commit ? shortCommit(String(provenance.code_commit)) : null,
+    visual_smoke_run: provenance.visual_smoke_run ? String(provenance.visual_smoke_run).slice(0, 80) : null,
+    briefing_mode: provenance.briefing_mode ? String(provenance.briefing_mode).slice(0, 120) : null,
+    browser_model_call: false,
+  };
+}
+
+function sanitizedGeographyLayers(layers) {
+  return {
+    counties: Boolean(layers.counties),
+    municipalities: Boolean(layers.municipalities),
+    ontology: Boolean(layers.ontology),
+  };
+}
+
+function sanitizedStorySteps(steps) {
+  return Array.isArray(steps)
+    ? steps
+        .map((step, index) => ({
+          step: Number(step.step || index + 1),
+          label: String(step.label || "Story step").slice(0, 80),
+          value: String(step.value || "").slice(0, 160),
+          detail: String(step.detail || "").slice(0, 220),
+        }))
+        .slice(0, 8)
+    : [];
+}
+
+function frontdoorImportedStoryHighlight(payload, filters, filterLabels, ontologyRoute, visibleSummary) {
+  const sourceHighlight = payload.map_route?.highlight || {};
+  const rawUnitIds = Array.isArray(sourceHighlight.unit_ids)
+    ? sourceHighlight.unit_ids
+    : Array.isArray(ontologyRoute?.unit_ids)
+      ? ontologyRoute.unit_ids
+      : Array.isArray(payload.top_units)
+        ? payload.top_units.map((unit) => unit.unit_id)
+        : [];
+  const unitIds = rawUnitIds.map((unitId) => String(unitId || "").slice(0, 180)).filter(Boolean).slice(0, 1000);
+  return {
+    schema_version: "evolocus-question-map-highlight-v1",
+    question: String(payload.story_question || "Imported aggregate visual story").slice(0, 300),
+    source: "imported visual story packet",
+    map_filters: filters,
+    filter_labels: filterLabels,
+    reasons: ["Imported story packet -> aggregate Ask -> Map -> Ontology route"],
+    unit_ids: unitIds,
+    unit_count: unitIds.length || Number(visibleSummary.unit_count || 0),
+    law_count: Number(visibleSummary.law_count || sourceHighlight.law_count || 0),
+    top_unit_ids: unitIds.slice(0, 8),
+    ontology_route: ontologyRoute,
+    publication_policy: {
+      raw_rows_included: false,
+      ordinance_text_included: false,
+      record_locator_values_included: false,
+      review_events_included: false,
+      browser_model_call: false,
+      legal_findings: false,
+    },
+  };
+}
+
 function applyFrontdoorVisualStoryAction(action) {
   const payload = frontdoorVisualStoryPacketPayload();
   if (action === "export") {
@@ -990,6 +1277,42 @@ function applyFrontdoorVisualStoryAction(action) {
   }
   if (action === "ontology") {
     applyQuestionOntologyRoute(payload.ontology_route);
+    return;
+  }
+  state.activeTab = "map";
+  render();
+}
+
+function applyImportedVisualStoryAction(action) {
+  const story = state.frontdoorImportedStory;
+  if (!story) {
+    return;
+  }
+  if (action === "clear") {
+    state.frontdoorImportedStory = null;
+    state.frontdoorStoryImportStatus = null;
+    render();
+    return;
+  }
+  state.mapFilters = normalizedLogMapFilters(story.map_route?.filters || {});
+  state.geographyColorMode = story.map_route?.geography_color_mode || state.geographyColorMode;
+  state.geographyLayers = {
+    ...defaultGeographyLayers(),
+    ...sanitizedGeographyLayers(story.map_route?.geography_layers || {}),
+  };
+  if (["overview", "unit", "evidence"].includes(story.map_route?.disclosure_level)) {
+    state.disclosureLevel = story.map_route.disclosure_level;
+  }
+  state.selectedUnitId = story.map_route?.selected_unit_id || story.selected_unit?.unit_id || null;
+  state.inquiryMapHighlight = story.map_route?.highlight || null;
+  if (action === "ask") {
+    answerAndLogInquiry(story.story_question, "imported visual story packet");
+    state.activeTab = "inquiry";
+    render();
+    return;
+  }
+  if (action === "ontology") {
+    applyQuestionOntologyRoute(story.ontology_route);
     return;
   }
   state.activeTab = "map";
@@ -1199,7 +1522,24 @@ function frontdoorRouteImportEntries(payload, file) {
 }
 
 function containsBlockedRoutePacketKeys(value) {
-  const blockedKeys = new Set(["content", "header", "source_locator", "source_locators", "answer_excerpt", "review_events", "secret", "token"]);
+  const blockedKeys = new Set([
+    "content",
+    "contents",
+    "header",
+    "headers",
+    "source_locator",
+    "source_locators",
+    "record_locator",
+    "record_locators",
+    "answer_excerpt",
+    "answer_text",
+    "review_events",
+    "local_path",
+    "local_paths",
+    "secret",
+    "token",
+    "api_key",
+  ]);
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -15553,6 +15893,12 @@ function bindEvents() {
       applyFrontdoorVisualStoryAction(storyButton.dataset.frontdoorStoryAction || "export");
       return;
     }
+    const importedStoryButton = event.target.closest("[data-frontdoor-imported-story-action]");
+    if (importedStoryButton) {
+      event.preventDefault();
+      applyImportedVisualStoryAction(importedStoryButton.dataset.frontdoorImportedStoryAction || "map");
+      return;
+    }
     const exportRoutesButton = event.target.closest("[data-frontdoor-export-routes]");
     if (exportRoutesButton) {
       event.preventDefault();
@@ -15598,6 +15944,11 @@ function bindEvents() {
     applyFrontdoorComposerAction("preview", form);
   });
   $("#frontdoor-visual-path").addEventListener("change", (event) => {
+    const storyInput = event.target.closest("[data-frontdoor-import-story]");
+    if (storyInput) {
+      importFrontdoorVisualStoryPacket(event);
+      return;
+    }
     const importInput = event.target.closest("[data-frontdoor-import-routes]");
     if (!importInput) {
       return;

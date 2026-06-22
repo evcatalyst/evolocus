@@ -743,6 +743,112 @@ main {
   font-weight: 900;
 }
 
+.frontdoor-story-import,
+.frontdoor-imported-story {
+  display: grid;
+  gap: 10px;
+  border: 1px dashed rgba(183, 137, 44, 0.34);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.frontdoor-story-import {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: center;
+}
+
+.frontdoor-story-import label {
+  display: grid;
+  gap: 5px;
+}
+
+.frontdoor-story-import span,
+.frontdoor-imported-story-heading span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.frontdoor-story-import input {
+  width: 100%;
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.frontdoor-story-import p,
+.frontdoor-imported-story-heading em,
+.frontdoor-imported-story-filters span {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.frontdoor-imported-story {
+  border-style: solid;
+  background: #fffaf0;
+}
+
+.frontdoor-imported-story-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.frontdoor-imported-story-heading div {
+  display: grid;
+  gap: 3px;
+}
+
+.frontdoor-imported-story-heading strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-imported-story-actions,
+.frontdoor-imported-story-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.frontdoor-imported-story-actions {
+  justify-content: flex-end;
+}
+
+.frontdoor-imported-story-actions button {
+  border-color: rgba(183, 137, 44, 0.35);
+  background: #fff4d8;
+  color: #7a5412;
+  padding: 6px 8px;
+  font-size: 0.76rem;
+}
+
+.frontdoor-imported-story-actions button:hover,
+.frontdoor-imported-story-actions button:focus-visible {
+  border-color: #9b6d19;
+  box-shadow: 0 0 0 3px rgba(183, 137, 44, 0.12);
+}
+
+.frontdoor-imported-story-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-imported-story-filters span {
+  border: 1px solid rgba(183, 137, 44, 0.24);
+  border-radius: 999px;
+  background: #fff4d8;
+  color: #7a5412;
+  padding: 4px 7px;
+  font-weight: 850;
+}
+
 .frontdoor-saved-routes {
   display: grid;
   gap: 10px;
@@ -11084,6 +11190,9 @@ th {
   .frontdoor-story-heading,
   .frontdoor-story-metrics,
   .frontdoor-story-path,
+  .frontdoor-story-import,
+  .frontdoor-imported-story-heading,
+  .frontdoor-imported-story-metrics,
   .frontdoor-question-metrics,
   .frontdoor-saved-export-card,
   .frontdoor-route-import,
@@ -11275,6 +11384,10 @@ th {
   .frontdoor-story-actions,
   .frontdoor-story-metrics,
   .frontdoor-story-path,
+  .frontdoor-story-import,
+  .frontdoor-imported-story-heading,
+  .frontdoor-imported-story-actions,
+  .frontdoor-imported-story-metrics,
   .frontdoor-question-metrics,
   .frontdoor-saved-export-card,
   .frontdoor-route-import,

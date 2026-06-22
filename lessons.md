@@ -147,3 +147,4 @@
 - Offline model output is safest on Pages when repackaged into explicit aggregate route cards with filters, facts, policy flags, and no endpoint, key, row text, or source-locator fields.
 - Topic playback presets should remain browser-state routes over published aggregate topic counts, not regenerated analysis, row-level evidence, or browser-side model calls.
 - Visual story packets should package Ask -> Map -> Ontology as aggregate route metadata only: typed filters, public unit IDs, counts, ontology nodes, provenance, and explicit no-text/no-answer/no-locator policy flags.
+- Story packet import/replay should validate schema and publication policy, reject raw-text/locator/answer/review/local-path/secret-shaped fields, and replay only aggregate filters, public unit IDs, counts, ontology nodes, and provenance.

@@ -101,6 +101,7 @@ Current coverage stats:
 - Front-door ontology-backed question routes: typed questions now display aggregate topic/function/tier/unit ontology nodes and carry that route into Map and Ontology views without row text
 - Front-door saved route cards: GitHub Pages shows recent browser-local aggregate question routes on the landing page with answer, map, and ontology replay buttons
 - Front-door visual story packet: GitHub Pages exports the current Ask -> Map -> Ontology aggregate route with typed-question filters, public unit IDs, counts, ontology nodes, provenance, and content-free policy flags only
+- Front-door story import/replay: GitHub Pages validates shared visual story packets, rejects text/locator/answer/review/secret-shaped fields, and replays accepted aggregate routes into Map, Inquiry, or Ontology
 - Front-door route export: GitHub Pages downloads a content-free `evolocus-frontdoor-routes.json` packet with aggregate route filters, counts, provenance, and policy flags only
 - Front-door route import: GitHub Pages imports only sanitized front-door route packets, rejecting raw-text, locator, answer-text, review-event, secret, or token-shaped fields before replay
 - Front-door example questions: GitHub Pages derives topic/tier examples from visible aggregate pathway cells and can pre-filter the map before routing to Inquiry, Map, or Ontology

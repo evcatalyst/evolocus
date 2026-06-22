@@ -335,10 +335,19 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoorVisualStoryPacketPayload" in js
     assert "exportFrontdoorVisualStoryPacket" in js
     assert "applyFrontdoorVisualStoryAction" in js
+    assert "importFrontdoorVisualStoryPacket" in js
+    assert "frontdoorVisualStoryImportPayload" in js
+    assert "frontdoorImportedStoryHtml" in js
+    assert "applyImportedVisualStoryAction" in js
+    assert "containsBlockedRoutePacketValues" in js
+    assert "evolocus-imported-visual-story-v1" in js
     assert "evolocus-visual-story-packet-v1" in js
     assert "evolocus-visual-story-packet.json" in js
     assert "data-frontdoor-story-action" in js
+    assert "data-frontdoor-import-story" in js
+    assert "data-frontdoor-imported-story-action" in js
     assert "Visual story packet" in js
+    assert "Imported story ready" in js
     assert "answer_text_included: false" in js
     assert "route_only: true" in js
     assert "frontdoorRouteImportHtml" in js
@@ -830,6 +839,8 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "frontdoor-story-packet" in css
     assert "frontdoor-story-metrics" in css
     assert "frontdoor-story-path" in css
+    assert "frontdoor-story-import" in css
+    assert "frontdoor-imported-story" in css
     assert "frontdoor-step-card" in css
     assert "frontdoor-example-questions" in css
     assert "frontdoor-example-card" in css
