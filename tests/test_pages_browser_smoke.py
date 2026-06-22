@@ -74,6 +74,7 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             assert "visual route verified" in verification_text.lower()
             assert "Chart -> Map -> Inquiry -> Ontology" in verification_text
             assert "Ontology tier drilldown share URLs" in verification_text
+            assert "County/town ontology tier drilldown routes" in verification_text
             assert "Latest analysis Ask this map layer" in verification_text
             assert "Question-to-map highlight depth" in verification_text
             assert "Selected-unit ontology route comparison" in verification_text

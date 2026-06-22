@@ -177,6 +177,7 @@
 - Selected-unit query replay should be named in public proof because it closes the county/town loop from map selection to saved aggregate question, static answer, and ontology graph without exposing row text.
 - Shareable route URLs need visible copy confirmation on Pages; otherwise users cannot tell whether an aggregate-only route packet is ready to paste.
 - Saved inquiry route comparison belongs in public proof because it shows browser-local aggregate routes can be compared, laddered back to map color, and replayed into ontology without text, locators, review events, or model calls.
+- County/town ontology tier drilldowns should be public proof because they connect neutral tier concepts back to concrete aggregate units while avoiding legal coverage findings, rankings, and controlling-law claims.
 - Timeline-driven map playback should be public proof only when it visibly changes existing aggregate map controls and states that timeline stages are artifact/provenance views, not legal-change findings.
 - Map-side layer step animation should be public proof because it demonstrates progressive disclosure across the same county/town aggregate units while keeping score direction neutral and model topic/function labels non-adjudicative.
 - Askable selected-color lenses should be public proof because they convert a visible map color into a deterministic aggregate answer while preserving publication boundaries and avoiding browser-side model calls.

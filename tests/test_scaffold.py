@@ -1587,6 +1587,7 @@ def test_static_analysis_artifacts_are_aggregate_only_and_bounded() -> None:
     assert [route["name"] for route in visual_smoke["verified_routes"]] == [
         "Chart -> Map -> Inquiry -> Ontology",
         "Ontology tier drilldown share URLs",
+        "County/town ontology tier drilldown routes",
         "Latest analysis Ask this map layer",
         "Question-to-map highlight depth",
         "Selected-unit ontology route comparison",

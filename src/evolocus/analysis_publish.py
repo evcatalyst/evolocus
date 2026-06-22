@@ -794,6 +794,23 @@ def _visual_smoke_verified_routes() -> list[dict[str, Any]]:
             ],
         },
         {
+            "name": "County/town ontology tier drilldown routes",
+            "steps": [
+                "Open the Ontology tab tier focus card",
+                "Inspect county/town aggregate units inside the active neutral tier",
+                "Route the tier drilldown back to the colored Law Map",
+                "Open the same tier scope as a deterministic Inquiry answer",
+                "Confirm the tier route remains available as aggregate ontology context",
+            ],
+            "assertions": [
+                "Tier drilldowns use public aggregate unit IDs, counts, topics, functions, and neutral tiers only",
+                "Map routes restore county/town highlights without row-level text or source locators",
+                "Inquiry routes are deterministic static answers and do not call a browser model",
+                "Neutral tiers are visual model-output bands, not rankings or legal coverage findings",
+                "No ordinance text, source locator, secret, legal-control claim, or controlling-law meaning is observed",
+            ],
+        },
+        {
             "name": "Latest analysis Ask this map layer",
             "steps": [
                 "Load the first-screen latest analysis route card",
