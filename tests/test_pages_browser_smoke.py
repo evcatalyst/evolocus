@@ -213,6 +213,18 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
 
             page.locator("[data-tab='results']").click()
+            page.wait_for_selector(".chart-question-chip-card [data-chart-question-chip]", timeout=10_000)
+            chart_chip_text = page.locator(".chart-question-chip-card").inner_text(timeout=5_000).lower()
+            assert "chart-to-chat question chips" in chart_chip_text
+            assert "reusable questions from current aggregate charts" in chart_chip_text
+            assert "no browser model" in chart_chip_text
+            page.locator(".chart-question-chip-card [data-chart-question-chip]").first.click()
+            page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")
+            page.wait_for_selector("#inquiry-answer .inquiry-answer-freshness", timeout=10_000)
+            chart_chip_answer_text = page.locator("#inquiry-answer").inner_text(timeout=5_000).lower()
+            assert "answer provenance" in chart_chip_answer_text
+            assert "no browser model call" in chart_chip_answer_text
+            page.locator("[data-tab='results']").click()
             page.wait_for_selector(".chart-route-legend-card [data-chart-route-action='ask']", timeout=10_000)
             page.locator("[data-chart-route-action='ask']").click()
             page.wait_for_function("() => document.querySelector('#inquiry-panel')?.classList.contains('active')")

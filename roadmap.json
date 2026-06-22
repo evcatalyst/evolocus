@@ -125,6 +125,7 @@
         "Add Charts-tab aggregate drilldowns back to the county/town map",
         "Add chart-to-map brushing for aggregate chart routes and chart rows",
         "Add Charts-tab aggregate Ask handoff into deterministic Inquiry",
+        "Add chart-to-chat question chips for aggregate chart rows",
         "Add Charts-tab aggregate Graph handoff into Ontology",
         "Add animated Charts route legend for progressive disclosure",
         "Add optional browser click-smoke for Charts route buttons",

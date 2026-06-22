@@ -122,6 +122,7 @@ Current coverage stats:
 - Charts-tab drilldowns: GitHub Pages aggregate tier, topic, function, jurisdiction-kind, state/topic, and top-unit chart rows open the county/town map with browser-only filters or published aggregate unit IDs
 - Charts-to-map brushing: GitHub Pages chart rows and route buttons now highlight matching county/town aggregate units in the existing chat-to-map panel after opening the Law Map
 - Charts-tab inquiry handoff: GitHub Pages chart Ask buttons route aggregate chart scope into deterministic Inquiry answers and saved browser-local inquiry logs without model calls
+- Chart-to-chat question chips: GitHub Pages turns visible aggregate chart rows into reusable Inquiry prompts with deterministic answers, saved browser-local logs, and no row text or browser model calls
 - Charts-tab ontology handoff: GitHub Pages chart Graph buttons route aggregate chart scope into the existing Ontology tab with tier focus, ontology layer visibility, and no row text
 - Charts route legend: GitHub Pages animates Chart -> Map -> Inquiry -> Ontology as an aggregate-only progressive disclosure path with route buttons
 - Charts route smoke coverage: optional Playwright browser smoke now clicks the Charts route buttons and verifies navigation to Map, Inquiry, and Ontology when `EVOLOCUS_BROWSER_SMOKE=1`

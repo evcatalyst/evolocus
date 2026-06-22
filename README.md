@@ -141,6 +141,7 @@ The Pages app supports:
 - aggregate chart rows can open the Law Map with safe browser-only filters or published aggregate unit IDs;
 - aggregate chart map actions now brush matching county/town units in the existing chat-to-map highlight panel;
 - aggregate chart Ask buttons can open Inquiry with the same safe filters and no browser model calls;
+- chart-to-chat question chips turn visible aggregate chart rows into reusable Inquiry prompts without row text or source locators;
 - aggregate chart Graph buttons can open Ontology using the same filters, tier focus, and progressive disclosure boundary;
 - aggregate chart route legend shows the current visual path before opening Map, Inquiry, or Ontology;
 - current-view snapshot export for filtered map/inquiry context, with aggregate metadata only;

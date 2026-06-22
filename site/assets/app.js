@@ -11542,6 +11542,7 @@ function renderAnalysisCharts() {
   grid.innerHTML = [
     chartInquiryCard(),
     chartRouteLegendCard(),
+    chartQuestionChipsCard(),
     chartCard("Tier distribution", charts.tier_counts || [], "tier"),
     chartCard("Topic distribution", charts.topic_counts || [], "topic"),
     chartCard("Function distribution", charts.function_counts || [], "function"),
@@ -11691,6 +11692,101 @@ function chartInquiryCard() {
       <p class="chart-drilldown-note">Inquiry answers are generated from published aggregate JSON artifacts and omit ordinance text, source locators, review events, and browser model calls.</p>
     </article>
   `;
+}
+
+function chartQuestionChipsCard() {
+  const mapLayers = state.analysis.mapLayers;
+  const units = mapLayers ? filterMapUnits(mapLayers.units || []) : [];
+  if (!units.length) {
+    return `
+      <article class="chart-card chart-question-chip-card empty">
+        <span>Chart-to-chat question chips</span>
+        <strong>No visible aggregate units for question chips.</strong>
+        <p>Adjust map filters to restore chart-derived Inquiry prompts.</p>
+      </article>
+    `;
+  }
+  const summary = summarizeUnits(units);
+  const rows = chartQuestionChipRows(summary, units, mapLayers);
+  return `
+    <article class="chart-card chart-question-chip-card" aria-label="Chart-to-chat question chips">
+      <div class="chart-question-chip-heading">
+        <div>
+          <span>Chart-to-chat question chips</span>
+          <strong>Reusable questions from current aggregate charts.</strong>
+        </div>
+        <em>${escapeHtml(formatCount(units.length))} units · ${escapeHtml(formatCount(summary.lawCount))} aggregate rows</em>
+      </div>
+      <div class="chart-question-chip-grid">
+        ${rows.map(chartQuestionChipHtml).join("")}
+      </div>
+      <p>Question chips are generated from visible aggregate chart rows and route into deterministic Inquiry only, with no browser model calls, ordinance text, source locators, or legal findings.</p>
+    </article>
+  `;
+}
+
+function chartQuestionChipRows(summary, units, mapLayers) {
+  const tierDefinitions = mapLayers?.tier_definitions || {};
+  const topTier = topEntry(summary.tierCounts || {});
+  const topTierKey = topTier.value ? tierKeyForLabel(topTier.label, tierDefinitions) : "";
+  const rows = [
+    chartQuestionChipRow("view", "", "Current view", "Visible aggregate chart scope", "", "current chart view"),
+    chartQuestionChipRow("score", "", "Score profile", "Neutral model-output score means", "", "score profile"),
+  ];
+  if (summary.topTopic.value > 0) {
+    rows.push(chartQuestionChipRow("topic", summary.topTopic.label, `Topic: ${summary.topTopic.label}`, `${formatCount(summary.topTopic.value)} aggregate rows`, "", summary.topTopic.label));
+  }
+  if (summary.topFunction.value > 0) {
+    rows.push(chartQuestionChipRow("function", summary.topFunction.label, `Function: ${summary.topFunction.label}`, `${formatCount(summary.topFunction.value)} aggregate rows`, "", summary.topFunction.label));
+  }
+  if (topTier.value > 0 && topTierKey) {
+    rows.push(chartQuestionChipRow("tier", topTierKey, `Tier: ${topTier.label}`, `${formatCount(topTier.value)} visible units`, "", topTier.label));
+  }
+  if (summary.topUnit) {
+    rows.push(
+      chartQuestionChipRow(
+        "unit",
+        summary.topUnit.unit_id,
+        `Unit: ${displayUnitName(summary.topUnit)}`,
+        `${summary.topUnit.state || "NA"} · ${formatCount(summary.topUnit.law_count)} rows`,
+        "",
+        displayUnitName(summary.topUnit),
+      ),
+    );
+  }
+  const limit = state.disclosureLevel === "overview" ? 4 : 6;
+  return rows.slice(0, limit).map((row) => ({
+    ...row,
+    question: chartInquiryQuestion(row.action, row.value, row.questionLabel, row.stateCode),
+  }));
+}
+
+function chartQuestionChipRow(action, value, label, detail, stateCode = "", questionLabel = "") {
+  return {
+    action,
+    value,
+    label,
+    detail,
+    stateCode,
+    questionLabel,
+  };
+}
+
+function chartQuestionChipHtml(row) {
+  return `
+    <button type="button" class="chart-question-chip" data-chart-question-chip="${escapeHtml(row.action)}" data-chart-question-value="${escapeHtml(row.value)}" data-chart-question-state="${escapeHtml(row.stateCode || "")}" data-chart-question-label="${escapeHtml(row.questionLabel || row.label)}">
+      <span>${escapeHtml(row.label)}</span>
+      <strong>${escapeHtml(row.question)}</strong>
+      <em>${escapeHtml(row.detail)}</em>
+    </button>
+  `;
+}
+
+function applyChartQuestionChip(action, value, label = "", stateCode = "") {
+  if (!action) {
+    return;
+  }
+  applyChartInquiryAction(action, value, label, stateCode);
 }
 
 function chartCard(title, rows, action = "") {
@@ -14245,6 +14341,17 @@ function bindEvents() {
         chartInquiryButton.dataset.chartInquiryValue || "",
         chartInquiryButton.dataset.chartInquiryLabel || "",
         chartInquiryButton.dataset.chartInquiryState || "",
+      );
+      return;
+    }
+    const chartQuestionChip = event.target.closest("[data-chart-question-chip]");
+    if (chartQuestionChip) {
+      event.preventDefault();
+      applyChartQuestionChip(
+        chartQuestionChip.dataset.chartQuestionChip || "",
+        chartQuestionChip.dataset.chartQuestionValue || "",
+        chartQuestionChip.dataset.chartQuestionLabel || "",
+        chartQuestionChip.dataset.chartQuestionState || "",
       );
       return;
     }

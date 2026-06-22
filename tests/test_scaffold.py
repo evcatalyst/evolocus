@@ -808,6 +808,9 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "chart-drilldown-note" in css
     assert "chart-drilldown-line" in css
     assert "chart-inquiry-card" in css
+    assert "chart-question-chip-card" in css
+    assert "chart-question-chip-grid" in css
+    assert "chart-question-chip" in css
     assert "chart-route-legend-card" in css
     assert "chart-route-strip" in css
     assert "chart-route-stage" in css
@@ -1060,6 +1063,13 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "brush/filter the Law Map" in js
     assert "chartInquiryCard" in js
     assert "chartRouteLegendCard" in js
+    assert "chartQuestionChipsCard" in js
+    assert "chartQuestionChipRows" in js
+    assert "chartQuestionChipHtml" in js
+    assert "applyChartQuestionChip" in js
+    assert "Chart-to-chat question chips" in js
+    assert "Reusable questions from current aggregate charts." in js
+    assert "Question chips are generated from visible aggregate chart rows" in js
     assert "renderVisualRouteVerification" in js
     assert "visualRouteMetricHtml" in js
     assert "visualRoutePolicyChipHtml" in js
@@ -1089,6 +1099,10 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "data-chart-inquiry-value" in js
     assert "data-chart-inquiry-state" in js
     assert "data-chart-inquiry-label" in js
+    assert "data-chart-question-chip" in js
+    assert "data-chart-question-value" in js
+    assert "data-chart-question-state" in js
+    assert "data-chart-question-label" in js
     assert "data-chart-ontology-action" in js
     assert "data-chart-ontology-value" in js
     assert "data-chart-ontology-state" in js

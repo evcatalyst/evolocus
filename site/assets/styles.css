@@ -9065,6 +9065,102 @@ th {
   align-items: start;
 }
 
+.chart-question-chip-card {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 12px;
+  border: 1px solid rgba(50, 111, 112, 0.18);
+  background: #f8fbfa;
+}
+
+.chart-question-chip-card.empty {
+  background: #ffffff;
+}
+
+.chart-question-chip-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.chart-question-chip-heading span,
+.chart-question-chip-card.empty > span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.chart-question-chip-heading strong,
+.chart-question-chip-card.empty > strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.96rem;
+  line-height: 1.25;
+}
+
+.chart-question-chip-heading em,
+.chart-question-chip-card > p,
+.chart-question-chip-card.empty > p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.chart-question-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.chart-question-chip {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid rgba(50, 111, 112, 0.2);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 10px;
+  text-align: left;
+}
+
+.chart-question-chip:hover,
+.chart-question-chip:focus-visible {
+  border-color: var(--green);
+  background: #edf3f1;
+  box-shadow: 0 0 0 3px rgba(50, 111, 112, 0.12);
+  outline: none;
+}
+
+.chart-question-chip span {
+  color: var(--green);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.chart-question-chip strong,
+.chart-question-chip em {
+  overflow-wrap: anywhere;
+}
+
+.chart-question-chip strong {
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.chart-question-chip em {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
 .chart-route-legend-card {
   grid-column: 1 / -1;
   border: 1px solid rgba(36, 95, 159, 0.18);
@@ -9467,6 +9563,7 @@ th {
 
 @media (max-width: 760px) {
   .chart-inquiry-card,
+  .chart-question-chip-grid,
   .chart-route-heading,
   .chart-route-strip,
   .chart-drilldown-line,
