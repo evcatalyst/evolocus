@@ -558,10 +558,15 @@ def test_static_site_is_relative_and_aggregate_only() -> None:
     assert "latestArtifactTimestamp" in js
     assert "Current refresh metadata only; no stored snapshot loaded." in js
     assert "Rows summarize public aggregate artifacts only." in js
+    assert "artifactFreshnessSnapshotDelta" in js
+    assert "Since snapshot" in js
+    assert "snapshot-delta" in js
     assert "No row text, source locators, local databases, exports, or legal findings" in js
     assert "artifact-change-card" in css
     assert "artifact-change-grid" in css
     assert "artifact-change-row" in css
+    assert "artifact-freshness-grid span.snapshot-delta" in css
+    assert "artifact-freshness-grid .snapshot-delta em" in css
     assert "filterMapUnits" in js
     assert "applyMapFilters" in js
     assert "renderMapInsights" in js

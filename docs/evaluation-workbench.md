@@ -23,7 +23,7 @@ It is a static browser app. It does not require Streamlit, a Python server, a ho
 - state/topic small-multiple charts in the Charts tab;
 - county/town aggregate coverage atlas by state, source-unit type, and neutral tier;
 - analysis status tab with artifact freshness, publication gates, geometry status, and Grok secret boundary;
-- Law Map and Inquiry freshness badges showing aggregate layer, briefing, question-pack, dataset revision, and no-row-text publication boundary;
+- Law Map and Inquiry freshness badges showing aggregate layer, briefing, question-pack, dataset revision, stored-snapshot deltas, and no-row-text publication boundary;
 - Law Map last-refresh source detail for tracked Polars aggregate artifacts, analysis commit provenance, briefing source, deploy guard, and publication boundary;
 - full LOCUS audit status with aggregate schema, label, OCR-risk, duplicate-content, and manifest checks;
 - per-unit audit review signals for the published map units, including medium/high OCR risk and duplicate-text-hash rates;
@@ -186,7 +186,7 @@ The current-view snapshot export captures active filters, visible aggregate summ
 
 The Snapshots tab stores those aggregate current-view payloads in browser localStorage, renders comparison bars, and can reload a saved view's map filters. Package-aware snapshot cards compare matched package units and record counts while preserving text and locator exclusion. Gallery export uses the same aggregate-only policy.
 
-The Analysis Status tab also reads `site/data/analysis/artifact_snapshot.json`, an aggregate-only stored baseline that lets the static site show true current-vs-snapshot metadata deltas. The snapshot contains counts, timestamps, citation metadata, and publication-policy flags only.
+The Analysis Status tab also reads `site/data/analysis/artifact_snapshot.json`, an aggregate-only stored baseline that lets the static site show true current-vs-snapshot metadata deltas. The Map and Inquiry freshness cards reuse this baseline for public snapshot badges: map units/rows on the Law Map, and briefing/question-pack counts on Inquiry. The snapshot contains counts, timestamps, citation metadata, and publication-policy flags only.
 
 The map-side inquiry card can save and export a bounded local history of aggregate answers. History entries are browser-local only and store prompt context, filters, selected unit metadata, package counts, and comparison rows; exports sanitize those fields and exclude ordinance text, source locator values, review events, local databases, secrets, and browser LLM calls.
 

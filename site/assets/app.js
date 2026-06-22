@@ -858,12 +858,12 @@ function lastRefreshSourceSummary(status, mapLayers) {
 }
 
 function renderArtifactFreshnessBadges() {
-  artifactFreshnessTargets().forEach(({ targetId, title, context }) => {
+  artifactFreshnessTargets().forEach(({ targetId, title, context, kind }) => {
     const target = $(`#${targetId}`);
     if (!target) {
       return;
     }
-    target.innerHTML = artifactFreshnessBadgeHtml(title, context);
+    target.innerHTML = artifactFreshnessBadgeHtml(title, context, kind);
   });
 }
 
@@ -873,16 +873,18 @@ function artifactFreshnessTargets() {
       targetId: "map-freshness-badge",
       title: "Map artifact freshness",
       context: "Real aggregate map layer",
+      kind: "map",
     },
     {
       targetId: "inquiry-freshness-badge",
       title: "Inquiry artifact freshness",
       context: "Static aggregate question layer",
+      kind: "inquiry",
     },
   ];
 }
 
-function artifactFreshnessBadgeHtml(title, context) {
+function artifactFreshnessBadgeHtml(title, context, kind) {
   const status = state.analysis.status;
   const mapLayers = state.analysis.mapLayers;
   const inquiryBriefings = state.analysis.inquiryBriefings;
@@ -900,13 +902,14 @@ function artifactFreshnessBadgeHtml(title, context) {
   const refreshSummary = lastRefreshSourceSummary(status, mapLayers);
   const rowBoundary = status?.real_locus_rows_published === false ? "No row text published" : "Publication boundary loading";
   const rows = [
-    ["Dataset", datasetRevision],
-    ["Map layer", mapGenerated ? `${formatDateTime(mapGenerated)} · ${artifactAgeLabel(mapGenerated)}` : "loading"],
-    ["Briefing", briefingGenerated ? `${formatDateTime(briefingGenerated)} · ${artifactAgeLabel(briefingGenerated)}` : "loading"],
-    ["Question pack", questionPackGenerated ? `${formatDateTime(questionPackGenerated)} · ${artifactAgeLabel(questionPackGenerated)}` : "loading"],
-    ["Refresh source", refreshSummary.rows[0][1]],
-    ["Mode", currentMode],
-    ["Boundary", rowBoundary],
+    { label: "Dataset", value: datasetRevision },
+    { label: "Map layer", value: mapGenerated ? `${formatDateTime(mapGenerated)} · ${artifactAgeLabel(mapGenerated)}` : "loading" },
+    { label: "Briefing", value: briefingGenerated ? `${formatDateTime(briefingGenerated)} · ${artifactAgeLabel(briefingGenerated)}` : "loading" },
+    { label: "Question pack", value: questionPackGenerated ? `${formatDateTime(questionPackGenerated)} · ${artifactAgeLabel(questionPackGenerated)}` : "loading" },
+    { label: "Since snapshot", value: artifactFreshnessSnapshotDelta(kind), className: "snapshot-delta" },
+    { label: "Refresh source", value: refreshSummary.rows[0][1] },
+    { label: "Mode", value: currentMode },
+    { label: "Boundary", value: rowBoundary },
   ];
   return `
     <article class="artifact-freshness-card">
@@ -920,10 +923,10 @@ function artifactFreshnessBadgeHtml(title, context) {
       <div class="artifact-freshness-grid">
         ${rows
           .map(
-            ([label, value]) => `
-              <span>
-                <strong>${escapeHtml(label)}</strong>
-                <em>${escapeHtml(String(value))}</em>
+            (row) => `
+              <span${row.className ? ` class="${escapeHtml(row.className)}"` : ""}>
+                <strong>${escapeHtml(row.label)}</strong>
+                <em>${escapeHtml(String(row.value))}</em>
               </span>
             `,
           )
@@ -931,6 +934,24 @@ function artifactFreshnessBadgeHtml(title, context) {
       </div>
     </article>
   `;
+}
+
+function artifactFreshnessSnapshotDelta(kind) {
+  const snapshotMetrics = state.analysis.artifactSnapshot?.metrics || {};
+  const metrics = currentArtifactSnapshotMetrics(state.analysis.status || {}, state.analysis);
+  if (kind === "map") {
+    return artifactDeltaSummary([
+      artifactMetricDelta(metrics.unit_count, snapshotMetrics.unit_count, "units"),
+      artifactMetricDelta(metrics.law_count, snapshotMetrics.law_count, "rows"),
+    ]);
+  }
+  if (kind === "inquiry") {
+    return artifactDeltaSummary([
+      artifactMetricDelta(metrics.inquiry_briefing_count, snapshotMetrics.inquiry_briefing_count, "briefings"),
+      artifactMetricDelta(metrics.question_prompt_count, snapshotMetrics.question_prompt_count, "prompts"),
+    ]);
+  }
+  return "snapshot baseline unavailable";
 }
 
 function artifactAgeLabel(isoValue) {

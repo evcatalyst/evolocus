@@ -45,7 +45,7 @@ flowchart LR
 - `question_pack.json` adds static filter-aware prompts generated from aggregate artifacts; prompt cards can apply safe map filters and disclosure levels in the browser.
 - The manual analysis-refresh workflow can use `GROK_API_KEY`, or the existing `Grok_api_key` alias, to refresh static inquiry briefings offline, then runs the public artifact guard before deploying Pages.
 - The Pages Analysis Status tab links to that manual workflow as an Actions-only refresh control; the browser never receives a model secret and never performs a live model call.
-- The Law Map and Inquiry headers show artifact freshness badges for the aggregate map layer, briefing, question pack, dataset revision, and no-row-text boundary before users drill into detail.
+- The Law Map and Inquiry headers show artifact freshness badges for the aggregate map layer, briefing, question pack, dataset revision, stored-snapshot deltas, and no-row-text boundary before users drill into detail.
 - The Law Map header also shows a last-refresh source strip so map readers can distinguish tracked Polars aggregate artifacts, offline briefing refreshes, analysis commit provenance, and deploy validation gates.
 - Official geography can color counties and towns by neutral tier, dominant topic, dominant function, model-substantive share, audit attention, or law-count intensity; all are aggregate review aids.
 - Official geography layer controls can independently toggle matched county polygons, matched town/municipal points, and selected-unit ontology peer links; the link layer uses aggregate map metadata only and appears through progressive disclosure.
@@ -155,6 +155,8 @@ The map-side inquiry history is also browser-local visual state. It stores bound
 The current public artifact set is a top-1,000 jurisdiction-unit aggregate layer generated from local LOCUS Parquet. It uses approximate state-clustered positions with state anchors until reviewed county/town geometry crosswalks are added.
 
 The latest-artifact refresh panel reports current metadata contributions from the loaded aggregate artifact set. The tracked `artifact_snapshot.json` file stores prior aggregate metrics only, allowing current-vs-snapshot deltas without publishing text, source locators, databases, exports, or legal findings.
+
+The same stored snapshot appears on the primary Map and Inquiry freshness cards. Map deltas compare aggregate unit and row counts; Inquiry deltas compare briefing and question-pack counts. These badges are publication provenance, not claims that the underlying law corpus changed.
 
 ## Grok Integration Boundary
 

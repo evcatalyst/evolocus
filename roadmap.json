@@ -91,6 +91,7 @@
         "Add aggregate-only map inquiry history export",
         "Add Pages Actions-only inquiry briefing refresh control",
         "Add map and inquiry artifact freshness badges",
+        "Add snapshot delta badges to Map and Inquiry freshness cards",
         "Add latest-artifact refresh summary panel",
         "Add stored aggregate artifact snapshot diffs",
         "Add browser-local aggregate inquiry results log",

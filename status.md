@@ -226,7 +226,7 @@ Evaluator implementation state:
 - Primary evaluator surface: GitHub Pages browser app
 - Primary inquiry/map surface: GitHub Pages browser app reading `site/data/analysis/`
 - Actions refresh surface: GitHub Pages Analysis Status tab exposes an Actions-only refresh control that opens the manual aggregate briefing workflow without browser-side model calls or embedded keys.
-- Freshness surface: Law Map and Inquiry headers show aggregate map, briefing, question-pack, dataset revision, and no-row-text publication boundary before users drill into visuals or answers.
+- Freshness surface: Law Map and Inquiry headers show aggregate map, briefing, question-pack, dataset revision, stored-snapshot deltas, and no-row-text publication boundary before users drill into visuals or answers.
 - Latest artifact change surface: Analysis Status now summarizes the current aggregate refresh metadata for map, inquiry, question pack, audit, geometry, ontology, charts, models, and local package verification without row text or historical-diff claims.
 - Inquiry answer ontology mini-map surface: GitHub Pages answers render a compact graph from current aggregate scope to topic/function/tier/top-unit nodes and route clicks to Map or Ontology without row text or source locators.
 - Inquiry results log: GitHub Pages stores recent preset/manual aggregate answers in browser localStorage with content-free export and explicit no-text/no-locator/no-review-event policy metadata.

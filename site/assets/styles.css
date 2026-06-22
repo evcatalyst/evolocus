@@ -511,6 +511,11 @@ textarea {
   padding: 8px 10px;
 }
 
+.artifact-freshness-grid span.snapshot-delta {
+  border-color: rgba(50, 111, 112, 0.34);
+  background: #edf3f1;
+}
+
 .artifact-freshness-grid strong {
   color: var(--ink);
   font-size: 0.78rem;
@@ -521,6 +526,11 @@ textarea {
   font-size: 0.8rem;
   font-style: normal;
   overflow-wrap: anywhere;
+}
+
+.artifact-freshness-grid .snapshot-delta em {
+  color: var(--green);
+  font-weight: 850;
 }
 
 .metric-grid {

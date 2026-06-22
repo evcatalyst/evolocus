@@ -47,7 +47,7 @@ The Pages app supports:
 - state/topic small-multiple charts in the Charts tab from the same aggregate map layer;
 - county/town aggregate coverage atlas by state, unit type, and neutral tier;
 - analysis status and publication-gate provenance from published static JSON artifacts;
-- map and inquiry artifact freshness badges with aggregate layer, briefing, question-pack, dataset revision, and no-row-text boundary;
+- map and inquiry artifact freshness badges with aggregate layer, briefing, question-pack, dataset revision, snapshot deltas, and no-row-text boundary;
 - Law Map last-refresh source detail showing tracked Polars artifact source, analysis commit, briefing source, deploy guard, and publication boundary;
 - latest-artifact refresh panel showing current aggregate metadata contributions without row text or historical-diff claims;
 - stored aggregate artifact snapshot baseline for current-vs-prior metadata deltas in the Analysis Status tab;

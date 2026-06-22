@@ -104,7 +104,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "lastRefreshSourceSummary" in js
     assert "tracked Polars aggregate artifact" in js
     assert "public artifact validator runs before Pages upload" in js
+    assert "artifactFreshnessSnapshotDelta" in js
+    assert "Since snapshot" in js
+    assert "snapshot-delta" in js
     assert "artifact-change-row small" in css
+    assert "artifact-freshness-grid span.snapshot-delta" in css
+    assert "artifact-freshness-grid .snapshot-delta em" in css
     assert "renderMapReadingGuide" in js
     assert "mapTopicTierMatrixHtml" in js
     assert "topicTierMatrixRows" in js
