@@ -140,7 +140,7 @@ The Score Lens uses the same filters and disclosure levels. It displays score va
 
 The Inquiry question matrix is a browser-side prompt surface over the same aggregate artifacts and `question_pack.json`. It can fill and answer the inquiry form, apply safe filter templates, and change disclosure depth, but it does not call Grok or any browser-exposed LLM API.
 
-Inquiry answers include a filter-aware ontology mini-map that renders only aggregate topic, function, neutral-tier, and map-unit nodes from the current public artifact scope. Its drillbacks route to existing map and ontology views; it does not publish ordinance text, source locators, review events, or live model calls.
+Inquiry answers include a filter-aware ontology mini-map that renders only aggregate topic, function, neutral-tier, and map-unit nodes from the current public artifact scope. Mini-map node clicks open a county/town comparison drawer over aggregate units before routing to existing map and ontology views; it does not publish ordinance text, source locators, review events, or live model calls.
 
 The Queue Plan export is a planning artifact, not a real record-level LOCUS evaluation queue. It excludes ordinance text, headers, source locators, raw row data, SQLite state, and browser review events.
 

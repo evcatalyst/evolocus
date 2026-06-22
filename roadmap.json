@@ -103,7 +103,8 @@
         "Add replay timeline for saved aggregate inquiry logs",
         "Add map-linked ontology chips for Inquiry pathway cells",
         "Add persistent analysis journey strip",
-        "Add pathway-cell mini peer comparison visual"
+        "Add pathway-cell mini peer comparison visual",
+        "Add county/town comparison drawer from Inquiry ontology mini-map nodes"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

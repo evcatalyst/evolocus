@@ -90,7 +90,7 @@ The Pages app supports:
 - static filter-aware question pack generated from aggregate artifacts, optionally Grok-noted offline;
 - Inquiry question matrix with filter-aware prompts for map, package overlay, topic, function, audit, score, and selected-unit questions;
 - click-through mini charts inside Inquiry answers for topic, function, tier, and top-unit aggregate drillbacks;
-- ontology mini-map inside Inquiry answers that links the current aggregate scope to topic, function, neutral tier, and top county/town unit nodes;
+- ontology mini-map inside Inquiry answers that links the current aggregate scope to topic, function, neutral tier, top county/town unit nodes, and a county/town comparison drawer;
 - Inquiry topic/tier pathway chart that turns current aggregate map filters into visual question cells with ask and map actions;
 - pathway-cell mini peer comparison bars for top aggregate units, with map drillback and no row text;
 - map-linked ontology chips inside topic/tier pathway cells for aggregate topic, tier, and top-unit drillback;

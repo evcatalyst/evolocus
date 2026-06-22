@@ -111,7 +111,7 @@ Current coverage stats:
 - Inquiry matrix surface: GitHub Pages prompt cards for filter-aware aggregate map, package overlay, topic, function, audit, score, and selected-unit answers
 - Static question-pack surface: GitHub Pages reads `question_pack.json` prompts that can apply aggregate map filters and disclosure levels without live browser model calls
 - Inquiry answer mini-chart surface: GitHub Pages answers now include click-through topic, function, tier, and top-unit aggregate mini charts that route back to safe map filters or published unit IDs only
-- Inquiry ontology mini-map surface: GitHub Pages answers now show a compact aggregate graph linking current answer scope to top topic, top function, neutral tier, and highest-row county/town unit with map/ontology drillbacks
+- Inquiry ontology mini-map surface: GitHub Pages answers now show a compact aggregate graph linking current answer scope to top topic, top function, neutral tier, highest-row county/town unit, and a county/town comparison drawer with map/ontology drillbacks
 - Queue Plan surface: GitHub Pages tab for aggregate review batch planning and content-free unit-level JSON export
 - Review package handoff surface: GitHub Pages exports aggregate-only package requests for local ignored materialization
 - Review package preview surface: GitHub Pages shows package record budget, unit mix, and safety gates before download
@@ -228,7 +228,7 @@ Evaluator implementation state:
 - Actions refresh surface: GitHub Pages Analysis Status tab exposes an Actions-only refresh control that opens the manual aggregate briefing workflow without browser-side model calls or embedded keys.
 - Freshness surface: Law Map and Inquiry headers show aggregate map, briefing, question-pack, dataset revision, stored-snapshot deltas, and no-row-text publication boundary before users drill into visuals or answers.
 - Latest artifact change surface: Analysis Status now summarizes the current aggregate refresh metadata for map, inquiry, question pack, audit, geometry, ontology, charts, models, and local package verification without row text or historical-diff claims.
-- Inquiry answer ontology mini-map surface: GitHub Pages answers render a compact graph from current aggregate scope to topic/function/tier/top-unit nodes and route clicks to Map or Ontology without row text or source locators.
+- Inquiry answer ontology mini-map surface: GitHub Pages answers render a compact graph from current aggregate scope to topic/function/tier/top-unit nodes, open an aggregate county/town comparison drawer, and route clicks to Map or Ontology without row text or source locators.
 - Inquiry results log: GitHub Pages stores recent preset/manual aggregate answers in browser localStorage with content-free export and explicit no-text/no-locator/no-review-event policy metadata.
 - Refresh-source surface: Law Map header distinguishes tracked Polars aggregate map artifacts, offline briefing source, analysis commit, deploy guard, and aggregate-only publication boundary.
 - Inquiry replay surface: saved aggregate inquiry log entries can replay safe map filters, disclosure level, and selected aggregate unit context back into Inquiry or Law Map views without row text or locator values.

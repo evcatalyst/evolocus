@@ -229,8 +229,16 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiryAnswerOntologyMiniMapHtml" in js
     assert "inquiryAnswerOntologyNodes" in js
     assert "inquiryAnswerOntologyNodeSvg" in js
+    assert "inquiryAnswerOntologyDrawerHtml" in js
+    assert "inquiryAnswerOntologyDrawerRows" in js
+    assert "inquiryAnswerOntologyDrawerRowHtml" in js
     assert "applyInquiryAnswerOntologyAction" in js
+    assert "applyInquiryOntologyDrawerOpen" in js
     assert "data-inquiry-answer-ontology-action" in js
+    assert "data-inquiry-drawer-unit" in js
+    assert "data-inquiry-drawer-open" in js
+    assert "County/town comparison drawer" in js
+    assert "Drawer rows compare public aggregate units only" in js
     assert "Ontology mini-map" in js
     assert "Mini-map edges summarize aggregate model-output fields" in js
     assert "inquiryAnswerCountChart" in js
@@ -284,6 +292,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "inquiry-answer-ontology-svg" in css
     assert "inquiry-answer-ontology-actions" in css
     assert "inquiry-answer-ontology-chip" in css
+    assert "inquiry-answer-ontology-drawer" in css
+    assert "inquiry-answer-ontology-drawer-row" in css
     assert "map-reading-guide-card" in css
     assert "map-topic-tier-matrix" in css
     assert "map-topic-tier-grid" in css

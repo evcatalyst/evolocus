@@ -254,6 +254,7 @@ let state = {
   inquiryAnswer: null,
   inquiryResultsLog: loadInquiryResultsLog(),
   activeInquiryReplayId: "",
+  inquiryOntologyDrawer: null,
   analysis: {
     status: null,
     mapLayers: null,
@@ -5408,6 +5409,7 @@ function inquiryAnswerOntologyMiniMapHtml() {
             : ""
         }
       </div>
+      ${inquiryAnswerOntologyDrawerHtml(units, summary, topTier, topTierKey)}
       <p>Mini-map edges summarize aggregate model-output fields from public static artifacts. They are not verified legal relationships and include no ordinance text or source locator values.</p>
     </section>
   `;
@@ -5508,6 +5510,166 @@ function inquiryAnswerOntologyActionButton(action, value, label, detail, enabled
 }
 
 function applyInquiryAnswerOntologyAction(action, value) {
+  if (!action || !value) {
+    return;
+  }
+  state.inquiryOntologyDrawer = { action, value };
+  renderInquiry();
+}
+
+function inquiryAnswerOntologyDrawerHtml(units, summary, topTier, topTierKey) {
+  const drawer = inquiryAnswerOntologyDrawerState(summary, topTier, topTierKey);
+  const rows = inquiryAnswerOntologyDrawerRows(units, drawer);
+  const rowLimit = state.disclosureLevel === "evidence" ? 8 : state.disclosureLevel === "unit" ? 6 : 4;
+  const visibleRows = rows.slice(0, rowLimit);
+  const maxValue = Math.max(1, ...visibleRows.map((row) => Number(row.value || 0)));
+  return `
+    <aside class="inquiry-answer-ontology-drawer" aria-label="County and town comparison drawer">
+      <div class="inquiry-answer-ontology-drawer-heading">
+        <div>
+          <span>County/town comparison drawer</span>
+          <strong>${escapeHtml(inquiryAnswerOntologyDrawerTitle(drawer))}</strong>
+          <em>${escapeHtml(inquiryAnswerOntologyDrawerDetail(drawer, rows.length))}</em>
+        </div>
+        <button type="button" data-inquiry-drawer-open="${escapeHtml(drawer.action)}" data-inquiry-drawer-value="${escapeHtml(drawer.value)}">${escapeHtml(inquiryAnswerOntologyDrawerOpenLabel(drawer))}</button>
+      </div>
+      <div class="inquiry-answer-ontology-drawer-rows">
+        ${
+          visibleRows.length
+            ? visibleRows.map((row) => inquiryAnswerOntologyDrawerRowHtml(row, maxValue)).join("")
+            : '<p class="muted-note">No aggregate county/town units match this mini-map node inside the current filters.</p>'
+        }
+      </div>
+      <p>Drawer rows compare public aggregate units only. Counts are model-output review aids, not legal findings, rankings, or source-backed legal conclusions.</p>
+    </aside>
+  `;
+}
+
+function inquiryAnswerOntologyDrawerState(summary, topTier, topTierKey) {
+  const requested = state.inquiryOntologyDrawer || {};
+  if (["topic", "function", "tier", "unit"].includes(requested.action) && requested.value) {
+    return requested;
+  }
+  if (summary.topTopic.value > 0) {
+    return { action: "topic", value: summary.topTopic.label };
+  }
+  if (topTier.value > 0) {
+    return { action: "tier", value: topTierKey };
+  }
+  return { action: "unit", value: summary.topUnit?.unit_id || "" };
+}
+
+function inquiryAnswerOntologyDrawerTitle(drawer) {
+  if (drawer.action === "topic") {
+    return `Topic node: ${drawer.value}`;
+  }
+  if (drawer.action === "function") {
+    return `Function node: ${drawer.value}`;
+  }
+  if (drawer.action === "tier") {
+    return `Neutral tier node: ${tierDefinitionForKey(drawer.value).label || drawer.value}`;
+  }
+  const unit = (state.analysis.mapLayers?.units || []).find((item) => item.unit_id === drawer.value);
+  return unit ? `Map unit node: ${displayUnitName(unit)}` : "Map unit node";
+}
+
+function inquiryAnswerOntologyDrawerDetail(drawer, rowCount) {
+  const unitLabel = rowCount === 1 ? "aggregate unit" : "aggregate units";
+  if (drawer.action === "topic") {
+    return `${formatCount(rowCount)} county/town ${unitLabel} with rows in this topic`;
+  }
+  if (drawer.action === "function") {
+    return `${formatCount(rowCount)} county/town ${unitLabel} with rows in this function`;
+  }
+  if (drawer.action === "tier") {
+    return `${formatCount(rowCount)} county/town ${unitLabel} in this neutral tier`;
+  }
+  return `${formatCount(rowCount)} selected/peer ${unitLabel}`;
+}
+
+function inquiryAnswerOntologyDrawerOpenLabel(drawer) {
+  if (drawer.action === "tier") {
+    return "Open tier ontology";
+  }
+  if (drawer.action === "unit") {
+    return "Open unit map";
+  }
+  return "Filter map";
+}
+
+function inquiryAnswerOntologyDrawerRows(units, drawer) {
+  if (drawer.action === "unit") {
+    const unit = (state.analysis.mapLayers?.units || []).find((item) => item.unit_id === drawer.value);
+    if (!unit) {
+      return [];
+    }
+    return [
+      inquiryAnswerOntologyDrawerRow(unit, Number(unit.law_count || 0), "selected unit"),
+      ...selectedUnitPeers(unit).map((peer) =>
+        inquiryAnswerOntologyDrawerRow(peer.unit, Number(peer.unit.law_count || 0), peer.reasons.slice(0, 2).join(" · ") || "aggregate peer"),
+      ),
+    ];
+  }
+  return units
+    .map((unit) => {
+      const value = inquiryAnswerOntologyDrawerUnitValue(unit, drawer);
+      return inquiryAnswerOntologyDrawerRow(unit, value, inquiryAnswerOntologyDrawerReason(unit, drawer));
+    })
+    .filter((row) => row.value > 0)
+    .sort((a, b) => b.value - a.value || Number(b.unit.law_count || 0) - Number(a.unit.law_count || 0) || displayUnitName(a.unit).localeCompare(displayUnitName(b.unit)));
+}
+
+function inquiryAnswerOntologyDrawerUnitValue(unit, drawer) {
+  if (drawer.action === "topic") {
+    return Number(unit.topic_counts?.[drawer.value] || 0);
+  }
+  if (drawer.action === "function") {
+    return Number(unit.function_counts?.[drawer.value] || 0);
+  }
+  if (drawer.action === "tier") {
+    const tierLabel = tierDefinitionForKey(drawer.value).label || drawer.value;
+    return unit.tier === drawer.value || unit.tier_label === tierLabel ? Number(unit.law_count || 0) : 0;
+  }
+  return 0;
+}
+
+function inquiryAnswerOntologyDrawerReason(unit, drawer) {
+  if (drawer.action === "topic") {
+    return `${formatPercent(Number(unit.topic_counts?.[drawer.value] || 0), Number(unit.law_count || 0))} of unit rows`;
+  }
+  if (drawer.action === "function") {
+    return `${formatPercent(Number(unit.function_counts?.[drawer.value] || 0), Number(unit.law_count || 0))} of unit rows`;
+  }
+  if (drawer.action === "tier") {
+    return `${text(unit.tier_label)} · ${scoreSnapshot(unit.model_score_means || {})}`;
+  }
+  return "aggregate comparison";
+}
+
+function inquiryAnswerOntologyDrawerRow(unit, value, reason) {
+  return {
+    unit,
+    value: Number(value || 0),
+    reason,
+  };
+}
+
+function inquiryAnswerOntologyDrawerRowHtml(row, maxValue) {
+  const width = Math.max(row.value ? 5 : 0, (Number(row.value || 0) / Math.max(1, Number(maxValue || 1))) * 100).toFixed(2);
+  return `
+    <button type="button" class="inquiry-answer-ontology-drawer-row" data-inquiry-drawer-unit="${escapeHtml(row.unit.unit_id)}">
+      <span>
+        <strong>${escapeHtml(displayUnitName(row.unit))}</strong>
+        <em>${escapeHtml(row.unit.state || "NA")} · ${escapeHtml(text(row.unit.kind))} · ${escapeHtml(text(row.unit.tier_label))}</em>
+      </span>
+      <b><i style="width:${escapeHtml(width)}%"></i></b>
+      <small>${escapeHtml(formatCount(row.value))}</small>
+      <em>${escapeHtml(row.reason || "aggregate comparison")}</em>
+    </button>
+  `;
+}
+
+function applyInquiryOntologyDrawerOpen(action, value) {
   if (action === "unit" && value) {
     openAuditUnitOnMap(value);
     return;
@@ -5533,6 +5695,7 @@ function applyInquiryAnswerOntologyAction(action, value) {
 
 function answerAndLogInquiry(question, source) {
   const answer = answerQuestion(String(question));
+  state.inquiryOntologyDrawer = null;
   state.inquiryAnswer = answer;
   appendInquiryResultsLog(String(question), answer, source);
   return answer;
@@ -9177,6 +9340,21 @@ function bindEvents() {
       applyInquiryAnswerOntologyAction(
         answerOntologyButton.dataset.inquiryAnswerOntologyAction || "",
         answerOntologyButton.dataset.inquiryAnswerOntologyValue || "",
+      );
+      return;
+    }
+    const drawerUnitButton = event.target.closest("[data-inquiry-drawer-unit]");
+    if (drawerUnitButton) {
+      event.preventDefault();
+      openAuditUnitOnMap(drawerUnitButton.dataset.inquiryDrawerUnit || "");
+      return;
+    }
+    const drawerOpenButton = event.target.closest("[data-inquiry-drawer-open]");
+    if (drawerOpenButton) {
+      event.preventDefault();
+      applyInquiryOntologyDrawerOpen(
+        drawerOpenButton.dataset.inquiryDrawerOpen || "",
+        drawerOpenButton.dataset.inquiryDrawerValue || "",
       );
       return;
     }

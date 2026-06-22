@@ -62,6 +62,7 @@
 - Inquiry pathway visuals should make topic and tier exploration clickable from aggregate cells while preserving the same no-row-text and no-locator boundary as map filters.
 - Inquiry answer mini charts should be generated from current aggregate map scope and route only through safe filters or published aggregate unit IDs.
 - Inquiry answer ontology mini-maps should visualize only aggregate topic, function, tier, and map-unit relationships, then route drillbacks through existing safe Map/Ontology actions.
+- Mini-map comparison drawers should compare county/town aggregate rows before navigation, so users see why a node matters without expanding into row-level evidence.
 - Pathway peer visuals should compare only aggregate unit counts and published unit IDs; peer drillback belongs on the map, not in row-level public evidence.
 - Pathway ontology chips should route through aggregate unit IDs and safe filters only, so inquiry-to-ontology drillback does not imply row-level evidence has been published.
 - Aggregate review planning can happen safely on GitHub Pages when exports contain unit IDs, aggregate counts, strategy metadata, and audit signals only.
