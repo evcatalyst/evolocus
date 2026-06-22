@@ -78,6 +78,9 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoorQuestionMetricHtml" in js
     assert "frontdoorSavedRoutesHtml" in js
     assert "frontdoorSavedRouteCardHtml" in js
+    assert "frontdoorRouteExportPayload" in js
+    assert "frontdoorRouteExportItem" in js
+    assert "exportFrontdoorSavedRoutes" in js
     assert "applyFrontdoorVisualPathAction" in js
     assert "applyFrontdoorExampleQuestion" in js
     assert "applyFrontdoorComposerAction" in js
@@ -87,6 +90,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "data-frontdoor-composer-action" in js
     assert "data-frontdoor-route-action" in js
     assert "data-frontdoor-route-id" in js
+    assert "data-frontdoor-export-routes" in js
     assert "data-frontdoor-example-action" in js
     assert "data-frontdoor-example-topic" in js
     assert "front-door topic-tier example" in js
@@ -98,6 +102,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "Front-door chat is deterministic filter routing" in js
     assert "Saved visual routes" in js
     assert "front-door saved route" in js
+    assert "evolocus-frontdoor-routes.json" in js
+    assert "evolocus-frontdoor-route-export-v1" in js
     assert "analysisJourneyStepHtml" in js
     assert "openAnalysisJourneyStep" in js
     assert "data-journey-tab" in js
@@ -447,6 +453,7 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "frontdoor-saved-routes" in css
     assert "frontdoor-saved-route" in css
     assert "frontdoor-saved-actions" in css
+    assert "frontdoor-saved-export-card" in css
     assert "frontdoor-step-card" in css
     assert "frontdoor-example-questions" in css
     assert "frontdoor-example-card" in css

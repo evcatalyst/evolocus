@@ -784,7 +784,12 @@ function frontdoorSavedRoutesHtml(entries) {
           <span>Saved visual routes</span>
           <strong>${escapeHtml(formatCount(routes.length))} browser-local aggregate routes</strong>
         </div>
-        <em>localStorage only</em>
+        <button type="button" data-frontdoor-export-routes>Export route packet</button>
+      </div>
+      <div class="frontdoor-saved-export-card" aria-label="Content-free route export preview">
+        <span><strong>${escapeHtml(formatCount(routes.length))}</strong><em>routes</em></span>
+        <span><strong>JSON</strong><em>content-free packet</em></span>
+        <span><strong>0</strong><em>text rows or locators</em></span>
       </div>
       <div class="frontdoor-saved-grid">
         ${routes.map((item, index) => frontdoorSavedRouteCardHtml(item, index, maxRows)).join("")}
@@ -792,6 +797,64 @@ function frontdoorSavedRoutesHtml(entries) {
       <p class="frontdoor-saved-boundary">Saved route cards restore aggregate filters, selected public unit IDs, and deterministic answers only. No ordinance text, source locators, review events, secrets, or live model output is stored or published.</p>
     </section>
   `;
+}
+
+function frontdoorRouteExportPayload(entries = state.inquiryResultsLog) {
+  const routes = (entries || []).slice(0, 12).map(frontdoorRouteExportItem);
+  return {
+    schema_version: "evolocus-frontdoor-route-export-v1",
+    generated_at: new Date().toISOString(),
+    route_count: routes.length,
+    publication_policy: aggregateInquiryLogPolicy(),
+    source_artifacts: [
+      "status.json",
+      "map_layers.json",
+      "inquiry_briefings.json",
+      "question_pack.json",
+      "unit_audit_quality.json",
+    ],
+    notes: [
+      "This export contains browser-local aggregate question routes only.",
+      "It excludes ordinance text, headers, source locators, review events, local paths, secrets, and live model output.",
+    ],
+    routes,
+  };
+}
+
+function frontdoorRouteExportItem(item) {
+  return {
+    route_id: item.id || null,
+    created_at: item.created_at || null,
+    source: item.source || null,
+    question: item.question || "",
+    disclosure_level: item.disclosure_level || "overview",
+    geography_color_mode: item.geography_color_mode || "tier",
+    map_filters: normalizedLogMapFilters(item.map_filters),
+    filter_labels: Array.isArray(item.filter_labels) ? item.filter_labels.slice(0, 8) : [],
+    selected_unit: item.selected_unit
+      ? {
+          unit_id: item.selected_unit.unit_id || null,
+          name: item.selected_unit.name || null,
+          state: item.selected_unit.state || null,
+          kind: item.selected_unit.kind || null,
+          tier_label: item.selected_unit.tier_label || null,
+        }
+      : null,
+    visible_summary: {
+      unit_count: Number(item.visible_summary?.unit_count || 0),
+      law_count: Number(item.visible_summary?.law_count || 0),
+      substantive_count: Number(item.visible_summary?.substantive_count || 0),
+      top_topic: item.visible_summary?.top_topic || null,
+      top_function: item.visible_summary?.top_function || null,
+      tier_counts: item.visible_summary?.tier_counts || {},
+    },
+    artifact_provenance: item.artifact_provenance || {},
+    publication_policy: aggregateInquiryLogPolicy(),
+  };
+}
+
+function exportFrontdoorSavedRoutes() {
+  download("evolocus-frontdoor-routes.json", JSON.stringify(frontdoorRouteExportPayload(), null, 2), "application/json");
 }
 
 function frontdoorSavedRouteCardHtml(item, index, maxRows) {
@@ -11498,6 +11561,12 @@ function bindEvents() {
     if (composerButton) {
       event.preventDefault();
       applyFrontdoorComposerAction(composerButton.dataset.frontdoorComposerAction || "preview", composerButton.closest("form"));
+      return;
+    }
+    const exportRoutesButton = event.target.closest("[data-frontdoor-export-routes]");
+    if (exportRoutesButton) {
+      event.preventDefault();
+      exportFrontdoorSavedRoutes();
       return;
     }
     const savedRouteButton = event.target.closest("[data-frontdoor-route-action]");

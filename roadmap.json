@@ -126,7 +126,8 @@
         "Add visible Pages visual-route verification card",
         "Add selected-unit map-to-ontology route trails",
         "Add first-screen deterministic chat-to-map composer",
-        "Add first-screen saved visual route cards"
+        "Add first-screen saved visual route cards",
+        "Add content-free landing route export packet"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

@@ -117,3 +117,4 @@
 - Selected-unit route trails should be clickable from the map itself so users can move from a color mark to ontology context without treating the route as legal authority.
 - A landing chat composer should preview deterministic aggregate filters before routing, because GitHub Pages cannot safely make live model calls or expose row-level evidence.
 - Landing route history should reuse the sanitized aggregate inquiry log so replay cards stay browser-local and do not create a second storage path for sensitive material.
+- Landing route exports should omit answer text by default; aggregate filters, counts, unit IDs, provenance, and policy flags are enough for shareable visual context.

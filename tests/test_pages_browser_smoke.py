@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -84,6 +85,17 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             saved_route_text = page.locator(".frontdoor-saved-routes").inner_text(timeout=5_000)
             assert "saved visual routes" in saved_route_text.lower()
             assert "no ordinance text" in saved_route_text.lower()
+            with page.expect_download() as download_info:
+                page.locator("[data-frontdoor-export-routes]").click()
+            download = download_info.value
+            assert download.suggested_filename == "evolocus-frontdoor-routes.json"
+            export_payload = json.loads(Path(download.path()).read_text(encoding="utf-8"))
+            assert export_payload["schema_version"] == "evolocus-frontdoor-route-export-v1"
+            assert export_payload["route_count"] >= 1
+            assert export_payload["publication_policy"]["ordinance_text_included"] is False
+            assert export_payload["publication_policy"]["source_locators_included"] is False
+            assert export_payload["publication_policy"]["review_events_included"] is False
+            assert "answer_excerpt" not in export_payload["routes"][0]
             page.locator(".frontdoor-saved-route [data-frontdoor-route-action='ontology']").first.click()
             page.wait_for_function("() => document.querySelector('#ontology-panel')?.classList.contains('active')")
 

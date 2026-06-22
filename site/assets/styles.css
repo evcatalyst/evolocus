@@ -650,6 +650,14 @@ main {
   gap: 3px;
 }
 
+.frontdoor-saved-heading button {
+  border-color: #6b4fd6;
+  background: #f1effb;
+  color: #4f3caf;
+  padding: 7px 10px;
+  font-weight: 850;
+}
+
 .frontdoor-saved-heading span,
 .frontdoor-saved-heading em,
 .frontdoor-saved-route-heading span,
@@ -667,6 +675,33 @@ main {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 9px;
+}
+
+.frontdoor-saved-export-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.frontdoor-saved-export-card span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid rgba(107, 79, 214, 0.16);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.frontdoor-saved-export-card strong {
+  color: #4f3caf;
+  overflow-wrap: anywhere;
+}
+
+.frontdoor-saved-export-card em {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-style: normal;
 }
 
 .frontdoor-saved-route {
@@ -7606,6 +7641,7 @@ th {
   .frontdoor-visual-path-heading,
   .frontdoor-question-composer form,
   .frontdoor-question-metrics,
+  .frontdoor-saved-export-card,
   .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,
@@ -7748,6 +7784,7 @@ th {
   .frontdoor-question-composer form,
   .frontdoor-question-actions,
   .frontdoor-question-metrics,
+  .frontdoor-saved-export-card,
   .frontdoor-saved-grid,
   .frontdoor-visual-path-steps,
   .frontdoor-example-grid,
