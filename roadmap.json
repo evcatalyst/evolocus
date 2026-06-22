@@ -194,7 +194,8 @@
         "Add askable selected color lens cards that open deterministic aggregate Inquiry answers",
         "Add ontology peer-link explainer cards for county town aggregate links",
         "Add county town ontology tier drilldown routes",
-        "Add latest analysis Ask this map layer route"
+        "Add latest analysis Ask this map layer route",
+        "Finalize Actions refresh status after regenerating latest AI analysis pack"
       ],
       "remaining_items": [
         "Begin real LOCUS evaluation queues"

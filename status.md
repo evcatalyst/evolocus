@@ -110,6 +110,7 @@ Current coverage stats:
 - Front-door example questions: GitHub Pages derives topic/tier examples from visible aggregate pathway cells and can pre-filter the map before routing to Inquiry, Map, or Ontology
 - Front-door offline freshness: GitHub Pages reports briefing/question-pack age, enrichment mode, validation gate, and Actions-only refresh before users enter map or inquiry flows
 - Front-door Grok refresh run badge: GitHub Pages shows the latest offline Actions refresh run link, Grok mode, artifact counts, persisted commit, and aggregate-only safety boundary from `refresh_status.json`
+- Front-door Grok refresh coherence: `analysis-refresh.yml` now regenerates the AI analysis pack after writing current refresh status, then finalizes status so latest-analysis route cards trace to the current Actions run
 - Front-door Grok inquiry pack: GitHub Pages previews Grok-refreshed aggregate AI route cards on the first screen and routes them into Inquiry, the county/town map, or Ontology without browser model calls or row text
 - Front-door latest analysis route: GitHub Pages lifts the newest offline AI pack route onto the first screen with Ask, colored county/town map, and ontology actions while passing aggregate metadata only
 - Front-door Ask-this-map-layer route: GitHub Pages turns the current colored aggregate map layer into a deterministic Inquiry answer and map highlight without browser model calls or row text

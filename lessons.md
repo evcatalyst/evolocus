@@ -185,3 +185,4 @@
 - Askable selected-color lenses should be public proof because they convert a visible map color into a deterministic aggregate answer while preserving publication boundaries and avoiding browser-side model calls.
 - Ontology peer-link explainers should be public proof because they show why aggregate county/town links appear while explicitly denying legal authority, ranking, source-record, or controlling-law meaning.
 - Per-topic playback should be public proof because it connects released model topic facets to map highlights while preserving that topics are model-produced route labels, not verified legal conclusions.
+- Actions-generated AI packs should be regenerated after current refresh status is written, then status finalized, so public latest-analysis cards do not inherit stale run IDs from the prior artifact cycle.

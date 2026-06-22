@@ -86,7 +86,7 @@ jobs:
               --analysis-dir site/data/analysis \
               --output site/data/analysis/question_pack.json
           fi
-      - name: Generate aggregate-only AI analysis pack
+      - name: Generate preliminary aggregate-only AI analysis pack
         run: |
           PYTHONPATH=src python -m evolocus.cli publish-ai-analysis-pack \
             --analysis-dir site/data/analysis \
@@ -174,6 +174,34 @@ jobs:
               "browser_boundary": "GitHub Pages displays static run metadata only. Grok calls, if enabled, run offline in GitHub Actions and no model credentials are delivered to browser JavaScript.",
           }
           (analysis_dir / "refresh_status.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+      - name: Regenerate aggregate-only AI analysis pack with current refresh status
+        run: |
+          PYTHONPATH=src python -m evolocus.cli publish-ai-analysis-pack \
+            --analysis-dir site/data/analysis \
+            --output site/data/analysis/ai_analysis_pack.json
+      - name: Finalize public refresh status
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          analysis_dir = Path("site/data/analysis")
+          refresh_path = analysis_dir / "refresh_status.json"
+          ai_analysis_pack = json.loads((analysis_dir / "ai_analysis_pack.json").read_text(encoding="utf-8"))
+          payload = json.loads(refresh_path.read_text(encoding="utf-8"))
+          generated_at = datetime.now(timezone.utc).isoformat()
+          payload["generated_at"] = generated_at
+          payload["completed_at"] = generated_at
+          payload["artifacts"]["ai_analysis_pack"] = {
+              "path": "site/data/analysis/ai_analysis_pack.json",
+              "generated_at": ai_analysis_pack.get("generated_at"),
+              "card_count": len(ai_analysis_pack.get("cards") or []),
+              "grok_used": bool((ai_analysis_pack.get("grok") or {}).get("used")),
+              "model": (ai_analysis_pack.get("grok") or {}).get("model"),
+          }
+          refresh_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
       - name: Validate public artifact boundary
         run: PYTHONPATH=src python -m evolocus.cli validate-public-artifacts --analysis-dir site/data/analysis

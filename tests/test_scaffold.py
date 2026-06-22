@@ -111,6 +111,21 @@ def test_pages_workflow_uses_pinned_major_versions_and_site_path() -> None:
     assert "actions/deploy-pages@v4" in workflow
 
 
+def test_analysis_refresh_workflow_finalizes_ai_pack_after_refresh_status() -> None:
+    workflow = read_text(".github/workflows/analysis-refresh.yml")
+    assert "Generate preliminary aggregate-only AI analysis pack" in workflow
+    assert "Write public refresh status" in workflow
+    assert "Regenerate aggregate-only AI analysis pack with current refresh status" in workflow
+    assert "Finalize public refresh status" in workflow
+    assert workflow.index("Write public refresh status") < workflow.index(
+        "Regenerate aggregate-only AI analysis pack with current refresh status"
+    )
+    assert workflow.index("Regenerate aggregate-only AI analysis pack with current refresh status") < workflow.index(
+        "Finalize public refresh status"
+    )
+    assert workflow.index("Finalize public refresh status") < workflow.index("Validate public artifact boundary")
+
+
 def test_pages_browser_smoke_workflow_clicks_deployed_visual_route() -> None:
     workflow = read_text(".github/workflows/pages-browser-smoke.yml")
     assert "workflow_dispatch" in workflow

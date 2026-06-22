@@ -97,6 +97,16 @@ def test_publish_ai_analysis_pack_is_aggregate_only(tmp_path) -> None:
     publish_analysis_artifacts(LocusCorpus.demo(), output_dir, include_record_samples=False)
     publish_inquiry_briefings(output_dir, output_dir / "inquiry_briefings.json")
     publish_question_pack(output_dir, output_dir / "question_pack.json")
+    (output_dir / "refresh_status.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "evolocus-actions-refresh-status-v1",
+                "run_id": 123,
+                "run_url": "https://github.com/evcatalyst/evolocus/actions/runs/123",
+            }
+        ),
+        encoding="utf-8",
+    )
 
     result = publish_ai_analysis_pack(output_dir, output_dir / "ai_analysis_pack.json")
     payload = json.loads((output_dir / "ai_analysis_pack.json").read_text(encoding="utf-8"))
@@ -112,6 +122,8 @@ def test_publish_ai_analysis_pack_is_aggregate_only(tmp_path) -> None:
     assert payload["publication_policy"]["secrets_included"] is False
     assert payload["publication_policy"]["legal_findings"] is False
     assert payload["grok"]["secret_env"] == "GROK_API_KEY"
+    assert payload["analysis_status"]["refresh_run_id"] == 123
+    assert payload["analysis_status"]["refresh_run_url"] == "https://github.com/evcatalyst/evolocus/actions/runs/123"
     assert payload["cards"]
     assert {card["id"] for card in payload["cards"]} >= {"aggregate-summary", "question-router", "color-map-route", "ontology-route", "unit-focus"}
     serialized = json.dumps(payload)
