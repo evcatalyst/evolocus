@@ -5695,6 +5695,117 @@ textarea {
   font-weight: 850;
 }
 
+.map-question-tier-summary {
+  display: grid;
+  gap: 9px;
+  border: 1px solid rgba(183, 137, 44, 0.24);
+  border-radius: 8px;
+  background: #fffaf0;
+  padding: 10px;
+}
+
+.map-question-tier-summary-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.map-question-tier-summary-heading div {
+  display: grid;
+  gap: 2px;
+}
+
+.map-question-tier-summary-heading strong {
+  color: #6f4f12;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.map-question-tier-summary-heading span,
+.map-question-tier-summary-heading em,
+.map-question-tier-summary p {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.map-question-tier-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.map-question-tier-summary-card {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid rgba(183, 137, 44, 0.2);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 8px;
+  text-align: left;
+}
+
+.map-question-tier-summary-card.active,
+.map-question-tier-summary-card:hover,
+.map-question-tier-summary-card:focus-visible {
+  border-color: rgba(183, 137, 44, 0.42);
+  background: #fff7e5;
+}
+
+.map-question-tier-summary-card > i {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 999px;
+}
+
+.map-question-tier-summary-card span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.map-question-tier-summary-card strong,
+.map-question-tier-summary-card em,
+.map-question-tier-summary-card small {
+  overflow-wrap: anywhere;
+}
+
+.map-question-tier-summary-card strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.map-question-tier-summary-card em,
+.map-question-tier-summary-card small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.map-question-tier-summary-card b {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eadfca;
+}
+
+.map-question-tier-summary-card mark {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #b7892c;
+}
+
 .map-question-highlight-depth {
   display: grid;
   gap: 8px;
@@ -11051,6 +11162,7 @@ th {
   .ai-analysis-card-facts,
   .map-tier-drilldown-grid,
   .map-cross-filter-grid,
+  .map-question-tier-summary-grid,
   .map-question-highlight-metrics,
   .map-question-highlight-depth-grid,
   .map-question-highlight-detail-card dl,

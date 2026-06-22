@@ -3671,6 +3671,7 @@ function renderMapQuestionHighlight(units) {
       <div class="map-question-highlight-chips" aria-label="Question-inferred aggregate filters">
         ${filterLabels.length ? filterLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("") : "<span>No inferred filters</span>"}
       </div>
+      ${mapQuestionTierSummaryCardsHtml(highlight, visibleHighlightedUnits)}
       ${questionOntologyRouteHtml(ontologyRoute, "map")}
       ${mapQuestionHighlightDepthHtml(highlight, visibleHighlightedUnits, summary, ontologyRoute)}
       ${mapQuestionLawLocationTrailHtml(highlight, visibleHighlightedUnits)}
@@ -3681,6 +3682,90 @@ function renderMapQuestionHighlight(units) {
       </p>
     </section>
   `;
+}
+
+function mapQuestionTierSummaryCardsHtml(highlight, units) {
+  const rows = mapQuestionTierSummaryRows(highlight, units);
+  if (!rows.length) {
+    return "";
+  }
+  const maxRows = Math.max(...rows.map((row) => row.lawCount), 1);
+  return `
+    <section class="map-question-tier-summary" aria-label="Question result tier summary">
+      <div class="map-question-tier-summary-heading">
+        <div>
+          <strong>Question result tier summary</strong>
+          <span>How highlighted county/town units are colored on the map</span>
+        </div>
+        <em>${escapeHtml(formatCount(rows.length))} neutral tier bands</em>
+      </div>
+      <div class="map-question-tier-summary-grid">
+        ${rows.map((row) => mapQuestionTierSummaryCardHtml(row, maxRows)).join("")}
+      </div>
+      <p>Tier cards summarize aggregate highlighted units only. They are neutral model-output color bands, not rankings, legal coverage findings, or official-law conclusions.</p>
+    </section>
+  `;
+}
+
+function mapQuestionTierSummaryRows(highlight, units) {
+  const filters = normalizedLogMapFilters(highlight?.map_filters || {});
+  const tierDefinitions = state.analysis.mapLayers?.tier_definitions || {};
+  const grouped = new Map();
+  for (const unit of units || []) {
+    const tierKey = unit.tier || tierKeyForLabel(unit.tier_label, tierDefinitions) || "unspecified";
+    const definition = tierDefinitionForKey(tierKey);
+    const label = definition.label || unit.tier_label || tierKey || "Unspecified";
+    const key = tierKey || label;
+    const row = grouped.get(key) || {
+      key,
+      label,
+      color: definition.color || unit.tier_color || "#d8dee8",
+      unitCount: 0,
+      lawCount: 0,
+      topicCounts: {},
+      functionCounts: {},
+      active: Boolean(filters.tier && (filters.tier === tierKey || filters.tier === label)),
+    };
+    row.unitCount += 1;
+    row.lawCount += Number(unit.law_count || 0);
+    addCounts(row.topicCounts, unit.topic_counts || {});
+    addCounts(row.functionCounts, unit.function_counts || {});
+    grouped.set(key, row);
+  }
+  return [...grouped.values()]
+    .map((row) => ({
+      ...row,
+      topTopic: topEntry(row.topicCounts),
+      topFunction: topEntry(row.functionCounts),
+    }))
+    .sort((a, b) => Number(b.lawCount || 0) - Number(a.lawCount || 0) || a.label.localeCompare(b.label))
+    .slice(0, 6);
+}
+
+function mapQuestionTierSummaryCardHtml(row, maxRows) {
+  const width = Math.max(row.lawCount ? 6 : 0, (row.lawCount / maxRows) * 100).toFixed(2);
+  return `
+    <button type="button" class="map-question-tier-summary-card${row.active ? " active" : ""}" data-map-highlight-tier-summary="${escapeHtml(row.key)}">
+      <i style="background:${escapeHtml(row.color)}"></i>
+      <span>
+        <strong>${escapeHtml(row.label)}</strong>
+        <em>${escapeHtml(formatCount(row.unitCount))} units · ${escapeHtml(formatCount(row.lawCount))} rows</em>
+      </span>
+      <b><mark style="width:${escapeHtml(width)}%"></mark></b>
+      <small>${escapeHtml(row.topTopic.label)} · ${escapeHtml(row.topFunction.label)}</small>
+    </button>
+  `;
+}
+
+function applyMapQuestionTierSummary(tierKey) {
+  if (!tierKey) {
+    return;
+  }
+  state.mapFilters = { ...state.mapFilters, tier: tierKey };
+  state.geographyColorMode = "tier";
+  state.ontologyFocusTier = tierKey;
+  state.activeTab = "map";
+  render();
 }
 
 function mapQuestionLawLocationTrailHtml(highlight, units) {
@@ -16428,6 +16513,12 @@ function bindEvents() {
     if (depthStageButton) {
       event.preventDefault();
       applyMapQuestionHighlightDepthStage(depthStageButton.dataset.mapHighlightDepthStage || "");
+      return;
+    }
+    const tierSummaryButton = event.target.closest("[data-map-highlight-tier-summary]");
+    if (tierSummaryButton) {
+      event.preventDefault();
+      applyMapQuestionTierSummary(tierSummaryButton.dataset.mapHighlightTierSummary || "");
       return;
     }
     const crossFilterButton = event.target.closest("[data-map-cross-filter]");

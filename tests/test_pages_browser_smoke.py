@@ -101,6 +101,11 @@ def test_charts_route_buttons_navigate_between_public_surfaces() -> None:
             topic_playback_highlight_text = page.locator(".map-question-highlight-card").inner_text(timeout=5_000).lower()
             assert "topic playback preset" in topic_playback_highlight_text
             assert "no browser-side grok call" in topic_playback_highlight_text
+            page.wait_for_selector(".map-question-tier-summary [data-map-highlight-tier-summary]", timeout=10_000)
+            tier_summary_text = page.locator(".map-question-tier-summary").inner_text(timeout=5_000).lower()
+            assert "question result tier summary" in tier_summary_text
+            assert "neutral tier bands" in tier_summary_text
+            assert "not rankings" in tier_summary_text
             page.wait_for_selector(".map-question-law-location-trail .map-question-law-location-step", timeout=10_000)
             law_location_text = page.locator(".map-question-law-location-trail").inner_text(timeout=5_000).lower()
             assert "county/town law-location route" in law_location_text

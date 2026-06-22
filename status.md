@@ -118,6 +118,7 @@ Current coverage stats:
 - Map-side tier-color drilldown: GitHub Pages explains each visible neutral tier color with aggregate county/town counts, row shares, top topic/function routes, and safe Map/Ontology actions
 - Map-side cross-filter legend: GitHub Pages summarizes visible topic, function, and neutral-tier aggregate routes with row bars and safe filter drillback
 - Map-side topic/tier matrix: GitHub Pages shows aggregate dominant-topic by neutral-tier co-occurrence cells with unit counts, row bars, and safe map filter drillback
+- Map-side question-result tier summary: GitHub Pages question highlights group matched county/town units into neutral tier cards with aggregate unit counts, row counts, top topic/function, and safe tier filter actions
 - Map-side law-location trail: GitHub Pages question highlights now show a tier-colored county/town route trail with aggregate unit names, neutral tiers, row counts, and match reasons only
 - Matrix-linked Inquiry prompts: GitHub Pages topic/tier cells can open deterministic aggregate Inquiry answers after applying safe map filters, with no browser model call
 - Tier-to-ontology clickthrough: GitHub Pages tier chips open a focused ontology card with visible units, topic/function links, neutral score means, and current filter context

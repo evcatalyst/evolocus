@@ -161,6 +161,12 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "mapQuestionLawLocationTrailHtml" in js
     assert "mapQuestionLawLocationTrailUnits" in js
     assert "mapQuestionLawLocationTrailStepHtml" in js
+    assert "mapQuestionTierSummaryCardsHtml" in js
+    assert "mapQuestionTierSummaryRows" in js
+    assert "mapQuestionTierSummaryCardHtml" in js
+    assert "applyMapQuestionTierSummary" in js
+    assert "data-map-highlight-tier-summary" in js
+    assert "Question result tier summary" in js
     assert "County/town law-location route" in js
     assert "Tier-colored aggregate units matched by this question" in js
     assert "data-frontdoor-action" in js
@@ -326,6 +332,8 @@ def test_pages_app_contains_review_workflow() -> None:
     assert "map-question-highlight-reasons" in css
     assert "map-question-highlight-ontology-trace" in css
     assert "map-question-highlight-ontology-node" in css
+    assert "map-question-tier-summary" in css
+    assert "map-question-tier-summary-card" in css
     assert "map-unit${selected}${packageClass}${inquiryClass}" in js
     assert "browser-side Grok call" in js
     assert "browser_model_call: false" in js
